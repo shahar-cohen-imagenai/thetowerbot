@@ -9,6 +9,7 @@ dependencies = [
     "adbutils>=2.12",
     "opencv-python>=4.9",
     "numpy>=1.26",
+    "rich>=15.0.0",
 ]
 
 [tool.uv]
