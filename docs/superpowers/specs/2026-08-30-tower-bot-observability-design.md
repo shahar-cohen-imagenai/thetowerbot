@@ -377,7 +377,26 @@ Phase 2 is the milestone; everything after is enrichment.
 
 ## 13. Open items
 
-- The greyed-out unaffordable state still needs one capture during phase 2 to
-  calibrate `BrightnessAffordability` before phase 3 supersedes it.
+- **The greyed-out unaffordable state is still uncaptured.** Attempted on a live
+  emulator after phase 2 landed; `RETRY` would not start a fresh run (the death
+  modal persisted unchanged across three attempts), so a frame showing a lit but
+  unaffordable upgrade was never obtained. What IS established, measured on the
+  live device: lit in-run reads brightness ratio 1.00 and modal-dimmed reads
+  0.284-0.285, so `BrightnessAffordability` is verified for the modal case with a
+  wide margin. It remains UNVERIFIED for its nominal purpose - distinguishing an
+  affordable upgrade from a greyed-out one - because those two states have never
+  been measured against each other.
+  Consequence: `DEFAULT_BRIGHTNESS_RATIO = 0.75` is calibrated only against the
+  modal case. Phase 3's `DigitAffordability` removes the dependency by comparing
+  wallet against price, which is why the risk is acceptable to carry: the gate's
+  unproven half is scheduled for replacement rather than for tuning.
+  To close it manually: start a run, spend the wallet down until an upgrade greys
+  out, then run `uv run tower_bot.py --debug-scores` and read the brightness
+  column. If the greyed value is not comfortably below 0.75, phase 3 becomes
+  required rather than merely preferable.
 - Tier is in the schema but nothing reads it yet; it needs the death modal's
   "Tier N" line, which arrives with phase 3.
+- Booting onto an unmodelled screen emits one `ScreenChanged` with
+  `prev == curr == "UNKNOWN"` (at most once per launch). Harmless today; revisit
+  when section 8's persistence lands, since it would otherwise be stored as a
+  state-changing event that changed no state.
