@@ -90,8 +90,9 @@ bot happily taps upgrades you cannot buy, and taps straight into a modal dialog
 that has dimmed the whole screen behind it.
 
 So each match is also checked against the template's own grey level, and skipped
-when the region is too dark. Tune it per button with `brightness_ratio`
-(`DEFAULT_BRIGHTNESS_RATIO`, `0.75`); `0.0` disables the check for that action.
+when the region is too dark. Tune it per button with the `Action`'s
+`brightness_ratio` field (defaulting to `DEFAULT_BRIGHTNESS_RATIO`, `0.75`);
+`0.0` disables the check for that action.
 `--debug-scores` prints the measured ratio next to the score, so the way to pick
 a value is to read the ratio in both states and set the threshold between them.
 For reference, a dimmed-behind-a-modal button measures about `0.28`.

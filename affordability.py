@@ -16,9 +16,19 @@ from device import Image
 
 class AffordabilityCheck(Protocol):
     def affordable(
-        self, screen: Image, match: vision.Match, template: Image
+        self,
+        screen: Image,
+        match: vision.Match,
+        template: Image,
+        action: config.Action,
     ) -> tuple[bool, str]:
-        """Return (ok, human-readable detail)."""
+        """Return (ok, human-readable detail).
+
+        The whole `action` is passed, not just its brightness knob, so each
+        implementation can read the per-action config it actually cares
+        about: `brightness_ratio` here, price regions for the phase-3
+        digit-reading check. The seam stays one line wide in the bot.
+        """
         ...
 
 
@@ -28,20 +38,27 @@ class BrightnessAffordability:
     TM_CCOEFF_NORMED normalises out brightness, so a dimmed button scores the
     same as a lit one. Measured on the fixtures: 1.00 lit, 0.28 dimmed.
 
+    The threshold is `action.brightness_ratio` (default
+    `config.DEFAULT_BRIGHTNESS_RATIO`), so a button whose lit and dimmed
+    states sit closer together can be tuned on its own, and `0.0` disables
+    the check for that one action.
+
     NOTE: this is verified against modal-dimming only. The greyed-out
     "cannot afford" state was never captured, so its separation is unproven.
     Phase 3 removes the dependency by reading the numbers instead.
     """
 
-    def __init__(self, ratio: float = config.DEFAULT_BRIGHTNESS_RATIO) -> None:
-        self.ratio = ratio
-
     def affordable(
-        self, screen: Image, match: vision.Match, template: Image
+        self,
+        screen: Image,
+        match: vision.Match,
+        template: Image,
+        action: config.Action,
     ) -> tuple[bool, str]:
-        if self.ratio <= 0.0:
+        ratio = action.brightness_ratio
+        if ratio <= 0.0:
             return True, ""
         measured = vision.brightness_ratio(screen, match, template)
-        if measured < self.ratio:
-            return False, f"brightness {measured:.2f} < {self.ratio:.2f}"
+        if measured < ratio:
+            return False, f"brightness {measured:.2f} < {ratio:.2f}"
         return True, ""
