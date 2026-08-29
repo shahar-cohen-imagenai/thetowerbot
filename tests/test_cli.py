@@ -130,3 +130,64 @@ def test_resolution_guard_warns_without_crashing_when_capture_fails(
     exit_code = tower_bot.main(["--once"])
 
     assert exit_code == 0
+
+
+def test_auto_navigate_does_not_start_a_run_past_the_cap(monkeypatch) -> None:
+    """run_forever breaks at the TOP of the next iteration, but the scan that
+    completed run N has already tapped RETRY on the way out - so `--max-runs 5`
+    used to exit with run 6 live in the emulator."""
+    import cv2
+    import events
+    import vision
+    from tower_bot import TowerBot
+
+    fixtures = Path(__file__).parent / "fixtures"
+    bot = TowerBot(
+        device=MagicMock(),
+        templates=vision.TemplateCache(Path(__file__).parent.parent / "templates"),
+        bus=events.EventBus(),
+        auto_navigate=True,
+    )
+    bot._screen = cv2.imread(str(fixtures / "game_over.png"), cv2.IMREAD_COLOR)
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    bot.run_once()
+    bot.run_once()  # settled on GAME_OVER
+
+    navigated: list[bool] = []
+    monkeypatch.setattr(
+        bot.navigator, "maybe_navigate", lambda *a, **k: navigated.append(True)
+    )
+    bot.runs.completed = 2
+
+    bot.run_once(max_runs=2)
+    assert navigated == []  # cap reached: do not tap RETRY into run 3
+
+    bot.run_once(max_runs=None)
+    assert navigated == [True]  # control: uncapped, it still navigates
+
+
+def test_tui_keeps_stdlib_logging_off_the_terminal() -> None:
+    """rich's Live draws on stdout while logging writes to stderr, so INFO
+    lines shred the panel. With BotError on the bus, nothing is lost."""
+    import logging
+
+    import tower_bot
+
+    root = logging.getLogger()
+    saved_handlers, saved_level = root.handlers[:], root.level
+    try:
+        root.handlers.clear()
+        tower_bot.configure_logging(tui=True)
+        assert root.handlers
+        assert all(isinstance(h, logging.NullHandler) for h in root.handlers)
+
+        root.handlers.clear()
+        tower_bot.configure_logging(tui=False)
+        assert any(
+            isinstance(h, logging.StreamHandler)
+            and not isinstance(h, logging.NullHandler)
+            for h in root.handlers
+        )
+    finally:
+        root.handlers[:] = saved_handlers
+        root.setLevel(saved_level)

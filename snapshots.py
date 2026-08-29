@@ -28,12 +28,20 @@ class SnapshotWriter:
         self._last = float("-inf")
 
     def maybe_write(self, image: Image, now: float | None = None) -> Path | None:
+        """Save the frame unless the rate limit says otherwise.
+
+        Two clocks on purpose. The rate limit uses `now` / `time.monotonic()`,
+        which cannot jump backwards. The FILENAME uses the wall clock, because
+        monotonic's epoch is boot-relative: it names no real moment and resets
+        every time the host reboots. Nanoseconds, so back-to-back writes
+        cannot collide.
+        """
         moment = time.monotonic() if now is None else now
         if moment - self._last < self._min_interval:
             return None
 
         self._dir.mkdir(parents=True, exist_ok=True)
-        path = self._dir / f"{int(moment * 1000)}.png"
+        path = self._dir / f"{time.time_ns()}.png"
         cv2.imwrite(str(path), image)
         self._last = moment
         self._prune()
