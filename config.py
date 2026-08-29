@@ -79,6 +79,11 @@ UNKNOWN_DIR: Path = Path(__file__).parent / "unknown"
 UNKNOWN_MIN_INTERVAL: float = 30.0
 UNKNOWN_KEEP: int = 50
 
+# --- Resolution guard ------------------------------------------------------
+# Templates are not scale-invariant. A different emulator resolution
+# invalidates every one of them.
+EXPECTED_RESOLUTION: tuple[int, int] = (1080, 2400)
+
 # --- Auto-navigation ------------------------------------------------------
 # Buttons are located by template match, never by fixed coordinates: the
 # death modal shifts ~46px vertically depending on whether the

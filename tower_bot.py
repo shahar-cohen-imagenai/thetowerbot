@@ -9,8 +9,9 @@ mouse is never hijacked:
 
 Usage:
     python tower_bot.py                 # run the loop
-    python tower_bot.py --once          # single scan, useful while tuning
-    python tower_bot.py --debug-scores  # raise the log level to DEBUG
+    python tower_bot.py --once          # a few scans, enough to settle on the real screen
+    python tower_bot.py --debug-scores  # one frame, one table of every template's score
+    python tower_bot.py --tui --auto-navigate  # live panel, loops runs unattended
 """
 
 from __future__ import annotations
@@ -35,6 +36,7 @@ from navigate import Navigator
 from runs import RunTracker
 from snapshots import SnapshotWriter
 from sinks.log import LogSink
+from sinks.tui import TuiSink
 
 logger = logging.getLogger("tower_bot")
 
@@ -183,9 +185,19 @@ class TowerBot:
         )
         return clicked
 
-    def run_forever(self, interval: float = config.SCAN_INTERVAL_SECONDS) -> None:
+    def run_forever(
+        self,
+        interval: float = config.SCAN_INTERVAL_SECONDS,
+        max_runs: int | None = None,
+    ) -> None:
         logger.info("Bot started - scanning every %.1fs. Ctrl+C to stop.", interval)
         while self._running:
+            # Checked before run_once(): if the limit is already reached at
+            # entry, the loop must return without scanning at all, not after
+            # one more pass.
+            if max_runs is not None and self.runs.completed >= max_runs:
+                logger.info("Reached --max-runs=%d, stopping.", max_runs)
+                break
             try:
                 self.run_once()
             except EmulatorError as exc:
@@ -210,18 +222,61 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--interval", type=float, default=config.SCAN_INTERVAL_SECONDS,
         help="seconds between scans",
     )
-    parser.add_argument("--once", action="store_true", help="run a single scan and exit")
+    parser.add_argument(
+        "--once", action="store_true",
+        help="scan just enough times for the screen tracker to settle, then exit",
+    )
     parser.add_argument(
         "--debug-scores", action="store_true",
-        help="raise the log level to DEBUG (shows the dimmed/cooldown skip reasons)",
+        help=(
+            "one-shot diagnostic: capture a single frame and print every "
+            "action's and screen anchor's match score (plus brightness "
+            "ratio for actions), then exit without scanning or tapping"
+        ),
+    )
+    parser.add_argument(
+        "--tui", action="store_true", help="live terminal panel instead of log lines"
+    )
+    parser.add_argument(
+        "--auto-navigate", action="store_true",
+        help="tap RETRY / BATTLE to loop runs unattended (default: off)",
+    )
+    parser.add_argument(
+        "--max-runs", type=int, default=None,
+        help="stop after this many runs (default: unlimited)",
     )
     return parser.parse_args(argv)
+
+
+def print_debug_scores(screen: Image, templates: vision.TemplateCache) -> None:
+    """One-shot threshold-tuning diagnostic.
+
+    Prints the best match score (and, for actions, the brightness ratio the
+    affordability gate relies on) for every configured template against a
+    single captured frame. Anchors are included deliberately: they are what
+    you need to diagnose why a frame is reading as UNKNOWN.
+
+    Self-contained by design - no debug flag threads through TowerBot itself.
+    """
+    print(f"{'action':<28}{'best_score':>12}{'brightness':>12}")
+    for action in config.ACTIONS:
+        template = templates.get(action.template)
+        score, top_left = vision.best_score(screen, template)
+        match = vision.Match(center=(0, 0), score=score, top_left=top_left)
+        brightness = vision.brightness_ratio(screen, match, template)
+        print(f"{action.template:<28}{score:>12.3f}{brightness:>12.3f}")
+
+    print()
+    print(f"{'screen anchor':<28}{'best_score':>12}")
+    for name, template_path in config.SCREEN_ANCHORS.items():
+        score, _ = vision.best_score(screen, templates.get(template_path))
+        print(f"{name:<28}{score:>12.3f}")
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     logging.basicConfig(
-        level=logging.DEBUG if args.debug_scores else logging.INFO,
+        level=logging.INFO,
         format="%(asctime)s  %(levelname)-7s %(message)s",
         datefmt="%H:%M:%S",
     )
@@ -232,12 +287,35 @@ def main(argv: list[str] | None = None) -> int:
         logger.error("%s", exc)
         return 1
 
-    bus = events.EventBus()
-    log_sink = LogSink()
-    log_sink.start()
-    bus.subscribe(log_sink)
+    if args.debug_scores:
+        frame = capture_screen(device)
+        print_debug_scores(frame, vision.TemplateCache(config.TEMPLATE_DIR))
+        return 0
 
-    bot = TowerBot(device=device, templates=vision.TemplateCache(config.TEMPLATE_DIR), bus=bus)
+    bus = events.EventBus()
+    sink = TuiSink() if args.tui else LogSink()
+    sink.start()
+    bus.subscribe(sink)
+
+    try:
+        frame = capture_screen(device)
+    except Exception as exc:  # noqa: BLE001 - a bad guard frame must not abort startup
+        logger.warning("Could not capture a frame to verify resolution: %s", exc)
+    else:
+        height, width = frame.shape[:2]
+        if (width, height) != config.EXPECTED_RESOLUTION:
+            logger.warning(
+                "Emulator is %dx%d but templates were captured at %dx%d. "
+                "Template matching is not scale-invariant - re-capture them.",
+                width, height, *config.EXPECTED_RESOLUTION,
+            )
+
+    bot = TowerBot(
+        device=device,
+        templates=vision.TemplateCache(config.TEMPLATE_DIR),
+        bus=bus,
+        auto_navigate=args.auto_navigate,
+    )
 
     def _handle_signal(signum: int, _frame: FrameType | None) -> None:
         logger.info("Received signal %s - shutting down after this scan.", signum)
@@ -248,11 +326,17 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.once:
-            bot.run_once()
+            # A single scan never settles the debounced tracker (it needs
+            # SCREEN_CONFIRMATIONS consecutive identical readings), so a
+            # lone run_once() would always report UNKNOWN even when the
+            # game is clearly on GAME_OVER at 0.998. Scan enough times to
+            # settle so --once actually names the real screen.
+            for _ in range(config.SCREEN_CONFIRMATIONS):
+                bot.run_once()
         else:
-            bot.run_forever(interval=args.interval)
+            bot.run_forever(interval=args.interval, max_runs=args.max_runs)
     finally:
-        log_sink.close()
+        sink.close()
     return 0
 
 
