@@ -58,3 +58,39 @@ def classify(
     return ScreenReading(
         ScreenState(winner), confidence, scores, top_left=positions[winner]
     )
+
+
+class ScreenTracker:
+    """Debounces raw readings into confirmed screen transitions.
+
+    Capture lands inside the death modal's fade animation, so a single frame
+    is not trustworthy. A transition is declared only after `confirmations`
+    consecutive identical readings; an interrupted run resets the count.
+    """
+
+    def __init__(self, confirmations: int = config.SCREEN_CONFIRMATIONS) -> None:
+        self._confirmations = confirmations
+        self.state = ScreenState.UNKNOWN
+        self._pending: ScreenState | None = None
+        self._streak = 0
+
+    def observe(self, reading: ScreenReading) -> ScreenState | None:
+        """Feed one reading. Returns the new state on a confirmed transition."""
+        if reading.state is self.state:
+            self._pending = None
+            self._streak = 0
+            return None
+
+        if reading.state is self._pending:
+            self._streak += 1
+        else:
+            self._pending = reading.state
+            self._streak = 1
+
+        if self._streak < self._confirmations:
+            return None
+
+        self.state = reading.state
+        self._pending = None
+        self._streak = 0
+        return self.state
