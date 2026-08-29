@@ -7,6 +7,7 @@ import cv2
 import pytest
 
 import events
+import navigate
 import vision
 from navigate import Navigator
 from screens import ScreenState
@@ -51,6 +52,25 @@ def test_cooldown_prevents_a_double_tap(nav: Navigator) -> None:
     assert nav.maybe_navigate(frame("game_over"), ScreenState.GAME_OVER, dev, now=0.0)
     assert nav.maybe_navigate(frame("game_over"), ScreenState.GAME_OVER, dev, now=1.0) is None
     assert nav.maybe_navigate(frame("game_over"), ScreenState.GAME_OVER, dev, now=4.0)
+
+
+def test_now_none_reads_a_fresh_clock_each_call(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Omitting `now` must sample a live clock on every call, not freeze at a
+    fixed value. The buggy `moment = 0.0 if now is None else now` froze
+    `moment` at 0.0 forever, so after the first successful tap `self._last`
+    also became 0.0 and every later call - real elapsed time notwithstanding
+    - saw `moment - self._last == 0.0 < cooldown`, permanently blocking
+    navigation. `cooldown=0.0` cannot expose this (0 - 0 < 0.0 is False
+    either way), so this test uses a small nonzero cooldown with the clock
+    monkeypatched to controlled, increasing values - deterministic, and no
+    real sleeping required."""
+    dev = MagicMock()
+    ticks = iter([100.0, 100.2])
+    monkeypatch.setattr(navigate.time, "monotonic", lambda: next(ticks))
+    nav2 = Navigator(vision.TemplateCache(TEMPLATES), events.EventBus(), cooldown=0.05)
+
+    assert nav2.maybe_navigate(frame("game_over"), ScreenState.GAME_OVER, dev) == "RETRY"
+    assert nav2.maybe_navigate(frame("game_over"), ScreenState.GAME_OVER, dev) == "RETRY"
 
 
 def test_retry_is_located_not_hardcoded(nav: Navigator) -> None:

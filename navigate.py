@@ -7,6 +7,9 @@ per-run cash that resets, and coins are only ever earned.
 from __future__ import annotations
 
 import logging
+import time
+
+from adbutils import AdbDevice
 
 import config
 import events
@@ -32,13 +35,13 @@ class Navigator:
         self._last = float("-inf")
 
     def maybe_navigate(
-        self, screen: Image, state: ScreenState, device, now: float | None = None
+        self, screen: Image, state: ScreenState, device: AdbDevice, now: float | None = None
     ) -> str | None:
         entry = config.NAV_BUTTONS.get(state.value)
         if entry is None:
             return None
 
-        moment = 0.0 if now is None else now
+        moment = time.monotonic() if now is None else now
         if moment - self._last < self._cooldown:
             return None
 
