@@ -27,6 +27,13 @@ CLICK_COOLDOWN_SECONDS: float = 1.0
 TEMPLATE_DIR: Path = Path(__file__).parent / "templates"
 DEFAULT_THRESHOLD: float = 0.8
 
+# cv2.TM_CCOEFF_NORMED normalises out mean and variance, so it is blind to
+# brightness: a greyed-out "can't afford it yet" button still scores ~1.0.
+# Guard against that by also requiring the matched region to be about as bright
+# as the template, which was cropped while the button was affordable.
+# The value is a ratio of mean grey level; 0.0 disables the check.
+DEFAULT_BRIGHTNESS_RATIO: float = 0.75
+
 
 class Action(NamedTuple):
     """One template the bot looks for, in priority order."""
@@ -34,9 +41,17 @@ class Action(NamedTuple):
     name: str
     template: str  # file name inside TEMPLATE_DIR
     threshold: float = DEFAULT_THRESHOLD
+    # Minimum matched-region brightness, as a fraction of the template's own.
+    # Keeps the bot from tapping upgrades it cannot afford. 0.0 disables.
+    brightness_ratio: float = DEFAULT_BRIGHTNESS_RATIO
 
 
 # Evaluated top to bottom on every scan. Add rows as you capture more buttons.
+# Templates crop the *label* only (not the value/price boxes), because those
+# numbers change on every purchase and would break the match.
 ACTIONS: tuple[Action, ...] = (
-    Action(name="Upgrade Health", template="upgrade_health.png", threshold=0.85),
+    Action(name="Attack Speed", template="upgrade_attack_speed.png", threshold=0.9),
+    Action(name="Critical Chance", template="upgrade_critical_chance.png", threshold=0.9),
+    Action(name="Damage", template="upgrade_damage.png", threshold=0.9),
+    Action(name="Critical Factor", template="upgrade_critical_factor.png", threshold=0.9),
 )

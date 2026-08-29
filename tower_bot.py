@@ -3,9 +3,9 @@
 Everything runs through ADB, so the emulator window never needs focus and the
 mouse is never hijacked:
 
-    screen capture  ->  device.screencap()      (PNG bytes, decoded in memory)
+    screen capture  ->  device.screenshot()     (PIL image, converted in memory)
     template match  ->  cv2.matchTemplate
-    click           ->  device.shell("input tap x y")
+    click           ->  device.click(x, y)       (an `input tap` under the hood)
 
 Usage:
     python tower_bot.py                 # run the loop
@@ -22,12 +22,12 @@ import sys
 import time
 from pathlib import Path
 from types import FrameType
+from typing import NamedTuple
 
 import cv2
 import numpy as np
 from numpy.typing import NDArray
-from ppadb.client import Client as AdbClient
-from ppadb.device import Device
+from adbutils import AdbClient, AdbDevice, AdbError
 
 import config
 
@@ -40,6 +40,14 @@ class EmulatorError(RuntimeError):
     """Raised when the emulator cannot be reached or does not respond."""
 
 
+class Match(NamedTuple):
+    """Where a template was found on screen, and how well it scored."""
+
+    center: tuple[int, int]
+    score: float
+    top_left: tuple[int, int]
+
+
 # --------------------------------------------------------------------------
 # Device layer
 # --------------------------------------------------------------------------
@@ -48,16 +56,16 @@ def connect_device(
     port: int = config.DEVICE_PORT,
     adb_host: str = config.ADB_HOST,
     adb_port: int = config.ADB_PORT,
-) -> Device:
-    """Return a connected ppadb Device for the local emulator.
+) -> AdbDevice:
+    """Return a connected adbutils device for the local emulator.
 
     Tries the explicit ``host:port`` endpoint first; if the emulator is only
     registered under its ``emulator-5554`` serial, falls back to the single
     attached device.
     """
+    client = AdbClient(host=adb_host, port=adb_port)
     try:
-        client = AdbClient(host=adb_host, port=adb_port)
-        client.version()  # cheap round-trip that proves the server is up
+        client.server_version()  # cheap round-trip that proves the server is up
     except Exception as exc:  # noqa: BLE001 - surface any socket/protocol error
         raise EmulatorError(
             f"No ADB server on {adb_host}:{adb_port}. Run `adb start-server` first."
@@ -65,45 +73,43 @@ def connect_device(
 
     serial = f"{host}:{port}"
     try:
-        client.remote_connect(host, port)
-    except Exception:  # noqa: BLE001 - emulator may already be attached by serial
-        logger.debug("remote_connect(%s) failed; falling back to device list", serial)
+        client.connect(serial, timeout=3.0)
+    except AdbError:
+        logger.debug("connect(%s) failed; falling back to device list", serial)
 
-    device = client.device(serial)
+    # adbutils builds an AdbDevice for any serial without checking that it
+    # exists, so confirm against the attached list before trusting it.
+    attached = client.device_list()
+    if not attached:
+        raise EmulatorError(
+            "No ADB devices found. Is the emulator running? Check `adb devices`."
+        )
+
+    device = next((d for d in attached if d.serial == serial), None)
     if device is None:
-        devices = client.devices()
-        if not devices:
-            raise EmulatorError(
-                "No ADB devices found. Is the emulator running? Check `adb devices`."
-            )
-        device = devices[0]
+        device = attached[0]
         logger.warning("%s not found; using attached device %s", serial, device.serial)
 
     logger.info("Connected to %s", device.serial)
     return device
 
 
-def capture_screen(device: Device) -> Image:
+def capture_screen(device: AdbDevice) -> Image:
     """Grab the current frame straight into memory as a BGR OpenCV image."""
-    raw: bytes = device.screencap()
-    if not raw:
-        raise EmulatorError("screencap returned no data")
+    # error_ok=False matters: the default returns a *black* image when the
+    # capture fails, which would leave the bot scanning blank frames forever.
+    try:
+        shot = device.screenshot(error_ok=False)
+    except AdbError as exc:
+        raise EmulatorError(f"screencap failed: {exc}") from exc
 
-    frame = cv2.imdecode(np.frombuffer(raw, dtype=np.uint8), cv2.IMREAD_COLOR)
-    if frame is None:
-        # Some ADB/shell combinations mangle LF into CRLF on the way out.
-        frame = cv2.imdecode(
-            np.frombuffer(raw.replace(b"\r\n", b"\n"), dtype=np.uint8),
-            cv2.IMREAD_COLOR,
-        )
-    if frame is None:
-        raise EmulatorError("Could not decode the screenshot returned by screencap")
-    return frame
+    # adbutils hands back a PIL image in RGB; OpenCV wants BGR.
+    return cv2.cvtColor(np.asarray(shot.convert("RGB")), cv2.COLOR_RGB2BGR)
 
 
-def tap(device: Device, x: int, y: int) -> None:
+def tap(device: AdbDevice, x: int, y: int) -> None:
     """Send an invisible tap. The emulator does not need focus."""
-    device.shell(f"input tap {x} {y}")
+    device.click(x, y)
 
 
 # --------------------------------------------------------------------------
@@ -141,8 +147,8 @@ def locate_template(
     screen: Image,
     template: Image,
     threshold: float,
-) -> tuple[tuple[int, int], float] | None:
-    """Return ((center_x, center_y), score) of the best match above threshold."""
+) -> Match | None:
+    """Return the best match above ``threshold``, or None."""
     screen_h, screen_w = screen.shape[:2]
     tpl_h, tpl_w = template.shape[:2]
     if tpl_h > screen_h or tpl_w > screen_w:
@@ -159,7 +165,12 @@ def locate_template(
         return None
 
     center = (max_loc[0] + tpl_w // 2, max_loc[1] + tpl_h // 2)
-    return center, float(max_val)
+    return Match(center=center, score=float(max_val), top_left=max_loc)
+
+
+def mean_brightness(image: Image) -> float:
+    """Mean grey level of ``image`` (0-255)."""
+    return float(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY).mean())
 
 
 # --------------------------------------------------------------------------
@@ -168,7 +179,7 @@ def locate_template(
 class TowerBot:
     def __init__(
         self,
-        device: Device,
+        device: AdbDevice,
         templates: TemplateCache,
         click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
         debug_scores: bool = False,
@@ -198,12 +209,14 @@ class TowerBot:
         self,
         template_path: str | Path,
         threshold: float = config.DEFAULT_THRESHOLD,
+        brightness_ratio: float = config.DEFAULT_BRIGHTNESS_RATIO,
     ) -> bool:
         """Find ``template_path`` on the current screen and tap it.
 
-        Returns True if the template was matched above ``threshold`` and a tap
-        was sent. Uses the frame captured by the most recent
-        :meth:`refresh_screen` call so one capture can serve many lookups.
+        Returns True if the template was matched above ``threshold``, looked
+        bright enough to be actionable, and a tap was sent. Uses the frame
+        captured by the most recent :meth:`refresh_screen` call so one capture
+        can serve many lookups.
         """
         key = str(template_path)
         template = self.templates.get(template_path)
@@ -215,7 +228,21 @@ class TowerBot:
                 logger.debug("%s: no match (best score %.3f)", key, score)
             return False
 
-        (x, y), score = match
+        (x, y), score = match.center, match.score
+
+        # The match score is brightness-invariant, so check the actual grey
+        # level too: a dimmed button is one the game is not offering yet.
+        if brightness_ratio > 0.0:
+            ratio = self._brightness_ratio(match, template)
+            if self.debug_scores:
+                logger.debug("%s: score %.3f, brightness %.2f of template", key, score, ratio)
+            if ratio < brightness_ratio:
+                logger.debug(
+                    "%s: match at (%d, %d) skipped - dimmed (%.2f < %.2f)",
+                    key, x, y, ratio, brightness_ratio,
+                )
+                return False
+
         now = time.monotonic()
         if now - self._last_click.get(key, 0.0) < self.click_cooldown:
             logger.debug("%s: match at (%d, %d) skipped - cooling down", key, x, y)
@@ -225,6 +252,16 @@ class TowerBot:
         self._last_click[key] = now
         logger.info("Clicked %s at (%d, %d) [score %.3f]", key, x, y, score)
         return True
+
+    def _brightness_ratio(self, match: Match, template: Image) -> float:
+        """Brightness of the matched screen region relative to the template."""
+        tpl_h, tpl_w = template.shape[:2]
+        x, y = match.top_left
+        region = self.screen[y : y + tpl_h, x : x + tpl_w]
+        template_level = mean_brightness(template)
+        if template_level <= 0.0:  # all-black template: nothing to compare against
+            return 1.0
+        return mean_brightness(region) / template_level
 
     def _best_score(self, template: Image) -> float:
         result = cv2.matchTemplate(self.screen, template, cv2.TM_CCOEFF_NORMED)
@@ -236,7 +273,9 @@ class TowerBot:
         self.refresh_screen()
         clicked = False
         for action in config.ACTIONS:
-            if self.find_and_click_image(action.template, action.threshold):
+            if self.find_and_click_image(
+                action.template, action.threshold, action.brightness_ratio
+            ):
                 logger.info("Action performed: %s", action.name)
                 clicked = True
         return clicked
