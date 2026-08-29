@@ -69,3 +69,31 @@ def test_unknown_is_a_state_like_any_other() -> None:
     assert tracker.state is ScreenState.IN_RUN
 
     assert tracker.observe(reading(ScreenState.UNKNOWN)) is ScreenState.UNKNOWN
+
+
+def test_returning_to_current_state_resets_a_partial_streak() -> None:
+    """Returning to confirmed state mid-streak must reset the pending count.
+
+    A buggy implementation that skips resetting _pending/_streak would wrongly
+    commit a transition on the next reading of the candidate. This test detects
+    that regression.
+    """
+    tracker = ScreenTracker(confirmations=2)
+
+    # Step 1: confirm state A
+    tracker.observe(reading(ScreenState.MAIN_MENU))
+    tracker.observe(reading(ScreenState.MAIN_MENU))
+    assert tracker.state is ScreenState.MAIN_MENU
+
+    # Step 2: observe B once
+    tracker.observe(reading(ScreenState.IN_RUN))
+
+    # Step 3: return to current state A; MUST reset the pending streak
+    tracker.observe(reading(ScreenState.MAIN_MENU))
+
+    # Step 4: observe B once; must be treated as FRESH streak, not a continuation
+    assert tracker.observe(reading(ScreenState.IN_RUN)) is None
+    assert tracker.state is ScreenState.MAIN_MENU
+
+    # Step 5: only now does the second B reading fire the transition
+    assert tracker.observe(reading(ScreenState.IN_RUN)) is ScreenState.IN_RUN
