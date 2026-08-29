@@ -32,6 +32,7 @@ import vision
 from affordability import AffordabilityCheck, BrightnessAffordability
 from device import EmulatorError, Image, capture_screen, connect_device, tap
 from navigate import Navigator
+from runs import RunTracker
 from snapshots import SnapshotWriter
 from sinks.log import LogSink
 
@@ -62,6 +63,7 @@ class TowerBot:
         )
         self.auto_navigate = auto_navigate
         self.navigator = Navigator(templates, bus)
+        self.runs = RunTracker()
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
@@ -145,6 +147,11 @@ class TowerBot:
                     scores=reading.scores,
                 )
             )
+            run_event = self.runs.transition(
+                previous, self.tracker.state, time.monotonic()
+            )
+            if run_event is not None:
+                self.bus.publish(run_event)
 
         if self.tracker.state is screens.ScreenState.UNKNOWN:
             path = self.snapshots.maybe_write(self.screen)
