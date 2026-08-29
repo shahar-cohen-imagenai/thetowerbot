@@ -26,9 +26,12 @@ from types import FrameType
 from adbutils import AdbDevice
 
 import config
+import events
+import screens
 import vision
 from device import EmulatorError, Image, capture_screen, connect_device, tap
-from vision import TemplateCache, locate_template
+from sinks.log import LogSink
+from vision import locate_template
 
 logger = logging.getLogger("tower_bot")
 
@@ -40,17 +43,22 @@ class TowerBot:
     def __init__(
         self,
         device: AdbDevice,
-        templates: TemplateCache,
+        templates: vision.TemplateCache,
+        bus: events.EventBus,
         click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
-        debug_scores: bool = False,
     ) -> None:
         self.device = device
         self.templates = templates
+        self.bus = bus
         self.click_cooldown = click_cooldown
-        self.debug_scores = debug_scores
+        self.tracker = screens.ScreenTracker()
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
+
+    @property
+    def screen_state(self) -> screens.ScreenState:
+        return self.tracker.state
 
     # -- screen state ------------------------------------------------------
     def refresh_screen(self) -> Image:
@@ -83,9 +91,6 @@ class TowerBot:
 
         match = locate_template(self.screen, template, threshold)
         if match is None:
-            if self.debug_scores:
-                score, _ = vision.best_score(self.screen, template)
-                logger.debug("%s: no match (best score %.3f)", key, score)
             return False
 
         (x, y), score = match.center, match.score
@@ -94,8 +99,6 @@ class TowerBot:
         # level too: a dimmed button is one the game is not offering yet.
         if brightness_ratio > 0.0:
             ratio = vision.brightness_ratio(self.screen, match, template)
-            if self.debug_scores:
-                logger.debug("%s: score %.3f, brightness %.2f of template", key, score, ratio)
             if ratio < brightness_ratio:
                 logger.debug(
                     "%s: match at (%d, %d) skipped - dimmed (%.2f < %.2f)",
@@ -110,20 +113,42 @@ class TowerBot:
 
         tap(self.device, x, y)
         self._last_click[key] = now
-        logger.info("Clicked %s at (%d, %d) [score %.3f]", key, x, y, score)
+        self.bus.publish(
+            events.Tapped(action=key, x=x, y=y, score=score)
+        )
         return True
 
     # -- main loop ---------------------------------------------------------
     def run_once(self) -> bool:
         """One scan pass over the configured actions. True if anything clicked."""
+        started = time.monotonic()
         self.refresh_screen()
+
+        reading = screens.classify(self.screen, self.templates)
+        previous = self.tracker.state
+        if self.tracker.observe(reading) is not None:
+            self.bus.publish(
+                events.ScreenChanged(
+                    prev=previous.value,
+                    curr=self.tracker.state.value,
+                    confidence=reading.confidence,
+                    scores=reading.scores,
+                )
+            )
+
         clicked = False
         for action in config.ACTIONS:
             if self.find_and_click_image(
                 action.template, action.threshold, action.brightness_ratio
             ):
-                logger.info("Action performed: %s", action.name)
                 clicked = True
+
+        self.bus.publish(
+            events.ScanCompleted(
+                screen=self.tracker.state.value,
+                duration_ms=(time.monotonic() - started) * 1000,
+            )
+        )
         return clicked
 
     def run_forever(self, interval: float = config.SCAN_INTERVAL_SECONDS) -> None:
@@ -175,11 +200,12 @@ def main(argv: list[str] | None = None) -> int:
         logger.error("%s", exc)
         return 1
 
-    bot = TowerBot(
-        device=device,
-        templates=TemplateCache(config.TEMPLATE_DIR),
-        debug_scores=args.debug_scores,
-    )
+    bus = events.EventBus()
+    log_sink = LogSink()
+    log_sink.start()
+    bus.subscribe(log_sink)
+
+    bot = TowerBot(device=device, templates=vision.TemplateCache(config.TEMPLATE_DIR), bus=bus)
 
     def _handle_signal(signum: int, _frame: FrameType | None) -> None:
         logger.info("Received signal %s - shutting down after this scan.", signum)
@@ -192,6 +218,8 @@ def main(argv: list[str] | None = None) -> int:
         bot.run_once()
     else:
         bot.run_forever(interval=args.interval)
+
+    log_sink.close()
     return 0
 
 
