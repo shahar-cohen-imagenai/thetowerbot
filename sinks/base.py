@@ -41,8 +41,15 @@ class QueueSink:
     def close(self, timeout: float = 2.0) -> None:
         if self._thread is None:
             return
-        self._queue.put(_SHUTDOWN)
+        try:
+            self._queue.put(_SHUTDOWN, timeout=timeout)
+        except queue.Full:
+            logger.warning("sink %s could not enqueue shutdown sentinel in time", type(self).__name__)
+            return
         self._thread.join(timeout=timeout)
+        if self._thread.is_alive():
+            logger.warning("sink %s did not stop within timeout", type(self).__name__)
+            return
         self._thread = None
 
     def _consume(self) -> None:
