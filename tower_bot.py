@@ -31,6 +31,7 @@ import screens
 import vision
 from affordability import AffordabilityCheck, BrightnessAffordability
 from device import EmulatorError, Image, capture_screen, connect_device, tap
+from snapshots import SnapshotWriter
 from sinks.log import LogSink
 
 logger = logging.getLogger("tower_bot")
@@ -54,6 +55,9 @@ class TowerBot:
         self.click_cooldown = click_cooldown
         self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
         self.tracker = screens.ScreenTracker()
+        self.snapshots = SnapshotWriter(
+            config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
+        )
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
@@ -137,6 +141,18 @@ class TowerBot:
                     scores=reading.scores,
                 )
             )
+
+        if self.tracker.state is screens.ScreenState.UNKNOWN:
+            path = self.snapshots.maybe_write(self.screen)
+            if path is not None:
+                best = max(reading.scores, key=lambda name: reading.scores[name])
+                self.bus.publish(
+                    events.UnknownScreen(
+                        snapshot_path=str(path),
+                        best_anchor=best,
+                        best_score=reading.scores[best],
+                    )
+                )
 
         clicked = False
         for action in config.ACTIONS:

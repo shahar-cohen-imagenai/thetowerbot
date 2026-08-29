@@ -73,3 +73,8 @@ SCREEN_ANCHORS: dict[str, str] = {
     "IN_RUN": "screens/in_run.png",
     "GAME_OVER": "screens/game_over.png",
 }
+
+# --- Unknown-screen snapshots ---------------------------------------------
+UNKNOWN_DIR: Path = Path(__file__).parent / "unknown"
+UNKNOWN_MIN_INTERVAL: float = 30.0
+UNKNOWN_KEEP: int = 50
