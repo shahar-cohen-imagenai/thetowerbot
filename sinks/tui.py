@@ -74,7 +74,7 @@ class TuiSink(QueueSink):
         if self._live is not None:
             self._live.update(self._render())
 
-    def _render(self):
+    def _render(self) -> "Panel":
         from rich.panel import Panel
         from rich.table import Table
 

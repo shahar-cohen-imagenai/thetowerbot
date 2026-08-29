@@ -44,4 +44,5 @@ def test_counts_scans_and_records_the_last_error() -> None:
     state.apply(stamped(bus, events.BotError(message="screencap failed")))
 
     assert state.scans == 2
+    assert state.screen == "IN_RUN"
     assert state.last_error == "screencap failed"
