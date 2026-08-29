@@ -1,0 +1,4 @@
+# Background Android automation over ADB (no mouse/focus stealing).
+pure-python-adb>=0.3.0.dev0   # imported as `ppadb`
+opencv-python>=4.9
+numpy>=1.26
