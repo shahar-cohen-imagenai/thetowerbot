@@ -1,0 +1,16 @@
+[project]
+name = "thetowerbot"
+version = "0.1.0"
+description = "Background ADB bot for the Android game The Tower"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # Background Android automation over ADB (no mouse/focus stealing).
+    "adbutils>=2.12",
+    "opencv-python>=4.9",
+    "numpy>=1.26",
+]
+
+[tool.uv]
+# Scripts live at the repo root; nothing here is installed as a package.
+package = false
