@@ -9,6 +9,7 @@ import pytest
 import events
 import screens
 import vision
+import tower_bot
 from tower_bot import TowerBot
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -66,3 +67,33 @@ def test_confirmed_transition_publishes_screen_changed(
     assert len(changed) == 1
     assert changed[0].curr == "IN_RUN"
     assert bot.screen_state is screens.ScreenState.IN_RUN
+
+
+def test_log_sink_is_closed_even_when_the_scan_raises(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """main() must close the sink on the way out even if run_once blows up.
+
+    Otherwise an exception mid-scan (e.g. a capture failure) would skip
+    log_sink.close() entirely, dropping whatever the sink had buffered.
+    """
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
+    monkeypatch.setattr(
+        tower_bot.TowerBot,
+        "run_once",
+        lambda self: (_ for _ in ()).throw(RuntimeError("boom")),
+    )
+
+    closed: list[bool] = []
+    original_close = tower_bot.LogSink.close
+
+    def spy_close(self, *args: object, **kwargs: object) -> None:
+        closed.append(True)
+        original_close(self, *args, **kwargs)
+
+    monkeypatch.setattr(tower_bot.LogSink, "close", spy_close)
+
+    with pytest.raises(RuntimeError, match="boom"):
+        tower_bot.main(["--once"])
+
+    assert closed == [True]

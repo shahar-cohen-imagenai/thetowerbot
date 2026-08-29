@@ -10,7 +10,7 @@ mouse is never hijacked:
 Usage:
     python tower_bot.py                 # run the loop
     python tower_bot.py --once          # single scan, useful while tuning
-    python tower_bot.py --debug-scores  # log match scores for every template
+    python tower_bot.py --debug-scores  # raise the log level to DEBUG
 """
 
 from __future__ import annotations
@@ -181,7 +181,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--once", action="store_true", help="run a single scan and exit")
     parser.add_argument(
         "--debug-scores", action="store_true",
-        help="log the best match score for every template (use to tune thresholds)",
+        help="raise the log level to DEBUG (shows the dimmed/cooldown skip reasons)",
     )
     return parser.parse_args(argv)
 
@@ -214,12 +214,13 @@ def main(argv: list[str] | None = None) -> int:
     signal.signal(signal.SIGINT, _handle_signal)
     signal.signal(signal.SIGTERM, _handle_signal)
 
-    if args.once:
-        bot.run_once()
-    else:
-        bot.run_forever(interval=args.interval)
-
-    log_sink.close()
+    try:
+        if args.once:
+            bot.run_once()
+        else:
+            bot.run_forever(interval=args.interval)
+    finally:
+        log_sink.close()
     return 0
 
 
