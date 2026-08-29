@@ -22,86 +22,15 @@ import sys
 import time
 from pathlib import Path
 from types import FrameType
-from typing import NamedTuple
 
-import cv2
-import numpy as np
-from numpy.typing import NDArray
-from adbutils import AdbClient, AdbDevice, AdbError
+from adbutils import AdbDevice
 
 import config
+import vision
 from device import EmulatorError, Image, capture_screen, connect_device, tap
+from vision import TemplateCache, locate_template
 
 logger = logging.getLogger("tower_bot")
-
-
-class Match(NamedTuple):
-    """Where a template was found on screen, and how well it scored."""
-
-    center: tuple[int, int]
-    score: float
-    top_left: tuple[int, int]
-
-
-# --------------------------------------------------------------------------
-# Vision layer
-# --------------------------------------------------------------------------
-class TemplateCache:
-    """Loads template images once and keeps them in memory."""
-
-    def __init__(self, template_dir: Path) -> None:
-        self._dir = template_dir
-        self._cache: dict[str, Image] = {}
-
-    def get(self, template_path: str | Path) -> Image:
-        key = str(template_path)
-        cached = self._cache.get(key)
-        if cached is not None:
-            return cached
-
-        path = Path(template_path)
-        if not path.is_absolute() and not path.exists():
-            path = self._dir / path
-        if not path.exists():
-            raise FileNotFoundError(f"Template not found: {path}")
-
-        template = cv2.imread(str(path), cv2.IMREAD_COLOR)
-        if template is None:
-            raise ValueError(f"Could not read template image: {path}")
-
-        self._cache[key] = template
-        logger.debug("Loaded template %s (%dx%d)", path.name, template.shape[1], template.shape[0])
-        return template
-
-
-def locate_template(
-    screen: Image,
-    template: Image,
-    threshold: float,
-) -> Match | None:
-    """Return the best match above ``threshold``, or None."""
-    screen_h, screen_w = screen.shape[:2]
-    tpl_h, tpl_w = template.shape[:2]
-    if tpl_h > screen_h or tpl_w > screen_w:
-        logger.warning(
-            "Template (%dx%d) is larger than the screen (%dx%d) - was it captured "
-            "at a different emulator resolution?",
-            tpl_w, tpl_h, screen_w, screen_h,
-        )
-        return None
-
-    result = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, max_loc = cv2.minMaxLoc(result)
-    if max_val < threshold:
-        return None
-
-    center = (max_loc[0] + tpl_w // 2, max_loc[1] + tpl_h // 2)
-    return Match(center=center, score=float(max_val), top_left=max_loc)
-
-
-def mean_brightness(image: Image) -> float:
-    """Mean grey level of ``image`` (0-255)."""
-    return float(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY).mean())
 
 
 # --------------------------------------------------------------------------
@@ -155,7 +84,7 @@ class TowerBot:
         match = locate_template(self.screen, template, threshold)
         if match is None:
             if self.debug_scores:
-                score = self._best_score(template)
+                score, _ = vision.best_score(self.screen, template)
                 logger.debug("%s: no match (best score %.3f)", key, score)
             return False
 
@@ -164,7 +93,7 @@ class TowerBot:
         # The match score is brightness-invariant, so check the actual grey
         # level too: a dimmed button is one the game is not offering yet.
         if brightness_ratio > 0.0:
-            ratio = self._brightness_ratio(match, template)
+            ratio = vision.brightness_ratio(self.screen, match, template)
             if self.debug_scores:
                 logger.debug("%s: score %.3f, brightness %.2f of template", key, score, ratio)
             if ratio < brightness_ratio:
@@ -183,20 +112,6 @@ class TowerBot:
         self._last_click[key] = now
         logger.info("Clicked %s at (%d, %d) [score %.3f]", key, x, y, score)
         return True
-
-    def _brightness_ratio(self, match: Match, template: Image) -> float:
-        """Brightness of the matched screen region relative to the template."""
-        tpl_h, tpl_w = template.shape[:2]
-        x, y = match.top_left
-        region = self.screen[y : y + tpl_h, x : x + tpl_w]
-        template_level = mean_brightness(template)
-        if template_level <= 0.0:  # all-black template: nothing to compare against
-            return 1.0
-        return mean_brightness(region) / template_level
-
-    def _best_score(self, template: Image) -> float:
-        result = cv2.matchTemplate(self.screen, template, cv2.TM_CCOEFF_NORMED)
-        return float(cv2.minMaxLoc(result)[1])
 
     # -- main loop ---------------------------------------------------------
     def run_once(self) -> bool:
