@@ -31,6 +31,7 @@ import screens
 import vision
 from affordability import AffordabilityCheck, BrightnessAffordability
 from device import EmulatorError, Image, capture_screen, connect_device, tap
+from navigate import Navigator
 from snapshots import SnapshotWriter
 from sinks.log import LogSink
 
@@ -48,6 +49,7 @@ class TowerBot:
         bus: events.EventBus,
         click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
         affordability_check: AffordabilityCheck | None = None,
+        auto_navigate: bool = False,
     ) -> None:
         self.device = device
         self.templates = templates
@@ -58,6 +60,8 @@ class TowerBot:
         self.snapshots = SnapshotWriter(
             config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
         )
+        self.auto_navigate = auto_navigate
+        self.navigator = Navigator(templates, bus)
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
@@ -158,6 +162,11 @@ class TowerBot:
         for action in config.ACTIONS:
             if self.find_and_click_image(action.template, action.threshold):
                 clicked = True
+
+        if self.auto_navigate:
+            self.navigator.maybe_navigate(
+                self.screen, self.tracker.state, self.device, now=time.monotonic()
+            )
 
         self.bus.publish(
             events.ScanCompleted(

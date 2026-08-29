@@ -78,3 +78,13 @@ SCREEN_ANCHORS: dict[str, str] = {
 UNKNOWN_DIR: Path = Path(__file__).parent / "unknown"
 UNKNOWN_MIN_INTERVAL: float = 30.0
 UNKNOWN_KEEP: int = 50
+
+# --- Auto-navigation ------------------------------------------------------
+# Buttons are located by template match, never by fixed coordinates: the
+# death modal shifts ~46px vertically depending on whether the
+# "New Highest Wave!" line is present.
+NAVIGATION_COOLDOWN_SECONDS: float = 3.0
+NAV_BUTTONS: dict[str, tuple[str, str]] = {
+    "GAME_OVER": ("RETRY", "buttons/retry.png"),
+    "MAIN_MENU": ("BATTLE", "buttons/battle.png"),
+}
