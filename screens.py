@@ -66,17 +66,33 @@ class ScreenTracker:
     Capture lands inside the death modal's fade animation, so a single frame
     is not trustworthy. A transition is declared only after `confirmations`
     consecutive identical readings; an interrupted run resets the count.
+
+    `state` starts at UNKNOWN as a placeholder, so it alone cannot tell "not
+    looked yet" from "looked and did not recognise it". `confirmed` makes
+    that distinction: callers that react to UNKNOWN (snapshotting the frame,
+    publishing UnknownScreen) must require both.
     """
 
     def __init__(self, confirmations: int = config.SCREEN_CONFIRMATIONS) -> None:
         self._confirmations = confirmations
         self.state = ScreenState.UNKNOWN
+        self._confirmed = False
         self._pending: ScreenState | None = None
         self._streak = 0
 
+    @property
+    def confirmed(self) -> bool:
+        """True once any state has been confirmed by consecutive readings."""
+        return self._confirmed
+
     def observe(self, reading: ScreenReading) -> ScreenState | None:
         """Feed one reading. Returns the new state on a confirmed transition."""
-        if reading.state is self.state:
+        # `self._confirmed` guards the short-circuit deliberately: before the
+        # first confirmation `state` is a placeholder, so UNKNOWN readings
+        # must be allowed to confirm UNKNOWN. Otherwise a bot launched on an
+        # unmodelled screen never confirms anything and never snapshots the
+        # very frame the trail exists to capture.
+        if self._confirmed and reading.state is self.state:
             self._pending = None
             self._streak = 0
             return None
@@ -91,6 +107,7 @@ class ScreenTracker:
             return None
 
         self.state = reading.state
+        self._confirmed = True
         self._pending = None
         self._streak = 0
         return self.state

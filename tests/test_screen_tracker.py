@@ -9,8 +9,39 @@ def reading(state: ScreenState) -> ScreenReading:
     return ScreenReading(state, confidence=1.0, scores={})
 
 
-def test_starts_unknown() -> None:
-    assert ScreenTracker().state is ScreenState.UNKNOWN
+def test_starts_with_nothing_confirmed() -> None:
+    """UNKNOWN is the tracker's starting *value*, never an observation.
+
+    Everything that reacts to UNKNOWN - snapshotting the frame, publishing an
+    UnknownScreen event - must be able to tell "I have not looked yet" from
+    "I looked and did not recognise it", or scan 1 of every launch snapshots
+    a perfectly recognisable screen and poisons the diagnostic trail.
+    """
+    tracker = ScreenTracker()
+
+    assert tracker.confirmed is False
+    assert tracker.state is ScreenState.UNKNOWN
+
+
+def test_a_confirmed_unknown_is_distinguishable_from_the_initial_one() -> None:
+    tracker = ScreenTracker(confirmations=2)
+
+    tracker.observe(reading(ScreenState.UNKNOWN))
+    assert tracker.confirmed is False  # one reading is not a confirmation
+
+    assert tracker.observe(reading(ScreenState.UNKNOWN)) is ScreenState.UNKNOWN
+    assert tracker.confirmed is True
+    assert tracker.state is ScreenState.UNKNOWN
+
+
+def test_confirming_any_state_flips_confirmed() -> None:
+    tracker = ScreenTracker(confirmations=2)
+
+    tracker.observe(reading(ScreenState.MAIN_MENU))
+    assert tracker.confirmed is False
+
+    tracker.observe(reading(ScreenState.MAIN_MENU))
+    assert tracker.confirmed is True
 
 
 def test_a_single_reading_does_not_transition() -> None:
