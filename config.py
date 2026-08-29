@@ -55,3 +55,21 @@ ACTIONS: tuple[Action, ...] = (
     Action(name="Damage", template="upgrade_damage.png", threshold=0.9),
     Action(name="Critical Factor", template="upgrade_critical_factor.png", threshold=0.9),
 )
+
+# --- Screen recognition -----------------------------------------------------
+# Anchors are small crops unique to one screen. Measured separation on the
+# golden fixtures: 1.000 on the correct screen, <=0.462 on every wrong one,
+# so 0.8 has a wide margin in both directions.
+ANCHOR_THRESHOLD: float = 0.8
+
+# A transition is only declared after this many consecutive identical
+# readings. Capture lands inside the death modal's fade animation (the same
+# region measures 0.74 mid-fade and 0.28 fully dimmed), and without debounce
+# those frames produce phantom transitions that corrupt run boundaries.
+SCREEN_CONFIRMATIONS: int = 2
+
+SCREEN_ANCHORS: dict[str, str] = {
+    "MAIN_MENU": "screens/main_menu.png",
+    "IN_RUN": "screens/in_run.png",
+    "GAME_OVER": "screens/game_over.png",
+}
