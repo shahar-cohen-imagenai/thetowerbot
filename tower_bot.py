@@ -29,9 +29,9 @@ import config
 import events
 import screens
 import vision
+from affordability import AffordabilityCheck, BrightnessAffordability
 from device import EmulatorError, Image, capture_screen, connect_device, tap
 from sinks.log import LogSink
-from vision import locate_template
 
 logger = logging.getLogger("tower_bot")
 
@@ -46,11 +46,13 @@ class TowerBot:
         templates: vision.TemplateCache,
         bus: events.EventBus,
         click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
+        affordability_check: AffordabilityCheck | None = None,
     ) -> None:
         self.device = device
         self.templates = templates
         self.bus = bus
         self.click_cooldown = click_cooldown
+        self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
         self.tracker = screens.ScreenTracker()
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
@@ -77,45 +79,45 @@ class TowerBot:
         self,
         template_path: str | Path,
         threshold: float = config.DEFAULT_THRESHOLD,
-        brightness_ratio: float = config.DEFAULT_BRIGHTNESS_RATIO,
     ) -> bool:
-        """Find ``template_path`` on the current screen and tap it.
+        """Find the template on the current screen and tap it.
 
-        Returns True if the template was matched above ``threshold``, looked
-        bright enough to be actionable, and a tap was sent. Uses the frame
-        captured by the most recent :meth:`refresh_screen` call so one capture
-        can serve many lookups.
+        Rejects are ordered cheapest-first, so a non-IN_RUN scan costs almost
+        nothing.
         """
         key = str(template_path)
-        template = self.templates.get(template_path)
 
-        match = locate_template(self.screen, template, threshold)
+        if self.tracker.state is not screens.ScreenState.IN_RUN:
+            self.bus.publish(
+                events.Skipped(
+                    action=key,
+                    reason="screen_gated",
+                    detail=f"screen is {self.tracker.state.value}",
+                )
+            )
+            return False
+
+        template = self.templates.get(template_path)
+        match = vision.locate_template(self.screen, template, threshold)
         if match is None:
             return False
 
-        (x, y), score = match.center, match.score
-
-        # The match score is brightness-invariant, so check the actual grey
-        # level too: a dimmed button is one the game is not offering yet.
-        if brightness_ratio > 0.0:
-            ratio = vision.brightness_ratio(self.screen, match, template)
-            if ratio < brightness_ratio:
-                logger.debug(
-                    "%s: match at (%d, %d) skipped - dimmed (%.2f < %.2f)",
-                    key, x, y, ratio, brightness_ratio,
-                )
-                return False
+        ok, detail = self.affordability.affordable(self.screen, match, template)
+        if not ok:
+            self.bus.publish(
+                events.Skipped(action=key, reason="dimmed", detail=detail)
+            )
+            return False
 
         now = time.monotonic()
         if now - self._last_click.get(key, 0.0) < self.click_cooldown:
-            logger.debug("%s: match at (%d, %d) skipped - cooling down", key, x, y)
+            self.bus.publish(events.Skipped(action=key, reason="cooldown"))
             return False
 
+        x, y = match.center
         tap(self.device, x, y)
         self._last_click[key] = now
-        self.bus.publish(
-            events.Tapped(action=key, x=x, y=y, score=score)
-        )
+        self.bus.publish(events.Tapped(action=key, x=x, y=y, score=match.score))
         return True
 
     # -- main loop ---------------------------------------------------------
@@ -138,9 +140,7 @@ class TowerBot:
 
         clicked = False
         for action in config.ACTIONS:
-            if self.find_and_click_image(
-                action.template, action.threshold, action.brightness_ratio
-            ):
+            if self.find_and_click_image(action.template, action.threshold):
                 clicked = True
 
         self.bus.publish(
