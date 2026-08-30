@@ -27,10 +27,15 @@ from types import FrameType
 from adbutils import AdbDevice
 
 import config
+import digits
 import events
 import screens
 import vision
-from affordability import AffordabilityCheck, BrightnessAffordability
+from affordability import (
+    AffordabilityCheck,
+    BrightnessAffordability,
+    DigitAffordability,
+)
 from device import EmulatorError, Image, capture_screen, connect_device, tap
 from navigate import Navigator
 from runs import RunTracker
@@ -53,12 +58,15 @@ class TowerBot:
         click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
         affordability_check: AffordabilityCheck | None = None,
         auto_navigate: bool = False,
+        reader: digits.NumberReader | None = None,
     ) -> None:
         self.device = device
         self.templates = templates
         self.bus = bus
         self.click_cooldown = click_cooldown
         self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
+        self.reader = reader if reader is not None else digits.NumberReader()
+        self.wallet: int | None = None
         self.tracker = screens.ScreenTracker()
         self.snapshots = SnapshotWriter(
             config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
@@ -111,8 +119,17 @@ class TowerBot:
             self.screen, match, template, action
         )
         if not ok:
+            # "unaffordable" means we read both numbers and the wallet was
+            # short. "dimmed" means we could not tell and fell back to the
+            # brightness heuristic. Collapsing them would hide exactly the
+            # regression phase 3 exists to fix.
+            reason = (
+                "unaffordable"
+                if self.affordability.last_price is not None
+                else "dimmed"
+            )
             self.bus.publish(
-                events.Skipped(action=key, reason="dimmed", detail=detail)
+                events.Skipped(action=key, reason=reason, detail=detail)
             )
             return False
 
@@ -124,7 +141,16 @@ class TowerBot:
         x, y = match.center
         tap(self.device, x, y)
         self._last_click[key] = now
-        self.bus.publish(events.Tapped(action=key, x=x, y=y, score=match.score))
+        self.bus.publish(
+            events.Tapped(
+                action=key,
+                x=x,
+                y=y,
+                score=match.score,
+                price=self.affordability.last_price,
+                wallet=self.affordability.last_wallet,
+            )
+        )
         return True
 
     # -- main loop ---------------------------------------------------------
@@ -158,6 +184,27 @@ class TowerBot:
                 self.bus.publish(run_event)
 
         state = self.tracker.state
+
+        # The wallet region is anchored to the IN_RUN template, so it can only
+        # be read on that screen. Clear it elsewhere: a stale wallet would let
+        # the affordability gate approve a purchase using last run's cash.
+        #
+        # BOTH states, not just the tracker's: the tracker is debounced, so
+        # mid-fade it still says IN_RUN while the frame is already the death
+        # modal. `reading.top_left` is then the GAME_OVER anchor, and the
+        # wallet region measured from it lands somewhere else entirely. The
+        # anchor and the region have to come from the same frame.
+        self.wallet = None
+        if (
+            state is screens.ScreenState.IN_RUN
+            and reading.state is screens.ScreenState.IN_RUN
+            and reading.top_left is not None
+        ):
+            self.wallet = self.reader.read(
+                self.screen, config.WALLET_REGION, reading.top_left, "wallet"
+            )
+        if isinstance(self.affordability, DigitAffordability):
+            self.affordability.wallet = self.wallet
 
         # A CONFIRMED unknown, not the tracker's initial placeholder value.
         # Snapshotting on the placeholder means scan 1 of every launch saves
@@ -200,6 +247,7 @@ class TowerBot:
             events.ScanCompleted(
                 screen=state.value,
                 duration_ms=(time.monotonic() - started) * 1000,
+                wallet=self.wallet,
             )
         )
         return clicked

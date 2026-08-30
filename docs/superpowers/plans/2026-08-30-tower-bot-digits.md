@@ -1554,7 +1554,7 @@ git commit -m "feat: add exact digit affordability with brightness fallback"
 - Consumes: `digits.NumberReader`, `affordability.DigitAffordability`, `screens.ScreenReading.top_left`
 - Produces: `TowerBot.wallet: int | None`; `Tapped.price` / `Tapped.wallet` / `ScanCompleted.wallet` populated; `Skipped.reason == "unaffordable"`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_bot_reporting.py`. It already has the harness — `make_bot(fixture)` returns `(bot, recorder, device)` with a frame injected and no emulator, `Recorder.of(kind)` filters the published events, and `frame(name)` loads a fixture. Add one scripted reader beside them:
 
@@ -1670,12 +1670,19 @@ def test_dimmed_reports_dimmed_not_unaffordable(
 
 Add `import config` and `from affordability import BrightnessAffordability, DigitAffordability` to the file's imports.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `uv run pytest tests/test_bot_reporting.py -k "wallet or price or unaffordable or dimmed" -v`
 Expected: FAIL — `ScanCompleted.wallet` is `None` and no `unaffordable` reason is emitted.
 
-- [ ] **Step 3: Wire the reader into the bot**
+> **Amended.** The wallet gate below tests only the tracker's state. The
+> tracker is debounced, so mid-fade it still says IN_RUN while the frame is
+> already the death modal - and `reading.top_left` is then the GAME_OVER
+> anchor, which puts the wallet region somewhere else entirely. The shipped
+> condition requires `reading.state` to be IN_RUN as well, so the anchor and
+> the region always come from the same frame.
+
+- [x] **Step 3: Wire the reader into the bot**
 
 First extend the imports at the top of `tower_bot.py` — it currently imports
 only `AffordabilityCheck` and `BrightnessAffordability` from `affordability`,
@@ -1726,7 +1733,7 @@ And pass it to the scan event:
         )
 ```
 
-- [ ] **Step 4: Distinguish the two skip reasons in `find_and_click_image`**
+- [x] **Step 4: Distinguish the two skip reasons in `find_and_click_image`**
 
 Replace the affordability block:
 
@@ -1765,12 +1772,12 @@ and enrich the tap:
         )
 ```
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `uv run pytest -q`
 Expected: PASS, all suites.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tower_bot.py tests/test_bot_reporting.py

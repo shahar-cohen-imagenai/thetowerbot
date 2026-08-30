@@ -6,10 +6,12 @@ from unittest.mock import MagicMock
 import cv2
 import pytest
 
+import config
 import events
 import screens
 import vision
 import tower_bot
+from affordability import BrightnessAffordability, DigitAffordability
 from tower_bot import TowerBot
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -221,3 +223,143 @@ def test_the_sink_is_closed_when_startup_fails_after_it_started(
 
     assert started == [True]
     assert closed == [True]
+
+
+# --- Reading the numbers ----------------------------------------------------
+
+
+class ScriptedReader:
+    """Returns a fixed number per region, and records what was asked for.
+
+    Stands in for digits.NumberReader so these tests exercise the bot's
+    wiring, not the segmenter - that is test_digits.py's job.
+    """
+
+    def __init__(self, **by_region: int | None) -> None:
+        self._by_region = by_region
+        self.calls: list[tuple[str, tuple[int, int]]] = []
+
+    def read(
+        self,
+        screen,
+        region: config.Region,
+        anchor: tuple[int, int],
+        size_class: str,
+    ) -> int | None:
+        self.calls.append((size_class, anchor))
+        for name, configured in (
+            ("wallet", config.WALLET_REGION),
+            ("price", config.PRICE_REGION),
+            ("wave", config.MODAL_WAVE_REGION),
+            ("coins", config.MODAL_COINS_REGION),
+            ("tier", config.MODAL_TIER_REGION),
+        ):
+            if region == configured:
+                return self._by_region.get(name)
+        return None
+
+
+def make_digit_bot(
+    fixture: str, **numbers: int | None
+) -> tuple[TowerBot, Recorder, MagicMock]:
+    """make_bot, but reading numbers instead of guessing at brightness."""
+    dev = MagicMock()
+    bus = events.EventBus()
+    rec = Recorder()
+    bus.subscribe(rec)
+    reader = ScriptedReader(**numbers)
+    bot = TowerBot(
+        device=dev,
+        templates=vision.TemplateCache(TEMPLATES),
+        bus=bus,
+        reader=reader,
+        affordability_check=DigitAffordability(reader, BrightnessAffordability()),
+    )
+    bot._screen = frame(fixture)
+    return bot, rec, dev
+
+
+def settle(bot: TowerBot, monkeypatch: pytest.MonkeyPatch, scans: int = 2) -> None:
+    """Run enough scans for the tracker to confirm the injected screen."""
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    for _ in range(scans):
+        bot.run_once()
+
+
+def test_scan_reports_the_wallet_when_in_run(monkeypatch: pytest.MonkeyPatch) -> None:
+    bot, rec, _ = make_digit_bot("in_run_lit", wallet=1250)
+    settle(bot, monkeypatch)
+    assert rec.of(events.ScanCompleted)[-1].wallet == 1250
+
+
+def test_scan_reports_no_wallet_outside_a_run(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The wallet region is measured from the IN_RUN anchor. Off that screen
+    there is no origin to measure from, and a stale number is worse than none."""
+    bot, rec, _ = make_digit_bot("main_menu", wallet=1250)
+    settle(bot, monkeypatch)
+    assert rec.of(events.ScanCompleted)[-1].wallet is None
+
+
+def test_tapped_carries_the_price_and_wallet(monkeypatch: pytest.MonkeyPatch) -> None:
+    bot, rec, _ = make_digit_bot("in_run_lit", wallet=1250, price=300)
+    settle(bot, monkeypatch)
+    tapped = rec.of(events.Tapped)
+    assert tapped, "no upgrade was tapped on a lit in-run frame"
+    assert tapped[-1].price == 300
+    assert tapped[-1].wallet == 1250
+
+
+def test_unaffordable_upgrade_is_skipped_with_that_reason(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bot, rec, dev = make_digit_bot("in_run_lit", wallet=100, price=300)
+    settle(bot, monkeypatch)
+
+    reasons = {e.reason for e in rec.of(events.Skipped)}
+    assert "unaffordable" in reasons
+    assert rec.of(events.Tapped) == []
+    dev.shell.assert_not_called()
+
+
+def test_dimmed_reports_dimmed_not_unaffordable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The two reasons are distinct and must stay distinguishable: 'dimmed'
+    means we could not tell, 'unaffordable' means we read the numbers.
+
+    With no price available the check falls through to brightness, and the
+    game_over fixture is dimmed behind the modal.
+    """
+    bot, rec, _ = make_digit_bot("in_run_lit", wallet=1250, price=None)
+    bot.tracker.state = screens.ScreenState.IN_RUN
+    bot.tracker._confirmed = True
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    bot._screen = frame("game_over")  # upgrade labels present but dimmed
+    bot.run_once()
+
+    reasons = {e.reason for e in rec.of(events.Skipped)}
+    assert "dimmed" in reasons
+    assert "unaffordable" not in reasons
+
+
+def test_wallet_is_not_read_from_a_frame_that_is_not_a_run(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The anchor and the region must come from the SAME frame.
+
+    The tracker's state is debounced, so mid-fade it still says IN_RUN while
+    the frame is already the death modal. Reading then would measure the
+    wallet region from the GAME_OVER anchor - a different origin entirely -
+    and hand the affordability gate a number cropped from the wrong place.
+    """
+    bot, rec, _ = make_digit_bot("in_run_lit", wallet=1250)
+    reader = bot.reader
+    bot.tracker.state = screens.ScreenState.IN_RUN
+    bot.tracker._confirmed = True
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    bot._screen = frame("game_over")
+
+    bot.run_once()
+
+    assert [c for c in reader.calls if c[0] == "wallet"] == []
+    assert rec.of(events.ScanCompleted)[-1].wallet is None
