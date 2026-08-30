@@ -170,3 +170,53 @@ def test_unparseable_text_returns_none(text: str) -> None:
 def test_suffix_is_not_silently_dropped() -> None:
     """A digit-only parser reads 1.23K as 123 and looks fine for an hour."""
     assert digits.parse_number("1.23K") != 123
+
+
+def paste(screen: np.ndarray, patch: np.ndarray, at: tuple[int, int]) -> None:
+    x, y = at
+    screen[y : y + patch.shape[0], x : x + patch.shape[1]] = patch
+
+
+def test_reads_a_number_off_a_synthetic_screen(tmp_path: Path) -> None:
+    build_synthetic_atlas(tmp_path / "wallet")
+    reader = digits.NumberReader(digits.AtlasCache(tmp_path))
+
+    rendered = render_text("4271")
+    screen = np.zeros((400, 400, 3), dtype=np.uint8)
+    paste(screen, rendered, (100, 100))
+
+    region = config.Region(dx=100, dy=100, w=rendered.shape[1], h=rendered.shape[0])
+    assert reader.read(screen, region, anchor=(0, 0), size_class="wallet") == 4271
+
+
+def test_read_without_an_atlas_returns_none(tmp_path: Path) -> None:
+    reader = digits.NumberReader(digits.AtlasCache(tmp_path))
+    screen = np.zeros((400, 400, 3), dtype=np.uint8)
+    region = config.Region(dx=0, dy=0, w=100, h=40)
+    assert reader.read(screen, region, anchor=(0, 0), size_class="wallet") is None
+
+
+def test_read_off_screen_returns_none(tmp_path: Path) -> None:
+    build_synthetic_atlas(tmp_path / "wallet")
+    reader = digits.NumberReader(digits.AtlasCache(tmp_path))
+    screen = np.zeros((50, 50, 3), dtype=np.uint8)
+    region = config.Region(dx=0, dy=0, w=100, h=40)
+    assert reader.read(screen, region, anchor=(0, 0), size_class="wallet") is None
+
+
+def test_one_unrecognised_glyph_fails_the_whole_read(tmp_path: Path) -> None:
+    """A partial read is worse than none: 1?34 must not become 134.
+
+    That is the failure that would let the bot buy an upgrade it cannot
+    afford while reporting a plausible price.
+    """
+    build_synthetic_atlas(tmp_path / "wallet", text="0123456789")
+    reader = digits.NumberReader(digits.AtlasCache(tmp_path))
+
+    rendered = render_text("12")
+    rendered[10:70, 80:130] = 255  # solid block no digit matches
+    screen = np.zeros((400, 400, 3), dtype=np.uint8)
+    paste(screen, rendered, (0, 0))
+
+    region = config.Region(dx=0, dy=0, w=rendered.shape[1], h=rendered.shape[0])
+    assert reader.read(screen, region, anchor=(0, 0), size_class="wallet") is None

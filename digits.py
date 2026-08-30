@@ -214,3 +214,46 @@ def parse_number(text: str) -> int | None:
     if not _NUMBER.match(cleaned):
         return None
     return int(round(float(cleaned) * multiplier))
+
+
+class NumberReader:
+    """Turns a screen region into an integer, or None."""
+
+    def __init__(self, atlases: AtlasCache | None = None) -> None:
+        self._atlases = atlases if atlases is not None else AtlasCache()
+
+    def read(
+        self,
+        screen: Image,
+        region: config.Region,
+        anchor: tuple[int, int],
+        size_class: str,
+    ) -> int | None:
+        """Read the number in `region`, measured from `anchor`.
+
+        Any failure along the way - no atlas, region off-screen, a glyph
+        that matches nothing - returns None. A partially recognised number
+        is NOT returned: reading "1?34" as 134 would let the bot act on a
+        price that looks plausible and is wrong by an order of magnitude.
+        """
+        atlas = self._atlases.get(size_class)
+        if atlas is None:
+            return None
+
+        patch = crop(screen, region, anchor)
+        if patch is None:
+            return None
+
+        glyphs = split_glyphs(binarize(patch))
+        if not glyphs:
+            return None
+
+        labels: list[str] = []
+        for glyph in glyphs:
+            label = atlas.match(glyph)
+            if label is None:
+                logger.debug("unrecognised glyph in %s region", size_class)
+                return None
+            labels.append(label)
+
+        return parse_number("".join(labels))
