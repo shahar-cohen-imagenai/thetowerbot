@@ -20,6 +20,7 @@ import cv2
 import numpy as np
 
 import config
+import vision
 from device import Image
 
 logger = logging.getLogger("tower_bot.digits")
@@ -259,8 +260,17 @@ def parse_number(text: str) -> int | None:
 class NumberReader:
     """Turns a screen region into an integer, or None."""
 
-    def __init__(self, atlases: AtlasCache | None = None) -> None:
+    def __init__(
+        self,
+        atlases: AtlasCache | None = None,
+        templates: vision.TemplateCache | None = None,
+    ) -> None:
         self._atlases = atlases if atlases is not None else AtlasCache()
+        self._templates = (
+            templates
+            if templates is not None
+            else vision.TemplateCache(config.TEMPLATE_DIR)
+        )
 
     def read(
         self,
@@ -297,3 +307,27 @@ class NumberReader:
             labels.append(label)
 
         return parse_number("".join(labels))
+
+    def read_at_caption(
+        self,
+        screen: Image,
+        caption: str,
+        region: config.Region,
+        size_class: str,
+        threshold: float = config.ANCHOR_THRESHOLD,
+    ) -> int | None:
+        """Read a number positioned relative to its own caption.
+
+        Tier and coins do not hold a fixed offset from the screen anchor: a
+        record run grows a "New Highest Wave!" line that pushes them down
+        while the modal's top edge rises as it re-centres. Locating the
+        caption first is what survives both layouts.
+
+        Returns None when the caption is not on screen at all, which is also
+        the answer on any frame that is not the death modal.
+        """
+        match = vision.locate_template(screen, self._templates.get(caption), threshold)
+        if match is None:
+            logger.debug("caption %s not found - no number to read", caption)
+            return None
+        return self.read(screen, region, match.top_left, size_class)
