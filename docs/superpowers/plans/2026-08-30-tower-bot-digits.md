@@ -1334,7 +1334,7 @@ git commit -m "feat: commit the labelled glyph atlas and its fixture proof"
 - Consumes: `digits.NumberReader`, `config.PRICE_REGION`, `vision.Match`
 - Produces: `affordability.DigitAffordability(reader, fallback)` with `.wallet: int | None`, `.last_price: int | None`, `.last_wallet: int | None`; `AffordabilityCheck` protocol gains `last_price` / `last_wallet`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/test_digit_affordability.py`:
 
@@ -1448,12 +1448,12 @@ def test_brightness_check_reports_no_price() -> None:
     assert check.last_wallet is None
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `uv run pytest tests/test_digit_affordability.py -v`
 Expected: FAIL with `ImportError: cannot import name 'DigitAffordability'`
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 In `affordability.py`, add `last_price` / `last_wallet` to the protocol and to `BrightnessAffordability`, then add the new class:
 
@@ -1530,12 +1530,12 @@ class DigitAffordability:
 
 Add `import digits` to the imports.
 
-- [ ] **Step 4: Run the tests**
+- [x] **Step 4: Run the tests**
 
 Run: `uv run pytest tests/test_digit_affordability.py -v`
 Expected: PASS (7 tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add affordability.py tests/test_digit_affordability.py
