@@ -92,3 +92,51 @@ def test_split_glyphs_trims_vertically() -> None:
 def test_empty_region_yields_no_glyphs() -> None:
     blank = np.zeros((40, 100, 3), dtype=np.uint8)
     assert digits.split_glyphs(digits.binarize(blank)) == []
+
+
+def build_synthetic_atlas(directory: Path, text: str = "0123456789") -> None:
+    """Cut glyphs out of a render and save them under their labels.
+
+    Round-tripping the same renderer proves the matcher, without needing the
+    game's font committed to the repo.
+    """
+    directory.mkdir(parents=True, exist_ok=True)
+    glyphs = split_glyphs_of(text)
+    assert len(glyphs) == len(text), f"renderer produced {len(glyphs)} glyphs"
+    for char, glyph in zip(text, glyphs):
+        cv2.imwrite(str(directory / f"{digits.GLYPH_FILENAMES[char]}.png"), glyph)
+
+
+def split_glyphs_of(text: str) -> list[np.ndarray]:
+    return digits.split_glyphs(digits.binarize(render_text(text)))
+
+
+def test_atlas_matches_every_digit_it_was_built_from(tmp_path: Path) -> None:
+    build_synthetic_atlas(tmp_path)
+    atlas = digits.Atlas(tmp_path)
+    assert [atlas.match(g) for g in split_glyphs_of("0123456789")] == list("0123456789")
+
+
+def test_atlas_rejects_a_glyph_below_threshold(tmp_path: Path) -> None:
+    build_synthetic_atlas(tmp_path, text="1")
+    atlas = digits.Atlas(tmp_path)
+    noise = np.random.default_rng(0).integers(0, 2, (30, 20), dtype=np.uint8) * 255
+    assert atlas.match(noise, threshold=0.99) is None
+
+
+def test_atlas_loads_punctuation_by_filename(tmp_path: Path) -> None:
+    """'.' and ',' cannot be filenames, so the atlas maps names to chars."""
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    for name, glyph in zip(["1", "dot", "5"], split_glyphs_of("1.5")):
+        cv2.imwrite(str(tmp_path / f"{name}.png"), glyph)
+    assert digits.Atlas(tmp_path).labels == {"1", ".", "5"}
+
+
+def test_missing_atlas_directory_returns_none(tmp_path: Path) -> None:
+    assert digits.AtlasCache(tmp_path).get("wallet") is None
+
+
+def test_atlas_cache_loads_each_size_class_once(tmp_path: Path) -> None:
+    build_synthetic_atlas(tmp_path / "wallet")
+    cache = digits.AtlasCache(tmp_path)
+    assert cache.get("wallet") is cache.get("wallet")

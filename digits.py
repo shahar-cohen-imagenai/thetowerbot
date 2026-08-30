@@ -13,6 +13,7 @@ must degrade the bot to its phase-2 behaviour, never stop the scan loop.
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -89,3 +90,98 @@ def split_glyphs(binary: Image, min_width: int = config.GLYPH_MIN_WIDTH) -> list
             continue
         glyphs.append(column[rows[0] : rows[-1] + 1, :])
     return glyphs
+
+
+# A filesystem cannot hold a file called ".png", and "," is awkward in a
+# shell, so punctuation glyphs are stored under a name and mapped back here.
+GLYPH_FILENAMES: dict[str, str] = {
+    **{ch: ch for ch in "0123456789KMBT"},
+    ".": "dot",
+    ",": "comma",
+    "$": "dollar",
+}
+GLYPH_LABELS: dict[str, str] = {name: char for char, name in GLYPH_FILENAMES.items()}
+
+# The three text sizes the UI renders numbers at. matchTemplate is not
+# scale-invariant, so each needs its own atlas.
+SIZE_CLASSES: tuple[str, ...] = ("wallet", "price", "modal")
+
+
+class Atlas:
+    """Labelled glyph images for one size class."""
+
+    def __init__(self, directory: Path) -> None:
+        self._dir = Path(directory)
+        self._glyphs: dict[str, Image] = {}
+        for path in sorted(self._dir.glob("*.png")):
+            label = GLYPH_LABELS.get(path.stem)
+            if label is None:
+                logger.warning("ignoring unlabelled atlas file: %s", path.name)
+                continue
+            image = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+            if image is None:
+                logger.warning("unreadable atlas file: %s", path.name)
+                continue
+            self._glyphs[label] = image
+
+    @property
+    def labels(self) -> set[str]:
+        return set(self._glyphs)
+
+    def match(
+        self, glyph: Image, threshold: float = config.GLYPH_MATCH_THRESHOLD
+    ) -> str | None:
+        """Best-scoring label for `glyph`, or None if nothing clears threshold.
+
+        The glyph is resized to each candidate rather than the other way
+        round: segmentation crops tightly, so shapes are comparable even when
+        the capture is a pixel or two off the atlas entry's size.
+        """
+        best_label: str | None = None
+        best_score = -1.0
+
+        for label, template in self._glyphs.items():
+            resized = cv2.resize(
+                glyph, (template.shape[1], template.shape[0]),
+                interpolation=cv2.INTER_NEAREST,
+            )
+            score = float(
+                cv2.matchTemplate(resized, template, cv2.TM_CCOEFF_NORMED)[0][0]
+            )
+            if score > best_score:
+                best_label, best_score = label, score
+
+        if best_score < threshold:
+            return None
+        return best_label
+
+
+class AtlasCache:
+    """One Atlas per size class, loaded on first use."""
+
+    def __init__(self, root: Path = config.ATLAS_DIR) -> None:
+        self._root = Path(root)
+        self._cache: dict[str, Atlas | None] = {}
+
+    def get(self, size_class: str) -> Atlas | None:
+        """The atlas for `size_class`, or None if it has not been built.
+
+        None rather than an exception: an unbuilt atlas must degrade the bot
+        to brightness affordability, not stop it from running at all.
+        """
+        if size_class in self._cache:
+            return self._cache[size_class]
+
+        directory = self._root / size_class
+        atlas: Atlas | None = None
+        if directory.is_dir():
+            candidate = Atlas(directory)
+            if candidate.labels:
+                atlas = candidate
+            else:
+                logger.warning("atlas directory %s has no labelled glyphs", directory)
+        else:
+            logger.warning("no atlas for size class %r at %s", size_class, directory)
+
+        self._cache[size_class] = atlas
+        return atlas
