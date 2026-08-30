@@ -238,6 +238,17 @@ class ScriptedReader:
     def __init__(self, **by_region: int | None) -> None:
         self._by_region = by_region
         self.calls: list[tuple[str, tuple[int, int]]] = []
+        self.caption_calls: list[tuple[str, config.Region]] = []
+
+    def read_at_caption(
+        self,
+        screen,
+        caption: str,
+        region: config.Region,
+        size_class: str,
+    ) -> int | None:
+        self.caption_calls.append((caption, region))
+        return self.read(screen, region, (0, 0), size_class)
 
     def read(
         self,
@@ -363,3 +374,88 @@ def test_wallet_is_not_read_from_a_frame_that_is_not_a_run(
 
     assert [c for c in reader.calls if c[0] == "wallet"] == []
     assert rec.of(events.ScanCompleted)[-1].wallet is None
+
+
+# --- The death modal's numbers ----------------------------------------------
+
+
+def die(
+    bot: TowerBot, monkeypatch: pytest.MonkeyPatch, ending_fixture: str
+) -> None:
+    """Confirm IN_RUN, then confirm `ending_fixture`, closing the run."""
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    bot._screen = frame("in_run_lit")
+    for _ in range(2):
+        bot.run_once()
+    bot._screen = frame(ending_fixture)
+    for _ in range(2):
+        bot.run_once()
+
+
+def test_run_ended_carries_the_modal_stats(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The frame that CONFIRMED game over is the one we read. By then the
+    modal has survived two consecutive readings, so the fade is finished."""
+    bot, rec, _ = make_digit_bot("in_run_lit", wave=137, coins=8400, tier=4)
+    die(bot, monkeypatch, "game_over")
+
+    ended = rec.of(events.RunEnded)
+    assert ended, "the run never closed"
+    assert (ended[-1].wave, ended[-1].coins, ended[-1].tier) == (137, 8400, 4)
+
+
+def test_unreadable_modal_leaves_the_fields_none(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bot, rec, _ = make_digit_bot("in_run_lit")  # reader returns None for all
+    die(bot, monkeypatch, "game_over")
+
+    ended = rec.of(events.RunEnded)[-1]
+    assert (ended.wave, ended.coins, ended.tier) == (None, None, None)
+    assert ended.run_id == 1  # the run still ends
+
+
+def test_abandoned_run_reads_no_stats(monkeypatch: pytest.MonkeyPatch) -> None:
+    """IN_RUN -> MAIN_MENU has no modal to read. Do not invent numbers."""
+    bot, rec, _ = make_digit_bot("in_run_lit", wave=137, coins=8400, tier=4)
+    die(bot, monkeypatch, "main_menu")
+
+    ended = rec.of(events.RunEnded)[-1]
+    assert ended.abandoned is True
+    assert (ended.wave, ended.coins, ended.tier) == (None, None, None)
+
+
+def test_tier_and_coins_are_located_by_their_caption(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Not by a fixed offset from the game_over anchor.
+
+    A record run grows a "New Highest Wave!" line that pushes both down 49px
+    while the modal's top edge rises as it re-centres, so only the wave line
+    holds a constant offset.
+    """
+    bot, _, _ = make_digit_bot("in_run_lit", wave=137, coins=8400, tier=4)
+    die(bot, monkeypatch, "game_over")
+
+    captions = {c[0] for c in bot.reader.caption_calls}
+    assert captions == {config.MODAL_TIER_CAPTION, config.MODAL_COINS_CAPTION}
+
+
+def test_a_real_death_modal_is_read_end_to_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No scripted reader: locate the anchors, crop, segment, match, parse.
+
+    The record-run fixture on purpose - it is the layout where tier and coins
+    have moved, so a fixed offset would report the wrong rows here.
+    """
+    dev = MagicMock()
+    bus = events.EventBus()
+    rec = Recorder()
+    bus.subscribe(rec)
+    bot = TowerBot(device=dev, templates=vision.TemplateCache(TEMPLATES), bus=bus)
+
+    die(bot, monkeypatch, "game_over_newhigh")
+
+    ended = rec.of(events.RunEnded)
+    assert ended, "the run never closed"
+    assert (ended[-1].wave, ended[-1].tier, ended[-1].coins) == (6, 1, 21)

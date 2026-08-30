@@ -1796,7 +1796,7 @@ git commit -m "feat: report wallet and price on scan, tap and skip events"
 - Consumes: `digits.NumberReader`, `config.MODAL_*_REGION`, `runs.RunTracker.transition`
 - Produces: `events.RunEnded.tier: int | None`; `RunEnded` enriched with wave/coins/tier on the GAME_OVER transition
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_bot_reporting.py`:
 
@@ -1856,12 +1856,12 @@ def test_run_ended_defaults_tier_to_none() -> None:
     assert ended.tier is None
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `uv run pytest tests/test_runs.py -k tier -v`
 Expected: FAIL with `AttributeError: 'RunEnded' object has no attribute 'tier'`
 
-- [ ] **Step 3: Add `tier` to the event**
+- [x] **Step 3: Add `tier` to the event**
 
 In `events.py`:
 
@@ -1883,7 +1883,7 @@ class RunEnded(Event):
 > record run's "New Highest Wave!" line pushes them down 49px while the modal's
 > top edge rises as it re-centres. Use `read_at_caption` for those two.
 
-- [ ] **Step 4: Enrich the event in the bot**
+- [x] **Step 4: Enrich the event in the bot**
 
 `RunTracker` stays screen-free — it brackets runs and knows nothing about vision. The bot fills the numbers in. In `run_once`, replace the publish of `run_event`:
 
@@ -1925,19 +1925,19 @@ and add the method to `TowerBot`:
 
 Add `import dataclasses` to `tower_bot.py`.
 
-- [ ] **Step 5: Run the tests**
+- [x] **Step 5: Run the tests**
 
 Run: `uv run pytest -q`
 Expected: PASS
 
-- [ ] **Step 6: Show the numbers in the sinks**
+- [x] **Step 6: Show the numbers in the sinks**
 
 `sinks/log.py` and `sinks/tui.py` already format `RunEnded`; extend both to include wave, coins and tier when present, following the formatting already in each file. Verify with:
 
 Run: `uv run pytest tests/test_log_sink.py tests/test_tui_sink.py -v`
 Expected: PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add events.py tower_bot.py sinks/log.py sinks/tui.py tests/test_runs.py \

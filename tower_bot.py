@@ -17,6 +17,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import logging
 import signal
 import sys
@@ -153,6 +154,37 @@ class TowerBot:
         )
         return True
 
+    # -- the death modal ---------------------------------------------------
+    def _read_modal_stats(
+        self, ended: events.RunEnded, anchor: tuple[int, int]
+    ) -> events.RunEnded:
+        """Fill wave / coins / tier from the death modal.
+
+        Only ever called on a CONFIRMED game over, so the modal has already
+        survived two consecutive readings and its fade has finished - the same
+        debounce that stops phantom run boundaries also guarantees the numbers
+        are fully drawn.
+
+        Wave holds a constant offset from the matched game_over template, but
+        tier and coins do not: a record run grows a "New Highest Wave!" line
+        that pushes them down 49px while the modal's top edge rises as it
+        re-centres. Those two are found by their own caption instead.
+        """
+        return dataclasses.replace(
+            ended,
+            wave=self.reader.read(
+                self.screen, config.MODAL_WAVE_REGION, anchor, "modal"
+            ),
+            coins=self.reader.read_at_caption(
+                self.screen, config.MODAL_COINS_CAPTION, config.MODAL_COINS_REGION,
+                "modal",
+            ),
+            tier=self.reader.read_at_caption(
+                self.screen, config.MODAL_TIER_CAPTION, config.MODAL_TIER_REGION,
+                "modal",
+            ),
+        )
+
     # -- main loop ---------------------------------------------------------
     def run_cap_reached(self, max_runs: int | None) -> bool:
         return max_runs is not None and self.runs.completed >= max_runs
@@ -181,6 +213,12 @@ class TowerBot:
             )
             run_event = self.runs.transition(self.tracker.state, time.monotonic())
             if run_event is not None:
+                if (
+                    isinstance(run_event, events.RunEnded)
+                    and self.tracker.state is screens.ScreenState.GAME_OVER
+                    and reading.top_left is not None
+                ):
+                    run_event = self._read_modal_stats(run_event, reading.top_left)
                 self.bus.publish(run_event)
 
         state = self.tracker.state
