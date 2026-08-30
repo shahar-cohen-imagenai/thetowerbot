@@ -123,11 +123,22 @@ GLYPH_MATCH_THRESHOLD: float = 0.7
 GLYPH_MIN_WIDTH: int = 2
 
 # Every region is relative to a matched anchor - see config.Region.
-# NOT YET CALIBRATED: these are zeros until measured against live frames with
-# tools/crop_preview.py. Until then every digit read returns None and the bot
-# falls back to brightness affordability, which is phase 2's behaviour.
-WALLET_REGION: Region = Region(dx=0, dy=0, w=0, h=0)        # from IN_RUN anchor
-PRICE_REGION: Region = Region(dx=0, dy=0, w=0, h=0)         # from an upgrade label
-MODAL_WAVE_REGION: Region = Region(dx=0, dy=0, w=0, h=0)    # from GAME_OVER anchor
-MODAL_COINS_REGION: Region = Region(dx=0, dy=0, w=0, h=0)   # from GAME_OVER anchor
-MODAL_TIER_REGION: Region = Region(dx=0, dy=0, w=0, h=0)    # from GAME_OVER anchor
+# Measured on a 1080x2400 capture; re-measure if the resolution ever changes.
+
+# The in-run HUD, from the IN_RUN anchor at (12, 1646). Wide enough for the
+# wallet to grow into "$ 12.34K" without clipping.
+WALLET_REGION: Region = Region(dx=13, dy=-1484, w=230, h=72)
+
+# The price box under an upgrade, from that upgrade's own matched LABEL - not
+# from a screen anchor, because each of the four buttons has its own box. The
+# same offset lands correctly on all four; verified against every one.
+# Inset from the box border so a brighter theme cannot smear the projection.
+PRICE_REGION: Region = Region(dx=252, dy=98, w=208, h=38)
+
+# Death modal, from the GAME_OVER anchor at (330, 663). These crop the whole
+# CENTRED line, not just its number: "Wave 1" grows to "Wave 137" and the
+# digits shift left as it does, so a crop tight to the number would slide off
+# it. Reading them therefore needs the label glyphs in the atlas too.
+MODAL_WAVE_REGION: Region = Region(dx=6, dy=111, w=408, h=54)
+MODAL_TIER_REGION: Region = Region(dx=6, dy=201, w=408, h=54)
+MODAL_COINS_REGION: Region = Region(dx=-186, dy=799, w=174, h=52)
