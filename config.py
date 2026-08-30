@@ -35,6 +35,21 @@ DEFAULT_THRESHOLD: float = 0.8
 DEFAULT_BRIGHTNESS_RATIO: float = 0.75
 
 
+class Region(NamedTuple):
+    """A rectangle expressed relative to a matched anchor's top-left.
+
+    Never absolute. The death modal shifts ~46px vertically depending on
+    whether the "New Highest Wave!" line is present, so a hardcoded y would
+    read the wrong row half the time. dx/dy may be negative: the anchor is
+    not always above-left of the number it locates.
+    """
+
+    dx: int
+    dy: int
+    w: int
+    h: int
+
+
 class Action(NamedTuple):
     """One template the bot looks for, in priority order."""
 
@@ -93,3 +108,26 @@ NAV_BUTTONS: dict[str, tuple[str, str]] = {
     "GAME_OVER": ("RETRY", "buttons/retry.png"),
     "MAIN_MENU": ("BATTLE", "buttons/battle.png"),
 }
+
+# --- Digit reading --------------------------------------------------------
+# Numbers are light glyphs on a dark panel. Binarise, split by column gaps,
+# match each glyph against a per-size-class atlas.
+ATLAS_DIR: Path = TEMPLATE_DIR / "atlas"
+
+# Grey level above which a pixel counts as glyph rather than background.
+DIGIT_BINARY_THRESHOLD: int = 140
+# A glyph must match an atlas entry at least this well to be accepted.
+GLYPH_MATCH_THRESHOLD: float = 0.7
+# Narrowest run of lit columns still treated as a glyph. The decimal point is
+# the narrowest real glyph, so raising this silently turns 1.5K into 15K.
+GLYPH_MIN_WIDTH: int = 2
+
+# Every region is relative to a matched anchor - see config.Region.
+# NOT YET CALIBRATED: these are zeros until measured against live frames with
+# tools/crop_preview.py. Until then every digit read returns None and the bot
+# falls back to brightness affordability, which is phase 2's behaviour.
+WALLET_REGION: Region = Region(dx=0, dy=0, w=0, h=0)        # from IN_RUN anchor
+PRICE_REGION: Region = Region(dx=0, dy=0, w=0, h=0)         # from an upgrade label
+MODAL_WAVE_REGION: Region = Region(dx=0, dy=0, w=0, h=0)    # from GAME_OVER anchor
+MODAL_COINS_REGION: Region = Region(dx=0, dy=0, w=0, h=0)   # from GAME_OVER anchor
+MODAL_TIER_REGION: Region = Region(dx=0, dy=0, w=0, h=0)    # from GAME_OVER anchor

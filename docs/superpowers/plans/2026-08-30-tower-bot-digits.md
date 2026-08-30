@@ -97,12 +97,17 @@ empty patch of background.
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
 import cv2
 
-import config
-import vision
+# tools/ is a subdirectory, so the repo root is not on sys.path when this is
+# run directly. conftest.py does the same thing for the test suite.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+import config  # noqa: E402
+import vision  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
