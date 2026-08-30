@@ -13,6 +13,7 @@ must degrade the bot to its phase-2 behaviour, never stop the scan loop.
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 
 import cv2
@@ -185,3 +186,31 @@ class AtlasCache:
 
         self._cache[size_class] = atlas
         return atlas
+
+
+# The game abbreviates large numbers. A long-running bot hits these within
+# an hour or two, and a digit-only parser misreads them silently.
+SUFFIXES: dict[str, int] = {
+    "K": 1_000,
+    "M": 1_000_000,
+    "B": 1_000_000_000,
+    "T": 1_000_000_000_000,
+}
+
+_NUMBER = re.compile(r"\d+(\.\d+)?$")
+
+
+def parse_number(text: str) -> int | None:
+    """`$1.23K` -> 1230. None if the text is not a number the game renders."""
+    cleaned = text.replace("$", "").replace(",", "").strip()
+    if not cleaned:
+        return None
+
+    multiplier = 1
+    if cleaned[-1] in SUFFIXES:
+        multiplier = SUFFIXES[cleaned[-1]]
+        cleaned = cleaned[:-1]
+
+    if not _NUMBER.match(cleaned):
+        return None
+    return int(round(float(cleaned) * multiplier))

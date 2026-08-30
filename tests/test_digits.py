@@ -140,3 +140,33 @@ def test_atlas_cache_loads_each_size_class_once(tmp_path: Path) -> None:
     build_synthetic_atlas(tmp_path / "wallet")
     cache = digits.AtlasCache(tmp_path)
     assert cache.get("wallet") is cache.get("wallet")
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("0", 0),
+        ("7", 7),
+        ("1234", 1234),
+        ("1,234", 1234),
+        ("$980", 980),
+        ("$1,234,567", 1234567),
+        ("1.23K", 1230),
+        ("4.5M", 4500000),
+        ("2B", 2000000000),
+        ("1.5T", 1500000000000),
+        ("$12.75K", 12750),
+    ],
+)
+def test_parses_the_games_number_formats(text: str, expected: int) -> None:
+    assert digits.parse_number(text) == expected
+
+
+@pytest.mark.parametrize("text", ["", "   ", "$", "K", "..", "12..3", "1.2X", "abc"])
+def test_unparseable_text_returns_none(text: str) -> None:
+    assert digits.parse_number(text) is None
+
+
+def test_suffix_is_not_silently_dropped() -> None:
+    """A digit-only parser reads 1.23K as 123 and looks fine for an hour."""
+    assert digits.parse_number("1.23K") != 123
