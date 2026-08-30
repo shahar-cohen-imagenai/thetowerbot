@@ -139,6 +139,25 @@ PRICE_REGION: Region = Region(dx=252, dy=98, w=208, h=38)
 # CENTRED line, not just its number: "Wave 1" grows to "Wave 137" and the
 # digits shift left as it does, so a crop tight to the number would slide off
 # it. Reading them therefore needs the label glyphs in the atlas too.
+# "Wave N" sits directly under the title in both layouts, so it holds a fixed
+# offset from the anchor. It crops the whole centred line, caption included.
 MODAL_WAVE_REGION: Region = Region(dx=6, dy=111, w=408, h=54)
-MODAL_TIER_REGION: Region = Region(dx=6, dy=201, w=408, h=54)
-MODAL_COINS_REGION: Region = Region(dx=-186, dy=799, w=174, h=52)
+
+# Tier and coins do NOT hold a fixed offset. When the run beats its record the
+# modal grows a green "New Highest Wave!" line between Wave and Tier, and
+# everything below it moves - while the modal's top edge moves the other way,
+# because a taller modal re-centres. Measured: the anchor rises 49px and these
+# two lines fall 49px, so a fixed offset reads the wrong row on every record run.
+#
+# So they are located by their own caption, the same way navigate.py finds
+# buttons. Verified against both layouts.
+MODAL_TIER_CAPTION: str = "modal/tier_caption.png"
+MODAL_COINS_CAPTION: str = "modal/coins_caption.png"
+
+# From the "Tier" caption's top-left. The number trails the word at a constant
+# gap, so this stays right however wide the number gets.
+MODAL_TIER_REGION: Region = Region(dx=110, dy=-4, w=150, h=60)
+
+# From the "coins earned" caption's top-left. The value is CENTRED under the
+# caption, so this spans the full column rather than hugging the digits.
+MODAL_COINS_REGION: Region = Region(dx=-30, dy=52, w=250, h=68)
