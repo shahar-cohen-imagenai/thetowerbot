@@ -1129,6 +1129,12 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     region, anchor_name = REGION_SOURCES[args.size_class]
+    if region.w == 0 or region.h == 0:
+        raise SystemExit(
+            f"the {args.size_class} region has not been calibrated yet - "
+            "measure it with tools/crop_preview.py and write it into config.py first"
+        )
+
     out_dir = config.ATLAS_DIR / args.size_class
     device = connect_device(args.host, args.port)
     cache = vision.TemplateCache(config.TEMPLATE_DIR)
