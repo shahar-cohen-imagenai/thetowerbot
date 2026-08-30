@@ -161,3 +161,33 @@ MODAL_TIER_REGION: Region = Region(dx=110, dy=-4, w=150, h=60)
 # From the "coins earned" caption's top-left. The value is CENTRED under the
 # caption, so this spans the full column rather than hugging the digits.
 MODAL_COINS_REGION: Region = Region(dx=-30, dy=52, w=250, h=68)
+
+# --- Menu navigation ------------------------------------------------------
+# Everything here is located by template match and tapped at the match centre,
+# never by fixed coordinates - the same rule the death modal forced on us.
+NAV_TARGETS: dict[str, str] = {
+    "MISSIONS": "nav/missions.png",          # top-right of the main menu
+    "WORKSHOP": "nav/tab_workshop.png",      # bottom tab bar
+    "CARDS": "nav/tab_cards.png",            # bottom tab bar
+    "BATTLE_TAB": "nav/tab_battle.png",      # bottom tab bar - back to the menu
+    "MISSIONS_RETURN": "nav/missions_return.png",  # missions has no tab; this exits
+}
+
+# First-visit popups sit between a tab and its page. Cards showed a two-step
+# chain: an intro dialog with "Claim", then a full-screen "40 GEMS" reward with
+# CLAIM and SKIP. Try these in order until none match, then read the page.
+NAV_DISMISS: tuple[str, ...] = (
+    "nav/claim.png",
+    "nav/claim_reward.png",
+    "nav/skip.png",
+)
+
+# Which menu page is on screen. Deliberately SEPARATE from SCREEN_ANCHORS:
+# ScreenState models the run lifecycle only, and classify() does
+# ScreenState(winner), which would raise on a name the enum does not have.
+PAGE_ANCHORS: dict[str, str] = {
+    "MAIN_MENU": "screens/main_menu.png",
+    "WORKSHOP": "screens/workshop.png",
+    "CARDS": "screens/cards.png",
+    "MISSIONS": "screens/missions.png",
+}
