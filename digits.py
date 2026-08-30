@@ -100,7 +100,26 @@ GLYPH_FILENAMES: dict[str, str] = {
     ".": "dot",
     ",": "comma",
     "$": "dollar",
+    # Death-modal captions. The numbers there are not bare: the lines read
+    # "Wave 1" / "Tier 1" / "0 (c)", and they are CENTRED, so the digits slide
+    # left as they grow and a crop tight to the number would miss it. The
+    # caption has to be inside the region, so the atlas has to know it.
+    # Lowercase names are spelled out: macOS filesystems are case-insensitive,
+    # so "t.png" and "T.png" would be the same file.
+    "W": "cap_w",
+    "a": "cap_a",
+    "v": "cap_v",
+    "e": "cap_e",
+    "i": "cap_i",
+    "r": "cap_r",
+    "\u00a9": "coin",
 }
+
+# Glyphs that may legally surround the number without invalidating the read.
+# "T" is deliberately in here AND in SUFFIXES: Tier's initial and the trillions
+# suffix are the same glyph. Which one it is comes from POSITION, not from the
+# character - see parse_number.
+CAPTION_GLYPHS: frozenset[str] = frozenset("WaveTier") | {"\u00a9"}
 GLYPH_LABELS: dict[str, str] = {name: char for char, name in GLYPH_FILENAMES.items()}
 
 # The three text sizes the UI renders numbers at. matchTemplate is not
@@ -197,23 +216,44 @@ SUFFIXES: dict[str, int] = {
     "T": 1_000_000_000_000,
 }
 
-_NUMBER = re.compile(r"\d+(\.\d+)?$")
+# A number is a digit run, optionally decimal, optionally suffixed. Anchoring
+# on the digits is what disambiguates "Tier1" (caption T, the number is 1) from
+# "1.5T" (the number is 1.5 trillion): the suffix letter only counts when it
+# trails digits, which is exactly what this pattern encodes.
+_NUMBER_RUN = re.compile(r"\d+(?:\.\d+)?[KMBT]?")
 
 
 def parse_number(text: str) -> int | None:
-    """`$1.23K` -> 1230. None if the text is not a number the game renders."""
+    """`$1.23K` -> 1230, `Wave 137` -> 137. None if it is not one number.
+
+    The string is whatever the atlas recognised, so it may carry a caption:
+    the death modal renders "Wave 1", not "1". Captions are allowed around the
+    number, but three things still make a read fail, because each of them
+    means we are not sure what we are looking at:
+
+    * no number at all
+    * more than one number - which is the real one?
+    * any leftover glyph that is not a known caption
+    """
     cleaned = text.replace("$", "").replace(",", "").strip()
     if not cleaned:
         return None
 
-    multiplier = 1
-    if cleaned[-1] in SUFFIXES:
-        multiplier = SUFFIXES[cleaned[-1]]
-        cleaned = cleaned[:-1]
-
-    if not _NUMBER.match(cleaned):
+    runs = _NUMBER_RUN.findall(cleaned)
+    if len(runs) != 1:
         return None
-    return int(round(float(cleaned) * multiplier))
+
+    leftover = _NUMBER_RUN.sub("", cleaned)
+    if any(char not in CAPTION_GLYPHS for char in leftover):
+        return None
+
+    token = runs[0]
+    multiplier = 1
+    if token[-1] in SUFFIXES:
+        multiplier = SUFFIXES[token[-1]]
+        token = token[:-1]
+
+    return int(round(float(token) * multiplier))
 
 
 class NumberReader:

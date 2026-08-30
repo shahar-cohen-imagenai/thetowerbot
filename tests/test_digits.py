@@ -220,3 +220,33 @@ def test_one_unrecognised_glyph_fails_the_whole_read(tmp_path: Path) -> None:
 
     region = config.Region(dx=0, dy=0, w=rendered.shape[1], h=rendered.shape[0])
     assert reader.read(screen, region, anchor=(0, 0), size_class="wallet") is None
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Wave1", 1),
+        ("Wave137", 137),
+        ("Tier1", 1),
+        ("Tier12", 12),
+        ("0©", 0),
+        ("8400©", 8400),
+        ("1.23K©", 1230),
+    ],
+)
+def test_parses_a_number_out_of_its_caption(text: str, expected: int) -> None:
+    """The death modal renders "Wave 1", not "1", and centres it."""
+    assert digits.parse_number(text) == expected
+
+
+def test_tier_caption_does_not_eat_the_trillions_suffix() -> None:
+    """T is both Tier's initial and the trillions suffix. Position decides."""
+    assert digits.parse_number("Tier1") == 1
+    assert digits.parse_number("1.5T") == 1_500_000_000_000
+
+
+@pytest.mark.parametrize("text", ["Wave1Tier2", "1.2X", "Wave", "©"])
+def test_ambiguous_or_unknown_captions_return_none(text: str) -> None:
+    """Two numbers, or a glyph that is not a known caption, means we do not
+    know what we are looking at - and a wrong number is worse than none."""
+    assert digits.parse_number(text) is None

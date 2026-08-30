@@ -1180,6 +1180,15 @@ git commit -m "feat: add atlas bootstrap tool for one-time glyph labelling"
 
 The one irreducibly manual task. It needs the emulator and about twenty minutes.
 
+> **Revised after calibration.** The death modal does not render bare numbers.
+> Its lines read `Wave 1`, `Tier 1` and `0 ©`, and they are **centred**, so the
+> digits slide left as they grow — a crop tight to today's `1` misses tomorrow's
+> `137`. The regions therefore span the whole line, and the `modal` atlas must
+> include the caption glyphs `W a v e T i r` and the coin icon `©` alongside the
+> digits. `parse_number` extracts the single numeric run and allows known
+> captions around it. `wallet` and `price` are unaffected — those are bare
+> numbers.
+
 **Files:**
 - Create: `templates/atlas/wallet/*.png`, `templates/atlas/price/*.png`, `templates/atlas/modal/*.png`
 - Test: `tests/test_atlas_real.py`
@@ -1208,7 +1217,7 @@ mv glyph_011.png dot.png
 mv glyph_014.png K.png
 ```
 
-Delete duplicates and blanks. Every size class must end with at least `0`–`9`; `dot`, `comma`, `dollar`, `K`, `M`, `B`, `T` as they appear. A missing glyph makes every number containing it read as `None` — safe, but the number is simply never available.
+Delete duplicates and blanks. Every size class must end with at least `0`–`9`; `dot`, `comma`, `dollar`, `K`, `M`, `B`, `T` as they appear. The `modal` class additionally needs the caption glyphs — `cap_w`, `cap_a`, `cap_v`, `cap_e`, `cap_i`, `cap_r` and `coin` — or every modal line reads as `None`. (Lowercase letters get spelled-out filenames because macOS filesystems are case-insensitive: `t.png` and `T.png` would be the same file.) A missing glyph makes every number containing it read as `None` — safe, but the number is simply never available.
 
 - [ ] **Step 3: Write the test that proves the atlas works**
 
