@@ -9,8 +9,9 @@ mouse is never hijacked:
 
 Usage:
     python tower_bot.py                 # run the loop
-    python tower_bot.py --once          # single scan, useful while tuning
-    python tower_bot.py --debug-scores  # log match scores for every template
+    python tower_bot.py --once          # a few scans, enough to settle on the real screen
+    python tower_bot.py --debug-scores  # one frame, one table of every template's score
+    python tower_bot.py --tui --auto-navigate  # live panel, loops runs unattended
 """
 
 from __future__ import annotations
@@ -20,157 +21,24 @@ import logging
 import signal
 import sys
 import time
-from pathlib import Path
+import traceback
 from types import FrameType
-from typing import NamedTuple
 
-import cv2
-import numpy as np
-from numpy.typing import NDArray
-from adbutils import AdbClient, AdbDevice, AdbError
+from adbutils import AdbDevice
 
 import config
+import events
+import screens
+import vision
+from affordability import AffordabilityCheck, BrightnessAffordability
+from device import EmulatorError, Image, capture_screen, connect_device, tap
+from navigate import Navigator
+from runs import RunTracker
+from snapshots import SnapshotWriter
+from sinks.log import LogSink
+from sinks.tui import TuiSink
 
 logger = logging.getLogger("tower_bot")
-
-Image = NDArray[np.uint8]
-
-
-class EmulatorError(RuntimeError):
-    """Raised when the emulator cannot be reached or does not respond."""
-
-
-class Match(NamedTuple):
-    """Where a template was found on screen, and how well it scored."""
-
-    center: tuple[int, int]
-    score: float
-    top_left: tuple[int, int]
-
-
-# --------------------------------------------------------------------------
-# Device layer
-# --------------------------------------------------------------------------
-def connect_device(
-    host: str = config.DEVICE_HOST,
-    port: int = config.DEVICE_PORT,
-    adb_host: str = config.ADB_HOST,
-    adb_port: int = config.ADB_PORT,
-) -> AdbDevice:
-    """Return a connected adbutils device for the local emulator.
-
-    Tries the explicit ``host:port`` endpoint first; if the emulator is only
-    registered under its ``emulator-5554`` serial, falls back to the single
-    attached device.
-    """
-    client = AdbClient(host=adb_host, port=adb_port)
-    try:
-        client.server_version()  # cheap round-trip that proves the server is up
-    except Exception as exc:  # noqa: BLE001 - surface any socket/protocol error
-        raise EmulatorError(
-            f"No ADB server on {adb_host}:{adb_port}. Run `adb start-server` first."
-        ) from exc
-
-    serial = f"{host}:{port}"
-    try:
-        client.connect(serial, timeout=3.0)
-    except AdbError:
-        logger.debug("connect(%s) failed; falling back to device list", serial)
-
-    # adbutils builds an AdbDevice for any serial without checking that it
-    # exists, so confirm against the attached list before trusting it.
-    attached = client.device_list()
-    if not attached:
-        raise EmulatorError(
-            "No ADB devices found. Is the emulator running? Check `adb devices`."
-        )
-
-    device = next((d for d in attached if d.serial == serial), None)
-    if device is None:
-        device = attached[0]
-        logger.warning("%s not found; using attached device %s", serial, device.serial)
-
-    logger.info("Connected to %s", device.serial)
-    return device
-
-
-def capture_screen(device: AdbDevice) -> Image:
-    """Grab the current frame straight into memory as a BGR OpenCV image."""
-    # error_ok=False matters: the default returns a *black* image when the
-    # capture fails, which would leave the bot scanning blank frames forever.
-    try:
-        shot = device.screenshot(error_ok=False)
-    except AdbError as exc:
-        raise EmulatorError(f"screencap failed: {exc}") from exc
-
-    # adbutils hands back a PIL image in RGB; OpenCV wants BGR.
-    return cv2.cvtColor(np.asarray(shot.convert("RGB")), cv2.COLOR_RGB2BGR)
-
-
-def tap(device: AdbDevice, x: int, y: int) -> None:
-    """Send an invisible tap. The emulator does not need focus."""
-    device.click(x, y)
-
-
-# --------------------------------------------------------------------------
-# Vision layer
-# --------------------------------------------------------------------------
-class TemplateCache:
-    """Loads template images once and keeps them in memory."""
-
-    def __init__(self, template_dir: Path) -> None:
-        self._dir = template_dir
-        self._cache: dict[str, Image] = {}
-
-    def get(self, template_path: str | Path) -> Image:
-        key = str(template_path)
-        cached = self._cache.get(key)
-        if cached is not None:
-            return cached
-
-        path = Path(template_path)
-        if not path.is_absolute() and not path.exists():
-            path = self._dir / path
-        if not path.exists():
-            raise FileNotFoundError(f"Template not found: {path}")
-
-        template = cv2.imread(str(path), cv2.IMREAD_COLOR)
-        if template is None:
-            raise ValueError(f"Could not read template image: {path}")
-
-        self._cache[key] = template
-        logger.debug("Loaded template %s (%dx%d)", path.name, template.shape[1], template.shape[0])
-        return template
-
-
-def locate_template(
-    screen: Image,
-    template: Image,
-    threshold: float,
-) -> Match | None:
-    """Return the best match above ``threshold``, or None."""
-    screen_h, screen_w = screen.shape[:2]
-    tpl_h, tpl_w = template.shape[:2]
-    if tpl_h > screen_h or tpl_w > screen_w:
-        logger.warning(
-            "Template (%dx%d) is larger than the screen (%dx%d) - was it captured "
-            "at a different emulator resolution?",
-            tpl_w, tpl_h, screen_w, screen_h,
-        )
-        return None
-
-    result = cv2.matchTemplate(screen, template, cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, max_loc = cv2.minMaxLoc(result)
-    if max_val < threshold:
-        return None
-
-    center = (max_loc[0] + tpl_w // 2, max_loc[1] + tpl_h // 2)
-    return Match(center=center, score=float(max_val), top_left=max_loc)
-
-
-def mean_brightness(image: Image) -> float:
-    """Mean grey level of ``image`` (0-255)."""
-    return float(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY).mean())
 
 
 # --------------------------------------------------------------------------
@@ -180,17 +48,31 @@ class TowerBot:
     def __init__(
         self,
         device: AdbDevice,
-        templates: TemplateCache,
+        templates: vision.TemplateCache,
+        bus: events.EventBus,
         click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
-        debug_scores: bool = False,
+        affordability_check: AffordabilityCheck | None = None,
+        auto_navigate: bool = False,
     ) -> None:
         self.device = device
         self.templates = templates
+        self.bus = bus
         self.click_cooldown = click_cooldown
-        self.debug_scores = debug_scores
+        self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
+        self.tracker = screens.ScreenTracker()
+        self.snapshots = SnapshotWriter(
+            config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
+        )
+        self.auto_navigate = auto_navigate
+        self.navigator = Navigator(templates, bus)
+        self.runs = RunTracker()
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
+
+    @property
+    def screen_state(self) -> screens.ScreenState:
+        return self.tracker.state
 
     # -- screen state ------------------------------------------------------
     def refresh_screen(self) -> Image:
@@ -205,92 +87,156 @@ class TowerBot:
         return self._screen
 
     # -- the core helper ---------------------------------------------------
-    def find_and_click_image(
-        self,
-        template_path: str | Path,
-        threshold: float = config.DEFAULT_THRESHOLD,
-        brightness_ratio: float = config.DEFAULT_BRIGHTNESS_RATIO,
-    ) -> bool:
-        """Find ``template_path`` on the current screen and tap it.
+    def find_and_click_image(self, action: config.Action) -> bool:
+        """Find the action's template on the current screen and tap it.
 
-        Returns True if the template was matched above ``threshold``, looked
-        bright enough to be actionable, and a tap was sent. Uses the frame
-        captured by the most recent :meth:`refresh_screen` call so one capture
-        can serve many lookups.
+        Rejects are ordered cheapest-first (spec section 7): screen, then
+        match score, then brightness, then cooldown.
         """
-        key = str(template_path)
-        template = self.templates.get(template_path)
+        key = action.template
 
-        match = locate_template(self.screen, template, threshold)
-        if match is None:
-            if self.debug_scores:
-                score = self._best_score(template)
-                logger.debug("%s: no match (best score %.3f)", key, score)
+        if self.tracker.state is not screens.ScreenState.IN_RUN:
+            # Defence in depth, and deliberately silent. run_once already
+            # skips the whole action loop and publishes exactly one
+            # screen_gated event per scan; publishing here too would emit one
+            # per action - 4 identical events every 2s, ~172k a day.
             return False
 
-        (x, y), score = match.center, match.score
+        template = self.templates.get(action.template)
+        match = vision.locate_template(self.screen, template, action.threshold)
+        if match is None:
+            return False
 
-        # The match score is brightness-invariant, so check the actual grey
-        # level too: a dimmed button is one the game is not offering yet.
-        if brightness_ratio > 0.0:
-            ratio = self._brightness_ratio(match, template)
-            if self.debug_scores:
-                logger.debug("%s: score %.3f, brightness %.2f of template", key, score, ratio)
-            if ratio < brightness_ratio:
-                logger.debug(
-                    "%s: match at (%d, %d) skipped - dimmed (%.2f < %.2f)",
-                    key, x, y, ratio, brightness_ratio,
-                )
-                return False
+        ok, detail = self.affordability.affordable(
+            self.screen, match, template, action
+        )
+        if not ok:
+            self.bus.publish(
+                events.Skipped(action=key, reason="dimmed", detail=detail)
+            )
+            return False
 
         now = time.monotonic()
         if now - self._last_click.get(key, 0.0) < self.click_cooldown:
-            logger.debug("%s: match at (%d, %d) skipped - cooling down", key, x, y)
+            self.bus.publish(events.Skipped(action=key, reason="cooldown"))
             return False
 
+        x, y = match.center
         tap(self.device, x, y)
         self._last_click[key] = now
-        logger.info("Clicked %s at (%d, %d) [score %.3f]", key, x, y, score)
+        self.bus.publish(events.Tapped(action=key, x=x, y=y, score=match.score))
         return True
 
-    def _brightness_ratio(self, match: Match, template: Image) -> float:
-        """Brightness of the matched screen region relative to the template."""
-        tpl_h, tpl_w = template.shape[:2]
-        x, y = match.top_left
-        region = self.screen[y : y + tpl_h, x : x + tpl_w]
-        template_level = mean_brightness(template)
-        if template_level <= 0.0:  # all-black template: nothing to compare against
-            return 1.0
-        return mean_brightness(region) / template_level
-
-    def _best_score(self, template: Image) -> float:
-        result = cv2.matchTemplate(self.screen, template, cv2.TM_CCOEFF_NORMED)
-        return float(cv2.minMaxLoc(result)[1])
-
     # -- main loop ---------------------------------------------------------
-    def run_once(self) -> bool:
-        """One scan pass over the configured actions. True if anything clicked."""
+    def run_cap_reached(self, max_runs: int | None) -> bool:
+        return max_runs is not None and self.runs.completed >= max_runs
+
+    def run_once(self, max_runs: int | None = None) -> bool:
+        """One scan pass over the configured actions. True if anything clicked.
+
+        `max_runs` only suppresses auto-navigation. The scan that ends run N
+        is also the scan that would tap RETRY on the way out, so without this
+        the loop breaks at the top of the next iteration having already
+        started run N+1 in the emulator.
+        """
+        started = time.monotonic()
         self.refresh_screen()
+
+        reading = screens.classify(self.screen, self.templates)
+        previous = self.tracker.state
+        if self.tracker.observe(reading) is not None:
+            self.bus.publish(
+                events.ScreenChanged(
+                    prev=previous.value,
+                    curr=self.tracker.state.value,
+                    confidence=reading.confidence,
+                    scores=reading.scores,
+                )
+            )
+            run_event = self.runs.transition(self.tracker.state, time.monotonic())
+            if run_event is not None:
+                self.bus.publish(run_event)
+
+        state = self.tracker.state
+
+        # A CONFIRMED unknown, not the tracker's initial placeholder value.
+        # Snapshotting on the placeholder means scan 1 of every launch saves
+        # a perfectly recognisable screen; at 50 kept files, 50 launches
+        # would evict every genuine one.
+        if self.tracker.confirmed and state is screens.ScreenState.UNKNOWN:
+            path = self.snapshots.maybe_write(self.screen)
+            if path is not None:
+                best = max(reading.scores, key=lambda name: reading.scores[name])
+                self.bus.publish(
+                    events.UnknownScreen(
+                        snapshot_path=str(path),
+                        best_anchor=best,
+                        best_score=reading.scores[best],
+                    )
+                )
+
+        # The screen gate is hoisted out of the action loop so an idle bot
+        # emits ONE skip per scan rather than one per action.
         clicked = False
-        for action in config.ACTIONS:
-            if self.find_and_click_image(
-                action.template, action.threshold, action.brightness_ratio
-            ):
-                logger.info("Action performed: %s", action.name)
-                clicked = True
+        if state is screens.ScreenState.IN_RUN:
+            for action in config.ACTIONS:
+                if self.find_and_click_image(action):
+                    clicked = True
+        else:
+            self.bus.publish(
+                events.Skipped(
+                    action="*",
+                    reason="screen_gated",
+                    detail=f"screen is {state.value}",
+                )
+            )
+
+        if self.auto_navigate and not self.run_cap_reached(max_runs):
+            self.navigator.maybe_navigate(
+                self.screen, state, self.device, now=time.monotonic()
+            )
+
+        self.bus.publish(
+            events.ScanCompleted(
+                screen=state.value,
+                duration_ms=(time.monotonic() - started) * 1000,
+            )
+        )
         return clicked
 
-    def run_forever(self, interval: float = config.SCAN_INTERVAL_SECONDS) -> None:
+    def run_forever(
+        self,
+        interval: float = config.SCAN_INTERVAL_SECONDS,
+        max_runs: int | None = None,
+    ) -> None:
         logger.info("Bot started - scanning every %.1fs. Ctrl+C to stop.", interval)
         while self._running:
+            # Checked before run_once(): if the limit is already reached at
+            # entry, the loop must return without scanning at all, not after
+            # one more pass.
+            if self.run_cap_reached(max_runs):
+                logger.info("Reached --max-runs=%d, stopping.", max_runs)
+                break
             try:
-                self.run_once()
+                self.run_once(max_runs=max_runs)
             except EmulatorError as exc:
                 logger.error("Device error: %s - retrying in %.1fs", exc, interval)
-            except Exception:  # noqa: BLE001 - never let one bad frame kill the loop
+                self._report(f"Device error: {exc}")
+            except Exception as exc:  # noqa: BLE001 - one bad frame must not kill the loop
                 logger.exception("Unexpected error during scan")
+                self._report(f"Unexpected error during scan: {exc}")
             time.sleep(interval)
         logger.info("Bot stopped.")
+
+    def _report(self, message: str) -> None:
+        """Put a failure on the event stream, not just in the log.
+
+        Under --tui the log is suppressed entirely, so this is the only way a
+        device failure reaches the panel instead of silently stalling it.
+        """
+        self.bus.publish(
+            events.BotError(message=message, traceback=traceback.format_exc())
+        )
 
     def stop(self, *_: object) -> None:
         self._running = False
@@ -307,21 +253,77 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--interval", type=float, default=config.SCAN_INTERVAL_SECONDS,
         help="seconds between scans",
     )
-    parser.add_argument("--once", action="store_true", help="run a single scan and exit")
+    parser.add_argument(
+        "--once", action="store_true",
+        help="scan just enough times for the screen tracker to settle, then exit",
+    )
     parser.add_argument(
         "--debug-scores", action="store_true",
-        help="log the best match score for every template (use to tune thresholds)",
+        help=(
+            "one-shot diagnostic: capture a single frame and print every "
+            "action's and screen anchor's match score (plus brightness "
+            "ratio for actions), then exit without scanning or tapping"
+        ),
+    )
+    parser.add_argument(
+        "--tui", action="store_true", help="live terminal panel instead of log lines"
+    )
+    parser.add_argument(
+        "--auto-navigate", action="store_true",
+        help="tap RETRY / BATTLE to loop runs unattended (default: off)",
+    )
+    parser.add_argument(
+        "--max-runs", type=int, default=None,
+        help="stop after this many runs (default: unlimited)",
     )
     return parser.parse_args(argv)
 
 
-def main(argv: list[str] | None = None) -> int:
-    args = parse_args(argv)
+def print_debug_scores(screen: Image, templates: vision.TemplateCache) -> None:
+    """One-shot threshold-tuning diagnostic.
+
+    Prints the best match score (and, for actions, the brightness ratio the
+    affordability gate relies on) for every configured template against a
+    single captured frame. Anchors are included deliberately: they are what
+    you need to diagnose why a frame is reading as UNKNOWN.
+
+    Self-contained by design - no debug flag threads through TowerBot itself.
+    """
+    print(f"{'action':<28}{'best_score':>12}{'brightness':>12}")
+    for action in config.ACTIONS:
+        template = templates.get(action.template)
+        score, top_left = vision.best_score(screen, template)
+        match = vision.Match(center=(0, 0), score=score, top_left=top_left)
+        brightness = vision.brightness_ratio(screen, match, template)
+        print(f"{action.template:<28}{score:>12.3f}{brightness:>12.3f}")
+
+    print()
+    print(f"{'screen anchor':<28}{'best_score':>12}")
+    for name, template_path in config.SCREEN_ANCHORS.items():
+        score, _ = vision.best_score(screen, templates.get(template_path))
+        print(f"{name:<28}{score:>12.3f}")
+
+
+def configure_logging(tui: bool) -> None:
+    """Set up stdlib logging, or get it out of the TUI's way.
+
+    rich's Live owns the terminal under --tui; stdlib logging writing to
+    stderr draws straight over the panel. Nothing is lost by silencing it:
+    failures reach the panel as BotError events on the bus.
+    """
+    if tui:
+        logging.basicConfig(level=logging.CRITICAL, handlers=[logging.NullHandler()])
+        return
     logging.basicConfig(
-        level=logging.DEBUG if args.debug_scores else logging.INFO,
+        level=logging.INFO,
         format="%(asctime)s  %(levelname)-7s %(message)s",
         datefmt="%H:%M:%S",
     )
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(argv)
+    configure_logging(args.tui)
 
     try:
         device = connect_device(host=args.host, port=args.port)
@@ -329,23 +331,62 @@ def main(argv: list[str] | None = None) -> int:
         logger.error("%s", exc)
         return 1
 
-    bot = TowerBot(
-        device=device,
-        templates=TemplateCache(config.TEMPLATE_DIR),
-        debug_scores=args.debug_scores,
-    )
+    if args.debug_scores:
+        frame = capture_screen(device)
+        print_debug_scores(frame, vision.TemplateCache(config.TEMPLATE_DIR))
+        return 0
 
-    def _handle_signal(signum: int, _frame: FrameType | None) -> None:
-        logger.info("Received signal %s - shutting down after this scan.", signum)
-        bot.stop()
+    bus = events.EventBus()
+    sink = TuiSink() if args.tui else LogSink()
+    bus.subscribe(sink)
 
-    signal.signal(signal.SIGINT, _handle_signal)
-    signal.signal(signal.SIGTERM, _handle_signal)
+    # Everything from start() onwards is inside the try: anything raising
+    # between starting the consumer thread and the loop - a bad guard frame,
+    # a template that will not load, signal registration off the main thread
+    # - would otherwise leave that thread running and, under --tui, leave
+    # rich's Live holding the terminal.
+    try:
+        sink.start()
 
-    if args.once:
-        bot.run_once()
-    else:
-        bot.run_forever(interval=args.interval)
+        try:
+            frame = capture_screen(device)
+        except Exception as exc:  # noqa: BLE001 - a bad guard frame must not abort startup
+            logger.warning("Could not capture a frame to verify resolution: %s", exc)
+        else:
+            height, width = frame.shape[:2]
+            if (width, height) != config.EXPECTED_RESOLUTION:
+                logger.warning(
+                    "Emulator is %dx%d but templates were captured at %dx%d. "
+                    "Template matching is not scale-invariant - re-capture them.",
+                    width, height, *config.EXPECTED_RESOLUTION,
+                )
+
+        bot = TowerBot(
+            device=device,
+            templates=vision.TemplateCache(config.TEMPLATE_DIR),
+            bus=bus,
+            auto_navigate=args.auto_navigate,
+        )
+
+        def _handle_signal(signum: int, _frame: FrameType | None) -> None:
+            logger.info("Received signal %s - shutting down after this scan.", signum)
+            bot.stop()
+
+        signal.signal(signal.SIGINT, _handle_signal)
+        signal.signal(signal.SIGTERM, _handle_signal)
+
+        if args.once:
+            # A single scan never settles the debounced tracker (it needs
+            # SCREEN_CONFIRMATIONS consecutive identical readings), so a
+            # lone run_once() would always report UNKNOWN even when the
+            # game is clearly on GAME_OVER at 0.998. Scan enough times to
+            # settle so --once actually names the real screen.
+            for _ in range(config.SCREEN_CONFIRMATIONS):
+                bot.run_once()
+        else:
+            bot.run_forever(interval=args.interval, max_runs=args.max_runs)
+    finally:
+        sink.close()
     return 0
 
 

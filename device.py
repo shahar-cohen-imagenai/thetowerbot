@@ -1,0 +1,86 @@
+"""ADB device access: connect, capture, tap.
+
+Everything here goes through ADB, so the emulator window never needs focus.
+Verified: with the emulator app fully hidden (not merely unfocused),
+screencap returns live frames and input tap registers.
+"""
+
+from __future__ import annotations
+
+import logging
+
+import cv2
+import numpy as np
+from adbutils import AdbClient, AdbDevice, AdbError
+from numpy.typing import NDArray
+
+import config
+
+logger = logging.getLogger("tower_bot.device")
+
+Image = NDArray[np.uint8]
+
+
+class EmulatorError(RuntimeError):
+    """Raised when the emulator cannot be reached or does not respond."""
+
+
+def connect_device(
+    host: str = config.DEVICE_HOST,
+    port: int = config.DEVICE_PORT,
+    adb_host: str = config.ADB_HOST,
+    adb_port: int = config.ADB_PORT,
+) -> AdbDevice:
+    """Return a connected adbutils device for the local emulator.
+
+    Tries the explicit ``host:port`` endpoint first; if the emulator is only
+    registered under its ``emulator-5554`` serial, falls back to the single
+    attached device.
+    """
+    client = AdbClient(host=adb_host, port=adb_port)
+    try:
+        client.server_version()  # cheap round-trip that proves the server is up
+    except Exception as exc:  # noqa: BLE001 - surface any socket/protocol error
+        raise EmulatorError(
+            f"No ADB server on {adb_host}:{adb_port}. Run `adb start-server` first."
+        ) from exc
+
+    serial = f"{host}:{port}"
+    try:
+        client.connect(serial, timeout=3.0)
+    except AdbError:
+        logger.debug("connect(%s) failed; falling back to device list", serial)
+
+    # adbutils builds an AdbDevice for any serial without checking that it
+    # exists, so confirm against the attached list before trusting it.
+    attached = client.device_list()
+    if not attached:
+        raise EmulatorError(
+            "No ADB devices found. Is the emulator running? Check `adb devices`."
+        )
+
+    device = next((d for d in attached if d.serial == serial), None)
+    if device is None:
+        device = attached[0]
+        logger.warning("%s not found; using attached device %s", serial, device.serial)
+
+    logger.info("Connected to %s", device.serial)
+    return device
+
+
+def capture_screen(device: AdbDevice) -> Image:
+    """Grab the current frame straight into memory as a BGR OpenCV image."""
+    # error_ok=False matters: the default returns a *black* image when the
+    # capture fails, which would leave the bot scanning blank frames forever.
+    try:
+        shot = device.screenshot(error_ok=False)
+    except AdbError as exc:
+        raise EmulatorError(f"screencap failed: {exc}") from exc
+
+    # adbutils hands back a PIL image in RGB; OpenCV wants BGR.
+    return cv2.cvtColor(np.asarray(shot.convert("RGB")), cv2.COLOR_RGB2BGR)
+
+
+def tap(device: AdbDevice, x: int, y: int) -> None:
+    """Send an invisible tap. The emulator does not need focus."""
+    device.click(x, y)

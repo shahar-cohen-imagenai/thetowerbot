@@ -55,3 +55,41 @@ ACTIONS: tuple[Action, ...] = (
     Action(name="Damage", template="upgrade_damage.png", threshold=0.9),
     Action(name="Critical Factor", template="upgrade_critical_factor.png", threshold=0.9),
 )
+
+# --- Screen recognition -----------------------------------------------------
+# Anchors are small crops unique to one screen. Measured separation on the
+# golden fixtures: 1.000 on the correct screen, <=0.462 on every wrong one,
+# so 0.8 has a wide margin in both directions.
+ANCHOR_THRESHOLD: float = 0.8
+
+# A transition is only declared after this many consecutive identical
+# readings. Capture lands inside the death modal's fade animation (the same
+# region measures 0.74 mid-fade and 0.28 fully dimmed), and without debounce
+# those frames produce phantom transitions that corrupt run boundaries.
+SCREEN_CONFIRMATIONS: int = 2
+
+SCREEN_ANCHORS: dict[str, str] = {
+    "MAIN_MENU": "screens/main_menu.png",
+    "IN_RUN": "screens/in_run.png",
+    "GAME_OVER": "screens/game_over.png",
+}
+
+# --- Unknown-screen snapshots ---------------------------------------------
+UNKNOWN_DIR: Path = Path(__file__).parent / "unknown"
+UNKNOWN_MIN_INTERVAL: float = 30.0
+UNKNOWN_KEEP: int = 50
+
+# --- Resolution guard ------------------------------------------------------
+# Templates are not scale-invariant. A different emulator resolution
+# invalidates every one of them.
+EXPECTED_RESOLUTION: tuple[int, int] = (1080, 2400)
+
+# --- Auto-navigation ------------------------------------------------------
+# Buttons are located by template match, never by fixed coordinates: the
+# death modal shifts ~46px vertically depending on whether the
+# "New Highest Wave!" line is present.
+NAVIGATION_COOLDOWN_SECONDS: float = 3.0
+NAV_BUTTONS: dict[str, tuple[str, str]] = {
+    "GAME_OVER": ("RETRY", "buttons/retry.png"),
+    "MAIN_MENU": ("BATTLE", "buttons/battle.png"),
+}
