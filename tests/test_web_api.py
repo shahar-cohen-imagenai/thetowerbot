@@ -247,3 +247,13 @@ def test_the_generator_stops_once_the_client_has_disconnected() -> None:
             await gen.__anext__()
 
     asyncio.run(step())
+
+
+def test_the_dashboard_is_served_at_the_root(harness) -> None:
+    client, *_ = harness
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/html")
+    assert "EventSource" in response.text  # it is the live page, not a stub

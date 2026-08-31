@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import AsyncIterator, Awaitable, Callable
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 
 import config
 import db
@@ -95,6 +95,12 @@ def create_app(
     unknown_dir: Path = config.UNKNOWN_DIR,
 ) -> FastAPI:
     app = FastAPI(title="The Tower bot")
+
+    @app.get("/", response_class=HTMLResponse)
+    def dashboard() -> str:
+        # Read per request rather than cached at import: editing the page and
+        # hitting refresh is the whole development loop for it.
+        return (STATIC_DIR / "index.html").read_text(encoding="utf-8")
 
     @app.get("/api/status")
     def status() -> dict:
