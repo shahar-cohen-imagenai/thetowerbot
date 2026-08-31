@@ -140,7 +140,7 @@ class TowerBot:
             self.bus.publish(events.Skipped(action=key, reason="cooldown"))
             return False
 
-        x, y = match.center
+        x, y = config.buy_point(match.top_left)
         tap(self.device, x, y)
         self._last_click[key] = now
         self.bus.publish(

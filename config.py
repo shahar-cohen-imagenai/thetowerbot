@@ -71,6 +71,7 @@ ACTIONS: tuple[Action, ...] = (
     Action(name="Critical Factor", template="upgrade_critical_factor.png", threshold=0.9),
 )
 
+
 # --- Screen recognition -----------------------------------------------------
 # Anchors are small crops unique to one screen. Measured separation on the
 # golden fixtures: 1.000 on the correct screen, <=0.462 on every wrong one,
@@ -134,6 +135,26 @@ WALLET_REGION: Region = Region(dx=13, dy=-1484, w=230, h=72)
 # same offset lands correctly on all four; verified against every one.
 # Inset from the box border so a brighter theme cannot smear the projection.
 PRICE_REGION: Region = Region(dx=252, dy=98, w=208, h=38)
+
+
+def buy_point(anchor: tuple[int, int]) -> tuple[int, int]:
+    """Where to tap to BUY the upgrade whose label matched at `anchor`.
+
+    NOT the label's own centre. The label is itself a button - it opens an
+    info panel that covers the screen - so a tap there buys nothing and
+    blinds the next scan behind the overlay. The buy button is the square to
+    the label's right.
+
+    The point is derived from PRICE_REGION rather than measured separately:
+    that offset already locates the price strip inside the buy square, from
+    this same anchor, for all four upgrades. One calibration to keep correct
+    instead of two that can drift apart.
+    """
+    return (
+        anchor[0] + PRICE_REGION.dx + PRICE_REGION.w // 2,
+        anchor[1] + PRICE_REGION.dy + PRICE_REGION.h // 2,
+    )
+
 
 # Death modal, from the GAME_OVER anchor at (330, 663). These crop the whole
 # CENTRED line, not just its number: "Wave 1" grows to "Wave 137" and the

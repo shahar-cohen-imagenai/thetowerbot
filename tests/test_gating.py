@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 import cv2
 import pytest
 
+import config
 import events
 import screens
 import vision
@@ -203,3 +204,44 @@ def test_cooldown_suppresses_a_repeat_tap(monkeypatch: pytest.MonkeyPatch) -> No
 
     assert rec.of(events.Tapped) == []
     assert {e.reason for e in rec.of(events.Skipped)} == {"cooldown"}
+
+
+def test_taps_land_on_the_buy_button_not_the_label(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Regression test: tapping the matched template opens an info popup.
+
+    Templates crop the LABEL, because the level and price beside it change on
+    every purchase and would break the match. But the label is itself a
+    button - it opens an info panel that covers the screen. The bot therefore
+    bought nothing (prices sat unchanged for minutes while the wallet only
+    grew) and every following frame read as `dimmed` behind the overlay.
+
+    The buy button is the square to the label's right, and PRICE_REGION is
+    already calibrated inside it for all four upgrades - which is why the tap
+    point is derived from that offset rather than from a fifth measurement.
+    """
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+
+    bot.run_once()
+
+    tapped = rec.of(events.Tapped)
+    assert len(tapped) == 4
+
+    cache = vision.TemplateCache(TEMPLATES)
+    region = config.PRICE_REGION
+    for event in tapped:
+        template = cache.get(event.action)
+        match = vision.locate_template(bot._screen, template, 0.9)
+        assert match is not None, event.action
+        left, top = match.top_left
+
+        assert left + region.dx <= event.x <= left + region.dx + region.w, event.action
+        assert top + region.dy <= event.y <= top + region.dy + region.h, event.action
+
+        on_label = (
+            left <= event.x <= left + template.shape[1]
+            and top <= event.y <= top + template.shape[0]
+        )
+        assert not on_label, f"{event.action} tap landed on the info button"
