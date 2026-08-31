@@ -258,6 +258,13 @@ def test_the_store_is_on_by_default_and_can_be_turned_off() -> None:
     assert parse_args(["--no-store"]).store is False
 
 
+def test_web_and_no_store_can_be_combined() -> None:
+    """--web --no-store is a supported mode: a dashboard with no history."""
+    args = parse_args(["--web", "--no-store"])
+    assert args.web is True
+    assert args.store is False
+
+
 def test_the_database_path_can_be_overridden() -> None:
     assert parse_args(["--db", "/tmp/other.db"]).db == "/tmp/other.db"
 
@@ -298,29 +305,83 @@ def test_a_seeded_bus_does_not_reissue_a_stored_seq() -> None:
     assert bus.publish(events.Navigated(target="RETRY")).seq == 43
 
 
-def test_serve_web_runs_the_scan_loop_beside_the_server(monkeypatch) -> None:
-    """uvicorn owns the main thread; the loop must run and then be stopped."""
+class _FakeServer:
+    """Stands in for uvicorn.Server so the test never binds a real port."""
+
+    instances: list["_FakeServer"] = []
+
+    def __init__(self, config) -> None:
+        self.config = config
+        self.should_exit = False
+        _FakeServer.instances.append(self)
+
+    def run(self) -> None:
+        return
+
+
+def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
+    monkeypatch,
+) -> None:
+    """uvicorn owns the main thread; the loop must run on a worker thread,
+    finish, and leave nothing behind once serve_web returns."""
     import threading
 
     class FakeBot:
         def __init__(self) -> None:
             self.scanned = threading.Event()
             self.stopped = False
+            self.ran_on: threading.Thread | None = None
 
         def run_forever(self, interval: float, max_runs: int | None) -> None:
+            self.ran_on = threading.current_thread()
             self.scanned.set()
 
         def stop(self) -> None:
             self.stopped = True
 
-    bot = FakeBot()
-    seen: dict[str, object] = {}
-    monkeypatch.setattr("uvicorn.run", lambda app, **kwargs: seen.update(kwargs))
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
 
+    bot = FakeBot()
     tower_bot.serve_web(
         bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=None
     )
 
     assert bot.scanned.wait(timeout=2)
     assert bot.stopped is True
-    assert (seen["host"], seen["port"]) == ("127.0.0.1", 8123)
+    assert bot.ran_on is not None
+    assert bot.ran_on is not threading.main_thread()
+    assert not any(t.name == "scan-loop" for t in threading.enumerate())
+
+    server = _FakeServer.instances[-1]
+    assert (server.config.host, server.config.port) == ("127.0.0.1", 8123)
+
+
+def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None:
+    """Finding: uvicorn.run() hides its Server, so nothing used to tell it to
+    stop once --max-runs was reached - the process hung forever serving a
+    dashboard attached to a dead bot. Owning the Server must fix that: the
+    worker sets should_exit when run_forever returns, whether that is because
+    the cap was reached or because the loop raised."""
+
+    class FakeBot:
+        def __init__(self) -> None:
+            self.stopped = False
+
+        def run_forever(self, interval: float, max_runs: int | None) -> None:
+            return  # simulates --max-runs being reached immediately
+
+        def stop(self) -> None:
+            self.stopped = True
+
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    bot = FakeBot()
+    # Must return promptly rather than hang - that is the whole bug.
+    tower_bot.serve_web(
+        bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=1
+    )
+
+    assert _FakeServer.instances[-1].should_exit is True
+    assert bot.stopped is True

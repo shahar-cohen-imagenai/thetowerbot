@@ -26,8 +26,12 @@ import time
 import traceback
 from pathlib import Path
 from types import FrameType
+from typing import TYPE_CHECKING
 
 from adbutils import AdbDevice
+
+if TYPE_CHECKING:
+    from fastapi import FastAPI
 
 import config
 import db
@@ -507,7 +511,7 @@ def prepare_store(
 
 def serve_web(
     bot: TowerBot,
-    app: object,
+    app: FastAPI,
     *,
     host: str,
     port: int,
@@ -521,21 +525,34 @@ def serve_web(
     thread and the scan loop gets a worker. They genuinely run in parallel
     despite the GIL: cv2.matchTemplate releases it for the duration of the
     match, which is where a scan spends nearly all of its time.
+
+    uvicorn.run() hides its Server object, so there is nothing to tell it to
+    stop once --max-runs is reached and the worker simply ends - the server
+    would then serve a stopped bot forever. Owning the Server instead gives
+    the worker a way to bring the server down too, whichever way the loop
+    exits.
     """
     import uvicorn
 
-    worker = threading.Thread(
-        target=bot.run_forever,
-        kwargs={"interval": interval, "max_runs": max_runs},
-        name="scan-loop",
-        daemon=True,
-    )
+    config_ = uvicorn.Config(app, host=host, port=port, log_level="warning")
+    server = uvicorn.Server(config_)
+
+    def _run_loop() -> None:
+        try:
+            bot.run_forever(interval=interval, max_runs=max_runs)
+        finally:
+            # Whether the loop returned because it hit --max-runs or because
+            # it raised, the server has nothing left to serve for.
+            server.should_exit = True
+
+    worker = threading.Thread(target=_run_loop, name="scan-loop", daemon=True)
     worker.start()
     try:
-        uvicorn.run(app, host=host, port=port, log_level="warning")
+        server.run()
     finally:
-        # uvicorn returns on Ctrl+C; the loop must be told, or the process
-        # hangs around scanning with nothing watching.
+        # server.run() returns on Ctrl+C (uvicorn's own handler) or when the
+        # loop above set should_exit; the loop must be told either way, or
+        # the process hangs around scanning with nothing watching.
         bot.stop()
         worker.join(timeout=interval + 2.0)
 
@@ -572,6 +589,14 @@ def main(argv: list[str] | None = None) -> int:
         bus.subscribe(sink)
     if sse is not None:
         bus.subscribe(sse)  # no thread to start: it appends and returns
+
+    if args.web:
+        # print(), not logger.info(): configure_logging(tui=True) sets the
+        # root logger to CRITICAL with a NullHandler, and TuiSink.start()
+        # below hands the terminal to rich's Live - either would silently
+        # swallow the one line telling the user where to point a browser.
+        # Printed here, before either of those takes hold of stdout.
+        print(f"Dashboard on http://{args.web_host}:{args.web_port}")
 
     # Everything from start() onwards is inside the try: anything raising
     # between starting the consumer threads and the loop would otherwise
@@ -615,8 +640,10 @@ def main(argv: list[str] | None = None) -> int:
         elif args.web:
             from web.app import create_app
 
-            app = create_app(state=state, sse=sse, bus=bus, db_path=db_path)
-            logger.info("Dashboard on http://%s:%d", args.web_host, args.web_port)
+            app = create_app(
+                state=state, sse=sse, bus=bus,
+                db_path=db_path if args.store else None,
+            )
             # No signal handlers of ours here: uvicorn installs its own and
             # would overwrite them anyway.
             serve_web(

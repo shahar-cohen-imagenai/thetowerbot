@@ -91,7 +91,7 @@ def create_app(
     state: BotState,
     sse: SseSink,
     bus: EventBus,
-    db_path: Path = config.DB_PATH,
+    db_path: Path | None = config.DB_PATH,
     unknown_dir: Path = config.UNKNOWN_DIR,
 ) -> FastAPI:
     app = FastAPI(title="The Tower bot")
@@ -112,11 +112,18 @@ def create_app(
 
     @app.get("/api/runs")
     def runs(limit: int = 50) -> list[dict]:
+        # --no-store is a supported mode, not an error: there is no file to
+        # read, so an empty history is the honest answer, not a 500.
+        if db_path is None:
+            return []
         with db.reader(db_path) as conn:
             return db.list_runs(conn, limit=max(1, min(limit, MAX_RUNS_PER_PAGE)))
 
     @app.get("/api/runs/{run_id}/events")
     def run_events(run_id: int) -> list[dict]:
+        # Same as /api/runs above: --no-store means there is nothing to read.
+        if db_path is None:
+            return []
         with db.reader(db_path) as conn:
             return db.run_events(conn, run_id)
 

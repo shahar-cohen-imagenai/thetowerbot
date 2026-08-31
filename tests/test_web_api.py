@@ -257,3 +257,17 @@ def test_the_dashboard_is_served_at_the_root(harness) -> None:
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     assert "EventSource" in response.text  # it is the live page, not a stub
+
+
+def test_run_routes_degrade_to_empty_history_under_no_store() -> None:
+    """--no-store is a supported mode, not an error: there is no database
+    file, so an empty history is the honest answer, not a 500."""
+    app = create_app(
+        state=BotState(), sse=SseSink(), bus=events.EventBus(), db_path=None,
+    )
+    client = TestClient(app)
+
+    assert client.get("/api/runs").status_code == 200
+    assert client.get("/api/runs").json() == []
+    assert client.get("/api/runs/1/events").status_code == 200
+    assert client.get("/api/runs/1/events").json() == []
