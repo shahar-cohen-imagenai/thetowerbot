@@ -657,6 +657,16 @@ def main(argv: list[str] | None = None) -> int:
     if sse is not None:
         bus.subscribe(sse)  # no thread to start: it appends and returns
 
+    if args.web and not args.once:
+        # print(), not logger.info(), and before sink.start() below: under
+        # --tui, TuiSink.start() hands the terminal to rich's Live, and
+        # configure_logging(tui=True) sets the root logger to CRITICAL with
+        # a NullHandler either way - both would silently swallow this line
+        # if it ran any later (task 8, minor 6). `not args.once` alongside
+        # that: --once wins over --web, so printing unconditionally would
+        # advertise a dashboard that never starts (M1).
+        print(f"Dashboard on http://{args.web_host}:{args.web_port}")
+
     # Everything from start() onwards is inside the try: anything raising
     # between starting the consumer threads and the loop would otherwise
     # leave them running and, under --tui, leave rich's Live holding the
@@ -698,14 +708,6 @@ def main(argv: list[str] | None = None) -> int:
                 bot.run_once()
         elif args.web:
             warn_if_web_host_exposed(args.web_host)
-            # print(), not logger.info(): configure_logging(tui=True) sets the
-            # root logger to CRITICAL with a NullHandler, and TuiSink.start()
-            # above hands the terminal to rich's Live - either would silently
-            # swallow the one line telling the user where to point a browser.
-            # Inside this branch, not before the once/web split: --once wins
-            # over --web, and printing unconditionally used to advertise a
-            # dashboard that --once would never start.
-            print(f"Dashboard on http://{args.web_host}:{args.web_port}")
 
             from web.app import create_app
 

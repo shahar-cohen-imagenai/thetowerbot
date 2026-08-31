@@ -378,6 +378,27 @@ def test_once_with_web_does_not_advertise_a_dashboard_that_never_starts(
     assert "Dashboard on" not in capsys.readouterr().out
 
 
+def test_web_alone_still_prints_the_dashboard_url(monkeypatch, capsys, tmp_path) -> None:
+    """The other half of the guard above: --web without --once must still
+    advertise the dashboard - printed before sink.start() (task 8, minor 6:
+    under --tui that call hands the terminal to rich's Live, which would
+    swallow a line printed any later), and `not args.once` must not silence
+    this case too."""
+    import tower_bot
+
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
+    monkeypatch.setattr(
+        tower_bot.TowerBot, "run_forever", lambda self, interval, max_runs: None
+    )
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    exit_code = tower_bot.main(["--web", "--db", str(tmp_path / "bot.db")])
+
+    assert exit_code == 0
+    assert "Dashboard on http://127.0.0.1:8765" in capsys.readouterr().out
+
+
 class _FakeServer:
     """Stands in for uvicorn.Server so the test never binds a real port."""
 
