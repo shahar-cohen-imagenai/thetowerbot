@@ -232,3 +232,11 @@ SSE_POLL_SECONDS: float = 0.25
 # An idle stream sends a comment this often so proxies and browsers do not
 # decide the connection died.
 SSE_HEARTBEAT_SECONDS: float = 15.0
+
+# --- Web dashboard --------------------------------------------------------
+# SECURITY: loopback only, and there is no auth. The dashboard serves
+# screenshots of a live session and the full event history of this machine.
+# Binding 0.0.0.0 puts both on the local network in the clear - do not change
+# this without putting real authentication in front of it first.
+WEB_HOST: str = "127.0.0.1"
+WEB_PORT: int = 8765

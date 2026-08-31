@@ -240,3 +240,87 @@ def test_brightness_is_used_even_when_an_atlas_exists(tmp_path: Path) -> None:
         build_synthetic_atlas(tmp_path / size_class)
     check = tower_bot.build_affordability("brightness", atlas_root=tmp_path)
     assert isinstance(check, BrightnessAffordability)
+
+
+def test_web_defaults_off() -> None:
+    assert parse_args([]).web is False
+
+
+def test_web_binds_loopback_by_default() -> None:
+    """The dashboard serves session screenshots and has no auth."""
+    args = parse_args(["--web"])
+    assert args.web is True
+    assert args.web_host == "127.0.0.1"
+
+
+def test_the_store_is_on_by_default_and_can_be_turned_off() -> None:
+    assert parse_args([]).store is True
+    assert parse_args(["--no-store"]).store is False
+
+
+def test_the_database_path_can_be_overridden() -> None:
+    assert parse_args(["--db", "/tmp/other.db"]).db == "/tmp/other.db"
+
+
+def test_prepare_store_seeds_both_counters_and_prunes(tmp_path) -> None:
+    """A restart must continue the sequence, not collide with it."""
+    import time
+
+    import db
+
+    path = tmp_path / "bot.db"
+    conn = db.connect(path)
+    db.start_run(conn, 5, started_at=1.0)
+    db.insert_event(conn, {
+        "seq": 41, "run_id": 5, "ts": time.time(), "type": "Navigated",
+        "screen": None, "action": None, "reason": None, "score": None,
+        "price": None, "wallet": None, "detail": None,
+    })
+    db.insert_event(conn, {
+        "seq": 42, "run_id": 5, "ts": time.time() - 90 * 86400, "type": "Navigated",
+        "screen": None, "action": None, "reason": None, "score": None,
+        "price": None, "wallet": None, "detail": None,
+    })
+    conn.close()
+
+    seed_seq, last_run = tower_bot.prepare_store(path)
+
+    assert (seed_seq, last_run) == (42, 5)
+    with db.reader(path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 1
+
+
+def test_a_seeded_bus_does_not_reissue_a_stored_seq() -> None:
+    import events
+
+    bus = events.EventBus(start_seq=42)
+
+    assert bus.publish(events.Navigated(target="RETRY")).seq == 43
+
+
+def test_serve_web_runs_the_scan_loop_beside_the_server(monkeypatch) -> None:
+    """uvicorn owns the main thread; the loop must run and then be stopped."""
+    import threading
+
+    class FakeBot:
+        def __init__(self) -> None:
+            self.scanned = threading.Event()
+            self.stopped = False
+
+        def run_forever(self, interval: float, max_runs: int | None) -> None:
+            self.scanned.set()
+
+        def stop(self) -> None:
+            self.stopped = True
+
+    bot = FakeBot()
+    seen: dict[str, object] = {}
+    monkeypatch.setattr("uvicorn.run", lambda app, **kwargs: seen.update(kwargs))
+
+    tower_bot.serve_web(
+        bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=None
+    )
+
+    assert bot.scanned.wait(timeout=2)
+    assert bot.stopped is True
+    assert (seen["host"], seen["port"]) == ("127.0.0.1", 8123)

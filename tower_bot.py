@@ -21,6 +21,7 @@ import dataclasses
 import logging
 import signal
 import sys
+import threading
 import time
 import traceback
 from pathlib import Path
@@ -29,6 +30,7 @@ from types import FrameType
 from adbutils import AdbDevice
 
 import config
+import db
 import digits
 import events
 import screens
@@ -43,6 +45,9 @@ from navigate import Navigator
 from runs import RunTracker
 from snapshots import SnapshotWriter
 from sinks.log import LogSink
+from sinks.sse import SseSink
+from sinks.state import BotState, StateSink
+from sinks.store import StoreSink
 from sinks.tui import TuiSink
 
 logger = logging.getLogger("tower_bot")
@@ -61,6 +66,7 @@ class TowerBot:
         affordability_check: AffordabilityCheck | None = None,
         auto_navigate: bool = False,
         reader: digits.NumberReader | None = None,
+        first_run_id: int = 1,
     ) -> None:
         self.device = device
         self.templates = templates
@@ -75,7 +81,7 @@ class TowerBot:
         )
         self.auto_navigate = auto_navigate
         self.navigator = Navigator(templates, bus)
-        self.runs = RunTracker()
+        self.runs = RunTracker(first_run_id)
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
@@ -371,6 +377,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "back to brightness on its own when no atlas is built"
         ),
     )
+    parser.add_argument(
+        "--web", action="store_true",
+        help="serve the dashboard while the bot runs (default: off)",
+    )
+    parser.add_argument(
+        "--web-host", default=config.WEB_HOST,
+        help="dashboard bind address - loopback by default, and there is no auth",
+    )
+    parser.add_argument("--web-port", type=int, default=config.WEB_PORT)
+    parser.add_argument(
+        "--db", default=str(config.DB_PATH), help="SQLite file for the event log"
+    )
+    parser.add_argument(
+        "--no-store", dest="store", action="store_false", default=True,
+        help="do not persist events to SQLite",
+    )
     return parser.parse_args(argv)
 
 
@@ -448,6 +470,76 @@ def configure_logging(tui: bool) -> None:
     )
 
 
+def install_signal_handlers(bot: TowerBot) -> None:
+    def _handle_signal(signum: int, _frame: FrameType | None) -> None:
+        logger.info("Received signal %s - shutting down after this scan.", signum)
+        bot.stop()
+
+    signal.signal(signal.SIGINT, _handle_signal)
+    signal.signal(signal.SIGTERM, _handle_signal)
+
+
+def prepare_store(
+    path: Path, retention_days: int = config.EVENT_RETENTION_DAYS
+) -> tuple[int, int]:
+    """Create the database, prune it, and report what to seed the counters to.
+
+    Returns `(max_seq, max_run_id)`. Both are in-process counters that would
+    otherwise restart at zero on every launch: seq would collide with stored
+    rows on the events primary key and break SSE resume across a restart, and
+    run ids would overwrite the previous session's runs one at a time.
+
+    Read BEFORE pruning, deliberately: a seq that was already handed out must
+    never be reissued, even for an event old enough to have just aged out of
+    retention. Pruning is disk hygiene, not a reason to rewind the counter.
+    """
+    conn = db.connect(path)
+    try:
+        seed_seq = db.max_seq(conn)
+        last_run = db.max_run_id(conn)
+        removed = db.prune_events(conn, retention_days)
+        if removed:
+            logger.info("Pruned %d events older than %d days", removed, retention_days)
+        return seed_seq, last_run
+    finally:
+        conn.close()
+
+
+def serve_web(
+    bot: TowerBot,
+    app: object,
+    *,
+    host: str,
+    port: int,
+    interval: float,
+    max_runs: int | None,
+) -> None:
+    """Run the server on this thread and the scan loop beside it.
+
+    This way round on purpose. uvicorn installs its own SIGINT/SIGTERM
+    handlers and can only do that from the main thread, so it gets the main
+    thread and the scan loop gets a worker. They genuinely run in parallel
+    despite the GIL: cv2.matchTemplate releases it for the duration of the
+    match, which is where a scan spends nearly all of its time.
+    """
+    import uvicorn
+
+    worker = threading.Thread(
+        target=bot.run_forever,
+        kwargs={"interval": interval, "max_runs": max_runs},
+        name="scan-loop",
+        daemon=True,
+    )
+    worker.start()
+    try:
+        uvicorn.run(app, host=host, port=port, log_level="warning")
+    finally:
+        # uvicorn returns on Ctrl+C; the loop must be told, or the process
+        # hangs around scanning with nothing watching.
+        bot.stop()
+        worker.join(timeout=interval + 2.0)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     configure_logging(args.tui)
@@ -463,17 +555,31 @@ def main(argv: list[str] | None = None) -> int:
         print_debug_scores(frame, vision.TemplateCache(config.TEMPLATE_DIR))
         return 0
 
-    bus = events.EventBus()
-    sink = TuiSink() if args.tui else LogSink()
-    bus.subscribe(sink)
+    db_path = Path(args.db)
+    seed_seq, last_run = prepare_store(db_path) if args.store else (0, 0)
+
+    bus = events.EventBus(start_seq=seed_seq)
+    state = BotState()
+    sinks: list = [TuiSink(state=state) if args.tui else LogSink()]
+    if args.store:
+        sinks.append(StoreSink(db_path))
+    if args.web and not args.tui:
+        # Under --tui the panel's sink already feeds the shared state.
+        sinks.append(StateSink(state))
+    sse = SseSink() if args.web else None
+
+    for sink in sinks:
+        bus.subscribe(sink)
+    if sse is not None:
+        bus.subscribe(sse)  # no thread to start: it appends and returns
 
     # Everything from start() onwards is inside the try: anything raising
-    # between starting the consumer thread and the loop - a bad guard frame,
-    # a template that will not load, signal registration off the main thread
-    # - would otherwise leave that thread running and, under --tui, leave
-    # rich's Live holding the terminal.
+    # between starting the consumer threads and the loop would otherwise
+    # leave them running and, under --tui, leave rich's Live holding the
+    # terminal.
     try:
-        sink.start()
+        for sink in sinks:
+            sink.start()
 
         try:
             frame = capture_screen(device)
@@ -494,14 +600,8 @@ def main(argv: list[str] | None = None) -> int:
             bus=bus,
             affordability_check=build_affordability(args.affordability),
             auto_navigate=args.auto_navigate,
+            first_run_id=last_run + 1,
         )
-
-        def _handle_signal(signum: int, _frame: FrameType | None) -> None:
-            logger.info("Received signal %s - shutting down after this scan.", signum)
-            bot.stop()
-
-        signal.signal(signal.SIGINT, _handle_signal)
-        signal.signal(signal.SIGTERM, _handle_signal)
 
         if args.once:
             # A single scan never settles the debounced tracker (it needs
@@ -509,12 +609,26 @@ def main(argv: list[str] | None = None) -> int:
             # lone run_once() would always report UNKNOWN even when the
             # game is clearly on GAME_OVER at 0.998. Scan enough times to
             # settle so --once actually names the real screen.
+            install_signal_handlers(bot)
             for _ in range(config.SCREEN_CONFIRMATIONS):
                 bot.run_once()
+        elif args.web:
+            from web.app import create_app
+
+            app = create_app(state=state, sse=sse, bus=bus, db_path=db_path)
+            logger.info("Dashboard on http://%s:%d", args.web_host, args.web_port)
+            # No signal handlers of ours here: uvicorn installs its own and
+            # would overwrite them anyway.
+            serve_web(
+                bot, app, host=args.web_host, port=args.web_port,
+                interval=args.interval, max_runs=args.max_runs,
+            )
         else:
+            install_signal_handlers(bot)
             bot.run_forever(interval=args.interval, max_runs=args.max_runs)
     finally:
-        sink.close()
+        for sink in sinks:
+            sink.close()
     return 0
 
 

@@ -18,6 +18,9 @@ bugs when the previous state was consulted:
   IN_RUN -> UNKNOWN -> GAME_OVER must still close the run, or the id leaks
   into the next one and a later death reports the wrong run over the wrong
   duration.
+
+Run ids are handed out from `start_id`, which the caller seeds from the
+database so a restart continues the numbering instead of colliding with it.
 """
 
 from __future__ import annotations
@@ -27,8 +30,12 @@ from screens import ScreenState
 
 
 class RunTracker:
-    def __init__(self) -> None:
-        self._next_id = 1
+    def __init__(self, start_id: int = 1) -> None:
+        # Seeded from the database at startup. Run ids are the runs table's
+        # primary key: restarting at 1 would overwrite the previous session's
+        # runs one by one, exactly as an unseeded seq would collide on the
+        # events table.
+        self._next_id = start_id
         self.current_id: int | None = None
         self.completed = 0
         self._started_at: float | None = None
