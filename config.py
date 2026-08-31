@@ -203,6 +203,14 @@ NAV_DISMISS: tuple[str, ...] = (
     "nav/skip.png",
 )
 
+# --- Persistence ----------------------------------------------------------
+DB_PATH: Path = Path(__file__).parent / "tower_bot.db"
+
+# Events older than this are deleted at startup. ScanCompleted is never
+# stored - it fires every 2s, roughly 43,000 near-identical rows a day - so
+# what remains is state changes only, and 30 days of those stays small.
+EVENT_RETENTION_DAYS: int = 30
+
 # Which menu page is on screen. Deliberately SEPARATE from SCREEN_ANCHORS:
 # ScreenState models the run lifecycle only, and classify() does
 # ScreenState(winner), which would raise on a name the enum does not have.
