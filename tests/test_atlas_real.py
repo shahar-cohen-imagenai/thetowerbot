@@ -132,32 +132,23 @@ def test_a_caption_that_is_not_on_screen_reads_none() -> None:
     )
 
 
-# Which digits each size class has actually been labelled with. A missing
-# digit is SILENT: every number containing it just reads as None, and the bot
-# quietly falls back to brightness. These sets are the honest record of what
-# has been captured from a live emulator so far.
 DIGITS = set("0123456789")
-KNOWN_INCOMPLETE: dict[str, str] = {
-    "modal": "only 0,1,2,5,6 seen so far - needs deeper runs and higher tiers",
-}
 
 
-@pytest.mark.parametrize(
-    "size_class",
-    [
-        pytest.param(
-            name,
-            marks=(
-                [pytest.mark.xfail(strict=True, reason=KNOWN_INCOMPLETE[name])]
-                if name in KNOWN_INCOMPLETE
-                else []
-            ),
-        )
-        for name in digits.SIZE_CLASSES
-    ],
-)
+@pytest.mark.parametrize("size_class", digits.SIZE_CLASSES)
 def test_size_class_has_a_full_digit_set(size_class: str) -> None:
-    """When one of these XPASSes, delete its KNOWN_INCOMPLETE entry."""
+    """Every size class carries all ten digits.
+
+    A missing digit is SILENT: NumberReader returns None for any number
+    containing it - never a partial read - so the bot just falls back to
+    brightness and the gap never announces itself. This test is the only
+    thing that does.
+
+    All three classes were filled from a live emulator. If a future capture
+    starts from scratch - a new resolution invalidates every glyph - expect
+    this to fail until build_atlas.py and tools/label_glyphs.py have been run
+    against a run and a death modal.
+    """
     atlas = digits.AtlasCache().get(size_class)
     assert atlas is not None, f"no atlas for {size_class}"
     missing = DIGITS - atlas.labels
