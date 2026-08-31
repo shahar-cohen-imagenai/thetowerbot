@@ -10,6 +10,8 @@ dependencies = [
     "opencv-python>=4.9",
     "numpy>=1.26",
     "rich>=15.0.0",
+    "fastapi>=0.141.1",
+    "uvicorn>=0.52.4",
 ]
 
 [tool.uv]
@@ -18,5 +20,6 @@ package = false
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.12.0",
     "pytest>=9.1.1",
 ]

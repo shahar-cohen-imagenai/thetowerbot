@@ -1,59 +1,21 @@
 """Live terminal panel.
 
-TuiState is deliberately separate from rendering so it can be tested without
-a terminal; TuiSink only draws.
+The state it draws lives in sinks/state.py, shared with the dashboard's
+/api/status: the panel and the web header answer the same question, and one
+accumulator is the only way they cannot disagree. TuiSink only draws.
 """
 
 from __future__ import annotations
 
-import time
-from collections import Counter, deque
-
 import events
 from sinks.base import QueueSink
-from sinks.log import render
-
-
-class TuiState:
-    """Everything the panel displays, accumulated from the event stream."""
-
-    def __init__(self, tail: int = 12) -> None:
-        self.screen = "UNKNOWN"
-        self.scans = 0
-        self.taps: Counter[str] = Counter()
-        self.skips: Counter[str] = Counter()
-        self.last_error: str | None = None
-        self.started = time.monotonic()
-        self.tail: deque[str] = deque(maxlen=tail)
-
-    def apply(self, event: events.Event) -> None:
-        match event:
-            case events.ScreenChanged():
-                self.screen = event.curr
-                self.tail.append(render(event))
-            case events.ScanCompleted():
-                self.scans += 1
-                self.screen = event.screen
-            case events.Tapped():
-                self.taps[event.action] += 1
-                self.tail.append(render(event))
-            case events.Skipped():
-                self.skips[event.reason] += 1
-            case events.BotError():
-                self.last_error = event.message
-                self.tail.append(render(event))
-            case _:
-                self.tail.append(render(event))
-
-    @property
-    def uptime(self) -> float:
-        return time.monotonic() - self.started
+from sinks.state import BotState
 
 
 class TuiSink(QueueSink):
-    def __init__(self, maxsize: int = 1000) -> None:
+    def __init__(self, state: BotState | None = None, maxsize: int = 1000) -> None:
         super().__init__(maxsize=maxsize)
-        self.state = TuiState()
+        self.state = state if state is not None else BotState()
         self._live = None
 
     def start(self) -> None:

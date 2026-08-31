@@ -396,7 +396,8 @@ Phase 2 is the milestone; everything after is enrichment.
   required rather than merely preferable.
 - Tier is in the schema but nothing reads it yet; it needs the death modal's
   "Tier N" line, which arrives with phase 3.
-- Booting onto an unmodelled screen emits one `ScreenChanged` with
-  `prev == curr == "UNKNOWN"` (at most once per launch). Harmless today; revisit
-  when section 8's persistence lands, since it would otherwise be stored as a
-  state-changing event that changed no state.
+- **Resolved in phase 4.** Booting onto an unmodelled screen emits one
+  `ScreenChanged` with `prev == curr == "UNKNOWN"` (at most once per launch).
+  The store sink drops it: a state change that changed no state is not
+  history. It still reaches the TUI and the live feed, where it is a useful
+  "I looked and did not recognise this" signal.

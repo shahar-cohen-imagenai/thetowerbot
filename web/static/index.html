@@ -1,0 +1,233 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>The Tower bot</title>
+<style>
+  :root {
+    --bg: #14161a; --panel: #1c1f26; --line: #2a2f3a; --text: #e6e8ee;
+    --dim: #8b93a5; --ok: #4ade80; --warn: #fbbf24; --bad: #f87171;
+    --accent: #60a5fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  header {
+    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+    padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--panel);
+    position: sticky; top: 0; z-index: 1;
+  }
+  header b { font-weight: 600; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--bad); display: inline-block; }
+  .dot.live { background: var(--ok); }
+  .stat { color: var(--dim); }
+  .stat b { color: var(--text); margin-left: 6px; }
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; }
+  section { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+  section h2 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+  #feed { height: 340px; overflow-y: auto; }
+  #feed div { padding: 1px 0; white-space: pre-wrap; word-break: break-word; }
+  .t-Tapped { color: var(--ok); }
+  .t-Skipped { color: var(--dim); }
+  .t-ScreenChanged, .t-Navigated { color: var(--accent); }
+  .t-RunStarted, .t-RunEnded { color: var(--warn); }
+  .t-BotError, .t-UnknownScreen { color: var(--bad); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+  th { color: var(--dim); font-weight: 500; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: #232833; }
+  input, button { background: #232833; color: var(--text); border: 1px solid var(--line);
+                  border-radius: 4px; padding: 4px 8px; font: inherit; }
+  button { cursor: pointer; }
+  #shots { display: flex; gap: 8px; flex-wrap: wrap; }
+  #shots img { width: 90px; border: 1px solid var(--line); border-radius: 4px; }
+  #error { color: var(--bad); }
+  .wide { grid-column: 1 / -1; }
+</style>
+
+<header>
+  <b>The Tower bot</b>
+  <span><span class="dot" id="dot"></span> <span id="conn">connecting</span></span>
+  <span class="stat">screen<b id="screen">-</b></span>
+  <span class="stat">uptime<b id="uptime">-</b></span>
+  <span class="stat">scans<b id="scans">0</b></span>
+  <span class="stat">runs<b id="runs-done">0</b></span>
+  <span class="stat">wallet<b id="wallet">-</b></span>
+  <span class="stat">dropped<b id="dropped">0</b></span>
+  <span id="error"></span>
+</header>
+
+<main>
+  <section>
+    <h2>Current run</h2>
+    <div id="run">idle</div>
+  </section>
+
+  <section>
+    <h2>Waves</h2>
+    <canvas id="spark" width="480" height="60"></canvas>
+  </section>
+
+  <section class="wide">
+    <h2>
+      Events
+      <input id="filter" placeholder="filter…" size="14">
+      <button id="back" hidden>back to live</button>
+      <span id="mode"></span>
+    </h2>
+    <div id="feed"></div>
+  </section>
+
+  <section>
+    <h2>Run history</h2>
+    <table>
+      <thead><tr><th>#</th><th>wave</th><th>coins</th><th>tier</th><th>taps</th><th>length</th></tr></thead>
+      <tbody id="history"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Unknown screens</h2>
+    <div id="shots"></div>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const feed = $("feed");
+  let historyMode = false;
+
+  const clock = (ts) => new Date(ts * 1000).toTimeString().slice(0, 8);
+  const money = (n) => (n === null || n === undefined ? "-" : "$" + n);
+
+  function describe(e) {
+    switch (e.type) {
+      case "Tapped": return `TAP    ${e.action} (${e.x},${e.y}) score=${e.score.toFixed(3)} price=${money(e.price)}`;
+      case "Skipped": return `SKIP   ${e.action} reason=${e.reason}${e.detail ? " " + e.detail : ""}`;
+      case "ScreenChanged": return `SCREEN ${e.prev} -> ${e.screen ?? e.curr} (${e.confidence.toFixed(3)})`;
+      case "ScanCompleted": return `SCAN   ${e.screen} ${Math.round(e.duration_ms)}ms wallet=${money(e.wallet)}`;
+      case "RunStarted": return `RUN    #${e.run_id} started`;
+      case "RunEnded": return `RUN    #${e.run_id} ${e.abandoned ? "abandoned" : "ended"} wave=${e.wave ?? "?"} coins=${e.coins ?? "?"}`;
+      case "Navigated": return `NAV    ${e.target}`;
+      case "UnknownScreen": return `UNKNWN best=${e.best_anchor} ${e.best_score.toFixed(3)}`;
+      case "BotError": return `ERROR  ${e.message}`;
+      default: return e.type;
+    }
+  }
+
+  function show(e) {
+    const row = document.createElement("div");
+    row.className = "t-" + e.type;
+    row.textContent = `${clock(e.ts)} ${describe(e)}`;
+    row.dataset.text = row.textContent.toLowerCase();
+    const term = $("filter").value.trim().toLowerCase();
+    row.hidden = term !== "" && !row.dataset.text.includes(term);
+    const pinned = feed.scrollTop + feed.clientHeight >= feed.scrollHeight - 20;
+    feed.append(row);
+    while (feed.childElementCount > 500) feed.firstElementChild.remove();
+    if (pinned) feed.scrollTop = feed.scrollHeight;
+  }
+
+  $("filter").addEventListener("input", () => {
+    const term = $("filter").value.trim().toLowerCase();
+    for (const row of feed.children) {
+      row.hidden = term !== "" && !row.dataset.text.includes(term);
+    }
+  });
+
+  // --- live feed ----------------------------------------------------------
+  // EventSource reconnects on its own and replays Last-Event-ID, so a dropped
+  // connection costs nothing as long as the gap fits inside the server's ring.
+  const source = new EventSource("/api/events/stream");
+  source.onopen = () => { $("dot").classList.add("live"); $("conn").textContent = "live"; };
+  source.onerror = () => { $("dot").classList.remove("live"); $("conn").textContent = "reconnecting"; };
+  source.onmessage = (message) => {
+    if (historyMode) return;
+    show(JSON.parse(message.data));
+  };
+
+  // --- header + current run ----------------------------------------------
+  async function refreshStatus() {
+    const s = await (await fetch("/api/status")).json();
+    $("screen").textContent = s.screen;
+    $("uptime").textContent = Math.round(s.uptime) + "s";
+    $("scans").textContent = s.scans;
+    $("runs-done").textContent = s.runs_completed;
+    $("wallet").textContent = money(s.wallet);
+    $("dropped").textContent = s.dropped;
+    $("error").textContent = s.last_error || "";
+    if (s.run) {
+      const taps = Object.entries(s.run.taps).map(([k, v]) => `${k} x${v}`).join(" · ") || "no taps yet";
+      $("run").textContent = `#${s.run.id} · ${Math.round(s.run.elapsed)}s · ${taps}`;
+    } else {
+      $("run").textContent = "idle";
+    }
+  }
+
+  // --- history + sparkline ------------------------------------------------
+  function sparkline(waves) {
+    const canvas = $("spark"), ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (waves.length < 2) return;
+    const top = Math.max(...waves), pad = 4;
+    const stepX = (canvas.width - pad * 2) / (waves.length - 1);
+    const y = (w) => canvas.height - pad - (top ? (w / top) * (canvas.height - pad * 2) : 0);
+    ctx.strokeStyle = "#60a5fa";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    waves.forEach((w, i) => (i ? ctx.lineTo(pad + i * stepX, y(w)) : ctx.moveTo(pad, y(w))));
+    ctx.stroke();
+  }
+
+  async function refreshRuns() {
+    const runs = await (await fetch("/api/runs?limit=30")).json();
+    $("history").replaceChildren(...runs.map((run) => {
+      const tr = document.createElement("tr");
+      const length = run.ended_at ? Math.round(run.ended_at - run.started_at) + "s" : "live";
+      for (const cell of [run.id, run.wave ?? "-", run.coins ?? "-", run.tier ?? "-", run.tap_count, length]) {
+        const td = document.createElement("td");
+        td.textContent = cell;
+        tr.append(td);
+      }
+      tr.onclick = () => showRun(run.id);
+      return tr;
+    }));
+    sparkline(runs.filter((r) => r.wave != null).map((r) => r.wave).reverse());
+  }
+
+  async function showRun(id) {
+    historyMode = true;
+    $("back").hidden = false;
+    $("mode").textContent = ` — run #${id}`;
+    const stored = await (await fetch(`/api/runs/${id}/events`)).json();
+    feed.replaceChildren();
+    // Stored rows are columns plus a detail blob; flatten them back into the
+    // shape describe() takes, so one renderer serves live and history both.
+    // Blob last: it holds no column's name except `detail` itself, whose
+    // string value is the one the renderer wants back.
+    for (const row of stored) show({ ...row, ...row.detail });
+  }
+
+  $("back").onclick = () => {
+    historyMode = false;
+    $("back").hidden = true;
+    $("mode").textContent = "";
+    feed.replaceChildren();
+  };
+
+  async function refreshShots() {
+    const shots = await (await fetch("/api/unknown")).json();
+    $("shots").replaceChildren(...shots.slice(0, 12).map((shot) => {
+      const img = new Image();
+      img.src = shot.url;
+      img.title = new Date(shot.ts * 1000).toLocaleString();
+      return img;
+    }));
+  }
+
+  refreshStatus(); refreshRuns(); refreshShots();
+  setInterval(refreshStatus, 2000);
+  setInterval(refreshRuns, 15000);
+  setInterval(refreshShots, 60000);
+</script>

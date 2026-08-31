@@ -240,3 +240,251 @@ def test_brightness_is_used_even_when_an_atlas_exists(tmp_path: Path) -> None:
         build_synthetic_atlas(tmp_path / size_class)
     check = tower_bot.build_affordability("brightness", atlas_root=tmp_path)
     assert isinstance(check, BrightnessAffordability)
+
+
+def test_web_defaults_off() -> None:
+    assert parse_args([]).web is False
+
+
+def test_web_binds_loopback_by_default() -> None:
+    """The dashboard serves session screenshots and has no auth."""
+    args = parse_args(["--web"])
+    assert args.web is True
+    assert args.web_host == "127.0.0.1"
+
+
+def test_the_store_is_on_by_default_and_can_be_turned_off() -> None:
+    assert parse_args([]).store is True
+    assert parse_args(["--no-store"]).store is False
+
+
+def test_web_and_no_store_can_be_combined() -> None:
+    """--web --no-store is a supported mode: a dashboard with no history."""
+    args = parse_args(["--web", "--no-store"])
+    assert args.web is True
+    assert args.store is False
+
+
+def test_the_database_path_can_be_overridden() -> None:
+    assert parse_args(["--db", "/tmp/other.db"]).db == "/tmp/other.db"
+
+
+def test_prepare_store_seeds_both_counters_and_prunes(tmp_path) -> None:
+    """A restart must continue the sequence, not collide with it."""
+    import time
+
+    import db
+
+    path = tmp_path / "bot.db"
+    conn = db.connect(path)
+    db.start_run(conn, 5, started_at=1.0)
+    db.insert_event(conn, {
+        "seq": 41, "run_id": 5, "ts": time.time(), "type": "Navigated",
+        "screen": None, "action": None, "reason": None, "score": None,
+        "price": None, "wallet": None, "detail": None,
+    })
+    db.insert_event(conn, {
+        "seq": 42, "run_id": 5, "ts": time.time() - 90 * 86400, "type": "Navigated",
+        "screen": None, "action": None, "reason": None, "score": None,
+        "price": None, "wallet": None, "detail": None,
+    })
+    conn.close()
+
+    seed_seq, last_run = tower_bot.prepare_store(path)
+
+    assert (seed_seq, last_run) == (42, 5)
+    with db.reader(path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 1
+
+
+def test_a_seeded_bus_does_not_reissue_a_stored_seq() -> None:
+    import events
+
+    bus = events.EventBus(start_seq=42)
+
+    assert bus.publish(events.Navigated(target="RETRY")).seq == 43
+
+
+def test_prepare_store_closes_out_a_run_a_killed_process_left_live(tmp_path) -> None:
+    """M4: no RunEnded ever fires for a killed (not stopped) bot, so the run
+    keeps ended_at IS NULL - and the dashboard renders it as `live` forever.
+    prepare_store is the one place that legitimately holds the writable
+    connection outside the sink's own thread, so it is where this gets
+    closed out."""
+    import db
+
+    path = tmp_path / "bot.db"
+    conn = db.connect(path)
+    db.start_run(conn, 1, started_at=100.0)  # never finished - the crash case
+    db.finish_run(
+        conn, 2, started_at=50.0, ended_at=90.0, wave=1, coins=1, tier=1,
+        abandoned=False, scan_count=1, tap_count=1,
+    )
+    conn.close()
+
+    tower_bot.prepare_store(path)
+
+    with db.reader(path) as conn:
+        runs = {r["id"]: r for r in db.list_runs(conn)}
+    assert (runs[1]["ended_at"], runs[1]["abandoned"]) == (100.0, 1)
+    # A run that already ended cleanly must not be touched.
+    assert (runs[2]["ended_at"], runs[2]["abandoned"]) == (90.0, 0)
+
+
+def test_prepare_store_logs_nothing_when_there_is_nothing_to_close(tmp_path, caplog) -> None:
+    import db
+
+    path = tmp_path / "bot.db"
+    db.connect(path).close()
+
+    with caplog.at_level(logging.INFO):
+        tower_bot.prepare_store(path)
+
+    assert "Closed" not in caplog.text
+
+
+@pytest.mark.parametrize(
+    "host, should_warn",
+    [
+        ("127.0.0.1", False),
+        ("::1", False),
+        ("0.0.0.0", True),
+        ("192.168.1.50", True),
+    ],
+)
+def test_warn_if_web_host_exposed(host, should_warn, caplog) -> None:
+    """M5: the reflex for "reach it from my laptop" is --web-host 0.0.0.0,
+    and the page it exposes serves live screenshots with no auth."""
+    with caplog.at_level(logging.WARNING):
+        tower_bot.warn_if_web_host_exposed(host)
+
+    assert ("not loopback" in caplog.text) is should_warn
+
+
+def test_once_with_web_does_not_advertise_a_dashboard_that_never_starts(
+    monkeypatch, capsys
+) -> None:
+    """M1: --once wins over --web, so a bot that never starts the dashboard
+    must not print its URL - the print used to run before the once/web
+    branch and fire unconditionally."""
+    import tower_bot
+
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
+    monkeypatch.setattr(tower_bot.TowerBot, "run_once", lambda self: False)
+
+    exit_code = tower_bot.main(["--once", "--web"])
+
+    assert exit_code == 0
+    assert "Dashboard on" not in capsys.readouterr().out
+
+
+def test_web_alone_still_prints_the_dashboard_url(monkeypatch, capsys, tmp_path) -> None:
+    """The other half of the guard above: --web without --once must still
+    advertise the dashboard - printed before sink.start() (task 8, minor 6:
+    under --tui that call hands the terminal to rich's Live, which would
+    swallow a line printed any later), and `not args.once` must not silence
+    this case too."""
+    import tower_bot
+
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
+    monkeypatch.setattr(
+        tower_bot.TowerBot, "run_forever", lambda self, interval, max_runs: None
+    )
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    exit_code = tower_bot.main(["--web", "--db", str(tmp_path / "bot.db")])
+
+    assert exit_code == 0
+    assert "Dashboard on http://127.0.0.1:8765" in capsys.readouterr().out
+
+
+class _FakeServer:
+    """Stands in for uvicorn.Server so the test never binds a real port."""
+
+    instances: list["_FakeServer"] = []
+
+    def __init__(self, config) -> None:
+        self.config = config
+        self.should_exit = False
+        _FakeServer.instances.append(self)
+
+    def run(self) -> None:
+        return
+
+
+def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
+    monkeypatch,
+) -> None:
+    """uvicorn owns the main thread; the loop must run on a worker thread,
+    finish, and leave nothing behind once serve_web returns."""
+    import threading
+
+    class FakeBot:
+        def __init__(self) -> None:
+            self.scanned = threading.Event()
+            self.stopped = False
+            self.ran_on: threading.Thread | None = None
+
+        def run_forever(self, interval: float, max_runs: int | None) -> None:
+            self.ran_on = threading.current_thread()
+            self.scanned.set()
+
+        def stop(self) -> None:
+            self.stopped = True
+
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    bot = FakeBot()
+    tower_bot.serve_web(
+        bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=None
+    )
+
+    assert bot.scanned.wait(timeout=2)
+    assert bot.stopped is True
+    assert bot.ran_on is not None
+    assert bot.ran_on is not threading.main_thread()
+    assert not any(t.name == "scan-loop" for t in threading.enumerate())
+
+    server = _FakeServer.instances[-1]
+    assert (server.config.host, server.config.port) == ("127.0.0.1", 8123)
+
+
+def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None:
+    """Finding: uvicorn.run() hides its Server, so nothing used to tell it to
+    stop once --max-runs was reached - the process hung forever serving a
+    dashboard attached to a dead bot. Owning the Server must fix that: the
+    worker sets should_exit when run_forever returns, whether that is because
+    the cap was reached or because the loop raised.
+
+    Also covers finding 1's other half: an SSE stream's is_disconnected()
+    never fires on its own, so the worker has to flip a `stop` flag too, not
+    just should_exit, or a held-open dashboard tab keeps the server (and the
+    scan loop behind it, as far as the user can tell) alive forever."""
+    import threading as _threading
+
+    class FakeBot:
+        def __init__(self) -> None:
+            self.stopped = False
+
+        def run_forever(self, interval: float, max_runs: int | None) -> None:
+            return  # simulates --max-runs being reached immediately
+
+        def stop(self) -> None:
+            self.stopped = True
+
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    bot = FakeBot()
+    stop = _threading.Event()
+    # Must return promptly rather than hang - that is the whole bug.
+    tower_bot.serve_web(
+        bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=1,
+        stop=stop,
+    )
+
+    assert _FakeServer.instances[-1].should_exit is True
+    assert bot.stopped is True
+    assert stop.is_set() is True

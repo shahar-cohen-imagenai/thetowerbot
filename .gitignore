@@ -4,3 +4,8 @@ __pycache__/
 screen*.png
 unknown/
 .bifrost-worktrees/
+
+# The event log is machine-local state, not source.
+tower_bot.db
+tower_bot.db-wal
+tower_bot.db-shm
