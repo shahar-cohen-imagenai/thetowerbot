@@ -170,6 +170,24 @@ def run_events(
     return [_decode(row) for row in rows]
 
 
+def close_abandoned_runs(conn: sqlite3.Connection) -> int:
+    """Close out runs a killed process never finished. Returns how many.
+
+    `RunEnded` never fires for a kill (only for the tracked run/game-over
+    lifecycle), so the row keeps `ended_at IS NULL` - which is exactly what
+    the dashboard reads as "live" - forever, and `runs` is never pruned by
+    age the way `events` is. `started_at` stands in for `ended_at` rather
+    than "now": no real duration was ever observed, and backdating to the
+    run's own start is honest about that instead of inventing one.
+    """
+    cursor = conn.execute(
+        "UPDATE runs SET ended_at = started_at, abandoned = 1 "
+        "WHERE ended_at IS NULL"
+    )
+    conn.commit()
+    return cursor.rowcount
+
+
 def prune_events(
     conn: sqlite3.Connection, retention_days: int, now: float | None = None
 ) -> int:

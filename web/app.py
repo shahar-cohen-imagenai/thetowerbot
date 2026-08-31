@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import threading
 from pathlib import Path
 from typing import AsyncIterator, Awaitable, Callable
 
@@ -53,6 +54,7 @@ async def event_stream(
     is_disconnected: Callable[[], Awaitable[bool]],
     poll: float = config.SSE_POLL_SECONDS,
     heartbeat: float = config.SSE_HEARTBEAT_SECONDS,
+    stop: threading.Event | None = None,
 ) -> AsyncIterator[str]:
     """Server-sent events, resumable through Last-Event-ID.
 
@@ -69,9 +71,33 @@ async def event_stream(
     iterated on its own instead. `is_disconnected` is injected for exactly
     that reason too - production passes `request.is_disconnected`, tests
     pass a fake that reports disconnection after a bounded number of polls.
+
+    `stop` is the other way this can end, and the one that matters at
+    shutdown: `is_disconnected()` only reports true once the browser closes
+    the tab, which it never does on its own just because the bot stopped.
+    Without `stop`, a held-open dashboard tab and a uvicorn server with
+    `should_exit = True` wait on each other forever - the response is still
+    "in flight" as far as the server's graceful shutdown is concerned, so
+    the transport never closes. Checking the flag lets the generator end
+    itself, the response complete, and the connection close normally.
+    Optional so existing callers (and every test predating this) keep
+    working; a fresh Event() that nobody ever sets is exactly "never stop
+    this way", which is the old behaviour.
     """
+    if stop is None:
+        stop = threading.Event()
+
+    latest = sse.latest_seq()
+    if cursor > latest:
+        # A Last-Event-ID from before a seq reset (--no-store, or a fresh
+        # --db swap): since() filters on seq > cursor, so a stale cursor
+        # higher than anything the ring holds would starve the feed until
+        # enough new events accumulate to pass it - the tab just looks dead.
+        # Replay everything currently buffered instead of nothing.
+        cursor = 0
+
     idle = 0.0
-    while not await is_disconnected():
+    while not stop.is_set() and not await is_disconnected():
         batch = sse.since(cursor)
         for event in batch:
             cursor = event.seq
@@ -93,7 +119,17 @@ def create_app(
     bus: EventBus,
     db_path: Path | None = config.DB_PATH,
     unknown_dir: Path = config.UNKNOWN_DIR,
+    stop: threading.Event | None = None,
 ) -> FastAPI:
+    # See event_stream()'s docstring for why this exists: without it, an
+    # open dashboard tab and a shutting-down uvicorn wait on each other
+    # forever. Optional, and created fresh here rather than defaulted on the
+    # function signature, so a caller that never passes one (every test
+    # predating this finding) keeps the old "never stops this way" behaviour
+    # without every call site sharing one mutable Event by accident.
+    if stop is None:
+        stop = threading.Event()
+
     app = FastAPI(title="The Tower bot")
 
     @app.get("/", response_class=HTMLResponse)
@@ -130,7 +166,9 @@ def create_app(
     @app.get("/api/events/stream")
     async def stream(request: Request) -> StreamingResponse:
         return StreamingResponse(
-            event_stream(sse, resume_point(request), request.is_disconnected),
+            event_stream(
+                sse, resume_point(request), request.is_disconnected, stop=stop
+            ),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
         )

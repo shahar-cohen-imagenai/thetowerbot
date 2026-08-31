@@ -110,6 +110,35 @@ def test_pruning_deletes_old_events_and_keeps_recent_ones(tmp_path: Path) -> Non
     assert [e["seq"] for e in db.run_events(conn, 1)] == [2]
 
 
+def test_close_abandoned_runs_backdates_ended_at_to_started_at(tmp_path: Path) -> None:
+    """A killed (not stopped) process never fires RunEnded, so the row would
+    otherwise keep ended_at IS NULL - the dashboard's "live" badge - forever."""
+    conn = make_db(tmp_path)
+    db.start_run(conn, 1, started_at=100.0)  # never finished
+    db.finish_run(
+        conn, 2, started_at=50.0, ended_at=90.0, wave=1, coins=1, tier=1,
+        abandoned=False, scan_count=1, tap_count=1,
+    )
+
+    closed = db.close_abandoned_runs(conn)
+
+    assert closed == 1
+    runs = {r["id"]: r for r in db.list_runs(conn)}
+    assert (runs[1]["ended_at"], runs[1]["abandoned"]) == (100.0, 1)
+    # A run that already ended cleanly must be left alone.
+    assert (runs[2]["ended_at"], runs[2]["abandoned"]) == (90.0, 0)
+
+
+def test_close_abandoned_runs_is_a_no_op_when_nothing_is_open(tmp_path: Path) -> None:
+    conn = make_db(tmp_path)
+    db.finish_run(
+        conn, 1, started_at=0.0, ended_at=10.0, wave=None, coins=None,
+        tier=None, abandoned=False, scan_count=0, tap_count=0,
+    )
+
+    assert db.close_abandoned_runs(conn) == 0
+
+
 def test_a_reader_connection_cannot_write(tmp_path: Path) -> None:
     """The web layer opens these; a bug there must not corrupt the log."""
     path = tmp_path / "bot.db"

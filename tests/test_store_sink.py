@@ -63,16 +63,22 @@ def test_scan_completed_is_never_stored(tmp_path: Path) -> None:
 
 
 def test_a_screen_change_that_changed_nothing_is_not_stored(tmp_path: Path) -> None:
-    """Booting onto an unmodelled screen emits UNKNOWN -> UNKNOWN once."""
+    """Booting onto an unmodelled screen emits UNKNOWN -> UNKNOWN once.
+
+    A genuine change (UNKNOWN -> MAIN_MENU) sits right beside it and must
+    still be stored - otherwise a `handle()` that dropped every
+    ScreenChanged, not just the no-op ones, would pass this test too."""
     path = drain(tmp_path, [
         events.RunStarted(run_id=1),
         events.ScreenChanged(prev="UNKNOWN", curr="UNKNOWN", confidence=0.4, scores={}),
+        events.ScreenChanged(prev="UNKNOWN", curr="MAIN_MENU", confidence=0.9, scores={}),
     ])
 
     with db.reader(path) as conn:
         stored = db.run_events(conn, 1)
 
-    assert [e["type"] for e in stored] == ["RunStarted"]
+    assert [e["type"] for e in stored] == ["RunStarted", "ScreenChanged"]
+    assert stored[1]["screen"] == "MAIN_MENU"
 
 
 def test_events_are_correlated_to_the_open_run(tmp_path: Path) -> None:

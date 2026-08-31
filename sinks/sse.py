@@ -49,3 +49,13 @@ class SseSink:
         """Every buffered event after `seq`, oldest first."""
         with self._lock:
             return [event for event in self._ring if event.seq > seq]
+
+    def latest_seq(self) -> int:
+        """The newest seq the ring holds, or 0 when it is empty.
+
+        Lets a caller notice a Last-Event-ID from before the counter reset
+        (--no-store, or a fresh --db swap) rather than filtering on a cursor
+        that no buffered event will ever exceed again.
+        """
+        with self._lock:
+            return self._ring[-1].seq if self._ring else 0

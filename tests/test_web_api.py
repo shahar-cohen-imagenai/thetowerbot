@@ -3,8 +3,9 @@ from __future__ import annotations
 import asyncio
 import itertools
 import json
+import threading
 from pathlib import Path
-from typing import AsyncIterator
+from typing import AsyncIterator, Awaitable, Callable
 
 import pytest
 from fastapi.testclient import TestClient
@@ -17,7 +18,7 @@ from web.app import create_app, event_stream, resume_point
 
 
 @pytest.fixture
-def harness(tmp_path: Path):
+def harness(tmp_path: Path) -> tuple[TestClient, BotState, SseSink, events.EventBus, Path, Path]:
     """An app over a real (empty) database, with nothing running behind it."""
     db_path = tmp_path / "bot.db"
     db.connect(db_path).close()
@@ -61,11 +62,19 @@ def test_runs_come_back_newest_first(harness) -> None:
 
 
 def test_the_run_limit_is_clamped_to_something_sane(harness) -> None:
-    """?limit=999999 must not try to serialise the whole history."""
-    client, *_ = harness
+    """?limit=999999 must not try to serialise the whole history, and
+    ?limit=0 must not come back empty - both asserted on the actual body,
+    not just a 200, which would still pass with max(1, ...) deleted."""
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    for run_id in (1, 2, 3):
+        db.start_run(conn, run_id, started_at=float(run_id))
+    conn.close()
 
     assert client.get("/api/runs?limit=999999").status_code == 200
-    assert client.get("/api/runs?limit=0").status_code == 200
+
+    body = client.get("/api/runs?limit=0").json()
+    assert len(body) == 1
 
 
 def test_one_runs_events_come_back_with_detail_decoded(harness) -> None:
@@ -154,7 +163,7 @@ def test_a_missing_snapshot_directory_is_an_empty_list_not_an_error(tmp_path: Pa
 # terminates within a bounded number of polls.
 
 
-def _disconnect_after(n: int):
+def _disconnect_after(n: int) -> Callable[[], Awaitable[bool]]:
     """A fake `is_disconnected`: reports connected for the first `n` polls,
     then disconnected - so event_stream() drains what it should and then
     terminates, instead of the infinite loop it runs in production."""
@@ -247,6 +256,64 @@ def test_the_generator_stops_once_the_client_has_disconnected() -> None:
             await gen.__anext__()
 
     asyncio.run(step())
+
+
+async def _is_never_disconnected() -> bool:
+    return False
+
+
+def test_an_already_set_stop_flag_ends_the_stream_immediately() -> None:
+    """Finding 1: the shutdown deadlock happens because is_disconnected()
+    never fires while a tab is open. `stop` has to be able to end the
+    generator on its own, with is_disconnected() stuck reporting False."""
+    sse = SseSink(capacity=50)
+    stop = threading.Event()
+    stop.set()
+    gen = event_stream(sse, 0, _is_never_disconnected, poll=0.001, stop=stop)
+
+    async def step() -> None:
+        with pytest.raises(StopAsyncIteration):
+            await gen.__anext__()
+
+    asyncio.run(step())
+
+
+def test_stop_set_mid_stream_ends_it_on_the_next_poll() -> None:
+    """The actual shutdown scenario: the flag flips after the generator has
+    already yielded at least one frame, with the browser still connected.
+    A generator that only checked `stop` before its first yield would pass
+    the test above and still hang here."""
+    sse = SseSink(capacity=50)
+    sse.offer(events.RunStarted(run_id=1, seq=1))
+    stop = threading.Event()
+    gen = event_stream(sse, 0, _is_never_disconnected, poll=0.001, stop=stop)
+
+    async def step() -> None:
+        first = await gen.__anext__()
+        assert "RunStarted" in first
+        stop.set()
+        with pytest.raises(StopAsyncIteration):
+            await gen.__anext__()
+
+    asyncio.run(step())
+
+
+def test_a_stale_last_event_id_past_the_ring_is_reset_to_replay_everything() -> None:
+    """M3: --no-store (or a fresh --db) restarts seq at 1 while an already
+    open tab still sends its old, now-unreachably-high Last-Event-ID. Without
+    a reset, since() filters on seq > cursor forever and the feed looks dead
+    until enough new events accumulate to pass the stale cursor."""
+    sse = SseSink(capacity=50)
+    sse.offer(events.RunStarted(run_id=1, seq=1))
+    sse.offer(events.Tapped(action="Damage", x=1, y=2, score=0.9, seq=2))
+
+    stale_cursor = 900  # higher than anything the ring holds
+    lines = _drain(
+        event_stream(sse, stale_cursor, _disconnect_after(1), poll=0.001, heartbeat=100.0)
+    )
+
+    payloads = [json.loads(line[len("data:"):]) for line in lines if line.startswith("data:")]
+    assert [payload["type"] for payload in payloads] == ["RunStarted", "Tapped"]
 
 
 def test_the_dashboard_is_served_at_the_root(harness) -> None:

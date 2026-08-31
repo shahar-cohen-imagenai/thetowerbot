@@ -48,6 +48,12 @@ class BotState:
                     self.scans += 1
                     self.screen = event.screen
                     self.wallet = event.wallet
+                    # ScanCompleted only fires after a scan finishes without
+                    # raising, so seeing one means the device recovered -
+                    # otherwise a single transient EmulatorError pins a red
+                    # line in the header for the rest of the session, long
+                    # after the thing it was warning about is over.
+                    self.last_error = None
                 case events.Tapped():
                     self.taps[event.action] += 1
                     self.run_taps[event.action] += 1

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import ipaddress
 import logging
 import signal
 import sys
@@ -474,6 +475,30 @@ def configure_logging(tui: bool) -> None:
     )
 
 
+def warn_if_web_host_exposed(host: str) -> None:
+    """Nudge for the "reach it from my laptop" reflex.
+
+    config.WEB_HOST's docstring carries the real warning, but nobody reads a
+    default's docstring on the way to overriding it with --web-host. The
+    dashboard serves live screenshots and full event history with no auth,
+    so binding anything but loopback deserves pushback at the point someone
+    is actually about to do it.
+    """
+    try:
+        loopback = ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        # Not a literal IP (a hostname, a typo) - can't prove it is loopback,
+        # so treat it the same as "not loopback" rather than staying silent.
+        loopback = False
+    if not loopback:
+        logger.warning(
+            "--web-host %s is not loopback - the dashboard's live "
+            "screenshots and event history will be reachable by anyone on "
+            "this network, and there is no authentication.",
+            host,
+        )
+
+
 def install_signal_handlers(bot: TowerBot) -> None:
     def _handle_signal(signum: int, _frame: FrameType | None) -> None:
         logger.info("Received signal %s - shutting down after this scan.", signum)
@@ -496,11 +521,20 @@ def prepare_store(
     Read BEFORE pruning, deliberately: a seq that was already handed out must
     never be reissued, even for an event old enough to have just aged out of
     retention. Pruning is disk hygiene, not a reason to rewind the counter.
+
+    Also closes out any run a killed process left with `ended_at IS NULL`:
+    without a RunEnded, the row - and the dashboard's "live" badge on it -
+    would otherwise persist forever. This is the only place that legitimately
+    holds the writable connection outside the store sink's own thread, so it
+    is the one place that can fix that up.
     """
     conn = db.connect(path)
     try:
         seed_seq = db.max_seq(conn)
         last_run = db.max_run_id(conn)
+        abandoned = db.close_abandoned_runs(conn)
+        if abandoned:
+            logger.info("Closed %d run(s) left live by a killed process", abandoned)
         removed = db.prune_events(conn, retention_days)
         if removed:
             logger.info("Pruned %d events older than %d days", removed, retention_days)
@@ -517,6 +551,7 @@ def serve_web(
     port: int,
     interval: float,
     max_runs: int | None,
+    stop: threading.Event | None = None,
 ) -> None:
     """Run the server on this thread and the scan loop beside it.
 
@@ -531,10 +566,33 @@ def serve_web(
     would then serve a stopped bot forever. Owning the Server instead gives
     the worker a way to bring the server down too, whichever way the loop
     exits.
+
+    `stop` is the fix for a second, worse hang: with an SSE tab open, the
+    in-flight `/api/events/stream` response never disconnects on its own, so
+    uvicorn's graceful shutdown - which only closes a connection once its
+    response finishes - waits on it forever while the scan loop, having only
+    `server.should_exit`, keeps right on playing. Setting `stop` lets the SSE
+    generator (see event_stream()) end itself so the response completes and
+    the connection closes normally. It is set in both places the scan loop
+    can end (the worker's `finally`, same as `should_exit`) and in this
+    function's own `finally`, so a stream started after the worker already
+    exited is still caught. `timeout_graceful_shutdown` below is the backstop
+    for everything `stop` does not cover - a route this bot never had that
+    ignores the flag, say - two seconds being long enough to drain a real
+    response and short enough that a wedge is still a blip, not a hang.
     """
     import uvicorn
 
-    config_ = uvicorn.Config(app, host=host, port=port, log_level="warning")
+    if stop is None:
+        stop = threading.Event()
+
+    config_ = uvicorn.Config(
+        app, host=host, port=port, log_level="warning",
+        # Backstop, not the fix: without `stop` this defaults to None, which
+        # is "wait forever" (uvicorn/config.py) - the exact hang finding 1
+        # describes. With `stop` this should never fire in practice.
+        timeout_graceful_shutdown=2,
+    )
     server = uvicorn.Server(config_)
 
     def _run_loop() -> None:
@@ -542,8 +600,10 @@ def serve_web(
             bot.run_forever(interval=interval, max_runs=max_runs)
         finally:
             # Whether the loop returned because it hit --max-runs or because
-            # it raised, the server has nothing left to serve for.
+            # it raised, the server has nothing left to serve for - and any
+            # open SSE stream has to be told too, or it never notices.
             server.should_exit = True
+            stop.set()
 
     worker = threading.Thread(target=_run_loop, name="scan-loop", daemon=True)
     worker.start()
@@ -552,8 +612,11 @@ def serve_web(
     finally:
         # server.run() returns on Ctrl+C (uvicorn's own handler) or when the
         # loop above set should_exit; the loop must be told either way, or
-        # the process hangs around scanning with nothing watching.
+        # the process hangs around scanning with nothing watching. Setting
+        # `stop` here too covers Ctrl+C, which the worker's own finally never
+        # sees since the scan loop itself did not end.
         bot.stop()
+        stop.set()
         worker.join(timeout=interval + 2.0)
 
 
@@ -577,26 +640,22 @@ def main(argv: list[str] | None = None) -> int:
 
     bus = events.EventBus(start_seq=seed_seq)
     state = BotState()
-    sinks: list = [TuiSink(state=state) if args.tui else LogSink()]
+    sinks: list[events.Sink] = [TuiSink(state=state) if args.tui else LogSink()]
     if args.store:
         sinks.append(StoreSink(db_path))
     if args.web and not args.tui:
         # Under --tui the panel's sink already feeds the shared state.
         sinks.append(StateSink(state))
     sse = SseSink() if args.web else None
+    # Set once the scan loop and/or the server ends, whichever comes first -
+    # see serve_web() and event_stream() for why a held-open dashboard tab
+    # needs telling separately from uvicorn's own should_exit.
+    stop = threading.Event()
 
     for sink in sinks:
         bus.subscribe(sink)
     if sse is not None:
         bus.subscribe(sse)  # no thread to start: it appends and returns
-
-    if args.web:
-        # print(), not logger.info(): configure_logging(tui=True) sets the
-        # root logger to CRITICAL with a NullHandler, and TuiSink.start()
-        # below hands the terminal to rich's Live - either would silently
-        # swallow the one line telling the user where to point a browser.
-        # Printed here, before either of those takes hold of stdout.
-        print(f"Dashboard on http://{args.web_host}:{args.web_port}")
 
     # Everything from start() onwards is inside the try: anything raising
     # between starting the consumer threads and the loop would otherwise
@@ -638,17 +697,29 @@ def main(argv: list[str] | None = None) -> int:
             for _ in range(config.SCREEN_CONFIRMATIONS):
                 bot.run_once()
         elif args.web:
+            warn_if_web_host_exposed(args.web_host)
+            # print(), not logger.info(): configure_logging(tui=True) sets the
+            # root logger to CRITICAL with a NullHandler, and TuiSink.start()
+            # above hands the terminal to rich's Live - either would silently
+            # swallow the one line telling the user where to point a browser.
+            # Inside this branch, not before the once/web split: --once wins
+            # over --web, and printing unconditionally used to advertise a
+            # dashboard that --once would never start.
+            print(f"Dashboard on http://{args.web_host}:{args.web_port}")
+
             from web.app import create_app
 
             app = create_app(
                 state=state, sse=sse, bus=bus,
                 db_path=db_path if args.store else None,
+                stop=stop,
             )
             # No signal handlers of ours here: uvicorn installs its own and
             # would overwrite them anyway.
             serve_web(
                 bot, app, host=args.web_host, port=args.web_port,
                 interval=args.interval, max_runs=args.max_runs,
+                stop=stop,
             )
         else:
             install_signal_handlers(bot)

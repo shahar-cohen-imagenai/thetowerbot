@@ -14,6 +14,17 @@ Two events are deliberately NOT stored:
   exactly one of these (the tracker's UNKNOWN placeholder confirming itself).
   It is a state change that changed no state, and the events table is meant to
   hold only rows that mean something.
+
+`detail` names two different things depending on the row. For most events
+it is the JSON blob of whatever `to_row` did not have a typed column for -
+the long tail. `Skipped`, though, already has its own field called `detail`
+(the human-readable reason, e.g. "screen is GAME_OVER"), and nothing pops it
+out to a column before the rest gets blobbed - so it lands *inside* the blob
+under its own name too. A `Skipped` row's `detail` column therefore decodes
+to `{"detail": "..."}`, not a bare string, and `/api/runs/{id}/events`
+passes that double-wrap straight through. The dashboard already knows to
+unwrap it; the column is not renamed here to avoid a migration over a
+collision that only one event type has.
 """
 
 from __future__ import annotations

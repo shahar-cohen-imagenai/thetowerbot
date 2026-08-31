@@ -64,3 +64,16 @@ def test_the_last_error_is_kept() -> None:
     state.apply(stamped(events.BotError(message="device gone")))
 
     assert state.snapshot()["last_error"] == "device gone"
+
+
+def test_the_last_error_clears_on_the_next_successful_scan() -> None:
+    """M8: a single transient EmulatorError must not pin a red line in the
+    dashboard header for the rest of the session - ScanCompleted only fires
+    once a scan finishes without raising, so seeing one means it recovered."""
+    state = BotState()
+    state.apply(stamped(events.BotError(message="device gone")))
+    assert state.snapshot()["last_error"] == "device gone"
+
+    state.apply(stamped(events.ScanCompleted(screen="IN_RUN", duration_ms=9.0)))
+
+    assert state.snapshot()["last_error"] is None
