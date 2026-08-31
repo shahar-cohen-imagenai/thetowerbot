@@ -1,0 +1,119 @@
+"""Persist state-changing events to SQLite.
+
+The consumer thread this sink inherits from QueueSink is the database's only
+writer, which is what lets the web layer read the same file concurrently. The
+connection is opened on that thread rather than in start(), because a sqlite3
+connection belongs to the thread that created it.
+
+Two events are deliberately NOT stored:
+
+* `ScanCompleted`. It fires every 2s - roughly 43,000 near-identical rows a
+  day. It answers "is it alive right now", which is a question for the TUI and
+  the live feed, not for history. The run row carries `scan_count` instead.
+* `ScreenChanged` where prev == curr. Booting onto an unmodelled screen emits
+  exactly one of these (the tracker's UNKNOWN placeholder confirming itself).
+  It is a state change that changed no state, and the events table is meant to
+  hold only rows that mean something.
+"""
+
+from __future__ import annotations
+
+import dataclasses
+import json
+import sqlite3
+from pathlib import Path
+from typing import Any
+
+import config
+import db
+import events
+from sinks.base import QueueSink
+
+# The columns the schema keeps typed. Everything else on an event goes to the
+# JSON `detail` blob, so adding a field to an event needs no migration.
+_TYPED = ("screen", "action", "reason", "score", "price", "wallet")
+
+
+def to_row(event: events.Event, run_id: int | None) -> dict[str, Any]:
+    """Flatten an event into a row for the events table."""
+    data = dataclasses.asdict(event)
+    seq = data.pop("seq")
+    ts = data.pop("ts")
+    # RunStarted / RunEnded name their own run; that belongs in the column,
+    # not repeated inside the blob.
+    own_run = data.pop("run_id", None)
+    if "curr" in data:  # ScreenChanged: `curr` is the screen
+        data["screen"] = data.pop("curr")
+
+    row: dict[str, Any] = {
+        "seq": seq,
+        "ts": ts,
+        "type": event.type,
+        "run_id": own_run if own_run is not None else run_id,
+    }
+    for column in _TYPED:
+        row[column] = data.pop(column, None)
+    # default=str is a guard, not a plan: everything published today is
+    # JSON-native, and a future field that is not degrades to a string here
+    # rather than killing the writer thread.
+    row["detail"] = json.dumps(data, default=str) if data else None
+    return row
+
+
+class StoreSink(QueueSink):
+    def __init__(
+        self, path: Path | str = config.DB_PATH, maxsize: int = 1000
+    ) -> None:
+        super().__init__(maxsize=maxsize)
+        self.path = Path(path)
+        self._conn: sqlite3.Connection | None = None
+        self._run_id: int | None = None
+        self._scans = 0
+        self._taps = 0
+
+    def _consume(self) -> None:
+        self._conn = db.connect(self.path)
+        try:
+            super()._consume()
+        finally:
+            self._conn.close()
+            self._conn = None
+
+    def handle(self, event: events.Event) -> None:
+        conn = self._conn
+        if conn is None:  # handle() called outside the consumer thread
+            return
+
+        match event:
+            case events.ScanCompleted():
+                self._scans += 1
+                return
+            case events.ScreenChanged() if event.prev == event.curr:
+                return
+            case events.RunStarted():
+                self._run_id = event.run_id
+                self._scans = 0
+                self._taps = 0
+                db.start_run(conn, event.run_id, event.ts)
+            case events.Tapped():
+                self._taps += 1
+            case events.RunEnded():
+                db.finish_run(
+                    conn,
+                    event.run_id,
+                    started_at=event.ts - event.duration,
+                    ended_at=event.ts,
+                    wave=event.wave,
+                    coins=event.coins,
+                    tier=event.tier,
+                    abandoned=event.abandoned,
+                    scan_count=self._scans,
+                    tap_count=self._taps,
+                )
+
+        db.insert_event(conn, to_row(event, self._run_id))
+
+        if isinstance(event, events.RunEnded):
+            self._run_id = None
+            self._scans = 0
+            self._taps = 0
