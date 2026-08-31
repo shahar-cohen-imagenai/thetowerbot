@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import events
-from sinks.tui import TuiState
+from sinks.state import BotState
 
 
 def stamped(bus: events.EventBus, event: events.Event) -> events.Event:
@@ -9,7 +9,7 @@ def stamped(bus: events.EventBus, event: events.Event) -> events.Event:
 
 
 def test_tracks_the_current_screen() -> None:
-    bus, state = events.EventBus(), TuiState()
+    bus, state = events.EventBus(), BotState()
 
     state.apply(stamped(bus, events.ScreenChanged(
         prev="UNKNOWN", curr="IN_RUN", confidence=1.0, scores={})))
@@ -18,7 +18,7 @@ def test_tracks_the_current_screen() -> None:
 
 
 def test_counts_taps_per_action() -> None:
-    bus, state = events.EventBus(), TuiState()
+    bus, state = events.EventBus(), BotState()
 
     for _ in range(3):
         state.apply(stamped(bus, events.Tapped(action="Damage", x=1, y=2, score=0.9)))
@@ -28,7 +28,7 @@ def test_counts_taps_per_action() -> None:
 
 
 def test_keeps_a_bounded_event_tail() -> None:
-    bus, state = events.EventBus(), TuiState(tail=5)
+    bus, state = events.EventBus(), BotState(tail=5)
 
     for _ in range(20):
         state.apply(stamped(bus, events.Navigated(target="RETRY")))
@@ -37,7 +37,7 @@ def test_keeps_a_bounded_event_tail() -> None:
 
 
 def test_counts_scans_and_records_the_last_error() -> None:
-    bus, state = events.EventBus(), TuiState()
+    bus, state = events.EventBus(), BotState()
 
     state.apply(stamped(bus, events.ScanCompleted(screen="IN_RUN", duration_ms=12.0)))
     state.apply(stamped(bus, events.ScanCompleted(screen="IN_RUN", duration_ms=14.0)))
