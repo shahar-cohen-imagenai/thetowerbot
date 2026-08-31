@@ -138,8 +138,7 @@ def test_a_caption_that_is_not_on_screen_reads_none() -> None:
 # has been captured from a live emulator so far.
 DIGITS = set("0123456789")
 KNOWN_INCOMPLETE: dict[str, str] = {
-    "price": "only 0,1,2,4,5 seen so far - needs a live run to capture the rest",
-    "modal": "only 0,1,2,6 seen so far - needs deeper runs and higher tiers",
+    "modal": "only 0,1,2,5,6 seen so far - needs deeper runs and higher tiers",
 }
 
 
