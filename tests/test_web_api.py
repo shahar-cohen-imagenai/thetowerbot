@@ -102,11 +102,27 @@ def test_a_snapshot_is_served_as_a_png(harness) -> None:
     assert response.headers["content-type"] == "image/png"
 
 
-def test_a_snapshot_name_cannot_walk_out_of_the_directory(harness) -> None:
-    """The name comes off the URL; it must not be able to read the disk."""
+def test_an_encoded_slash_never_reaches_the_snapshot_route(harness) -> None:
+    """A percent-encoded slash is rejected by Starlette's routing itself, before
+    the handler runs - so this only proves the router's own behaviour. The
+    guard's real protective value (a name that stays inside one path segment
+    but still escapes the directory, e.g. via a symlink) is exercised by
+    test_a_symlink_escaping_the_directory_is_refused below.
+    """
     client, *_ = harness
 
     assert client.get("/api/unknown/..%2F..%2Fetc%2Fpasswd").status_code == 404
+
+
+def test_a_symlink_escaping_the_directory_is_refused(harness, tmp_path: Path) -> None:
+    """A name with no slash in it at all - passes the router - can still name a
+    symlink that resolves outside unknown_dir. resolve() must catch that."""
+    client, _, _, _, _, unknown_dir = harness
+    secret = tmp_path / "secret.png"
+    secret.write_bytes(b"outside the sandbox")
+    (unknown_dir / "escape.png").symlink_to(secret)
+
+    assert client.get("/api/unknown/escape.png").status_code == 404
 
 
 def test_a_missing_snapshot_directory_is_an_empty_list_not_an_error(tmp_path: Path) -> None:
