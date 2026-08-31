@@ -1449,6 +1449,8 @@ git commit -m "feat: serve status, run history and unknown snapshots over HTTP"
 
 **Note on the wire format:** messages carry **no `event:` field**. A named SSE event is only delivered to `addEventListener(name, …)`, so naming them would mean the dashboard had to enumerate every event class and silently miss any added later. The type is in the JSON body instead, where the feed's filter can reach it.
 
+**Note on how this is tested:** the polling loop is a module-level `event_stream(sse, cursor, is_disconnected, ...)` generator, not code inline in the route, and the tests drive it directly with `asyncio.run` and a fake `is_disconnected` rather than going through `TestClient.stream()`. Starlette's `TestClient` buffers an entire ASGI response before handing anything back to the caller (`portal.call(self.app, ...)` in its testclient runs the app to completion first), so a generator whose whole point is to keep going until the browser disconnects can never be observed mid-stream that way - the `with client.stream(...)` call itself just hangs forever. The HTTP-level behaviour (real headers, real chunked delivery) isn't covered by an automated test; Task 8's manual smoke test - opening the dashboard in a browser and watching events arrive - is the coverage for that.
+
 - [ ] **Step 1: Write the failing tests**
 
 Append to `tests/test_web_api.py`:
