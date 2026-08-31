@@ -18,17 +18,24 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import ipaddress
 import logging
 import signal
 import sys
+import threading
 import time
 import traceback
 from pathlib import Path
 from types import FrameType
+from typing import TYPE_CHECKING
 
 from adbutils import AdbDevice
 
+if TYPE_CHECKING:
+    from fastapi import FastAPI
+
 import config
+import db
 import digits
 import events
 import screens
@@ -43,6 +50,9 @@ from navigate import Navigator
 from runs import RunTracker
 from snapshots import SnapshotWriter
 from sinks.log import LogSink
+from sinks.sse import SseSink
+from sinks.state import BotState, StateSink
+from sinks.store import StoreSink
 from sinks.tui import TuiSink
 
 logger = logging.getLogger("tower_bot")
@@ -61,6 +71,7 @@ class TowerBot:
         affordability_check: AffordabilityCheck | None = None,
         auto_navigate: bool = False,
         reader: digits.NumberReader | None = None,
+        first_run_id: int = 1,
     ) -> None:
         self.device = device
         self.templates = templates
@@ -75,7 +86,7 @@ class TowerBot:
         )
         self.auto_navigate = auto_navigate
         self.navigator = Navigator(templates, bus)
-        self.runs = RunTracker()
+        self.runs = RunTracker(first_run_id)
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
@@ -371,6 +382,22 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "back to brightness on its own when no atlas is built"
         ),
     )
+    parser.add_argument(
+        "--web", action="store_true",
+        help="serve the dashboard while the bot runs (default: off)",
+    )
+    parser.add_argument(
+        "--web-host", default=config.WEB_HOST,
+        help="dashboard bind address - loopback by default, and there is no auth",
+    )
+    parser.add_argument("--web-port", type=int, default=config.WEB_PORT)
+    parser.add_argument(
+        "--db", default=str(config.DB_PATH), help="SQLite file for the event log"
+    )
+    parser.add_argument(
+        "--no-store", dest="store", action="store_false", default=True,
+        help="do not persist events to SQLite",
+    )
     return parser.parse_args(argv)
 
 
@@ -448,6 +475,151 @@ def configure_logging(tui: bool) -> None:
     )
 
 
+def warn_if_web_host_exposed(host: str) -> None:
+    """Nudge for the "reach it from my laptop" reflex.
+
+    config.WEB_HOST's docstring carries the real warning, but nobody reads a
+    default's docstring on the way to overriding it with --web-host. The
+    dashboard serves live screenshots and full event history with no auth,
+    so binding anything but loopback deserves pushback at the point someone
+    is actually about to do it.
+    """
+    try:
+        loopback = ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        # Not a literal IP (a hostname, a typo) - can't prove it is loopback,
+        # so treat it the same as "not loopback" rather than staying silent.
+        loopback = False
+    if not loopback:
+        logger.warning(
+            "--web-host %s is not loopback - the dashboard's live "
+            "screenshots and event history will be reachable by anyone on "
+            "this network, and there is no authentication.",
+            host,
+        )
+
+
+def install_signal_handlers(bot: TowerBot) -> None:
+    def _handle_signal(signum: int, _frame: FrameType | None) -> None:
+        logger.info("Received signal %s - shutting down after this scan.", signum)
+        bot.stop()
+
+    signal.signal(signal.SIGINT, _handle_signal)
+    signal.signal(signal.SIGTERM, _handle_signal)
+
+
+def prepare_store(
+    path: Path, retention_days: int = config.EVENT_RETENTION_DAYS
+) -> tuple[int, int]:
+    """Create the database, prune it, and report what to seed the counters to.
+
+    Returns `(max_seq, max_run_id)`. Both are in-process counters that would
+    otherwise restart at zero on every launch: seq would collide with stored
+    rows on the events primary key and break SSE resume across a restart, and
+    run ids would overwrite the previous session's runs one at a time.
+
+    Read BEFORE pruning, deliberately: a seq that was already handed out must
+    never be reissued, even for an event old enough to have just aged out of
+    retention. Pruning is disk hygiene, not a reason to rewind the counter.
+
+    Also closes out any run a killed process left with `ended_at IS NULL`:
+    without a RunEnded, the row - and the dashboard's "live" badge on it -
+    would otherwise persist forever. This is the only place that legitimately
+    holds the writable connection outside the store sink's own thread, so it
+    is the one place that can fix that up.
+    """
+    conn = db.connect(path)
+    try:
+        seed_seq = db.max_seq(conn)
+        last_run = db.max_run_id(conn)
+        abandoned = db.close_abandoned_runs(conn)
+        if abandoned:
+            logger.info("Closed %d run(s) left live by a killed process", abandoned)
+        removed = db.prune_events(conn, retention_days)
+        if removed:
+            logger.info("Pruned %d events older than %d days", removed, retention_days)
+        return seed_seq, last_run
+    finally:
+        conn.close()
+
+
+def serve_web(
+    bot: TowerBot,
+    app: FastAPI,
+    *,
+    host: str,
+    port: int,
+    interval: float,
+    max_runs: int | None,
+    stop: threading.Event | None = None,
+) -> None:
+    """Run the server on this thread and the scan loop beside it.
+
+    This way round on purpose. uvicorn installs its own SIGINT/SIGTERM
+    handlers and can only do that from the main thread, so it gets the main
+    thread and the scan loop gets a worker. They genuinely run in parallel
+    despite the GIL: cv2.matchTemplate releases it for the duration of the
+    match, which is where a scan spends nearly all of its time.
+
+    uvicorn.run() hides its Server object, so there is nothing to tell it to
+    stop once --max-runs is reached and the worker simply ends - the server
+    would then serve a stopped bot forever. Owning the Server instead gives
+    the worker a way to bring the server down too, whichever way the loop
+    exits.
+
+    `stop` is the fix for a second, worse hang: with an SSE tab open, the
+    in-flight `/api/events/stream` response never disconnects on its own, so
+    uvicorn's graceful shutdown - which only closes a connection once its
+    response finishes - waits on it forever while the scan loop, having only
+    `server.should_exit`, keeps right on playing. Setting `stop` lets the SSE
+    generator (see event_stream()) end itself so the response completes and
+    the connection closes normally. It is set in both places the scan loop
+    can end (the worker's `finally`, same as `should_exit`) and in this
+    function's own `finally`, so a stream started after the worker already
+    exited is still caught. `timeout_graceful_shutdown` below is the backstop
+    for everything `stop` does not cover - a route this bot never had that
+    ignores the flag, say - two seconds being long enough to drain a real
+    response and short enough that a wedge is still a blip, not a hang.
+    """
+    import uvicorn
+
+    if stop is None:
+        stop = threading.Event()
+
+    config_ = uvicorn.Config(
+        app, host=host, port=port, log_level="warning",
+        # Backstop, not the fix: without `stop` this defaults to None, which
+        # is "wait forever" (uvicorn/config.py) - the exact hang finding 1
+        # describes. With `stop` this should never fire in practice.
+        timeout_graceful_shutdown=2,
+    )
+    server = uvicorn.Server(config_)
+
+    def _run_loop() -> None:
+        try:
+            bot.run_forever(interval=interval, max_runs=max_runs)
+        finally:
+            # Whether the loop returned because it hit --max-runs or because
+            # it raised, the server has nothing left to serve for - and any
+            # open SSE stream has to be told too, or it never notices.
+            server.should_exit = True
+            stop.set()
+
+    worker = threading.Thread(target=_run_loop, name="scan-loop", daemon=True)
+    worker.start()
+    try:
+        server.run()
+    finally:
+        # server.run() returns on Ctrl+C (uvicorn's own handler) or when the
+        # loop above set should_exit; the loop must be told either way, or
+        # the process hangs around scanning with nothing watching. Setting
+        # `stop` here too covers Ctrl+C, which the worker's own finally never
+        # sees since the scan loop itself did not end.
+        bot.stop()
+        stop.set()
+        worker.join(timeout=interval + 2.0)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     configure_logging(args.tui)
@@ -463,17 +635,45 @@ def main(argv: list[str] | None = None) -> int:
         print_debug_scores(frame, vision.TemplateCache(config.TEMPLATE_DIR))
         return 0
 
-    bus = events.EventBus()
-    sink = TuiSink() if args.tui else LogSink()
-    bus.subscribe(sink)
+    db_path = Path(args.db)
+    seed_seq, last_run = prepare_store(db_path) if args.store else (0, 0)
+
+    bus = events.EventBus(start_seq=seed_seq)
+    state = BotState()
+    sinks: list[events.Sink] = [TuiSink(state=state) if args.tui else LogSink()]
+    if args.store:
+        sinks.append(StoreSink(db_path))
+    if args.web and not args.tui:
+        # Under --tui the panel's sink already feeds the shared state.
+        sinks.append(StateSink(state))
+    sse = SseSink() if args.web else None
+    # Set once the scan loop and/or the server ends, whichever comes first -
+    # see serve_web() and event_stream() for why a held-open dashboard tab
+    # needs telling separately from uvicorn's own should_exit.
+    stop = threading.Event()
+
+    for sink in sinks:
+        bus.subscribe(sink)
+    if sse is not None:
+        bus.subscribe(sse)  # no thread to start: it appends and returns
+
+    if args.web and not args.once:
+        # print(), not logger.info(), and before sink.start() below: under
+        # --tui, TuiSink.start() hands the terminal to rich's Live, and
+        # configure_logging(tui=True) sets the root logger to CRITICAL with
+        # a NullHandler either way - both would silently swallow this line
+        # if it ran any later (task 8, minor 6). `not args.once` alongside
+        # that: --once wins over --web, so printing unconditionally would
+        # advertise a dashboard that never starts (M1).
+        print(f"Dashboard on http://{args.web_host}:{args.web_port}")
 
     # Everything from start() onwards is inside the try: anything raising
-    # between starting the consumer thread and the loop - a bad guard frame,
-    # a template that will not load, signal registration off the main thread
-    # - would otherwise leave that thread running and, under --tui, leave
-    # rich's Live holding the terminal.
+    # between starting the consumer threads and the loop would otherwise
+    # leave them running and, under --tui, leave rich's Live holding the
+    # terminal.
     try:
-        sink.start()
+        for sink in sinks:
+            sink.start()
 
         try:
             frame = capture_screen(device)
@@ -494,14 +694,8 @@ def main(argv: list[str] | None = None) -> int:
             bus=bus,
             affordability_check=build_affordability(args.affordability),
             auto_navigate=args.auto_navigate,
+            first_run_id=last_run + 1,
         )
-
-        def _handle_signal(signum: int, _frame: FrameType | None) -> None:
-            logger.info("Received signal %s - shutting down after this scan.", signum)
-            bot.stop()
-
-        signal.signal(signal.SIGINT, _handle_signal)
-        signal.signal(signal.SIGTERM, _handle_signal)
 
         if args.once:
             # A single scan never settles the debounced tracker (it needs
@@ -509,12 +703,32 @@ def main(argv: list[str] | None = None) -> int:
             # lone run_once() would always report UNKNOWN even when the
             # game is clearly on GAME_OVER at 0.998. Scan enough times to
             # settle so --once actually names the real screen.
+            install_signal_handlers(bot)
             for _ in range(config.SCREEN_CONFIRMATIONS):
                 bot.run_once()
+        elif args.web:
+            warn_if_web_host_exposed(args.web_host)
+
+            from web.app import create_app
+
+            app = create_app(
+                state=state, sse=sse, bus=bus,
+                db_path=db_path if args.store else None,
+                stop=stop,
+            )
+            # No signal handlers of ours here: uvicorn installs its own and
+            # would overwrite them anyway.
+            serve_web(
+                bot, app, host=args.web_host, port=args.web_port,
+                interval=args.interval, max_runs=args.max_runs,
+                stop=stop,
+            )
         else:
+            install_signal_handlers(bot)
             bot.run_forever(interval=args.interval, max_runs=args.max_runs)
     finally:
-        sink.close()
+        for sink in sinks:
+            sink.close()
     return 0
 
 

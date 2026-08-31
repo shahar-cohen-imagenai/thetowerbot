@@ -174,3 +174,13 @@ def test_run_ended_defaults_tier_to_none() -> None:
     tracker.transition(ScreenState.IN_RUN, now=0.0)
     ended = tracker.transition(ScreenState.GAME_OVER, now=10.0)
     assert ended.tier is None
+
+
+def test_run_ids_can_be_seeded_so_a_restart_does_not_reuse_them() -> None:
+    """Run ids are the database's primary key. Restarting at 1 would
+    overwrite the previous session's runs one by one."""
+    tracker = RunTracker(start_id=12)
+
+    started = tracker.transition(ScreenState.IN_RUN, now=0.0)
+
+    assert started.run_id == 12

@@ -203,6 +203,14 @@ NAV_DISMISS: tuple[str, ...] = (
     "nav/skip.png",
 )
 
+# --- Persistence ----------------------------------------------------------
+DB_PATH: Path = Path(__file__).parent / "tower_bot.db"
+
+# Events older than this are deleted at startup. ScanCompleted is never
+# stored - it fires every 2s, roughly 43,000 near-identical rows a day - so
+# what remains is state changes only, and 30 days of those stays small.
+EVENT_RETENTION_DAYS: int = 30
+
 # Which menu page is on screen. Deliberately SEPARATE from SCREEN_ANCHORS:
 # ScreenState models the run lifecycle only, and classify() does
 # ScreenState(winner), which would raise on a name the enum does not have.
@@ -212,3 +220,23 @@ PAGE_ANCHORS: dict[str, str] = {
     "CARDS": "screens/cards.png",
     "MISSIONS": "screens/missions.png",
 }
+
+# --- Live feed ------------------------------------------------------------
+# How much history the SSE ring holds. A reconnecting browser replays from
+# here using Last-Event-ID, so this is also how long a laptop can sleep
+# before the feed has a hole in it.
+SSE_RING_SIZE: int = 500
+# How often the stream endpoint looks for new events. The scan interval is 2s,
+# so a quarter of a second is already imperceptible.
+SSE_POLL_SECONDS: float = 0.25
+# An idle stream sends a comment this often so proxies and browsers do not
+# decide the connection died.
+SSE_HEARTBEAT_SECONDS: float = 15.0
+
+# --- Web dashboard --------------------------------------------------------
+# SECURITY: loopback only, and there is no auth. The dashboard serves
+# screenshots of a live session and the full event history of this machine.
+# Binding 0.0.0.0 puts both on the local network in the clear - do not change
+# this without putting real authentication in front of it first.
+WEB_HOST: str = "127.0.0.1"
+WEB_PORT: int = 8765
