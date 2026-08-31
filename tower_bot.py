@@ -23,6 +23,7 @@ import signal
 import sys
 import time
 import traceback
+from pathlib import Path
 from types import FrameType
 
 from adbutils import AdbDevice
@@ -362,7 +363,47 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--max-runs", type=int, default=None,
         help="stop after this many runs (default: unlimited)",
     )
+    parser.add_argument(
+        "--affordability", choices=("digits", "brightness"), default="digits",
+        help=(
+            "how to decide an upgrade is buyable: read the numbers (default, "
+            "exact) or compare brightness (the older heuristic). digits falls "
+            "back to brightness on its own when no atlas is built"
+        ),
+    )
     return parser.parse_args(argv)
+
+
+def build_affordability(
+    strategy: str, atlas_root: Path | None = None
+) -> AffordabilityCheck:
+    """Pick the affordability check, degrading when digits are unavailable.
+
+    Digits need a labelled atlas that only exists once someone has run
+    build_atlas.py. Without one, fall back rather than fail: brightness is the
+    floor, and a bot that refuses to start is worse than one that guesses at
+    brightness like it did before.
+
+    Every size class has to be present, not just one. The price is what gates
+    a purchase, so a bot that could read the wallet but never the price would
+    be gating on nothing at all.
+    """
+    if strategy == "brightness":
+        return BrightnessAffordability()
+
+    cache = digits.AtlasCache(
+        atlas_root if atlas_root is not None else config.ATLAS_DIR
+    )
+    missing = [name for name in digits.SIZE_CLASSES if cache.get(name) is None]
+    if missing:
+        logger.warning(
+            "no glyph atlas for %s - falling back to brightness affordability. "
+            "Run: uv run build_atlas.py --size-class <name>",
+            ", ".join(missing),
+        )
+        return BrightnessAffordability()
+
+    return DigitAffordability(digits.NumberReader(cache), BrightnessAffordability())
 
 
 def print_debug_scores(screen: Image, templates: vision.TemplateCache) -> None:
@@ -451,6 +492,7 @@ def main(argv: list[str] | None = None) -> int:
             device=device,
             templates=vision.TemplateCache(config.TEMPLATE_DIR),
             bus=bus,
+            affordability_check=build_affordability(args.affordability),
             auto_navigate=args.auto_navigate,
         )
 

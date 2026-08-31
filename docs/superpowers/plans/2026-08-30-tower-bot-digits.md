@@ -1957,7 +1957,7 @@ git commit -m "feat: read wave, coins and tier off the death modal"
 - Consumes: `affordability.DigitAffordability`, `affordability.BrightnessAffordability`, `digits.AtlasCache`
 - Produces: `--affordability {digits,brightness}` (default `digits`), with automatic degradation when no atlas is present
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/test_cli.py`:
 
@@ -1995,12 +1995,12 @@ def test_brightness_is_used_even_when_an_atlas_exists(tmp_path) -> None:
 
 Add to the file's imports: `from tests.test_digits import build_synthetic_atlas` and `from affordability import BrightnessAffordability, DigitAffordability`.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `uv run pytest tests/test_cli.py -k affordability -v`
 Expected: FAIL with `AttributeError: 'Namespace' object has no attribute 'affordability'`
 
-- [ ] **Step 3: Add the flag and the factory**
+- [x] **Step 3: Add the flag and the factory**
 
 `build_affordability` annotates `atlas_root: Path | None`, and `tower_bot.py`
 does not import `Path`. Add `from pathlib import Path` to its imports first.
@@ -2060,10 +2060,13 @@ In `main`, build the check and hand it to `TowerBot`:
     )
 ```
 
-- [ ] **Step 4: Run the tests**
+- [x] **Step 4: Run the tests**
 
 Run: `uv run pytest -q`
 Expected: PASS
+
+> **Not run.** Needs the emulator and a live run - the one step in this
+> plan that cannot be checked from the test suite.
 
 - [ ] **Step 5: Verify against the live emulator**
 
@@ -2075,7 +2078,7 @@ uv run tower_bot.py --affordability brightness --once   # phase 2 path intact
 
 With a run live, confirm the log line for a scan carries a wallet number and that a tap reports a price.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add tower_bot.py tests/test_cli.py
