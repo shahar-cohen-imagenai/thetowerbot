@@ -46,10 +46,11 @@ def render(event: events.Event) -> str:
         case events.RunEnded():
             how = "abandoned" if event.abandoned else "ended"
             wave = "" if event.wave is None else f" wave={event.wave}"
+            tier = "" if event.tier is None else f" tier={event.tier}"
             coins = "" if event.coins is None else f" coins={event.coins}"
             return (
                 f"{ts} RUN    #{event.run_id} {how} "
-                f"after {event.duration:.0f}s{wave}{coins}"
+                f"after {event.duration:.0f}s{wave}{tier}{coins}"
             )
         case events.Navigated():
             return f"{ts} NAV    {event.target}"

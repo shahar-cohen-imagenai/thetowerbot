@@ -167,3 +167,10 @@ def test_an_open_run_without_a_start_time_fails_loudly() -> None:
 
     with pytest.raises(RuntimeError):
         tracker.transition(ScreenState.GAME_OVER, now=200.0)
+
+
+def test_run_ended_defaults_tier_to_none() -> None:
+    tracker = RunTracker()
+    tracker.transition(ScreenState.IN_RUN, now=0.0)
+    ended = tracker.transition(ScreenState.GAME_OVER, now=10.0)
+    assert ended.tier is None

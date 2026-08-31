@@ -17,20 +17,27 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import logging
 import signal
 import sys
 import time
 import traceback
+from pathlib import Path
 from types import FrameType
 
 from adbutils import AdbDevice
 
 import config
+import digits
 import events
 import screens
 import vision
-from affordability import AffordabilityCheck, BrightnessAffordability
+from affordability import (
+    AffordabilityCheck,
+    BrightnessAffordability,
+    DigitAffordability,
+)
 from device import EmulatorError, Image, capture_screen, connect_device, tap
 from navigate import Navigator
 from runs import RunTracker
@@ -53,12 +60,15 @@ class TowerBot:
         click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
         affordability_check: AffordabilityCheck | None = None,
         auto_navigate: bool = False,
+        reader: digits.NumberReader | None = None,
     ) -> None:
         self.device = device
         self.templates = templates
         self.bus = bus
         self.click_cooldown = click_cooldown
         self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
+        self.reader = reader if reader is not None else digits.NumberReader()
+        self.wallet: int | None = None
         self.tracker = screens.ScreenTracker()
         self.snapshots = SnapshotWriter(
             config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
@@ -111,8 +121,17 @@ class TowerBot:
             self.screen, match, template, action
         )
         if not ok:
+            # "unaffordable" means we read both numbers and the wallet was
+            # short. "dimmed" means we could not tell and fell back to the
+            # brightness heuristic. Collapsing them would hide exactly the
+            # regression phase 3 exists to fix.
+            reason = (
+                "unaffordable"
+                if self.affordability.last_price is not None
+                else "dimmed"
+            )
             self.bus.publish(
-                events.Skipped(action=key, reason="dimmed", detail=detail)
+                events.Skipped(action=key, reason=reason, detail=detail)
             )
             return False
 
@@ -121,11 +140,51 @@ class TowerBot:
             self.bus.publish(events.Skipped(action=key, reason="cooldown"))
             return False
 
-        x, y = match.center
+        x, y = config.buy_point(match.top_left)
         tap(self.device, x, y)
         self._last_click[key] = now
-        self.bus.publish(events.Tapped(action=key, x=x, y=y, score=match.score))
+        self.bus.publish(
+            events.Tapped(
+                action=key,
+                x=x,
+                y=y,
+                score=match.score,
+                price=self.affordability.last_price,
+                wallet=self.affordability.last_wallet,
+            )
+        )
         return True
+
+    # -- the death modal ---------------------------------------------------
+    def _read_modal_stats(
+        self, ended: events.RunEnded, anchor: tuple[int, int]
+    ) -> events.RunEnded:
+        """Fill wave / coins / tier from the death modal.
+
+        Only ever called on a CONFIRMED game over, so the modal has already
+        survived two consecutive readings and its fade has finished - the same
+        debounce that stops phantom run boundaries also guarantees the numbers
+        are fully drawn.
+
+        Wave holds a constant offset from the matched game_over template, but
+        tier and coins do not: a record run grows a "New Highest Wave!" line
+        that pushes them down 49px while the modal's top edge rises as it
+        re-centres. Those two are found by their own caption instead.
+        """
+        return dataclasses.replace(
+            ended,
+            wave=self.reader.read(
+                self.screen, config.MODAL_WAVE_REGION, anchor, "modal"
+            ),
+            coins=self.reader.read_at_caption(
+                self.screen, config.MODAL_COINS_CAPTION, config.MODAL_COINS_REGION,
+                "modal",
+            ),
+            tier=self.reader.read_at_caption(
+                self.screen, config.MODAL_TIER_CAPTION, config.MODAL_TIER_REGION,
+                "modal",
+            ),
+        )
 
     # -- main loop ---------------------------------------------------------
     def run_cap_reached(self, max_runs: int | None) -> bool:
@@ -155,9 +214,36 @@ class TowerBot:
             )
             run_event = self.runs.transition(self.tracker.state, time.monotonic())
             if run_event is not None:
+                if (
+                    isinstance(run_event, events.RunEnded)
+                    and self.tracker.state is screens.ScreenState.GAME_OVER
+                    and reading.top_left is not None
+                ):
+                    run_event = self._read_modal_stats(run_event, reading.top_left)
                 self.bus.publish(run_event)
 
         state = self.tracker.state
+
+        # The wallet region is anchored to the IN_RUN template, so it can only
+        # be read on that screen. Clear it elsewhere: a stale wallet would let
+        # the affordability gate approve a purchase using last run's cash.
+        #
+        # BOTH states, not just the tracker's: the tracker is debounced, so
+        # mid-fade it still says IN_RUN while the frame is already the death
+        # modal. `reading.top_left` is then the GAME_OVER anchor, and the
+        # wallet region measured from it lands somewhere else entirely. The
+        # anchor and the region have to come from the same frame.
+        self.wallet = None
+        if (
+            state is screens.ScreenState.IN_RUN
+            and reading.state is screens.ScreenState.IN_RUN
+            and reading.top_left is not None
+        ):
+            self.wallet = self.reader.read(
+                self.screen, config.WALLET_REGION, reading.top_left, "wallet"
+            )
+        if isinstance(self.affordability, DigitAffordability):
+            self.affordability.wallet = self.wallet
 
         # A CONFIRMED unknown, not the tracker's initial placeholder value.
         # Snapshotting on the placeholder means scan 1 of every launch saves
@@ -200,6 +286,7 @@ class TowerBot:
             events.ScanCompleted(
                 screen=state.value,
                 duration_ms=(time.monotonic() - started) * 1000,
+                wallet=self.wallet,
             )
         )
         return clicked
@@ -276,7 +363,47 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--max-runs", type=int, default=None,
         help="stop after this many runs (default: unlimited)",
     )
+    parser.add_argument(
+        "--affordability", choices=("digits", "brightness"), default="digits",
+        help=(
+            "how to decide an upgrade is buyable: read the numbers (default, "
+            "exact) or compare brightness (the older heuristic). digits falls "
+            "back to brightness on its own when no atlas is built"
+        ),
+    )
     return parser.parse_args(argv)
+
+
+def build_affordability(
+    strategy: str, atlas_root: Path | None = None
+) -> AffordabilityCheck:
+    """Pick the affordability check, degrading when digits are unavailable.
+
+    Digits need a labelled atlas that only exists once someone has run
+    build_atlas.py. Without one, fall back rather than fail: brightness is the
+    floor, and a bot that refuses to start is worse than one that guesses at
+    brightness like it did before.
+
+    Every size class has to be present, not just one. The price is what gates
+    a purchase, so a bot that could read the wallet but never the price would
+    be gating on nothing at all.
+    """
+    if strategy == "brightness":
+        return BrightnessAffordability()
+
+    cache = digits.AtlasCache(
+        atlas_root if atlas_root is not None else config.ATLAS_DIR
+    )
+    missing = [name for name in digits.SIZE_CLASSES if cache.get(name) is None]
+    if missing:
+        logger.warning(
+            "no glyph atlas for %s - falling back to brightness affordability. "
+            "Run: uv run build_atlas.py --size-class <name>",
+            ", ".join(missing),
+        )
+        return BrightnessAffordability()
+
+    return DigitAffordability(digits.NumberReader(cache), BrightnessAffordability())
 
 
 def print_debug_scores(screen: Image, templates: vision.TemplateCache) -> None:
@@ -365,6 +492,7 @@ def main(argv: list[str] | None = None) -> int:
             device=device,
             templates=vision.TemplateCache(config.TEMPLATE_DIR),
             bus=bus,
+            affordability_check=build_affordability(args.affordability),
             auto_navigate=args.auto_navigate,
         )
 

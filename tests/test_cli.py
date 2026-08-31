@@ -1,8 +1,15 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from unittest.mock import MagicMock
 
+import pytest
+
+import digits
+import tower_bot
+from affordability import BrightnessAffordability, DigitAffordability
+from tests.test_digits import build_synthetic_atlas
 from tower_bot import parse_args
 
 
@@ -191,3 +198,45 @@ def test_tui_keeps_stdlib_logging_off_the_terminal() -> None:
     finally:
         root.handlers[:] = saved_handlers
         root.setLevel(saved_level)
+
+
+def test_affordability_defaults_to_digits() -> None:
+    assert parse_args([]).affordability == "digits"
+
+
+def test_affordability_can_be_forced_to_brightness() -> None:
+    args = parse_args(["--affordability", "brightness"])
+    assert args.affordability == "brightness"
+
+
+def test_digits_without_an_atlas_degrades_to_brightness(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    """An unlabelled atlas must not stop the bot - phase 2 behaviour is the
+    floor, not an error."""
+    with caplog.at_level(logging.WARNING):
+        check = tower_bot.build_affordability("digits", atlas_root=tmp_path)
+    assert isinstance(check, BrightnessAffordability)
+    assert "atlas" in caplog.text.lower()
+
+
+def test_digits_with_an_atlas_uses_digits(tmp_path: Path) -> None:
+    for size_class in digits.SIZE_CLASSES:
+        build_synthetic_atlas(tmp_path / size_class)
+    check = tower_bot.build_affordability("digits", atlas_root=tmp_path)
+    assert isinstance(check, DigitAffordability)
+
+
+def test_a_partial_atlas_still_degrades(tmp_path: Path) -> None:
+    """One size class built is not enough: the price is what gates a purchase,
+    and a bot reading the wallet but never the price would gate on nothing."""
+    build_synthetic_atlas(tmp_path / "wallet")
+    check = tower_bot.build_affordability("digits", atlas_root=tmp_path)
+    assert isinstance(check, BrightnessAffordability)
+
+
+def test_brightness_is_used_even_when_an_atlas_exists(tmp_path: Path) -> None:
+    for size_class in digits.SIZE_CLASSES:
+        build_synthetic_atlas(tmp_path / size_class)
+    check = tower_bot.build_affordability("brightness", atlas_root=tmp_path)
+    assert isinstance(check, BrightnessAffordability)

@@ -70,6 +70,7 @@ class RunEnded(Event):
     duration: float
     wave: int | None = None
     coins: int | None = None
+    tier: int | None = None
     abandoned: bool = False
 
 

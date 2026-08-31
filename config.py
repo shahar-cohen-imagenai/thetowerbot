@@ -35,6 +35,21 @@ DEFAULT_THRESHOLD: float = 0.8
 DEFAULT_BRIGHTNESS_RATIO: float = 0.75
 
 
+class Region(NamedTuple):
+    """A rectangle expressed relative to a matched anchor's top-left.
+
+    Never absolute. The death modal shifts ~46px vertically depending on
+    whether the "New Highest Wave!" line is present, so a hardcoded y would
+    read the wrong row half the time. dx/dy may be negative: the anchor is
+    not always above-left of the number it locates.
+    """
+
+    dx: int
+    dy: int
+    w: int
+    h: int
+
+
 class Action(NamedTuple):
     """One template the bot looks for, in priority order."""
 
@@ -55,6 +70,7 @@ ACTIONS: tuple[Action, ...] = (
     Action(name="Damage", template="upgrade_damage.png", threshold=0.9),
     Action(name="Critical Factor", template="upgrade_critical_factor.png", threshold=0.9),
 )
+
 
 # --- Screen recognition -----------------------------------------------------
 # Anchors are small crops unique to one screen. Measured separation on the
@@ -92,4 +108,107 @@ NAVIGATION_COOLDOWN_SECONDS: float = 3.0
 NAV_BUTTONS: dict[str, tuple[str, str]] = {
     "GAME_OVER": ("RETRY", "buttons/retry.png"),
     "MAIN_MENU": ("BATTLE", "buttons/battle.png"),
+}
+
+# --- Digit reading --------------------------------------------------------
+# Numbers are light glyphs on a dark panel. Binarise, split by column gaps,
+# match each glyph against a per-size-class atlas.
+ATLAS_DIR: Path = TEMPLATE_DIR / "atlas"
+
+# Grey level above which a pixel counts as glyph rather than background.
+DIGIT_BINARY_THRESHOLD: int = 140
+# A glyph must match an atlas entry at least this well to be accepted.
+GLYPH_MATCH_THRESHOLD: float = 0.7
+# Narrowest run of lit columns still treated as a glyph. The decimal point is
+# the narrowest real glyph, so raising this silently turns 1.5K into 15K.
+GLYPH_MIN_WIDTH: int = 2
+
+# Every region is relative to a matched anchor - see config.Region.
+# Measured on a 1080x2400 capture; re-measure if the resolution ever changes.
+
+# The in-run HUD, from the IN_RUN anchor at (12, 1646). Wide enough for the
+# wallet to grow into "$ 12.34K" without clipping.
+WALLET_REGION: Region = Region(dx=13, dy=-1484, w=230, h=72)
+
+# The price box under an upgrade, from that upgrade's own matched LABEL - not
+# from a screen anchor, because each of the four buttons has its own box. The
+# same offset lands correctly on all four; verified against every one.
+# Inset from the box border so a brighter theme cannot smear the projection.
+PRICE_REGION: Region = Region(dx=252, dy=98, w=208, h=38)
+
+
+def buy_point(anchor: tuple[int, int]) -> tuple[int, int]:
+    """Where to tap to BUY the upgrade whose label matched at `anchor`.
+
+    NOT the label's own centre. The label is itself a button - it opens an
+    info panel that covers the screen - so a tap there buys nothing and
+    blinds the next scan behind the overlay. The buy button is the square to
+    the label's right.
+
+    The point is derived from PRICE_REGION rather than measured separately:
+    that offset already locates the price strip inside the buy square, from
+    this same anchor, for all four upgrades. One calibration to keep correct
+    instead of two that can drift apart.
+    """
+    return (
+        anchor[0] + PRICE_REGION.dx + PRICE_REGION.w // 2,
+        anchor[1] + PRICE_REGION.dy + PRICE_REGION.h // 2,
+    )
+
+
+# Death modal, from the GAME_OVER anchor at (330, 663). These crop the whole
+# CENTRED line, not just its number: "Wave 1" grows to "Wave 137" and the
+# digits shift left as it does, so a crop tight to the number would slide off
+# it. Reading them therefore needs the label glyphs in the atlas too.
+# "Wave N" sits directly under the title in both layouts, so it holds a fixed
+# offset from the anchor. It crops the whole centred line, caption included.
+MODAL_WAVE_REGION: Region = Region(dx=6, dy=111, w=408, h=54)
+
+# Tier and coins do NOT hold a fixed offset. When the run beats its record the
+# modal grows a green "New Highest Wave!" line between Wave and Tier, and
+# everything below it moves - while the modal's top edge moves the other way,
+# because a taller modal re-centres. Measured: the anchor rises 49px and these
+# two lines fall 49px, so a fixed offset reads the wrong row on every record run.
+#
+# So they are located by their own caption, the same way navigate.py finds
+# buttons. Verified against both layouts.
+MODAL_TIER_CAPTION: str = "modal/tier_caption.png"
+MODAL_COINS_CAPTION: str = "modal/coins_caption.png"
+
+# From the "Tier" caption's top-left. The number trails the word at a constant
+# gap, so this stays right however wide the number gets.
+MODAL_TIER_REGION: Region = Region(dx=110, dy=-4, w=150, h=60)
+
+# From the "coins earned" caption's top-left. The value is CENTRED under the
+# caption, so this spans the full column rather than hugging the digits.
+MODAL_COINS_REGION: Region = Region(dx=-30, dy=52, w=250, h=68)
+
+# --- Menu navigation ------------------------------------------------------
+# Everything here is located by template match and tapped at the match centre,
+# never by fixed coordinates - the same rule the death modal forced on us.
+NAV_TARGETS: dict[str, str] = {
+    "MISSIONS": "nav/missions.png",          # top-right of the main menu
+    "WORKSHOP": "nav/tab_workshop.png",      # bottom tab bar
+    "CARDS": "nav/tab_cards.png",            # bottom tab bar
+    "BATTLE_TAB": "nav/tab_battle.png",      # bottom tab bar - back to the menu
+    "MISSIONS_RETURN": "nav/missions_return.png",  # missions has no tab; this exits
+}
+
+# First-visit popups sit between a tab and its page. Cards showed a two-step
+# chain: an intro dialog with "Claim", then a full-screen "40 GEMS" reward with
+# CLAIM and SKIP. Try these in order until none match, then read the page.
+NAV_DISMISS: tuple[str, ...] = (
+    "nav/claim.png",
+    "nav/claim_reward.png",
+    "nav/skip.png",
+)
+
+# Which menu page is on screen. Deliberately SEPARATE from SCREEN_ANCHORS:
+# ScreenState models the run lifecycle only, and classify() does
+# ScreenState(winner), which would raise on a name the enum does not have.
+PAGE_ANCHORS: dict[str, str] = {
+    "MAIN_MENU": "screens/main_menu.png",
+    "WORKSHOP": "screens/workshop.png",
+    "CARDS": "screens/cards.png",
+    "MISSIONS": "screens/missions.png",
 }
