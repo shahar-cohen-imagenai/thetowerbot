@@ -124,3 +124,37 @@ def test_counters_reset_between_runs(tmp_path: Path) -> None:
 
     assert runs[1]["tap_count"] == 1
     assert runs[2]["tap_count"] == 0
+
+
+def test_orphan_events_between_runs_do_not_corrupt_counts(tmp_path: Path) -> None:
+    """Events after a run ends but before the next starts belong to no run.
+
+    Verifies that _run_id is cleared immediately after RunEnded, so orphan
+    events do not get misattributed to the next run's counters.
+    """
+    path = drain(tmp_path, [
+        events.RunStarted(run_id=1),
+        events.Tapped(action="Damage", x=1, y=2, score=0.9),
+        events.RunEnded(run_id=1, duration=10.0),
+        # Orphan events after run 1 ends but before run 2 starts
+        events.Tapped(action="Damage", x=1, y=2, score=0.9),
+        events.ScanCompleted(screen="IN_RUN", duration_ms=90.0),
+        events.RunStarted(run_id=2),
+        events.RunEnded(run_id=2, duration=10.0),
+    ])
+
+    with db.reader(path) as conn:
+        runs = {r["id"]: r for r in db.list_runs(conn)}
+        orphans = conn.execute(
+            "SELECT type FROM events WHERE run_id IS NULL ORDER BY seq"
+        ).fetchall()
+
+    # Run 1 keeps only the tap it earned before it ended
+    assert runs[1]["tap_count"] == 1
+    # Run 2 has no counters (the orphan tap/scan do not land on it)
+    assert runs[2]["tap_count"] == 0
+    assert runs[2]["scan_count"] == 0
+    # The orphan Tapped is stored with run_id=NULL
+    # (ScanCompleted is not stored, so only one orphan row)
+    assert len(orphans) == 1
+    assert orphans[0]["type"] == "Tapped"

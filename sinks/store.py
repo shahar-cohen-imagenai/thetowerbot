@@ -114,6 +114,5 @@ class StoreSink(QueueSink):
         db.insert_event(conn, to_row(event, self._run_id))
 
         if isinstance(event, events.RunEnded):
+            # Orphaned events after a run ends belong to no run, not to the ended run.
             self._run_id = None
-            self._scans = 0
-            self._taps = 0
