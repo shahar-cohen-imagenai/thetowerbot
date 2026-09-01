@@ -55,6 +55,17 @@ group("ControlPage", () => {
     expect(screen.getByText(/paused — scanning, not tapping/)).toBeDefined();
   });
 
+  it("surfaces a failed stop instead of failing silently", async () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    stopBot.mockRejectedValue(new Error("POST /api/control/stop -> 500"));
+    render(<ControlPage />);
+
+    fireEvent.click(await screen.findByText("Stop"));
+
+    expect(stopBot).toHaveBeenCalled();
+    await screen.findByText(/POST \/api\/control\/stop -> 500/);
+  });
+
   it("surfaces the server's reason on a rejected patch and leaves the displayed state unchanged", async () => {
     patchControl.mockRejectedValue(new Error("auto_navigate: nope"));
     render(<ControlPage />);
@@ -86,6 +97,40 @@ group("ControlPage", () => {
 
     streamState.events = [
       { type: "ControlChanged", seq: 1, ts: 0, changed: { paused: true }, source: "web" },
+    ];
+    rerender(<ControlPage />);
+
+    await waitFor(() => expect(fetchControl).toHaveBeenCalledTimes(2));
+  });
+
+  it("does not re-fetch for an event that is not ControlChanged", async () => {
+    const { rerender } = render(<ControlPage />);
+    await screen.findByText("Pause");
+    expect(fetchControl).toHaveBeenCalledTimes(1);
+
+    streamState.events = [
+      { type: "ScanCompleted", seq: 1, ts: 0, screen: "IN_RUN", duration_ms: 90, wallet: null },
+    ];
+    rerender(<ControlPage />);
+
+    // No waitFor to assert absence: give any (wrongly) pending refetch a
+    // task to run in, then confirm it never happened.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(fetchControl).toHaveBeenCalledTimes(1);
+  });
+
+  it("re-fetches for a ControlChanged buried in a batch, not just the last event", async () => {
+    // Regression: the server writes a whole poll's worth of events in one
+    // SSE write, EventSource dispatches them within one browser task, and
+    // React batches the resulting state updates into a single render - so
+    // this whole batch arrives as one `events` update, same as production.
+    const { rerender } = render(<ControlPage />);
+    await screen.findByText("Pause");
+    expect(fetchControl).toHaveBeenCalledTimes(1);
+
+    streamState.events = [
+      { type: "ControlChanged", seq: 1, ts: 0, changed: { paused: true }, source: "web" },
+      { type: "ScanCompleted", seq: 2, ts: 0, screen: "IN_RUN", duration_ms: 90, wallet: null },
     ];
     rerender(<ControlPage />);
 

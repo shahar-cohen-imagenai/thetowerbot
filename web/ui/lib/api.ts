@@ -42,5 +42,6 @@ export async function patchControl(patch: Partial<ControlPayload>): Promise<Cont
 }
 
 export async function stopBot(): Promise<void> {
-  await fetch("/api/control/stop", { method: "POST" });
+  const response = await fetch("/api/control/stop", { method: "POST" });
+  if (!response.ok) throw new Error(`POST /api/control/stop -> ${response.status}`);
 }

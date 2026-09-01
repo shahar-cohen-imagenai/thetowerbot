@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,8 +20,30 @@ export default function ControlPage() {
   // A change from another tab (or another client entirely) arrives here as
   // ControlChanged over SSE, not as a response to our own fetch - re-fetch
   // so this tab converges without polling.
+  //
+  // Checking only the last element of `events` is not enough: the server
+  // writes a whole sse.since() batch in one poll, EventSource dispatches
+  // those messages within one browser task, and React batches the resulting
+  // dispatches into a single render - so a ControlChanged followed by, say,
+  // a ScanCompleted in the same batch would leave a non-ControlChanged event
+  // at the tail and this effect would never fire. Track a high-water seq
+  // instead and scan every event that arrived since the last time this ran.
+  //
+  // eventReducer resets the feed (to a single element, with a lower seq)
+  // when the bus's own seq counter moves backwards - a bot restart. That
+  // must not wedge the high-water mark: if the newest seq is lower than what
+  // we last saw, this is a new session none of whose events have been
+  // scanned yet, so treat the whole (freshly reset) array as new.
+  const lastSeenSeqRef = useRef(0);
   useEffect(() => {
-    if (events[events.length - 1]?.type === "ControlChanged") {
+    if (events.length === 0) return;
+    const latestSeq = events[events.length - 1].seq;
+    const sessionReset = latestSeq < lastSeenSeqRef.current;
+    const newEvents = sessionReset
+      ? events
+      : events.filter((e) => e.seq > lastSeenSeqRef.current);
+    lastSeenSeqRef.current = latestSeq;
+    if (newEvents.some((e) => e.type === "ControlChanged")) {
       fetchControl().then(setControl).catch((e) => setError(String(e)));
     }
   }, [events]);
@@ -32,6 +54,16 @@ export default function ControlPage() {
     setError(null);
     try {
       setControl(await patchControl(patch));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  async function stop() {
+    if (!confirm("Stop the bot and the dashboard?")) return;
+    setError(null);
+    try {
+      await stopBot();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -56,10 +88,7 @@ export default function ControlPage() {
         <Button variant="outline" onClick={() => send({ paused: !control.paused })}>
           {control.paused ? "Resume" : "Pause"}
         </Button>
-        <Button
-          variant="destructive"
-          onClick={() => { if (confirm("Stop the bot and the dashboard?")) void stopBot(); }}
-        >
+        <Button variant="destructive" onClick={() => void stop()}>
           Stop
         </Button>
         <span className="self-center text-sm text-muted-foreground">
@@ -71,6 +100,7 @@ export default function ControlPage() {
         <label className="flex items-center justify-between text-sm">
           Scan interval (s)
           <Input
+            key={control.interval}
             type="number" min={0.1} max={3600} step={0.1} defaultValue={control.interval}
             onBlur={(e) => send({ interval: Number(e.target.value) })}
             className="w-24 text-right"

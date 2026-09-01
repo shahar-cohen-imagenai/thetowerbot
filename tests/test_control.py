@@ -65,11 +65,22 @@ def test_strategy_must_be_known() -> None:
 
 def test_enabled_actions_must_be_a_list_of_strings() -> None:
     controls = Controls(enabled_actions={"Damage"})
-    assert controls.apply({"enabled_actions": ["Damage", "Tier"]}) == {
-        "enabled_actions": ["Damage", "Tier"]
+    assert controls.apply({"enabled_actions": ["Damage", "Critical Chance"]}) == {
+        "enabled_actions": ["Critical Chance", "Damage"]
     }
     with pytest.raises(ControlError):
         controls.apply({"enabled_actions": "Damage"})
+
+
+def test_enabled_actions_rejects_a_name_that_is_not_a_real_action() -> None:
+    """A typo (or a stale name from a config change) must be refused, not
+    silently accepted - accepting it would disable every action for real
+    while the dashboard still showed the typo as "enabled"."""
+    controls = Controls(enabled_actions={"Damage"})
+    with pytest.raises(ControlError) as caught:
+        controls.apply({"enabled_actions": ["Typo"]})
+    assert caught.value.field == "enabled_actions"
+    assert controls.snapshot()["enabled_actions"] == ["Damage"]
 
 
 def test_a_partial_patch_that_fails_late_changes_nothing() -> None:

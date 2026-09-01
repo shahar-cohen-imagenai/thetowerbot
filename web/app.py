@@ -214,16 +214,22 @@ def create_app(
     if controls is not None:
         available = dict(checks or {})
 
-        @app.get("/api/control")
-        def read_control() -> dict:
-            payload = controls.snapshot()
+        def _control_payload() -> dict:
             # The browser needs the full action list to render checkboxes for
-            # the ones currently switched off, which the snapshot omits.
+            # the ones currently switched off, which the snapshot omits, plus
+            # which strategies actually built (see build_affordability()) so
+            # it can grey out one with no atlas rather than let a switch to it
+            # silently do nothing.
+            payload = controls.snapshot()
             payload["actions"] = [action.name for action in config.ACTIONS]
             payload["strategies_available"] = sorted(
                 name for name, check in available.items() if check is not None
             )
             return payload
+
+        @app.get("/api/control")
+        def read_control() -> dict:
+            return _control_payload()
 
         @app.patch("/api/control")
         def patch_control(patch: ControlPatch) -> dict:
@@ -250,12 +256,7 @@ def create_app(
                 # state change and must not fill the log with noise.
                 bus.publish(events.ControlChanged(changed=changed, source="web"))
 
-            payload = controls.snapshot()
-            payload["actions"] = [action.name for action in config.ACTIONS]
-            payload["strategies_available"] = sorted(
-                name for name, check in available.items() if check is not None
-            )
-            return payload
+            return _control_payload()
 
         @app.post("/api/control/stop")
         def stop_bot() -> dict:

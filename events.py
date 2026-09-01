@@ -55,7 +55,7 @@ class Tapped(Event):
 @dataclass(frozen=True, kw_only=True)
 class Skipped(Event):
     action: str
-    reason: str  # screen_gated | dimmed | unaffordable | cooldown
+    reason: str  # paused | screen_gated | dimmed | unaffordable | cooldown
     detail: str = ""
 
 

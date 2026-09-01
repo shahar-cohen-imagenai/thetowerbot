@@ -103,9 +103,9 @@ nowhere else. That rule is hardcoded in `tower_bot.py` — it is not a per-actio
 setting — and it is what stops the bot tapping blindly into a modal that has
 dimmed the screen behind it.
 
-Skips are recorded rather than silent, with four reasons, checked cheapest
-first: `screen_gated`, then the match score, then `unaffordable` / `dimmed`,
-then `cooldown`.
+Skips are recorded rather than silent, with five reasons, checked cheapest
+first: `paused`, then `screen_gated`, then the match score, then
+`unaffordable` / `dimmed`, then `cooldown`.
 
 ### Unknown screens
 
@@ -275,13 +275,22 @@ SSE and reconnects on its own — a laptop that slept resumes from
 `Last-Event-ID` rather than starting blank, as long as it was gone for less
 than the 500-event ring.
 
-> **The dashboard has no authentication.** It serves screenshots of a live
-> session and this machine's entire event history, which is why it binds
-> loopback. `--web-host` will let you bind something else, and the bot logs a
-> warning when you do, but it will not stop you. Do not put it on a network
-> without real auth in front of it.
+It also serves a **control** page: a connected browser can pause the bot
+(still scanning, not tapping), change the scan interval, auto-navigate, and
+the affordability strategy, choose which actions are enabled, and stop the
+bot and the dashboard together. Every change goes through the same
+`Controls.apply()` validation a CLI flag would get, and every tab converges
+on the current settings live, over the same SSE feed.
 
-Ctrl+C stops both the bot and the dashboard, as does reaching `--max-runs`.
+> **The dashboard has no authentication.** It serves screenshots of a live
+> session and this machine's entire event history, and its control page lets
+> anyone who can reach the port pause the bot, change what it buys, or stop
+> it outright — which is why it binds loopback. `--web-host` will let you
+> bind something else, and the bot logs a warning when you do, but it will
+> not stop you. Do not put it on a network without real auth in front of it.
+
+Ctrl+C stops both the bot and the dashboard, as does reaching `--max-runs` or
+clicking **Stop** on the control page.
 
 ## Where the data goes
 

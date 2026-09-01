@@ -105,6 +105,12 @@ class Controls:
                 isinstance(name, str) for name in actions
             ):
                 raise ControlError("enabled_actions", "enabled_actions must be a list of names")
+            unknown = set(actions) - _default_actions()
+            if unknown:
+                raise ControlError(
+                    "enabled_actions",
+                    f"unknown action(s): {', '.join(sorted(unknown))}",
+                )
             staged["enabled_actions"] = set(actions)
 
         changed: dict[str, Any] = {}
