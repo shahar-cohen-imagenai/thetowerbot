@@ -95,3 +95,21 @@ export interface ControlPayload {
   actions: string[];
   strategies_available: string[];
 }
+
+export interface RunStat {
+  id: number;
+  started_at: number;
+  ended_at: number;
+  wave: number | null;
+  coins: number | null;
+  tier: number | null;
+  tap_count: number;
+  scan_count: number;
+  duration: number;
+}
+
+export interface StatsPayload {
+  runs: RunStat[];
+  taps: { action: string; count: number }[];
+  screens: { screen: string; count: number }[];
+}

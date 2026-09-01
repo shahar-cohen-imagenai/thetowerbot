@@ -1,4 +1,4 @@
-import type { ControlPayload, RunRow, Snapshot, StatusPayload, StoredEvent } from "./types";
+import type { ControlPayload, RunRow, Snapshot, StatsPayload, StatusPayload, StoredEvent } from "./types";
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path, { headers: { accept: "application/json" } });
@@ -10,6 +10,8 @@ export const fetchStatus = () => getJson<StatusPayload>("/api/status");
 export const fetchRuns = (limit = 30) => getJson<RunRow[]>(`/api/runs?limit=${limit}`);
 export const fetchRunEvents = (id: number) => getJson<StoredEvent[]>(`/api/runs/${id}/events`);
 export const fetchUnknown = () => getJson<Snapshot[]>("/api/unknown");
+export const fetchStats = () => getJson<StatsPayload>("/api/stats");
+export const fetchErrors = (limit = 100) => getJson<StoredEvent[]>(`/api/errors?limit=${limit}`);
 
 export const fetchControl = () => getJson<ControlPayload>("/api/control");
 
