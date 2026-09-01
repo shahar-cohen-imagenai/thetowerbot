@@ -335,6 +335,11 @@ uv lock --upgrade      # refresh the locked versions
 Commit `pyproject.toml` and `uv.lock` together so everyone resolves to the same
 versions.
 
+The dashboard is a separate story: its source is the Next.js app in
+`web/ui/`, and `npm run build` there republishes the git-tracked
+`web/static/` that the bot actually serves. Node is only needed to change the
+dashboard — never to run the bot.
+
 ## Tests
 
 ```bash
@@ -342,4 +347,6 @@ uv run pytest -q
 ```
 
 No emulator and no browser required — the suite runs against committed
-fixtures.
+fixtures. It does check that `web/static/` isn't stale against `web/ui/`, so
+if you edit the dashboard, rebuild it first (`npm run build` in `web/ui`) or
+this suite goes red; `npm test` in `web/ui` runs the dashboard's own tests.

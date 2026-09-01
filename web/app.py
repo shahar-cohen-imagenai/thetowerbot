@@ -1,4 +1,4 @@
-"""The dashboard's HTTP layer: JSON for the machine, one HTML file for the eye.
+"""The dashboard's HTTP layer: JSON for the machine, a built SPA for the eye.
 
 Two sources, deliberately separate. "What is the bot doing right now" is a
 memory question, answered from the shared BotState. "What did it do" is a

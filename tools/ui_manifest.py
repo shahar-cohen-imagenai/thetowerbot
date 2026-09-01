@@ -16,6 +16,7 @@ SOURCE_FILES = (
     "package-lock.json",
     "next.config.ts",
     "tsconfig.json",
+    "postcss.config.mjs",
 )
 
 

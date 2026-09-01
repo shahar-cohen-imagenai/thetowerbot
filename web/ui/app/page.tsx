@@ -39,7 +39,10 @@ export default function LivePage() {
   usePoll(useCallback(async () => setShots(await fetchUnknown()), []), 60000);
 
   async function showRun(id: number) {
-    const stored = await fetchRunEvents(id);
+    // A failed fetch here is otherwise an unhandled rejection on click; swallow
+    // it the same way usePoll does and leave the feed showing whatever it had.
+    const stored = await fetchRunEvents(id).catch(() => null);
+    if (!stored) return;
     // Stored rows are columns plus a detail blob; flatten them back into the
     // shape describe() takes, so one renderer serves live and history both.
     // Blob last: it holds no column's name except `detail` itself, whose

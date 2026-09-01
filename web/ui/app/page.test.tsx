@@ -14,10 +14,16 @@ vi.mock("@/lib/api", () => ({
     { id: 7, started_at: 0, ended_at: 30, wave: 12, coins: 500, tier: 2, abandoned: 0, scan_count: 10, tap_count: 4 },
   ])),
   fetchUnknown: vi.fn(() => Promise.resolve([])),
+  // Shaped exactly as sinks/store.py's to_row() stores a ScreenChanged event:
+  // `curr` moves into the `screen` column, and `prev`/`confidence`/`scores`
+  // are left in the `detail` blob. This is the one shape (column plus blob)
+  // that RunStarted alone doesn't exercise, and it's what regressed history
+  // mode's rendering (see web/ui/lib/format.test.ts for the unit-level case).
   fetchRunEvents: vi.fn(() => Promise.resolve([
     {
-      seq: 1, run_id: 7, ts: 0, type: "RunStarted", screen: null, action: null,
-      reason: null, score: null, price: null, wallet: null, detail: { run_id: 7 },
+      seq: 1, run_id: 7, ts: 0, type: "ScreenChanged", screen: "GAME", action: null,
+      reason: null, score: null, price: null, wallet: null,
+      detail: { prev: "MENU", confidence: 0.87, scores: {} },
     },
   ])),
 }));
@@ -38,11 +44,15 @@ group("LivePage history mode", () => {
     fireEvent.click(row!);
 
     await screen.findByText(/— run #7/);
-    expect(screen.getByText(/RUN\s+#7 started/)).toBeDefined();
+    // Names both screens (not "SCREEN MENU -> undefined"): the stored row's
+    // `curr` came back from the `screen` column, not a top-level `curr` field.
+    const line = screen.getByText(/SCREEN\s+MENU -> GAME/);
+    expect(line).toBeDefined();
+    expect(line.textContent).not.toMatch(/undefined/);
 
     fireEvent.click(screen.getByText("back to live"));
 
     expect(screen.queryByText(/— run #7/)).toBeNull();
-    expect(screen.queryByText(/RUN\s+#7 started/)).toBeNull();
+    expect(screen.queryByText(/SCREEN\s+MENU -> GAME/)).toBeNull();
   });
 });

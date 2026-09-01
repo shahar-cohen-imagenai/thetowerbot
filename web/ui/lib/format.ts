@@ -13,8 +13,15 @@ export function describe(event: BotEvent): string {
       return `TAP    ${event.action} (${event.x},${event.y}) score=${event.score.toFixed(3)} price=${money(event.price)}`;
     case "Skipped":
       return `SKIP   ${event.action} reason=${event.reason}${event.detail ? " " + event.detail : ""}`;
-    case "ScreenChanged":
-      return `SCREEN ${event.prev} -> ${event.curr} (${event.confidence.toFixed(3)})`;
+    case "ScreenChanged": {
+      // A live event carries `curr`. A replayed history row does not:
+      // sinks/store.py's to_row() moves `curr` into the events table's
+      // `screen` column before blobbing the rest, so a stored row has
+      // `screen` instead. Prefer `curr`, fall back to `screen`.
+      const curr = (event as { curr?: string; screen?: string }).curr ??
+        (event as { curr?: string; screen?: string }).screen;
+      return `SCREEN ${event.prev} -> ${curr} (${event.confidence.toFixed(3)})`;
+    }
     case "ScanCompleted":
       return `SCAN   ${event.screen} ${Math.round(event.duration_ms)}ms wallet=${money(event.wallet)}`;
     case "RunStarted":

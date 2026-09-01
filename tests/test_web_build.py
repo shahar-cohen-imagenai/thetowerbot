@@ -95,3 +95,24 @@ def test_feed_limit_matches_the_sse_ring_size() -> None:
         f"config.SSE_RING_SIZE in config.py ({config.SSE_RING_SIZE}) - "
         "the browser's feed cap must match the server's SSE ring size"
     )
+
+
+NEXT_CONFIG_PATH = UI_DIR / "next.config.ts"
+
+
+def test_dev_proxy_port_matches_web_port() -> None:
+    """web/ui/next.config.ts hardcodes the bot's dev-server port and
+    config.WEB_PORT is two hardcoded constants in two languages with nothing
+    tying them together. Change either alone and nothing else fails - `npm
+    run dev` just proxies `/api/*` into a void with no other symptom. This is
+    that invariant's test.
+    """
+    source = NEXT_CONFIG_PATH.read_text(encoding="utf-8")
+    match = re.search(r"http://127\.0\.0\.1:(\d+)", source)
+    assert match, f"could not find the proxied port in {NEXT_CONFIG_PATH}"
+    proxy_port = int(match.group(1))
+    assert proxy_port == config.WEB_PORT, (
+        f"the dev-proxy port in {NEXT_CONFIG_PATH} ({proxy_port}) does not match "
+        f"config.WEB_PORT in config.py ({config.WEB_PORT}) - "
+        "a mismatch makes `npm run dev` proxy into a void with no other symptom"
+    )
