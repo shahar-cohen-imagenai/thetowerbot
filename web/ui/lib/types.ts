@@ -41,6 +41,16 @@ export interface CurrentRun {
   taps: Record<string, number>;
 }
 
+export interface MatchBox {
+  name: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  score: number;
+  tapped: boolean;
+}
+
 export interface StatusPayload {
   screen: string;
   uptime: number;
@@ -53,6 +63,8 @@ export interface StatusPayload {
   last_error: string | null;
   tail: unknown[];
   dropped: number;
+  boxes: MatchBox[];
+  frame_size: { width: number; height: number } | null;
 }
 
 /** A row from the `runs` table. */

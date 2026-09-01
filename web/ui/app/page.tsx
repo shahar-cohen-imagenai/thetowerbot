@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { DeviceView } from "@/components/DeviceView";
 import { EventFeed } from "@/components/EventFeed";
 import { RunTable } from "@/components/RunTable";
 import { SnapshotStrip } from "@/components/SnapshotStrip";
@@ -56,7 +57,7 @@ export default function LivePage() {
     <div className="flex flex-col gap-4">
       <StatBar status={status} connected={connected} />
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-3">
         <section className="rounded-lg border p-3">
           <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Current run</h2>
           {status?.run ? (
@@ -67,6 +68,11 @@ export default function LivePage() {
           ) : (
             <p className="text-sm text-muted-foreground">idle</p>
           )}
+        </section>
+
+        <section className="rounded-lg border p-3">
+          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Device</h2>
+          <DeviceView boxes={status?.boxes ?? []} size={status?.frame_size ?? null} />
         </section>
 
         <section className="rounded-lg border p-3">
