@@ -736,14 +736,37 @@ def serve_web(
     if stop is None:
         stop = threading.Event()
 
+    class _Server(uvicorn.Server):
+        """Set `stop` the instant uvicorn decides to exit, not after.
+
+        uvicorn installs its own SIGINT/SIGTERM handler and, on the main
+        thread, runs graceful shutdown to completion inside it before
+        server.run() ever returns. `stop` was previously only set in this
+        function's own `finally` below - which does not run until
+        server.run() returns - so with a stream held open (an SSE tab, or
+        now the device view), the generators never saw the flag during
+        graceful shutdown at all: it waited out the full
+        timeout_graceful_shutdown backstop, force-cancelling the response,
+        every single time. Overriding handle_exit() sets `stop` before
+        calling through to uvicorn's own handling, so event_stream() and
+        frame_stream() can end themselves - and the response complete -
+        while graceful shutdown is still in its normal (short) path, rather
+        than needing the backstop to end it.
+        """
+
+        def handle_exit(self, sig: int, frame: FrameType | None) -> None:
+            stop.set()
+            super().handle_exit(sig, frame)
+
     config_ = uvicorn.Config(
         app, host=host, port=port, log_level="warning",
         # Backstop, not the fix: without `stop` this defaults to None, which
         # is "wait forever" (uvicorn/config.py) - the exact hang finding 1
-        # describes. With `stop` this should never fire in practice.
+        # describes. With `stop` (and _Server.handle_exit setting it before
+        # graceful shutdown begins) this should never fire in practice.
         timeout_graceful_shutdown=2,
     )
-    server = uvicorn.Server(config_)
+    server = _Server(config_)
 
     def _run_loop() -> None:
         try:
