@@ -104,6 +104,30 @@ def test_in_run_taps_every_affordable_upgrade(
     assert len(tapped) == 4
 
 
+def test_recorded_boxes_carry_the_buy_point_not_the_label_origin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """config.buy_point() documents that the label is itself a button - a tap
+    there buys nothing. The overlay must record where the bot actually taps
+    (tap_x/tap_y), separate from the label's own matched (x, y)."""
+    from frames import FrameBuffer
+
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+    bot.frames = FrameBuffer()
+    bot.frames.publish(bot._screen)
+
+    bot.run_once()
+
+    boxes = bot.frames.boxes()
+    assert len(boxes) == 4
+    for box in boxes:
+        expected_x, expected_y = config.buy_point((box["x"], box["y"]))
+        assert (box["tap_x"], box["tap_y"]) == (expected_x, expected_y)
+        # The whole point: the buy square is not the label's own origin.
+        assert (box["tap_x"], box["tap_y"]) != (box["x"], box["y"])
+
+
 def test_brightness_gate_rejects_dimmed_regions() -> None:
     """Direct coverage of BrightnessAffordability, which the full-loop
     game-over test never reaches because screen gating fires first."""

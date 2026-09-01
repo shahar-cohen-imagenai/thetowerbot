@@ -27,17 +27,31 @@ export function DeviceView({
         <img src="/api/frame" alt="device screen" className="block w-full" />
         {overlay && size
           ? boxes.map((box) => (
-              <div
-                key={`${box.name}-${box.x}-${box.y}`}
-                title={`${box.name} ${box.score.toFixed(3)}`}
-                className={`absolute border-2 ${box.tapped ? "border-emerald-400" : "border-amber-400"}`}
-                style={{
-                  left: `${(box.x / size.width) * 100}%`,
-                  top: `${(box.y / size.height) * 100}%`,
-                  width: `${(box.w / size.width) * 100}%`,
-                  height: `${(box.h / size.height) * 100}%`,
-                }}
-              />
+              <div key={`${box.name}-${box.x}-${box.y}`}>
+                <div
+                  title={`${box.name} ${box.score.toFixed(3)}`}
+                  className={`absolute border-2 ${box.tapped ? "border-emerald-400" : "border-amber-400"}`}
+                  style={{
+                    left: `${(box.x / size.width) * 100}%`,
+                    top: `${(box.y / size.height) * 100}%`,
+                    width: `${(box.w / size.width) * 100}%`,
+                    height: `${(box.h / size.height) * 100}%`,
+                  }}
+                />
+                {/* The label itself is a button - tapping it opens an info
+                    panel instead of buying anything - so the real tap lands
+                    on the buy square beside it, at (tap_x, tap_y). Drawn as
+                    a small dot, visually distinct from the box outline, so
+                    it reads as "here", not as another rectangle. */}
+                <div
+                  title={`${box.name} tap point`}
+                  className="absolute h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-sky-400"
+                  style={{
+                    left: `${(box.tap_x / size.width) * 100}%`,
+                    top: `${(box.tap_y / size.height) * 100}%`,
+                  }}
+                />
+              </div>
             ))
           : null}
       </div>

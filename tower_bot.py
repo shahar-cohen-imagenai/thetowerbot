@@ -157,6 +157,12 @@ class TowerBot:
         if match is None:
             return False
 
+        # The BUY point, not the label's own centre - config.buy_point()
+        # documents why: the label is itself a button, so a tap there (or a
+        # crosshair drawn there) marks the wrong square. Computed once, up
+        # front, so the box recorded below and the eventual tap agree.
+        tap_x, tap_y = config.buy_point(match.top_left)
+
         if self.frames is not None:
             # Recorded whether or not the tap happens, because "matched but
             # rejected" is exactly what you open the device view to see.
@@ -167,6 +173,8 @@ class TowerBot:
                 "y": int(match.top_left[1]),
                 "w": int(width),
                 "h": int(height),
+                "tap_x": int(tap_x),
+                "tap_y": int(tap_y),
                 "score": float(match.score),
                 "tapped": False,
             })
@@ -194,14 +202,13 @@ class TowerBot:
             self.bus.publish(events.Skipped(action=name, reason="cooldown"))
             return False
 
-        x, y = config.buy_point(match.top_left)
-        tap(self.device, x, y)
+        tap(self.device, tap_x, tap_y)
         self._last_click[cooldown_key] = now
         self.bus.publish(
             events.Tapped(
                 action=name,
-                x=x,
-                y=y,
+                x=tap_x,
+                y=tap_y,
                 score=match.score,
                 price=self.affordability.last_price,
                 wallet=self.affordability.last_wallet,

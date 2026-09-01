@@ -47,6 +47,10 @@ export interface MatchBox {
   y: number;
   w: number;
   h: number;
+  /** Where a tap actually lands - the buy square beside the label, not the
+   * label's own (x, y) origin. Absolute frame coordinates, same as x/y. */
+  tap_x: number;
+  tap_y: number;
   score: number;
   tapped: boolean;
 }
