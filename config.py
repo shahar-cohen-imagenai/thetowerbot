@@ -238,5 +238,8 @@ SSE_HEARTBEAT_SECONDS: float = 15.0
 # screenshots of a live session and the full event history of this machine.
 # Binding 0.0.0.0 puts both on the local network in the clear - do not change
 # this without putting real authentication in front of it first.
+# Since the control plane landed this server is no longer read-only: anything
+# that can reach it can pause the bot, change what it buys, and stop the
+# process. Loopback is doing real work here, not just avoiding an open port.
 WEB_HOST: str = "127.0.0.1"
 WEB_PORT: int = 8765

@@ -549,8 +549,9 @@ def warn_if_web_host_exposed(host: str) -> None:
     config.WEB_HOST's docstring carries the real warning, but nobody reads a
     default's docstring on the way to overriding it with --web-host. The
     dashboard serves live screenshots and full event history with no auth,
-    so binding anything but loopback deserves pushback at the point someone
-    is actually about to do it.
+    and - now that the control plane is wired in - lets a caller pause,
+    reconfigure or stop the bot too, so binding anything but loopback
+    deserves pushback at the point someone is actually about to do it.
     """
     try:
         loopback = ipaddress.ip_address(host).is_loopback
@@ -561,8 +562,9 @@ def warn_if_web_host_exposed(host: str) -> None:
     if not loopback:
         logger.warning(
             "--web-host %s is not loopback - the dashboard's live "
-            "screenshots and event history will be reachable by anyone on "
-            "this network, and there is no authentication.",
+            "screenshots, event history, and control over the bot (pause, "
+            "reconfigure, stop) will be reachable by anyone on this "
+            "network, and there is no authentication.",
             host,
         )
 
@@ -767,14 +769,28 @@ def main(argv: list[str] | None = None) -> int:
                     width, height, *config.EXPECTED_RESOLUTION,
                 )
 
+        # Both strategies built once, at startup. `digits` degrades to
+        # brightness when no atlas exists, and the identity check below is how
+        # we notice - so the dashboard can refuse a switch to digits with a
+        # reason rather than quietly handing back brightness.
+        brightness = BrightnessAffordability()
+        digits_check = build_affordability("digits")
+        checks: dict[str, AffordabilityCheck | None] = {
+            "brightness": brightness,
+            "digits": digits_check if isinstance(digits_check, DigitAffordability) else None,
+        }
+        controls = Controls(
+            interval=args.interval,
+            auto_navigate=args.auto_navigate,
+            strategy=args.affordability if checks.get(args.affordability) else "brightness",
+        )
         bot = TowerBot(
             device=device,
             templates=vision.TemplateCache(config.TEMPLATE_DIR),
             bus=bus,
-            affordability_check=build_affordability(args.affordability),
-            controls=Controls(
-                interval=args.interval, auto_navigate=args.auto_navigate, strategy=args.affordability
-            ),
+            affordability_check=checks[controls.strategy] or brightness,
+            controls=controls,
+            checks=checks,
             first_run_id=last_run + 1,
         )
 
@@ -796,6 +812,8 @@ def main(argv: list[str] | None = None) -> int:
                 state=state, sse=sse, bus=bus,
                 db_path=db_path if args.store else None,
                 stop=stop,
+                controls=controls,
+                checks=checks,
             )
             # No signal handlers of ours here: uvicorn installs its own and
             # would overwrite them anyway.

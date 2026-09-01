@@ -553,3 +553,20 @@ def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None
     # did: catches a *reintroduced* interval, not just a missing argument.
     assert bot.called_with == (None, 1)
     assert stop.is_set() is True
+
+
+def test_controls_start_from_the_command_line() -> None:
+    """The flags you launched with must not be silently overridden.
+
+    Controls' dataclass defaults are a fallback; main() seeds them from argv.
+    """
+    from control import Controls
+    from tower_bot import parse_args
+
+    args = parse_args(["--interval", "3.0", "--auto-navigate", "--affordability", "brightness"])
+    controls = Controls(
+        interval=args.interval, auto_navigate=args.auto_navigate, strategy=args.affordability
+    )
+    assert controls.snapshot()["interval"] == 3.0
+    assert controls.snapshot()["auto_navigate"] is True
+    assert controls.snapshot()["strategy"] == "brightness"

@@ -5,8 +5,9 @@ memory question, answered from the shared BotState. "What did it do" is a
 history question, answered by read-only SQLite connections opened per request
 - the web layer never writes, and cannot: db.reader() opens mode=ro.
 
-Binds 127.0.0.1. No auth, and /api/unknown serves screenshots of a live
-session - see the warning beside config.WEB_HOST before changing that.
+Binds 127.0.0.1. No auth, /api/unknown serves screenshots of a live session,
+and /api/control lets a caller pause, reconfigure or stop the bot - see the
+warning beside config.WEB_HOST before changing the bind address.
 """
 
 from __future__ import annotations
