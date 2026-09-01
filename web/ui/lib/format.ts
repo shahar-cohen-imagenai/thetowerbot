@@ -1,0 +1,34 @@
+import type { BotEvent } from "./types";
+
+export const clock = (ts: number): string =>
+  new Date(ts * 1000).toTimeString().slice(0, 8);
+
+export const money = (n: number | null | undefined): string =>
+  n === null || n === undefined ? "-" : "$" + n;
+
+/** One event as one line of the feed. */
+export function describe(event: BotEvent): string {
+  switch (event.type) {
+    case "Tapped":
+      return `TAP    ${event.action} (${event.x},${event.y}) score=${event.score.toFixed(3)} price=${money(event.price)}`;
+    case "Skipped":
+      return `SKIP   ${event.action} reason=${event.reason}${event.detail ? " " + event.detail : ""}`;
+    case "ScreenChanged":
+      return `SCREEN ${event.prev} -> ${event.curr} (${event.confidence.toFixed(3)})`;
+    case "ScanCompleted":
+      return `SCAN   ${event.screen} ${Math.round(event.duration_ms)}ms wallet=${money(event.wallet)}`;
+    case "RunStarted":
+      return `RUN    #${event.run_id} started`;
+    case "RunEnded":
+      return `RUN    #${event.run_id} ${event.abandoned ? "abandoned" : "ended"} wave=${event.wave ?? "?"} coins=${event.coins ?? "?"}`;
+    case "Navigated":
+      return `NAV    ${event.target}`;
+    case "UnknownScreen":
+      return `UNKNWN best=${event.best_anchor} ${event.best_score.toFixed(3)}`;
+    case "BotError":
+      return `ERROR  ${event.message}`;
+    default:
+      // An event type the UI predates. Showing its name beats dropping it.
+      return (event as { type: string }).type;
+  }
+}
