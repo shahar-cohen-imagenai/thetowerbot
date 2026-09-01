@@ -570,3 +570,35 @@ def test_controls_start_from_the_command_line() -> None:
     assert controls.snapshot()["interval"] == 3.0
     assert controls.snapshot()["auto_navigate"] is True
     assert controls.snapshot()["strategy"] == "brightness"
+
+
+def test_build_checks_and_controls_downgrades_when_atlas_is_absent(
+    tmp_path: Path,
+) -> None:
+    """The behaviour this whole task exists to protect: requesting digits
+    with no atlas built must not let the dashboard claim "digits" while the
+    bot actually runs brightness."""
+    args = parse_args(["--affordability", "digits"])
+
+    checks, controls = tower_bot.build_checks_and_controls(args, atlas_root=tmp_path)
+
+    assert checks["digits"] is None
+    assert isinstance(checks["brightness"], BrightnessAffordability)
+    assert controls.strategy == "brightness"
+    # The invariant a future refactor has to keep true: whatever strategy
+    # Controls names, checks must have a real entry for it - never None.
+    assert checks[controls.strategy] is not None
+
+
+def test_build_checks_and_controls_uses_digits_when_atlas_is_present(
+    tmp_path: Path,
+) -> None:
+    for size_class in digits.SIZE_CLASSES:
+        build_synthetic_atlas(tmp_path / size_class)
+    args = parse_args(["--affordability", "digits"])
+
+    checks, controls = tower_bot.build_checks_and_controls(args, atlas_root=tmp_path)
+
+    assert isinstance(checks["digits"], DigitAffordability)
+    assert controls.strategy == "digits"
+    assert checks[controls.strategy] is not None

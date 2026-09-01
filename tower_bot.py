@@ -501,6 +501,34 @@ def build_affordability(
     return DigitAffordability(digits.NumberReader(cache), BrightnessAffordability())
 
 
+def build_checks_and_controls(
+    args: argparse.Namespace, atlas_root: Path | None = None
+) -> tuple[dict[str, AffordabilityCheck | None], Controls]:
+    """Build every affordability strategy once, and seed Controls from what
+    actually got built rather than from `args.affordability` alone.
+
+    Both strategies built once, at startup. `digits` degrades to brightness
+    when no atlas exists, and the identity check below is how we notice - so
+    the dashboard can refuse a switch to digits with a reason rather than
+    quietly handing back brightness.
+
+    `atlas_root` exists so this can be exercised without a device: it is
+    threaded straight through to `build_affordability`.
+    """
+    brightness = BrightnessAffordability()
+    digits_check = build_affordability("digits", atlas_root=atlas_root)
+    checks: dict[str, AffordabilityCheck | None] = {
+        "brightness": brightness,
+        "digits": digits_check if isinstance(digits_check, DigitAffordability) else None,
+    }
+    controls = Controls(
+        interval=args.interval,
+        auto_navigate=args.auto_navigate,
+        strategy=args.affordability if checks.get(args.affordability) else "brightness",
+    )
+    return checks, controls
+
+
 def print_debug_scores(screen: Image, templates: vision.TemplateCache) -> None:
     """One-shot threshold-tuning diagnostic.
 
@@ -769,26 +797,12 @@ def main(argv: list[str] | None = None) -> int:
                     width, height, *config.EXPECTED_RESOLUTION,
                 )
 
-        # Both strategies built once, at startup. `digits` degrades to
-        # brightness when no atlas exists, and the identity check below is how
-        # we notice - so the dashboard can refuse a switch to digits with a
-        # reason rather than quietly handing back brightness.
-        brightness = BrightnessAffordability()
-        digits_check = build_affordability("digits")
-        checks: dict[str, AffordabilityCheck | None] = {
-            "brightness": brightness,
-            "digits": digits_check if isinstance(digits_check, DigitAffordability) else None,
-        }
-        controls = Controls(
-            interval=args.interval,
-            auto_navigate=args.auto_navigate,
-            strategy=args.affordability if checks.get(args.affordability) else "brightness",
-        )
+        checks, controls = build_checks_and_controls(args)
         bot = TowerBot(
             device=device,
             templates=vision.TemplateCache(config.TEMPLATE_DIR),
             bus=bus,
-            affordability_check=checks[controls.strategy] or brightness,
+            affordability_check=checks[controls.strategy] or checks["brightness"],
             controls=controls,
             checks=checks,
             first_run_id=last_run + 1,
