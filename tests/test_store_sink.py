@@ -164,3 +164,26 @@ def test_orphan_events_between_runs_do_not_corrupt_counts(tmp_path: Path) -> Non
     # (ScanCompleted is not stored, so only one orphan row)
     assert len(orphans) == 1
     assert orphans[0]["type"] == "Tapped"
+
+
+def test_control_changes_are_persisted(tmp_path: Path) -> None:
+    """A setting change must be as reconstructable as every other change.
+
+    "Why did it stop tapping at 3am" is exactly the question the event log
+    exists to answer, so the control surface cannot be the one thing that
+    mutates the bot without leaving a row behind.
+    """
+    path = drain(tmp_path, [
+        events.ControlChanged(changed={"paused": True}, source="web"),
+    ])
+
+    with db.reader(path) as conn:
+        rows = [
+            dict(row)
+            for row in conn.execute("SELECT type, detail FROM events").fetchall()
+        ]
+
+    assert rows and rows[0]["type"] == "ControlChanged"
+    # The events table has no column for `changed`; the JSON detail blob is
+    # what absorbs a new event type with no schema migration.
+    assert '"paused": true' in rows[0]["detail"]
