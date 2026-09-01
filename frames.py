@@ -47,6 +47,13 @@ class FrameBuffer:
         with self._lock:
             self._boxes.append(dict(box))
 
+    def mark_tapped(self, name: str) -> None:
+        """Flag a recorded box as the one that was actually tapped."""
+        with self._lock:
+            for box in self._boxes:
+                if box["name"] == name:
+                    box["tapped"] = True
+
     def boxes(self) -> list[dict[str, Any]]:
         with self._lock:
             return [dict(box) for box in self._boxes]

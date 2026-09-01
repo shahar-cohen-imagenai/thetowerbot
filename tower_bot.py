@@ -47,6 +47,7 @@ from affordability import (
 )
 from control import Controls
 from device import EmulatorError, Image, capture_screen, connect_device, tap
+from frames import FrameBuffer
 from navigate import Navigator
 from runs import RunTracker
 from snapshots import SnapshotWriter
@@ -74,10 +75,14 @@ class TowerBot:
         checks: dict[str, AffordabilityCheck | None] | None = None,
         reader: digits.NumberReader | None = None,
         first_run_id: int = 1,
+        frames: FrameBuffer | None = None,
     ) -> None:
         self.device = device
         self.templates = templates
         self.bus = bus
+        # Optional: --tui and --once have nobody to show a frame to, and every
+        # test predating this constructs a bot without one.
+        self.frames = frames
         self.click_cooldown = click_cooldown
         self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
         self.reader = reader if reader is not None else digits.NumberReader()
@@ -115,6 +120,8 @@ class TowerBot:
     def refresh_screen(self) -> Image:
         """Capture a fresh frame and keep it as the current screen."""
         self._screen = capture_screen(self.device)
+        if self.frames is not None:
+            self.frames.publish(self._screen)
         return self._screen
 
     @property
@@ -149,6 +156,20 @@ class TowerBot:
         match = vision.locate_template(self.screen, template, action.threshold)
         if match is None:
             return False
+
+        if self.frames is not None:
+            # Recorded whether or not the tap happens, because "matched but
+            # rejected" is exactly what you open the device view to see.
+            height, width = template.shape[:2]
+            self.frames.add_box({
+                "name": name,
+                "x": int(match.top_left[0]),
+                "y": int(match.top_left[1]),
+                "w": int(width),
+                "h": int(height),
+                "score": float(match.score),
+                "tapped": False,
+            })
 
         ok, detail = self.affordability.affordable(
             self.screen, match, template, action
@@ -186,6 +207,8 @@ class TowerBot:
                 wallet=self.affordability.last_wallet,
             )
         )
+        if self.frames is not None:
+            self.frames.mark_tapped(name)
         return True
 
     # -- the death modal ---------------------------------------------------

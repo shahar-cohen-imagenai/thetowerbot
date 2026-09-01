@@ -75,6 +75,57 @@ def test_boxes_are_detached_copies() -> None:
     assert len(buffer.boxes()) == 1
 
 
+def test_mark_tapped_flags_the_matching_box() -> None:
+    buffer = FrameBuffer()
+    buffer.publish(a_frame())
+    buffer.add_box({"name": "Damage", "x": 1, "y": 2, "w": 3, "h": 4, "score": 0.9, "tapped": False})
+    buffer.add_box({"name": "Health", "x": 5, "y": 6, "w": 7, "h": 8, "score": 0.8, "tapped": False})
+
+    buffer.mark_tapped("Health")
+
+    tapped = {box["name"]: box["tapped"] for box in buffer.boxes()}
+    assert tapped == {"Damage": False, "Health": True}
+
+
+def test_mark_tapped_with_no_matching_box_is_harmless() -> None:
+    """Nothing was recorded under this name - not an error, just a no-op."""
+    buffer = FrameBuffer()
+    buffer.publish(a_frame())
+    buffer.add_box({"name": "Damage", "x": 1, "y": 2, "w": 3, "h": 4, "score": 0.9, "tapped": False})
+
+    buffer.mark_tapped("NoSuchAction")
+
+    assert buffer.boxes() == [
+        {"name": "Damage", "x": 1, "y": 2, "w": 3, "h": 4, "score": 0.9, "tapped": False}
+    ]
+
+
+def test_mark_tapped_takes_the_lock() -> None:
+    """mark_tapped must block while another holder has the lock, and proceed
+    once it is released - proof it goes through `with self._lock`, not a
+    lock-free scan of `_boxes`."""
+    buffer = FrameBuffer()
+    buffer.publish(a_frame())
+    buffer.add_box({"name": "Damage", "x": 1, "y": 2, "w": 3, "h": 4, "score": 0.9, "tapped": False})
+
+    buffer._lock.acquire()
+    completed = threading.Event()
+
+    def marker() -> None:
+        buffer.mark_tapped("Damage")
+        completed.set()
+
+    thread = threading.Thread(target=marker)
+    thread.start()
+    try:
+        assert not completed.wait(timeout=0.2), "mark_tapped ran without waiting for the lock"
+    finally:
+        buffer._lock.release()
+    assert completed.wait(timeout=2), "mark_tapped never completed after the lock was released"
+    thread.join()
+    assert buffer.boxes()[0]["tapped"] is True
+
+
 def test_concurrent_publish_and_read_do_not_crash() -> None:
     """Smoke check only: hammers publish()/latest() from two threads and
     requires no exception and no malformed JPEG header.
