@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -47,6 +48,18 @@ def settled_bot(fixture: str, monkeypatch: pytest.MonkeyPatch):
     return bot, rec, dev
 
 
+@pytest.fixture
+def bot_in_run(monkeypatch: pytest.MonkeyPatch):
+    """A bot settled on the IN_RUN screen, paired with its recorded events.
+
+    Reuses settled_bot's fake-device set-up so the Controls-gating tests
+    exercise the real scan loop instead of a hand-rolled stand-in.
+    """
+    bot, rec, _dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()  # ignore cooldown left over from the settling scans
+    return bot, rec.seen
+
+
 def test_game_over_does_not_tap(monkeypatch: pytest.MonkeyPatch) -> None:
     """Regression test for the originating bug.
 
@@ -90,6 +103,103 @@ def test_in_run_taps_every_affordable_upgrade(
 
     tapped = {e.action for e in rec.of(events.Tapped)}
     assert len(tapped) == 4
+
+
+def test_recorded_boxes_carry_the_buy_point_not_the_label_origin(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """config.buy_point() documents that the label is itself a button - a tap
+    there buys nothing. The overlay must record where the bot actually taps
+    (tap_x/tap_y), separate from the label's own matched (x, y)."""
+    from frames import FrameBuffer
+
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+    bot.frames = FrameBuffer()
+    bot.frames.publish(bot._screen)
+
+    bot.run_once()
+
+    boxes = bot.frames.boxes()
+    assert len(boxes) == 4
+    for box in boxes:
+        expected_x, expected_y = config.buy_point((box["x"], box["y"]))
+        assert (box["tap_x"], box["tap_y"]) == (expected_x, expected_y)
+        # The whole point: the buy square is not the label's own origin.
+        assert (box["tap_x"], box["tap_y"]) != (box["x"], box["y"])
+
+
+def test_boxes_are_swapped_in_atomically_not_added_incrementally(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The atomic-swap regression guard: run_once() must hand the whole
+    scan's boxes to FrameBuffer in one set_boxes() call, not build them up
+    with per-match add_box() calls - the latter is exactly the window a
+    reader could catch mid-scan with only some of the frame's matches
+    visible. Caught via the add_box spy: a set_boxes() that regressed to
+    clear-then-add_box-in-a-loop would call the spied add_box() once per
+    box instead of leaving `calls` as just ["set_boxes"]."""
+    from frames import FrameBuffer
+
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+    bot.frames = FrameBuffer()
+    bot.frames.publish(bot._screen)
+
+    calls: list[str] = []
+    monkeypatch.setattr(
+        bot.frames, "add_box",
+        lambda box: calls.append("add_box"),
+    )
+    real_set_boxes = bot.frames.set_boxes
+
+    def spy_set_boxes(boxes: list[dict]) -> None:
+        calls.append("set_boxes")
+        real_set_boxes(boxes)
+
+    monkeypatch.setattr(bot.frames, "set_boxes", spy_set_boxes)
+
+    bot.run_once()
+
+    assert calls == ["set_boxes"], calls
+    assert len(bot.frames.boxes()) == 4
+
+
+def test_tapped_flag_reaches_frames_boxes_end_to_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """FrameBuffer.mark_tapped() is the entire visual signal for "this is the
+    one it actually tapped" - it is what turns a box emerald instead of amber
+    in the overlay. Run a real scan through frames.boxes() rather than
+    presetting `tapped` by hand (as test_frame_api.py does), and check both
+    directions: a tapped upgrade comes back True, and one that matched but
+    was withheld comes back False. The second half is what makes this a real
+    assertion instead of "everything is true" - the in_run_lit fixture taps
+    every action when nothing is on cooldown (see
+    test_in_run_taps_every_affordable_upgrade), so three of the four
+    templates are seeded into cooldown here to force a real, matched-but-
+    not-tapped box for the others to be compared against.
+    """
+    from frames import FrameBuffer
+
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+    now = time.monotonic()
+    for action in config.ACTIONS:
+        if action.name != "Damage":
+            bot._last_click[action.template] = now
+
+    bot.frames = FrameBuffer()
+    bot.frames.publish(bot._screen)
+
+    bot.run_once()
+
+    tapped_names = {e.action for e in rec.of(events.Tapped)}
+    assert tapped_names == {"Damage"}
+
+    tapped_by_name = {box["name"]: box["tapped"] for box in bot.frames.boxes()}
+    assert tapped_by_name["Damage"] is True
+    assert tapped_by_name["Attack Speed"] is False
 
 
 def test_brightness_gate_rejects_dimmed_regions() -> None:
@@ -156,10 +266,10 @@ def test_a_per_action_brightness_ratio_reaches_the_scan_loop(
 
     bot.run_once()
 
-    assert [e.action for e in rec.of(events.Tapped)] == ["upgrade_damage.png"]
+    assert [e.action for e in rec.of(events.Tapped)] == ["Damage"]
     skipped = rec.of(events.Skipped)
     assert [(e.action, e.reason) for e in skipped] == [
-        ("upgrade_critical_chance.png", "dimmed")
+        ("Critical Chance", "dimmed")
     ]
 
 
@@ -206,6 +316,50 @@ def test_cooldown_suppresses_a_repeat_tap(monkeypatch: pytest.MonkeyPatch) -> No
     assert {e.reason for e in rec.of(events.Skipped)} == {"cooldown"}
 
 
+def test_tapped_events_carry_the_human_name_and_cooldown_still_works(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Pins the contract this fix exists for.
+
+    `Tapped.action` must be `action.name` ("Damage"), not `action.template`
+    ("upgrade_damage.png") - that is the vocabulary the control page, the
+    log, the SSE feed and the stored `events.action` column all need to
+    agree on. But cooldown gating must still key on the template
+    internally: proven here by scanning twice in a row and seeing the
+    second scan suppressed, exactly as it was before the two identities
+    were split apart.
+    """
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+
+    bot.run_once()
+
+    tapped = rec.of(events.Tapped)
+    assert len(tapped) == 4
+    names = {a.name for a in config.ACTIONS}
+    templates = {a.template for a in config.ACTIONS}
+    assert {e.action for e in tapped} == names
+    assert not {e.action for e in tapped} & templates
+
+    # config.ACTIONS currently has a bijective name<->template mapping, so
+    # asserting only the behaviour above (taps, then cooldown suppression)
+    # would pass just as well against an implementation that keyed
+    # _last_click by name instead of template - the two are interchangeable
+    # while every action has a unique name AND a unique template. Reach into
+    # the cooldown dict directly (the fixture already does, via
+    # bot._last_click.clear()) to pin the mechanism, not just the emergent
+    # behaviour. The second assertion is the one that actually catches a
+    # regression: it fails the moment _last_click is keyed by name.
+    assert set(bot._last_click) <= templates
+    assert not set(bot._last_click) & names
+
+    rec.seen.clear()
+    bot.run_once()  # immediately again - cooldown must still suppress this
+
+    assert rec.of(events.Tapped) == []
+    assert {e.reason for e in rec.of(events.Skipped)} == {"cooldown"}
+
+
 def test_taps_land_on_the_buy_button_not_the_label(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -231,8 +385,9 @@ def test_taps_land_on_the_buy_button_not_the_label(
 
     cache = vision.TemplateCache(TEMPLATES)
     region = config.PRICE_REGION
+    template_by_name = {a.name: a.template for a in config.ACTIONS}
     for event in tapped:
-        template = cache.get(event.action)
+        template = cache.get(template_by_name[event.action])
         match = vision.locate_template(bot._screen, template, 0.9)
         assert match is not None, event.action
         left, top = match.top_left
@@ -245,3 +400,66 @@ def test_taps_land_on_the_buy_button_not_the_label(
             and top <= event.y <= top + template.shape[0]
         )
         assert not on_label, f"{event.action} tap landed on the info button"
+
+
+def test_paused_keeps_scanning_but_never_taps(bot_in_run) -> None:
+    """Pause must not blind the dashboard.
+
+    A paused bot that stopped reporting would blank the dashboard at the exact
+    moment you paused it to look at something, and would lose the screen
+    tracking that makes resuming safe. So it still captures, classifies and
+    publishes ScanCompleted - it just does not act.
+    """
+    bot, seen = bot_in_run
+    bot.controls.apply({"paused": True})
+
+    bot.run_once()
+
+    kinds = [event.type for event in seen]
+    assert "ScanCompleted" in kinds
+    assert "Tapped" not in kinds
+    # Exactly one, not "at least one": the paused skip is hoisted out of the
+    # action loop for the same reason screen_gated is - one per scan, not
+    # one per action, or an idle bot emits 4 identical events every 2s
+    # (~172k/day) instead of 1.
+    paused_skips = [
+        event for event in seen if event.type == "Skipped" and event.reason == "paused"
+    ]
+    assert len(paused_skips) == 1
+
+
+def test_paused_does_not_auto_navigate(bot_in_run, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Pausing must gate auto-navigate too, not just the action loop - a
+    paused bot that still tapped RETRY/BATTLE would start a run nobody asked
+    for."""
+    bot, seen = bot_in_run
+    navigated: list[bool] = []
+    monkeypatch.setattr(
+        bot.navigator, "maybe_navigate", lambda *a, **k: navigated.append(True)
+    )
+    bot.controls.apply({"auto_navigate": True, "paused": True})
+
+    bot.run_once()
+
+    assert navigated == []
+
+
+def test_resuming_taps_again(bot_in_run) -> None:
+    bot, seen = bot_in_run
+    bot.controls.apply({"paused": True})
+    bot.run_once()
+    seen.clear()
+    bot.controls.apply({"paused": False})
+
+    bot.run_once()
+
+    assert any(event.type == "Tapped" for event in seen)
+
+
+def test_disabled_actions_are_not_tapped(bot_in_run) -> None:
+    bot, seen = bot_in_run
+    bot.controls.apply({"enabled_actions": []})
+
+    bot.run_once()
+
+    assert not [event for event in seen if event.type == "Tapped"]

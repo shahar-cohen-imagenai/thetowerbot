@@ -25,12 +25,16 @@ import threading
 import time
 from pathlib import Path
 from tempfile import mkdtemp
+from typing import Any
 
 import httpx2 as httpx
+import numpy as np
 import uvicorn
 
+import control
 import db
 import events
+from frames import FrameBuffer
 from sinks.sse import SseSink
 from sinks.state import BotState, StateSink
 from web.app import create_app
@@ -38,12 +42,18 @@ from web.app import create_app
 HOST = "127.0.0.1"
 ROUTES_PORT = 8799
 SHUTDOWN_PORT = 8801
+STOP_PORT = 8802
 
 results: list[tuple[str, bool, str]] = []
 
 
 def check(label: str, ok: bool, detail: str = "") -> None:
     results.append((label, ok, detail))
+
+
+def a_frame() -> np.ndarray:
+    """A frame worth publishing - just needs to be real enough to encode."""
+    return np.full((80, 60, 3), 128, dtype=np.uint8)
 
 
 def seeded_database(directory: Path) -> Path:
@@ -86,8 +96,15 @@ def check_routes(db_path: Path, unknown: Path) -> None:
     bus.subscribe(state_sink)
     bus.subscribe(sse)
 
+    # A published frame, or /api/frame.jpg and /api/frame would both 404
+    # here and every check below them would pass without ever touching the
+    # MJPEG endpoint - which is exactly what this file's docstring says no
+    # test can otherwise observe.
+    frames = FrameBuffer()
+    frames.publish(a_frame())
+
     app = create_app(state=state, sse=sse, bus=bus, db_path=db_path,
-                     unknown_dir=unknown)
+                     unknown_dir=unknown, frames=frames)
     server = serve(app, ROUTES_PORT)
 
     bus.publish(events.ScanCompleted(screen="IN_RUN", duration_ms=91.0, wallet=450))
@@ -99,7 +116,7 @@ def check_routes(db_path: Path, unknown: Path) -> None:
         check("GET / serves the page",
               r.status_code == 200
               and r.headers["content-type"].startswith("text/html")
-              and "EventSource" in r.text,
+              and "/_next/" in r.text,
               f"{r.status_code} {r.headers.get('content-type')}")
 
         body = c.get("/api/status").json()
@@ -123,6 +140,20 @@ def check_routes(db_path: Path, unknown: Path) -> None:
         check("a snapshot is served as a png",
               r.status_code == 200 and r.headers["content-type"] == "image/png",
               r.headers.get("content-type", ""))
+
+        r = c.get("/api/frame.jpg")
+        check("GET /api/frame.jpg serves the still",
+              r.status_code == 200 and r.headers["content-type"] == "image/jpeg",
+              f"{r.status_code} {r.headers.get('content-type')}")
+
+        with c.stream("GET", "/api/frame") as r:
+            check("GET /api/frame sets the MJPEG content-type",
+                  r.headers["content-type"].startswith("multipart/x-mixed-replace"),
+                  r.headers.get("content-type", ""))
+            chunk = next(r.iter_bytes())
+        check("the MJPEG stream sends a boundary-delimited part",
+              chunk.startswith(b"--frame") and b"image/jpeg" in chunk,
+              chunk[:80])
 
         seen: list[dict] = []
         ids: list[str] = []
@@ -164,20 +195,30 @@ def check_routes(db_path: Path, unknown: Path) -> None:
     state_sink.close()
 
 
-def shutdown_seconds(db_path: Path, *, hold_stream: bool, set_flag: bool) -> float:
-    """Time server.run()'s return after the scan loop ends. -1.0 means it hung."""
+def shutdown_seconds(db_path: Path, *, path: str, set_flag: bool) -> float:
+    """Time server.run()'s return after the scan loop ends. -1.0 means it hung.
+
+    `path` is whatever GET request to hold open across the shutdown -
+    "/api/status" for a plain, non-streaming request (the control case),
+    "/api/events/stream" or "/api/frame" to hold one of the two streams
+    open instead. Both streams share the same `stop`-watching shape (see
+    event_stream() and frame_stream() in web/app.py), so one function
+    covers both rather than a second copy of this harness for MJPEG.
+    """
     state, sse, bus = BotState(), SseSink(), events.EventBus()
     bus.subscribe(sse)
+    frames = FrameBuffer()
+    frames.publish(a_frame())
     stop = threading.Event()
     app = create_app(state=state, sse=sse, bus=bus, db_path=db_path,
-                     unknown_dir=db_path.parent / "unknown", stop=stop)
+                     unknown_dir=db_path.parent / "unknown", stop=stop,
+                     frames=frames)
     server = serve(app, SHUTDOWN_PORT)
 
     # Watch the serving thread itself: it ends exactly when run() returns.
     serving = [t for t in threading.enumerate() if t.name == f"uvicorn-{SHUTDOWN_PORT}"][0]
 
     sock = socket.create_connection((HOST, SHUTDOWN_PORT), timeout=5)
-    path = "/api/events/stream" if hold_stream else "/api/status"
     sock.sendall(f"GET {path} HTTP/1.1\r\nHost: localhost\r\n\r\n".encode())
     sock.recv(200)  # headers are out; a stream's response stays open
     bus.publish(events.Navigated(target="RETRY"))
@@ -194,6 +235,92 @@ def shutdown_seconds(db_path: Path, *, hold_stream: bool, set_flag: bool) -> flo
     return -1.0 if serving.is_alive() else elapsed
 
 
+def check_stop_route_stops_serve_web(tmp: Path) -> None:
+    """The Critical the whole-branch review reproduced: POST
+    /api/control/stop set the shared `stop` Event, but nothing in serve_web()
+    ever waited on it - only event_stream() did. The route killed every SSE
+    connection (so the dashboard's feed went dead and looked stopped) while
+    the scan loop and the server both kept right on running underneath.
+
+    Drives the real serve_web() - a real uvicorn Server, no monkeypatching -
+    with a fake bot (no emulator needed) and proves it actually returns after
+    a browser's stop request, and that the loop stops scanning. This is
+    exactly the kind of process-lifecycle behaviour this file's own docstring
+    says pytest cannot observe.
+    """
+    import tower_bot
+
+    class FakeBot:
+        """Enough of TowerBot's shape for serve_web(): a controls.interval to
+        size the shutdown join, a run_forever() that loops harmlessly until
+        told to stop, and a stop() that flips both."""
+
+        def __init__(self) -> None:
+            self.controls = control.Controls(interval=0.05)
+            self._running = True
+            self._stopping = threading.Event()
+            self.scans = 0
+
+        def run_forever(self, max_runs: int | None = None) -> None:
+            while self._running:
+                self.scans += 1
+                self._stopping.wait(self.controls.interval)
+
+        def stop(self, *_: object) -> None:
+            self._running = False
+            self._stopping.set()
+
+    bot = FakeBot()
+    state, sse, bus = BotState(), SseSink(), events.EventBus()
+    stop = threading.Event()
+    unknown = tmp / "stop-route-unknown"
+    unknown.mkdir(exist_ok=True)
+    app = create_app(
+        state=state, sse=sse, bus=bus, db_path=None, unknown_dir=unknown,
+        stop=stop, controls=bot.controls, checks={"brightness": object()},
+    )
+
+    result: dict[str, Any] = {}
+
+    def _run() -> None:
+        started = time.monotonic()
+        tower_bot.serve_web(bot, app, host=HOST, port=STOP_PORT, max_runs=None, stop=stop)
+        result["elapsed"] = time.monotonic() - started
+        result["returned"] = True
+
+    runner = threading.Thread(target=_run, name="serve-web-under-test", daemon=True)
+    runner.start()
+
+    for _ in range(100):
+        try:
+            with socket.create_connection((HOST, STOP_PORT), timeout=0.2):
+                break
+        except OSError:
+            time.sleep(0.1)
+    else:
+        raise RuntimeError(f"serve_web never started on port {STOP_PORT}")
+
+    time.sleep(0.3)  # let a few scans happen, matching the reproduction
+
+    with httpx.Client(base_url=f"http://{HOST}:{STOP_PORT}", timeout=10.0) as c:
+        r = c.post("/api/control/stop")
+        check("POST /api/control/stop returns 200",
+              r.status_code == 200 and r.json() == {"stopping": True}, str(r.text))
+
+    runner.join(timeout=8.0)
+    check("serve_web returns after a browser stop",
+          not runner.is_alive() and result.get("returned") is True,
+          f"still running after 8s (elapsed={result.get('elapsed')})")
+    check("bot._running is False after a browser stop",
+          bot._running is False, f"_running={bot._running}")
+
+    scans_at_stop = bot.scans
+    time.sleep(0.3)
+    check("scanning stopped after the browser's stop request",
+          bot.scans == scans_at_stop,
+          f"kept scanning after stop: {scans_at_stop} -> {bot.scans}")
+
+
 def main() -> int:
     signal.alarm(180)  # this script must never hang a session
     tmp = Path(mkdtemp())
@@ -205,18 +332,26 @@ def main() -> int:
     check_routes(db_path, unknown)
 
     # The regression that motivated this file. A stream held open must not stop
-    # the process from exiting once the scan loop is done.
-    for label, hold, flag in (
-        ("a plain request (control)", False, True),
-        ("an SSE stream held open", True, True),
-        ("a stream open, stop flag suppressed (backstop only)", True, False),
+    # the process from exiting once the scan loop is done - for either stream:
+    # /api/events/stream (SSE) and /api/frame (MJPEG) share the same
+    # `stop`-watching shape, and only the former used to be exercised here.
+    for label, path, flag in (
+        ("a plain request (control)", "/api/status", True),
+        ("an SSE stream held open", "/api/events/stream", True),
+        ("an SSE stream, stop flag suppressed (backstop only)", "/api/events/stream", False),
+        ("an MJPEG stream held open", "/api/frame", True),
+        ("an MJPEG stream, stop flag suppressed (backstop only)", "/api/frame", False),
     ):
-        elapsed = shutdown_seconds(db_path, hold_stream=hold, set_flag=flag)
+        elapsed = shutdown_seconds(db_path, path=path, set_flag=flag)
         check(f"shutdown with {label}", elapsed >= 0.0,
               "did not return within 20s")
         if elapsed >= 0.0:
             results[-1] = (f"{results[-1][0]} -> {elapsed:.1f}s", True, "")
         time.sleep(0.5)
+
+    # The Critical this file's docstring exists for: the Stop button itself,
+    # driven end to end against the real serve_web().
+    check_stop_route_stops_serve_web(tmp)
 
     width = max(len(label) for label, _, _ in results)
     for label, ok, detail in results:

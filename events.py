@@ -55,7 +55,7 @@ class Tapped(Event):
 @dataclass(frozen=True, kw_only=True)
 class Skipped(Event):
     action: str
-    reason: str  # screen_gated | dimmed | unaffordable | cooldown
+    reason: str  # paused | screen_gated | dimmed | unaffordable | cooldown
     detail: str = ""
 
 
@@ -90,6 +90,19 @@ class UnknownScreen(Event):
 class BotError(Event):
     message: str
     traceback: str = ""
+
+
+@dataclass(frozen=True, kw_only=True)
+class ControlChanged(Event):
+    """A live setting changed. `changed` holds only the fields that moved.
+
+    Persisted through the events table's JSON `detail` blob, so it needs no
+    schema migration - there is no `changed` column and there does not need
+    to be one.
+    """
+
+    changed: dict[str, Any]
+    source: str = "web"
 
 
 class Sink(Protocol):

@@ -1,12 +1,13 @@
-"""The dashboard's HTTP layer: JSON for the machine, one HTML file for the eye.
+"""The dashboard's HTTP layer: JSON for the machine, a built SPA for the eye.
 
 Two sources, deliberately separate. "What is the bot doing right now" is a
 memory question, answered from the shared BotState. "What did it do" is a
 history question, answered by read-only SQLite connections opened per request
 - the web layer never writes, and cannot: db.reader() opens mode=ro.
 
-Binds 127.0.0.1. No auth, and /api/unknown serves screenshots of a live
-session - see the warning beside config.WEB_HOST before changing that.
+Binds 127.0.0.1. No auth, /api/unknown serves screenshots of a live session,
+and /api/control lets a caller pause, reconfigure or stop the bot - see the
+warning beside config.WEB_HOST before changing the bind address.
 """
 
 from __future__ import annotations
@@ -15,14 +16,19 @@ import asyncio
 import json
 import threading
 from pathlib import Path
-from typing import AsyncIterator, Awaitable, Callable
+from typing import Any, AsyncIterator, Awaitable, Callable, Mapping
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 import config
 import db
+import events
+from control import ControlError, Controls
 from events import EventBus
+from frames import FrameBuffer
 from sinks.sse import SseSink, to_payload
 from sinks.state import BotState
 
@@ -112,6 +118,55 @@ async def event_stream(
         await asyncio.sleep(poll)
 
 
+BOUNDARY = "frame"
+
+
+async def frame_stream(
+    frames: FrameBuffer,
+    is_disconnected: Callable[[], Awaitable[bool]],
+    *,
+    stop: threading.Event,
+    poll: float = config.FRAME_POLL_SECONDS,
+) -> AsyncIterator[bytes]:
+    """MJPEG: one connection, rendered natively by a plain <img>.
+
+    Same two exits as event_stream(), and for the same reasons: the browser
+    closing the tab, and the bot shutting down. An <img> holds its response
+    open indefinitely and never disconnects on its own, so without the `stop`
+    check a held-open device view and a shutting-down uvicorn would wait on
+    each other forever.
+
+    Only sends when the frame number moves, so an idle bot costs one send per
+    scan rather than one per poll.
+    """
+    sent = 0
+    while not stop.is_set() and not await is_disconnected():
+        current = frames.latest()
+        if current is not None and current[0] != sent:
+            sent, payload = current
+            yield (
+                f"--{BOUNDARY}\r\n"
+                f"Content-Type: image/jpeg\r\n"
+                f"Content-Length: {len(payload)}\r\n\r\n"
+            ).encode("ascii") + payload + b"\r\n"
+        await asyncio.sleep(poll)
+
+
+class ControlPatch(BaseModel):
+    """A partial update. Every field optional; absent means "leave it alone".
+
+    Deliberately loose on types beyond the obvious - Controls.apply() is the
+    single validator, so the rules live in one place rather than being spelled
+    out here and there and drifting apart.
+    """
+
+    paused: bool | None = None
+    interval: float | None = None
+    auto_navigate: bool | None = None
+    strategy: str | None = None
+    enabled_actions: list[str] | None = None
+
+
 def create_app(
     *,
     state: BotState,
@@ -120,6 +175,9 @@ def create_app(
     db_path: Path | None = config.DB_PATH,
     unknown_dir: Path = config.UNKNOWN_DIR,
     stop: threading.Event | None = None,
+    controls: Controls | None = None,
+    checks: Mapping[str, Any] | None = None,
+    frames: FrameBuffer | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -132,18 +190,21 @@ def create_app(
 
     app = FastAPI(title="The Tower bot")
 
-    @app.get("/", response_class=HTMLResponse)
-    def dashboard() -> str:
-        # Read per request rather than cached at import: editing the page and
-        # hitting refresh is the whole development loop for it.
-        return (STATIC_DIR / "index.html").read_text(encoding="utf-8")
-
     @app.get("/api/status")
     def status() -> dict:
         payload = state.snapshot()
         # Dropped events are the bus's business, not the state's: they were
         # never delivered to a sink, so no accumulator ever saw them.
         payload["dropped"] = bus.dropped
+        # Overlay geometry rides along with the status poll rather than getting
+        # its own endpoint: it changes exactly as often as the status does, and
+        # a second poll would buy nothing.
+        payload["boxes"] = frames.boxes() if frames is not None else []
+        payload["frame_size"] = None
+        if frames is not None:
+            size = frames.size()
+            if size is not None:
+                payload["frame_size"] = {"width": size[0], "height": size[1]}
         return payload
 
     @app.get("/api/runs")
@@ -194,5 +255,126 @@ def create_app(
         if path.parent != unknown_dir.resolve() or not path.is_file():
             raise HTTPException(status_code=404, detail="no such snapshot")
         return FileResponse(path, media_type="image/png")
+
+    @app.get("/api/frame.jpg")
+    def frame_still() -> Response:
+        # Same distinction frame_mjpeg already makes: no buffer at all (this
+        # process was never given one - --once, --tui, or plain logging) is
+        # a different fact than a buffer that simply has not been fed a
+        # frame yet, and deserves its own message rather than one that
+        # implies a frame is merely still on its way.
+        if frames is None:
+            raise HTTPException(status_code=404, detail="no frame buffer")
+        current = frames.latest()
+        if current is None:
+            raise HTTPException(status_code=404, detail="no frame captured yet")
+        return Response(content=current[1], media_type="image/jpeg",
+                        headers={"Cache-Control": "no-store"})
+
+    @app.get("/api/frame")
+    async def frame_mjpeg(request: Request) -> StreamingResponse:
+        if frames is None:
+            raise HTTPException(status_code=404, detail="no frame buffer")
+        return StreamingResponse(
+            frame_stream(frames, request.is_disconnected, stop=stop),
+            media_type=f"multipart/x-mixed-replace; boundary={BOUNDARY}",
+            headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+        )
+
+    if controls is not None:
+        available = dict(checks or {})
+
+        def _control_payload() -> dict:
+            # The browser needs the full action list to render checkboxes for
+            # the ones currently switched off, which the snapshot omits, plus
+            # which strategies actually built (see build_affordability()) so
+            # it can grey out one with no atlas rather than let a switch to it
+            # silently do nothing.
+            payload = controls.snapshot()
+            payload["actions"] = [action.name for action in config.ACTIONS]
+            payload["strategies_available"] = sorted(
+                name for name, check in available.items() if check is not None
+            )
+            return payload
+
+        @app.get("/api/control")
+        def read_control() -> dict:
+            return _control_payload()
+
+        @app.patch("/api/control")
+        def patch_control(patch: ControlPatch) -> dict:
+            requested = patch.model_dump(exclude_none=True)
+
+            # Refuse before applying, not after: build_affordability() falls
+            # back to brightness on its own, so accepting this and letting the
+            # loop pick would leave the browser showing "digits" while the bot
+            # used brightness.
+            strategy = requested.get("strategy")
+            if strategy is not None and available.get(strategy) is None:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"strategy {strategy!r} is unavailable - no glyph atlas is built",
+                )
+
+            try:
+                changed = controls.apply(requested)
+            except ControlError as exc:
+                raise HTTPException(status_code=422, detail=f"{exc.field}: {exc}") from exc
+
+            if changed:
+                # Only when something actually moved. A no-op patch is not a
+                # state change and must not fill the log with noise.
+                bus.publish(events.ControlChanged(changed=changed, source="web"))
+
+            return _control_payload()
+
+        @app.post("/api/control/stop")
+        def stop_bot() -> dict:
+            # This route has no handle on the worker thread or the Server -
+            # the shared `stop` Event is the only thing it can reach from a
+            # request handler. serve_web()'s stop-watch thread is the one
+            # actually waiting on it: it calls bot.stop() and sets
+            # server.should_exit, which is what brings the loop and the
+            # server down together.
+            stop.set()
+            return {"stopping": True}
+
+    @app.get("/api/stats")
+    def stats() -> dict:
+        # --no-store is a supported mode, not an error: empty aggregates are
+        # the honest answer, and the page renders an explicit empty state.
+        if db_path is None:
+            return {"runs": [], "taps": [], "screens": []}
+        with db.reader(db_path) as conn:
+            return {
+                "runs": db.run_stats(conn),
+                "taps": db.taps_by_action(conn),
+                "screens": db.screen_histogram(conn),
+            }
+
+    @app.get("/api/errors")
+    def errors(limit: int = 100) -> list[dict]:
+        if db_path is None:
+            return []
+        with db.reader(db_path) as conn:
+            return db.error_log(conn, limit=max(1, min(limit, 500)))
+
+    # Last, deliberately. Starlette matches routes in registration order and a
+    # mount at "/" matches everything, so every /api route above must already
+    # be registered or the mount would swallow the whole API.
+    #
+    # html=True resolves "/runs/" to "runs/index.html", which is the layout
+    # next.config.ts's trailingSlash:true produces.
+    if STATIC_DIR.is_dir():
+        app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="ui")
+    else:
+        @app.get("/", response_class=HTMLResponse)
+        def not_built() -> str:
+            # Only reachable in a working tree whose build was deleted; the
+            # committed web/static/ means a fresh clone never sees this.
+            return (
+                "<h1>Dashboard not built</h1>"
+                "<p>Run <code>npm run build</code> in <code>web/ui</code>.</p>"
+            )
 
     return app

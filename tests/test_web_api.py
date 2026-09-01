@@ -323,7 +323,7 @@ def test_the_dashboard_is_served_at_the_root(harness) -> None:
 
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
-    assert "EventSource" in response.text  # it is the live page, not a stub
+    assert "/_next/" in response.text  # the built app is served, not the placeholder file
 
 
 def test_run_routes_degrade_to_empty_history_under_no_store() -> None:

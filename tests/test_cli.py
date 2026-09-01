@@ -64,6 +64,48 @@ def test_run_forever_stops_at_max_runs(monkeypatch) -> None:
     assert scans == []
 
 
+def test_run_forever_stop_interrupts_a_long_interval_wait(monkeypatch) -> None:
+    """stop() must end the between-scan wait immediately, not sleep it out.
+
+    Regression: worker.join()'s timeout used to be sized off the interval
+    directly, and the wait itself was a plain time.sleep() that stop() could
+    not interrupt. With the browser dial at MAX_INTERVAL (3600s, a value
+    Controls explicitly allows) that turned Ctrl+C into an hour-long hang.
+    """
+    import threading
+    import cv2
+    import events
+    import vision
+    from tower_bot import TowerBot
+
+    fixtures = Path(__file__).parent / "fixtures"
+    bot = TowerBot(
+        device=MagicMock(),
+        templates=vision.TemplateCache(Path(__file__).parent.parent / "templates"),
+        bus=events.EventBus(),
+    )
+    bot._screen = cv2.imread(str(fixtures / "main_menu.png"), cv2.IMREAD_COLOR)
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    bot.controls.apply({"interval": 3600.0})  # the largest the dial allows
+
+    finished = threading.Event()
+
+    def _run() -> None:
+        bot.run_forever()  # interval=None: reads the 3600s from controls
+        finished.set()
+
+    worker = threading.Thread(target=_run, daemon=True)
+    worker.start()
+    worker.join(timeout=0.2)  # let it reach the between-scan wait
+    assert not finished.is_set()  # sanity: it is actually waiting, not done
+
+    bot.stop()
+
+    assert finished.wait(timeout=1.0), "stop() did not interrupt the wait"
+    worker.join(timeout=1.0)
+    assert not worker.is_alive()
+
+
 def test_once_settles_the_tracker(monkeypatch) -> None:
     """RULING 2: --once must run enough scans for the debounced tracker to
     confirm a state, or it can never report the real screen (a single scan
@@ -146,6 +188,7 @@ def test_auto_navigate_does_not_start_a_run_past_the_cap(monkeypatch) -> None:
     import cv2
     import events
     import vision
+    from control import Controls
     from tower_bot import TowerBot
 
     fixtures = Path(__file__).parent / "fixtures"
@@ -153,7 +196,7 @@ def test_auto_navigate_does_not_start_a_run_past_the_cap(monkeypatch) -> None:
         device=MagicMock(),
         templates=vision.TemplateCache(Path(__file__).parent.parent / "templates"),
         bus=events.EventBus(),
-        auto_navigate=True,
+        controls=Controls(auto_navigate=True),
     )
     bot._screen = cv2.imread(str(fixtures / "game_over.png"), cv2.IMREAD_COLOR)
     monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
@@ -387,8 +430,12 @@ def test_web_alone_still_prints_the_dashboard_url(monkeypatch, capsys, tmp_path)
     import tower_bot
 
     monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
+    # No `interval` parameter: fails loudly (missing argument) if serve_web
+    # ever goes back to forwarding one.
     monkeypatch.setattr(
-        tower_bot.TowerBot, "run_forever", lambda self, interval, max_runs: None
+        tower_bot.TowerBot,
+        "run_forever",
+        lambda self, max_runs=None: None,
     )
     _FakeServer.instances.clear()
     monkeypatch.setattr("uvicorn.Server", _FakeServer)
@@ -419,14 +466,20 @@ def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
     """uvicorn owns the main thread; the loop must run on a worker thread,
     finish, and leave nothing behind once serve_web returns."""
     import threading
+    from types import SimpleNamespace
 
     class FakeBot:
         def __init__(self) -> None:
             self.scanned = threading.Event()
             self.stopped = False
             self.ran_on: threading.Thread | None = None
+            self.called_with: tuple[float | None, int | None] | None = None
+            # serve_web reads this for the worker join timeout now that it no
+            # longer takes an interval of its own.
+            self.controls = SimpleNamespace(interval=0.01)
 
-        def run_forever(self, interval: float, max_runs: int | None) -> None:
+        def run_forever(self, interval: float | None = None, max_runs: int | None = None) -> None:
+            self.called_with = (interval, max_runs)
             self.ran_on = threading.current_thread()
             self.scanned.set()
 
@@ -438,7 +491,7 @@ def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
 
     bot = FakeBot()
     tower_bot.serve_web(
-        bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=None
+        bot, object(), host="127.0.0.1", port=8123, max_runs=None
     )
 
     assert bot.scanned.wait(timeout=2)
@@ -446,6 +499,9 @@ def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
     assert bot.ran_on is not None
     assert bot.ran_on is not threading.main_thread()
     assert not any(t.name == "scan-loop" for t in threading.enumerate())
+    # Pins the contract harder than the old required-positional signature
+    # did: catches a *reintroduced* interval, not just a missing argument.
+    assert bot.called_with == (None, None)
 
     server = _FakeServer.instances[-1]
     assert (server.config.host, server.config.port) == ("127.0.0.1", 8123)
@@ -463,12 +519,18 @@ def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None
     just should_exit, or a held-open dashboard tab keeps the server (and the
     scan loop behind it, as far as the user can tell) alive forever."""
     import threading as _threading
+    from types import SimpleNamespace
 
     class FakeBot:
         def __init__(self) -> None:
             self.stopped = False
+            self.called_with: tuple[float | None, int | None] | None = None
+            # serve_web reads this for the worker join timeout now that it no
+            # longer takes an interval of its own.
+            self.controls = SimpleNamespace(interval=0.01)
 
-        def run_forever(self, interval: float, max_runs: int | None) -> None:
+        def run_forever(self, interval: float | None = None, max_runs: int | None = None) -> None:
+            self.called_with = (interval, max_runs)
             return  # simulates --max-runs being reached immediately
 
         def stop(self) -> None:
@@ -481,10 +543,62 @@ def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None
     stop = _threading.Event()
     # Must return promptly rather than hang - that is the whole bug.
     tower_bot.serve_web(
-        bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=1,
+        bot, object(), host="127.0.0.1", port=8123, max_runs=1,
         stop=stop,
     )
 
     assert _FakeServer.instances[-1].should_exit is True
     assert bot.stopped is True
+    # Pins the contract harder than the old required-positional signature
+    # did: catches a *reintroduced* interval, not just a missing argument.
+    assert bot.called_with == (None, 1)
     assert stop.is_set() is True
+
+
+def test_controls_start_from_the_command_line() -> None:
+    """The flags you launched with must not be silently overridden.
+
+    Controls' dataclass defaults are a fallback; main() seeds them from argv.
+    """
+    from control import Controls
+    from tower_bot import parse_args
+
+    args = parse_args(["--interval", "3.0", "--auto-navigate", "--affordability", "brightness"])
+    controls = Controls(
+        interval=args.interval, auto_navigate=args.auto_navigate, strategy=args.affordability
+    )
+    assert controls.snapshot()["interval"] == 3.0
+    assert controls.snapshot()["auto_navigate"] is True
+    assert controls.snapshot()["strategy"] == "brightness"
+
+
+def test_build_checks_and_controls_downgrades_when_atlas_is_absent(
+    tmp_path: Path,
+) -> None:
+    """The behaviour this whole task exists to protect: requesting digits
+    with no atlas built must not let the dashboard claim "digits" while the
+    bot actually runs brightness."""
+    args = parse_args(["--affordability", "digits"])
+
+    checks, controls = tower_bot.build_checks_and_controls(args, atlas_root=tmp_path)
+
+    assert checks["digits"] is None
+    assert isinstance(checks["brightness"], BrightnessAffordability)
+    assert controls.strategy == "brightness"
+    # The invariant a future refactor has to keep true: whatever strategy
+    # Controls names, checks must have a real entry for it - never None.
+    assert checks[controls.strategy] is not None
+
+
+def test_build_checks_and_controls_uses_digits_when_atlas_is_present(
+    tmp_path: Path,
+) -> None:
+    for size_class in digits.SIZE_CLASSES:
+        build_synthetic_atlas(tmp_path / size_class)
+    args = parse_args(["--affordability", "digits"])
+
+    checks, controls = tower_bot.build_checks_and_controls(args, atlas_root=tmp_path)
+
+    assert isinstance(checks["digits"], DigitAffordability)
+    assert controls.strategy == "digits"
+    assert checks[controls.strategy] is not None

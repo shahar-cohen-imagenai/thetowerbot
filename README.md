@@ -103,9 +103,9 @@ nowhere else. That rule is hardcoded in `tower_bot.py` — it is not a per-actio
 setting — and it is what stops the bot tapping blindly into a modal that has
 dimmed the screen behind it.
 
-Skips are recorded rather than silent, with four reasons, checked cheapest
-first: `screen_gated`, then the match score, then `unaffordable` / `dimmed`,
-then `cooldown`.
+Skips are recorded rather than silent, with five reasons, checked cheapest
+first: `paused`, then `screen_gated`, then the match score, then
+`unaffordable` / `dimmed`, then `cooldown`.
 
 ### Unknown screens
 
@@ -267,21 +267,48 @@ current screen, uptime, scan count, a tap tally per action, a skip tally per
 reason, the last error, and the twelve most recent events. Logging is silenced
 while it runs, because rich owns the terminal.
 
-**`--web`** serves a dashboard at `http://127.0.0.1:8765`: the current run, a
-wave sparkline, a filterable live event feed, a run-history table, and
-thumbnails of unrecognised screens. Click a history row to replay that run's
-stored events; **back to live** returns to the stream. The feed arrives over
-SSE and reconnects on its own — a laptop that slept resumes from
+**`--web`** serves a dashboard at `http://127.0.0.1:8765`, five pages behind a
+sidebar:
+
+- **Live** — the current run, the live device screen with its match overlay,
+  a wave sparkline, a filterable live event feed, a run-history table, and
+  thumbnails of unrecognised screens. Click a history row to replay that
+  run's stored events; **back to live** returns to the stream.
+- **Runs** — every stored run, and a drill-down (`/runs/?id=42`, click a row
+  or open the link directly) showing that run's wave, coins, tier, tap count
+  and scan count alongside its own event feed replayed from SQLite.
+- **Stats** — charts aggregated over every stored run: wave and run length
+  over time, taps by action, and events by screen.
+- **Errors** — `BotError` tracebacks alongside the unknown-screen snapshots,
+  in one place.
+- **Control** — see below.
+
+The live device screen is `GET /api/frame`, an MJPEG stream
+(`multipart/x-mixed-replace`) rendered by a plain `<img>` — no polling loop,
+no cache-busting, no JavaScript decode path — with that scan's matched
+regions and tap points drawn over it as an overlay. The event feed arrives
+over SSE and reconnects on its own — a laptop that slept resumes from
 `Last-Event-ID` rather than starting blank, as long as it was gone for less
 than the 500-event ring.
 
-> **The dashboard has no authentication.** It serves screenshots of a live
-> session and this machine's entire event history, which is why it binds
-> loopback. `--web-host` will let you bind something else, and the bot logs a
-> warning when you do, but it will not stop you. Do not put it on a network
-> without real auth in front of it.
+The **control** page lets a connected browser pause the bot (still scanning,
+not tapping), change the scan interval, auto-navigate, and the affordability
+strategy, choose which actions are enabled, and stop the bot and the
+dashboard together. Every change goes through the same `Controls.apply()`
+validation a CLI flag would get, and every tab converges on the current
+settings live, over the same SSE feed.
 
-Ctrl+C stops both the bot and the dashboard, as does reaching `--max-runs`.
+> **The dashboard has no authentication.** It serves a continuous MJPEG
+> video stream of the device (`/api/frame`), not just JSON history and
+> screenshots, plus this machine's entire event history, and its control
+> page lets anyone who can reach the port pause the bot, change what it
+> buys, or stop it outright — which is why it binds loopback. `--web-host`
+> will let you bind something else, and the bot logs a warning when you do,
+> but it will not stop you. Do not put it on a network without real auth in
+> front of it.
+
+Ctrl+C stops both the bot and the dashboard, as does reaching `--max-runs` or
+clicking **Stop** on the control page.
 
 ## Where the data goes
 
@@ -335,6 +362,11 @@ uv lock --upgrade      # refresh the locked versions
 Commit `pyproject.toml` and `uv.lock` together so everyone resolves to the same
 versions.
 
+The dashboard is a separate story: its source is the Next.js app in
+`web/ui/`, and `npm run build` there republishes the git-tracked
+`web/static/` that the bot actually serves. Node is only needed to change the
+dashboard — never to run the bot.
+
 ## Tests
 
 ```bash
@@ -342,4 +374,6 @@ uv run pytest -q
 ```
 
 No emulator and no browser required — the suite runs against committed
-fixtures.
+fixtures. It does check that `web/static/` isn't stale against `web/ui/`, so
+if you edit the dashboard, rebuild it first (`npm run build` in `web/ui`) or
+this suite goes red; `npm test` in `web/ui` runs the dashboard's own tests.
