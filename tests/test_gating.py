@@ -243,6 +243,18 @@ def test_tapped_events_carry_the_human_name_and_cooldown_still_works(
     assert {e.action for e in tapped} == names
     assert not {e.action for e in tapped} & templates
 
+    # config.ACTIONS currently has a bijective name<->template mapping, so
+    # asserting only the behaviour above (taps, then cooldown suppression)
+    # would pass just as well against an implementation that keyed
+    # _last_click by name instead of template - the two are interchangeable
+    # while every action has a unique name AND a unique template. Reach into
+    # the cooldown dict directly (the fixture already does, via
+    # bot._last_click.clear()) to pin the mechanism, not just the emergent
+    # behaviour. The second assertion is the one that actually catches a
+    # regression: it fails the moment _last_click is keyed by name.
+    assert set(bot._last_click) <= templates
+    assert not set(bot._last_click) & names
+
     rec.seen.clear()
     bot.run_once()  # immediately again - cooldown must still suppress this
 
