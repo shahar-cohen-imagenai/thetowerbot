@@ -99,7 +99,7 @@ def check_routes(db_path: Path, unknown: Path) -> None:
         check("GET / serves the page",
               r.status_code == 200
               and r.headers["content-type"].startswith("text/html")
-              and "EventSource" in r.text,
+              and "/_next/" in r.text,
               f"{r.status_code} {r.headers.get('content-type')}")
 
         body = c.get("/api/status").json()
