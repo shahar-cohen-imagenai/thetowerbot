@@ -1,103 +1,98 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useCallback, useEffect, useState } from "react";
+import { EventFeed } from "@/components/EventFeed";
+import { RunTable } from "@/components/RunTable";
+import { SnapshotStrip } from "@/components/SnapshotStrip";
+import { StatBar } from "@/components/StatBar";
+import { WaveSparkline } from "@/components/WaveSparkline";
+import { fetchRunEvents, fetchRuns, fetchStatus, fetchUnknown } from "@/lib/api";
+import { useEventStream } from "@/lib/useEventStream";
+import type { BotEvent, RunRow, Snapshot, StatusPayload } from "@/lib/types";
+
+/** Re-run `load` now and every `ms` thereafter, until unmounted. */
+function usePoll(load: () => Promise<void>, ms: number) {
+  useEffect(() => {
+    let alive = true;
+    const tick = () => { if (alive) void load(); };
+    tick();
+    const id = setInterval(tick, ms);
+    return () => { alive = false; clearInterval(id); };
+  }, [load, ms]);
+}
+
+export default function LivePage() {
+  const { events, connected } = useEventStream();
+  const [status, setStatus] = useState<StatusPayload | null>(null);
+  const [runs, setRuns] = useState<RunRow[]>([]);
+  const [shots, setShots] = useState<Snapshot[]>([]);
+  // Non-null means the feed is showing one stored run instead of the live stream.
+  const [history, setHistory] = useState<{ id: number; events: BotEvent[] } | null>(null);
+
+  usePoll(useCallback(async () => setStatus(await fetchStatus()), []), 2000);
+  usePoll(useCallback(async () => setRuns(await fetchRuns(30)), []), 15000);
+  usePoll(useCallback(async () => setShots(await fetchUnknown()), []), 60000);
+
+  async function showRun(id: number) {
+    const stored = await fetchRunEvents(id);
+    // Stored rows are columns plus a detail blob; flatten them back into the
+    // shape describe() takes, so one renderer serves live and history both.
+    // Blob last: it holds no column's name except `detail` itself, whose
+    // string value is the one the renderer wants back.
+    setHistory({ id, events: stored.map((row) => ({ ...row, ...row.detail }) as unknown as BotEvent) });
+  }
+
+  const waves = runs.filter((r) => r.wave != null).map((r) => r.wave as number).reverse();
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="flex flex-col gap-4">
+      <StatBar status={status} connected={connected} />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="rounded-lg border p-3">
+          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Current run</h2>
+          {status?.run ? (
+            <p className="font-mono text-sm">
+              #{status.run.id} · {Math.round(status.run.elapsed)}s ·{" "}
+              {Object.entries(status.run.taps).map(([k, v]) => `${k} x${v}`).join(" · ") || "no taps yet"}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">idle</p>
+          )}
+        </section>
+
+        <section className="rounded-lg border p-3">
+          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Waves</h2>
+          <WaveSparkline waves={waves} />
+        </section>
+      </div>
+
+      <section className="rounded-lg border p-3">
+        <h2 className="mb-2 flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
+          Events
+          {history ? (
+            <>
+              <span>— run #{history.id}</span>
+              <button onClick={() => setHistory(null)} className="rounded border px-2 py-0.5 normal-case">
+                back to live
+              </button>
+            </>
+          ) : null}
+        </h2>
+        <EventFeed events={history ? history.events : events} />
+      </section>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <section className="rounded-lg border p-3">
+          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Run history</h2>
+          <RunTable runs={runs} onSelect={showRun} />
+        </section>
+
+        <section className="rounded-lg border p-3">
+          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Unknown screens</h2>
+          <SnapshotStrip shots={shots} />
+        </section>
+      </div>
     </div>
   );
 }
