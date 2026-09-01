@@ -15,14 +15,17 @@ import asyncio
 import json
 import threading
 from pathlib import Path
-from typing import AsyncIterator, Awaitable, Callable
+from typing import Any, AsyncIterator, Awaitable, Callable, Mapping
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
 import config
 import db
+import events
+from control import ControlError, Controls
 from events import EventBus
 from sinks.sse import SseSink, to_payload
 from sinks.state import BotState
@@ -113,6 +116,21 @@ async def event_stream(
         await asyncio.sleep(poll)
 
 
+class ControlPatch(BaseModel):
+    """A partial update. Every field optional; absent means "leave it alone".
+
+    Deliberately loose on types beyond the obvious - Controls.apply() is the
+    single validator, so the rules live in one place rather than being spelled
+    out here and there and drifting apart.
+    """
+
+    paused: bool | None = None
+    interval: float | None = None
+    auto_navigate: bool | None = None
+    strategy: str | None = None
+    enabled_actions: list[str] | None = None
+
+
 def create_app(
     *,
     state: BotState,
@@ -121,6 +139,8 @@ def create_app(
     db_path: Path | None = config.DB_PATH,
     unknown_dir: Path = config.UNKNOWN_DIR,
     stop: threading.Event | None = None,
+    controls: Controls | None = None,
+    checks: Mapping[str, Any] | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -189,6 +209,60 @@ def create_app(
         if path.parent != unknown_dir.resolve() or not path.is_file():
             raise HTTPException(status_code=404, detail="no such snapshot")
         return FileResponse(path, media_type="image/png")
+
+    if controls is not None:
+        available = dict(checks or {})
+
+        @app.get("/api/control")
+        def read_control() -> dict:
+            payload = controls.snapshot()
+            # The browser needs the full action list to render checkboxes for
+            # the ones currently switched off, which the snapshot omits.
+            payload["actions"] = [action.name for action in config.ACTIONS]
+            payload["strategies_available"] = sorted(
+                name for name, check in available.items() if check is not None
+            )
+            return payload
+
+        @app.patch("/api/control")
+        def patch_control(patch: ControlPatch) -> dict:
+            requested = patch.model_dump(exclude_none=True)
+
+            # Refuse before applying, not after: build_affordability() falls
+            # back to brightness on its own, so accepting this and letting the
+            # loop pick would leave the browser showing "digits" while the bot
+            # used brightness.
+            strategy = requested.get("strategy")
+            if strategy is not None and available.get(strategy) is None:
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"strategy {strategy!r} is unavailable - no glyph atlas is built",
+                )
+
+            try:
+                changed = controls.apply(requested)
+            except ControlError as exc:
+                raise HTTPException(status_code=422, detail=f"{exc.field}: {exc}") from exc
+
+            if changed:
+                # Only when something actually moved. A no-op patch is not a
+                # state change and must not fill the log with noise.
+                bus.publish(events.ControlChanged(changed=changed, source="web"))
+
+            payload = controls.snapshot()
+            payload["actions"] = [action.name for action in config.ACTIONS]
+            payload["strategies_available"] = sorted(
+                name for name, check in available.items() if check is not None
+            )
+            return payload
+
+        @app.post("/api/control/stop")
+        def stop_bot() -> dict:
+            # The same path --max-runs already takes: set the shared flag, let
+            # serve_web()'s finally bring the loop and the server down together.
+            bus.publish(events.ControlChanged(changed={"stopping": True}, source="web"))
+            stop.set()
+            return {"stopping": True}
 
     # Last, deliberately. Starlette matches routes in registration order and a
     # mount at "/" matches everything, so every /api route above must already
