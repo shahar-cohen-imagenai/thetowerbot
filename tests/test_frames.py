@@ -20,6 +20,19 @@ def test_empty_buffer_has_nothing_to_serve() -> None:
     assert FrameBuffer().latest() is None
 
 
+def test_empty_buffer_has_no_size() -> None:
+    assert FrameBuffer().size() is None
+
+
+def test_size_is_width_then_height_not_the_array_shape_order() -> None:
+    """The frame array is indexed [height, width, channels] - a_frame(80, 60)
+    below is 80 rows by 60 columns - but size() must report (width, height),
+    so this must come back (60, 80), not (80, 60)."""
+    buffer = FrameBuffer()
+    buffer.publish(a_frame())
+    assert buffer.size() == (60, 80)
+
+
 def test_publish_makes_a_jpeg_available() -> None:
     buffer = FrameBuffer()
     buffer.publish(a_frame())

@@ -810,6 +810,7 @@ def main(argv: list[str] | None = None) -> int:
         # Under --tui the panel's sink already feeds the shared state.
         sinks.append(StateSink(state))
     sse = SseSink() if args.web else None
+    frames = FrameBuffer() if args.web else None
     # Set once the scan loop and/or the server ends, whichever comes first -
     # see serve_web() and event_stream() for why a held-open dashboard tab
     # needs telling separately from uvicorn's own should_exit.
@@ -864,6 +865,7 @@ def main(argv: list[str] | None = None) -> int:
             controls=controls,
             checks=checks,
             first_run_id=last_run + 1,
+            frames=frames,
         )
 
         if args.once:
@@ -886,6 +888,7 @@ def main(argv: list[str] | None = None) -> int:
                 stop=stop,
                 controls=controls,
                 checks=checks,
+                frames=frames,
             )
             # No signal handlers of ours here: uvicorn installs its own and
             # would overwrite them anyway.

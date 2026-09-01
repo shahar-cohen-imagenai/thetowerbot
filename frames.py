@@ -58,6 +58,14 @@ class FrameBuffer:
         with self._lock:
             return [dict(box) for box in self._boxes]
 
+    def size(self) -> tuple[int, int] | None:
+        """(width, height) of the current frame, for the overlay's coordinates."""
+        with self._lock:
+            if self._frame is None:
+                return None
+            height, width = self._frame.shape[:2]
+            return int(width), int(height)
+
     def latest(self) -> tuple[int, bytes] | None:
         """The current frame number and its JPEG bytes.
 

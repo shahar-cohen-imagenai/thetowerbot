@@ -18,7 +18,7 @@ import threading
 from pathlib import Path
 from typing import Any, AsyncIterator, Awaitable, Callable, Mapping
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -28,6 +28,7 @@ import db
 import events
 from control import ControlError, Controls
 from events import EventBus
+from frames import FrameBuffer
 from sinks.sse import SseSink, to_payload
 from sinks.state import BotState
 
@@ -117,6 +118,40 @@ async def event_stream(
         await asyncio.sleep(poll)
 
 
+BOUNDARY = "frame"
+
+
+async def frame_stream(
+    frames: FrameBuffer,
+    is_disconnected: Callable[[], Awaitable[bool]],
+    *,
+    stop: threading.Event,
+    poll: float = 0.25,
+) -> AsyncIterator[bytes]:
+    """MJPEG: one connection, rendered natively by a plain <img>.
+
+    Same two exits as event_stream(), and for the same reasons: the browser
+    closing the tab, and the bot shutting down. An <img> holds its response
+    open indefinitely and never disconnects on its own, so without the `stop`
+    check a held-open device view and a shutting-down uvicorn would wait on
+    each other forever.
+
+    Only sends when the frame number moves, so an idle bot costs one send per
+    scan rather than one per poll.
+    """
+    sent = 0
+    while not stop.is_set() and not await is_disconnected():
+        current = frames.latest()
+        if current is not None and current[0] != sent:
+            sent, payload = current
+            yield (
+                f"--{BOUNDARY}\r\n"
+                f"Content-Type: image/jpeg\r\n"
+                f"Content-Length: {len(payload)}\r\n\r\n"
+            ).encode("ascii") + payload + b"\r\n"
+        await asyncio.sleep(poll)
+
+
 class ControlPatch(BaseModel):
     """A partial update. Every field optional; absent means "leave it alone".
 
@@ -142,6 +177,7 @@ def create_app(
     stop: threading.Event | None = None,
     controls: Controls | None = None,
     checks: Mapping[str, Any] | None = None,
+    frames: FrameBuffer | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -160,6 +196,15 @@ def create_app(
         # Dropped events are the bus's business, not the state's: they were
         # never delivered to a sink, so no accumulator ever saw them.
         payload["dropped"] = bus.dropped
+        # Overlay geometry rides along with the status poll rather than getting
+        # its own endpoint: it changes exactly as often as the status does, and
+        # a second poll would buy nothing.
+        payload["boxes"] = frames.boxes() if frames is not None else []
+        payload["frame_size"] = None
+        if frames is not None:
+            size = frames.size()
+            if size is not None:
+                payload["frame_size"] = {"width": size[0], "height": size[1]}
         return payload
 
     @app.get("/api/runs")
@@ -210,6 +255,24 @@ def create_app(
         if path.parent != unknown_dir.resolve() or not path.is_file():
             raise HTTPException(status_code=404, detail="no such snapshot")
         return FileResponse(path, media_type="image/png")
+
+    @app.get("/api/frame.jpg")
+    def frame_still() -> Response:
+        current = frames.latest() if frames is not None else None
+        if current is None:
+            raise HTTPException(status_code=404, detail="no frame captured yet")
+        return Response(content=current[1], media_type="image/jpeg",
+                        headers={"Cache-Control": "no-store"})
+
+    @app.get("/api/frame")
+    async def frame_mjpeg(request: Request) -> StreamingResponse:
+        if frames is None:
+            raise HTTPException(status_code=404, detail="no frame buffer")
+        return StreamingResponse(
+            frame_stream(frames, request.is_disconnected, stop=stop),
+            media_type=f"multipart/x-mixed-replace; boundary={BOUNDARY}",
+            headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+        )
 
     if controls is not None:
         available = dict(checks or {})
