@@ -669,6 +669,18 @@ def serve_web(
     the worker a way to bring the server down too, whichever way the loop
     exits.
 
+    `stop` also has to be watched, not just set: the stop route (see
+    web/app.py's stop_bot()) has no handle on the worker thread or the
+    Server - the shared Event is the only thing it can reach from a request
+    handler. Without something waiting on it, setting the flag there did
+    nothing but kill SSE streams (see event_stream() below), while the scan
+    loop and the server both ran on regardless - the dashboard looked stopped
+    and was not. The watcher thread below is that missing waiter, and it is
+    what keeps this the single shutdown path the docstring above describes:
+    every way to stop - Ctrl+C, --max-runs, and now the browser - ends up
+    setting the same `stop` and `should_exit`, rather than the browser route
+    needing its own bespoke teardown.
+
     `stop` is the fix for a second, worse hang: with an SSE tab open, the
     in-flight `/api/events/stream` response never disconnects on its own, so
     uvicorn's graceful shutdown - which only closes a connection once its
@@ -706,6 +718,19 @@ def serve_web(
             # open SSE stream has to be told too, or it never notices.
             server.should_exit = True
             stop.set()
+
+    def _watch_stop() -> None:
+        # The only waiter on `stop`. See the docstring above: the stop route
+        # can set the flag but has no other way to reach the loop or the
+        # server, so this thread is what actually turns "stop was requested"
+        # into "the bot stopped". Harmless on every other exit path (Ctrl+C,
+        # --max-runs) - `stop` is already set there by the time this wakes
+        # up, so it just repeats a no-op stop() and should_exit assignment.
+        stop.wait()
+        bot.stop()
+        server.should_exit = True
+
+    threading.Thread(target=_watch_stop, name="stop-watch", daemon=True).start()
 
     worker = threading.Thread(target=_run_loop, name="scan-loop", daemon=True)
     worker.start()
@@ -802,7 +827,11 @@ def main(argv: list[str] | None = None) -> int:
             device=device,
             templates=vision.TemplateCache(config.TEMPLATE_DIR),
             bus=bus,
-            affordability_check=checks[controls.strategy] or checks["brightness"],
+            # checks[controls.strategy] is never None here: build_checks_and_controls()
+            # already seeded controls.strategy to a name whose check built
+            # (falling back to "brightness" itself when it did not), so a
+            # "checks[...] or checks['brightness']" fallback would be dead code.
+            affordability_check=checks[controls.strategy],
             controls=controls,
             checks=checks,
             first_run_id=last_run + 1,

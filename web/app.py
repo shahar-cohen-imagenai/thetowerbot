@@ -259,9 +259,12 @@ def create_app(
 
         @app.post("/api/control/stop")
         def stop_bot() -> dict:
-            # The same path --max-runs already takes: set the shared flag, let
-            # serve_web()'s finally bring the loop and the server down together.
-            bus.publish(events.ControlChanged(changed={"stopping": True}, source="web"))
+            # This route has no handle on the worker thread or the Server -
+            # the shared `stop` Event is the only thing it can reach from a
+            # request handler. serve_web()'s stop-watch thread is the one
+            # actually waiting on it: it calls bot.stop() and sets
+            # server.should_exit, which is what brings the loop and the
+            # server down together.
             stop.set()
             return {"stopping": True}
 

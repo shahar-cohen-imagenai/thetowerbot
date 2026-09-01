@@ -25,10 +25,12 @@ import threading
 import time
 from pathlib import Path
 from tempfile import mkdtemp
+from typing import Any
 
 import httpx2 as httpx
 import uvicorn
 
+import control
 import db
 import events
 from sinks.sse import SseSink
@@ -38,6 +40,7 @@ from web.app import create_app
 HOST = "127.0.0.1"
 ROUTES_PORT = 8799
 SHUTDOWN_PORT = 8801
+STOP_PORT = 8802
 
 results: list[tuple[str, bool, str]] = []
 
@@ -194,6 +197,92 @@ def shutdown_seconds(db_path: Path, *, hold_stream: bool, set_flag: bool) -> flo
     return -1.0 if serving.is_alive() else elapsed
 
 
+def check_stop_route_stops_serve_web(tmp: Path) -> None:
+    """The Critical the whole-branch review reproduced: POST
+    /api/control/stop set the shared `stop` Event, but nothing in serve_web()
+    ever waited on it - only event_stream() did. The route killed every SSE
+    connection (so the dashboard's feed went dead and looked stopped) while
+    the scan loop and the server both kept right on running underneath.
+
+    Drives the real serve_web() - a real uvicorn Server, no monkeypatching -
+    with a fake bot (no emulator needed) and proves it actually returns after
+    a browser's stop request, and that the loop stops scanning. This is
+    exactly the kind of process-lifecycle behaviour this file's own docstring
+    says pytest cannot observe.
+    """
+    import tower_bot
+
+    class FakeBot:
+        """Enough of TowerBot's shape for serve_web(): a controls.interval to
+        size the shutdown join, a run_forever() that loops harmlessly until
+        told to stop, and a stop() that flips both."""
+
+        def __init__(self) -> None:
+            self.controls = control.Controls(interval=0.05)
+            self._running = True
+            self._stopping = threading.Event()
+            self.scans = 0
+
+        def run_forever(self, max_runs: int | None = None) -> None:
+            while self._running:
+                self.scans += 1
+                self._stopping.wait(self.controls.interval)
+
+        def stop(self, *_: object) -> None:
+            self._running = False
+            self._stopping.set()
+
+    bot = FakeBot()
+    state, sse, bus = BotState(), SseSink(), events.EventBus()
+    stop = threading.Event()
+    unknown = tmp / "stop-route-unknown"
+    unknown.mkdir(exist_ok=True)
+    app = create_app(
+        state=state, sse=sse, bus=bus, db_path=None, unknown_dir=unknown,
+        stop=stop, controls=bot.controls, checks={"brightness": object()},
+    )
+
+    result: dict[str, Any] = {}
+
+    def _run() -> None:
+        started = time.monotonic()
+        tower_bot.serve_web(bot, app, host=HOST, port=STOP_PORT, max_runs=None, stop=stop)
+        result["elapsed"] = time.monotonic() - started
+        result["returned"] = True
+
+    runner = threading.Thread(target=_run, name="serve-web-under-test", daemon=True)
+    runner.start()
+
+    for _ in range(100):
+        try:
+            with socket.create_connection((HOST, STOP_PORT), timeout=0.2):
+                break
+        except OSError:
+            time.sleep(0.1)
+    else:
+        raise RuntimeError(f"serve_web never started on port {STOP_PORT}")
+
+    time.sleep(0.3)  # let a few scans happen, matching the reproduction
+
+    with httpx.Client(base_url=f"http://{HOST}:{STOP_PORT}", timeout=10.0) as c:
+        r = c.post("/api/control/stop")
+        check("POST /api/control/stop returns 200",
+              r.status_code == 200 and r.json() == {"stopping": True}, str(r.text))
+
+    runner.join(timeout=8.0)
+    check("serve_web returns after a browser stop",
+          not runner.is_alive() and result.get("returned") is True,
+          f"still running after 8s (elapsed={result.get('elapsed')})")
+    check("bot._running is False after a browser stop",
+          bot._running is False, f"_running={bot._running}")
+
+    scans_at_stop = bot.scans
+    time.sleep(0.3)
+    check("scanning stopped after the browser's stop request",
+          bot.scans == scans_at_stop,
+          f"kept scanning after stop: {scans_at_stop} -> {bot.scans}")
+
+
 def main() -> int:
     signal.alarm(180)  # this script must never hang a session
     tmp = Path(mkdtemp())
@@ -217,6 +306,10 @@ def main() -> int:
         if elapsed >= 0.0:
             results[-1] = (f"{results[-1][0]} -> {elapsed:.1f}s", True, "")
         time.sleep(0.5)
+
+    # The Critical this file's docstring exists for: the Stop button itself,
+    # driven end to end against the real serve_web().
+    check_stop_route_stops_serve_web(tmp)
 
     width = max(len(label) for label, _, _ in results)
     for label, ok, detail in results:
