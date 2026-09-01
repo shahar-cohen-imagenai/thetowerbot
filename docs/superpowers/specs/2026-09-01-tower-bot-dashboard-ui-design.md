@@ -1,6 +1,8 @@
 # The Tower bot — dashboard rewrite: Next.js UI, control plane, live device view
 
-Status: approved design, not yet implemented
+Status: implemented, across the three plans in `docs/superpowers/plans/`
+(`2026-09-01-dashboard-a-scaffold.md`, `2026-09-01-dashboard-b-control.md`,
+`2026-09-01-dashboard-c-views.md`)
 Date: 2026-09-01
 
 Supersedes section 9 of `2026-08-30-tower-bot-observability-design.md`.
@@ -69,7 +71,7 @@ web/
     app/control/page.tsx       pause/resume/stop + live settings
     components/                stat cards, event feed, device view, charts
     lib/api.ts                 typed fetch wrappers, one per endpoint
-    lib/useEventStream.ts      the single SSE subscription, shared by context
+    lib/useEventStream.ts      the SSE subscription hook, called by each route that needs it
     lib/types.ts               TypeScript mirrors of the Python payloads
   static/                    built output — tracked in git
   app.py                     FastAPI: /api/* plus the static mount
@@ -252,9 +254,15 @@ Served by `GET /api/stats` and `GET /api/errors`. Charts use Recharts. The
 
 ## 7. Data flow
 
-- **Live.** One SSE subscription to `/api/events/stream`, owned by a React
-  context and shared by the header, the current-run card and the feed. Exactly
-  one stream per tab.
+- **Live.** One SSE subscription to `/api/events/stream` per route, via the
+  `useEventStream()` hook. The design called for that subscription to be
+  owned by a shared React context so several consumers on one page could
+  fan out from it; that was **not built**. Each route that needs the stream
+  (Live, Control) calls the hook directly and gets its own connection —
+  no route has more than one consumer, so a context would be indirection
+  with no consumer to share it with. This is a deliberate deviation, not an
+  oversight: add the context back if a future page needs more than one
+  subscriber per tab.
 - **Status.** `/api/status` polled every 2s, as today, for the authoritative
   snapshot plus the frame overlay boxes. Deliberately kept separate from the
   stream: it is cheap, it is a full snapshot rather than a fold over deltas,
@@ -280,17 +288,24 @@ React, under Vitest and Testing Library, for the logic worth testing on its
 own: event formatting, the stream reducer, and `lib/api` response parsing. No
 Playwright — the end-to-end value here is low and the maintenance cost is not.
 
-**Build freshness.** One test fails if `web/static/` is older than the sources
-under `web/ui/`. Committing build output creates exactly one new failure mode —
-a stale bundle shipped alongside fresh source — and it is caught by a test
-rather than by remembering.
+**Build freshness.** One test fails if `web/static/` does not match the sources
+under `web/ui/`. This was designed as an mtime comparison but built as a
+content hash instead: git does not preserve modification times, so a fresh
+clone's checked-out files would all get the same mtime and an mtime check
+would decide nothing. `tools/ui_manifest.py` (mirrored byte-for-byte by
+`web/ui/scripts/manifest.mjs`) hashes every source file under `app/`,
+`components/`, `lib/`, `public/` and a fixed list of top-level config files,
+and the build writes that hash into `web/static/.build-manifest.json`; the
+test recomputes the hash from source and compares. Committing build output
+creates exactly one new failure mode — a stale bundle shipped alongside
+fresh source — and it is caught by a test rather than by remembering.
 
 ## 9. Risks
 
 | Risk | Mitigation |
 |---|---|
 | Control endpoints on an unauthenticated server | Binding stays `127.0.0.1`; the warning beside `config.WEB_HOST` is strengthened to say the surface is no longer read-only. A non-loopback `--web-host` already warns; that warning now matters more. |
-| Stale committed build | Test fails on `web/static/` older than `web/ui/` (§8). |
+| Stale committed build | Test fails on `web/static/` not matching a content hash of `web/ui/` (§8). |
 | MJPEG connection held open blocks shutdown | Same failure that SSE already hit and solved: the frame generator checks the shared `stop` Event, exactly as `event_stream()` does. |
 | Frame encoding on the request thread stalls the loop | Encode is cached per frame number and happens on the web thread, never on the scan loop. `cv2.imencode` releases the GIL. |
 | Pause leaves the screen tracker stale | Pause keeps scanning and classifying (§4), so the tracker stays current and resume is safe. |
