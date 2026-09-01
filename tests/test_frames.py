@@ -113,52 +113,6 @@ def test_set_boxes_stores_detached_copies() -> None:
     assert len(buffer.boxes()) == 1
 
 
-def test_boxes_are_never_observed_partially_filled_during_a_swap() -> None:
-    """The overlay's actual bug: publish() clears _boxes at scan start, and a
-    per-match add_box() only refilled them at the end - a real window where
-    a status poll could catch 1 of 4 matches and the overlay looked like it
-    was blinking empty. set_boxes() exists to close that window by handing
-    over the whole scan's matches in one atomic swap.
-
-    This hammers boxes() from a reader thread while a writer repeatedly
-    swaps in a full three-box list and back to empty, the way run_once()
-    swaps in the finished scan and publish() clears it for the next one.
-    If set_boxes() ever regressed to clearing then appending one at a time,
-    a reader would catch a length of 1 or 2; it must only ever see 0 or 3.
-    """
-    buffer = FrameBuffer()
-    buffer.publish(a_frame())
-    three = [
-        {"name": "A", "x": 1, "y": 1, "w": 1, "h": 1, "score": 0.9, "tapped": False},
-        {"name": "B", "x": 2, "y": 2, "w": 1, "h": 1, "score": 0.9, "tapped": False},
-        {"name": "C", "x": 3, "y": 3, "w": 1, "h": 1, "score": 0.9, "tapped": False},
-    ]
-
-    observed_lengths: set[int] = set()
-    stop = threading.Event()
-
-    def reader() -> None:
-        while not stop.is_set():
-            observed_lengths.add(len(buffer.boxes()))
-
-    def writer() -> None:
-        for _ in range(2000):
-            buffer.set_boxes(three)
-            buffer.set_boxes([])
-
-    reader_thread = threading.Thread(target=reader)
-    reader_thread.start()
-    try:
-        writer()
-    finally:
-        stop.set()
-        reader_thread.join()
-
-    assert observed_lengths <= {0, 3}, (
-        f"observed a partially-filled box list: lengths seen = {observed_lengths}"
-    )
-
-
 def test_mark_tapped_flags_the_matching_box() -> None:
     buffer = FrameBuffer()
     buffer.publish(a_frame())

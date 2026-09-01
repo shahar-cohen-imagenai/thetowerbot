@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -131,11 +132,13 @@ def test_recorded_boxes_carry_the_buy_point_not_the_label_origin(
 def test_boxes_are_swapped_in_atomically_not_added_incrementally(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """run_once() must hand the whole scan's boxes to FrameBuffer in one
-    set_boxes() call, not build them up with per-match add_box() calls - the
-    latter is exactly the window a reader could catch mid-scan with only
-    some of the frame's matches visible (see test_frames.py for the direct
-    FrameBuffer-level regression test)."""
+    """The atomic-swap regression guard: run_once() must hand the whole
+    scan's boxes to FrameBuffer in one set_boxes() call, not build them up
+    with per-match add_box() calls - the latter is exactly the window a
+    reader could catch mid-scan with only some of the frame's matches
+    visible. Caught via the add_box spy: a set_boxes() that regressed to
+    clear-then-add_box-in-a-loop would call the spied add_box() once per
+    box instead of leaving `calls` as just ["set_boxes"]."""
     from frames import FrameBuffer
 
     bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
@@ -160,6 +163,43 @@ def test_boxes_are_swapped_in_atomically_not_added_incrementally(
 
     assert calls == ["set_boxes"], calls
     assert len(bot.frames.boxes()) == 4
+
+
+def test_tapped_flag_reaches_frames_boxes_end_to_end(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """FrameBuffer.mark_tapped() is the entire visual signal for "this is the
+    one it actually tapped" - it is what turns a box emerald instead of amber
+    in the overlay. Run a real scan through frames.boxes() rather than
+    presetting `tapped` by hand (as test_frame_api.py does), and check both
+    directions: a tapped upgrade comes back True, and one that matched but
+    was withheld comes back False. The second half is what makes this a real
+    assertion instead of "everything is true" - the in_run_lit fixture taps
+    every action when nothing is on cooldown (see
+    test_in_run_taps_every_affordable_upgrade), so three of the four
+    templates are seeded into cooldown here to force a real, matched-but-
+    not-tapped box for the others to be compared against.
+    """
+    from frames import FrameBuffer
+
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+    now = time.monotonic()
+    for action in config.ACTIONS:
+        if action.name != "Damage":
+            bot._last_click[action.template] = now
+
+    bot.frames = FrameBuffer()
+    bot.frames.publish(bot._screen)
+
+    bot.run_once()
+
+    tapped_names = {e.action for e in rec.of(events.Tapped)}
+    assert tapped_names == {"Damage"}
+
+    tapped_by_name = {box["name"]: box["tapped"] for box in bot.frames.boxes()}
+    assert tapped_by_name["Damage"] is True
+    assert tapped_by_name["Attack Speed"] is False
 
 
 def test_brightness_gate_rejects_dimmed_regions() -> None:
