@@ -140,16 +140,18 @@ mirrors `BotState`: one lock, one snapshot method, no shared mutable objects
 handed across threads.
 
 **The dataclass defaults are a fallback, not the source of truth.** `main()`
-constructs `Controls` from the parsed CLI arguments, so `--auto-navigate` and
-`--affordability` keep meaning exactly what they mean today; the browser then
-changes them from wherever the command line left them. A control plane whose
-defaults silently overrode the flags you launched with would be a bug, not a
-feature.
+constructs `Controls` from the parsed CLI arguments, so `--interval`,
+`--auto-navigate` and `--affordability` keep meaning exactly what they mean
+today; the browser then changes them from wherever the command line left
+them. A control plane whose defaults silently overrode the flags you
+launched with would be a bug, not a feature.
 
-`interval` is the exception, because there is no `--interval` flag — the scan
-interval is `config.SCAN_INTERVAL_SECONDS` and nothing else reads it. It starts
-from the config value and becomes browser-settable. No new flag is added for
-it: the dashboard is now the place you change it.
+`interval` is seeded from `args.interval` exactly as `auto_navigate` and
+`strategy` are seeded from theirs: `tower_bot.py` already defines an
+`--interval` flag (defaulting to `config.SCAN_INTERVAL_SECONDS`), and
+`main()` already passes `args.interval` into `run_forever`. No new flag is
+needed — the dashboard just becomes the other place you change it, once the
+bot is running.
 
 ### How the loop reads it
 

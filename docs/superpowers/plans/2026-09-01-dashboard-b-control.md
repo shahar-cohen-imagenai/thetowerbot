@@ -561,7 +561,9 @@ grep -rn "auto_navigate" tests/ tower_bot.py
 Replace each `TowerBot(..., auto_navigate=True)` with `TowerBot(..., controls=Controls(auto_navigate=True))`, importing `Controls` in those test files. In `main()`, replace `auto_navigate=args.auto_navigate` in the `TowerBot(...)` call with the `controls=` and `checks=` arguments Task 5 defines — for now, temporarily:
 
 ```python
-            controls=Controls(auto_navigate=args.auto_navigate, strategy=args.affordability),
+            controls=Controls(
+                interval=args.interval, auto_navigate=args.auto_navigate, strategy=args.affordability
+            ),
 ```
 
 - [ ] **Step 7: Run the tests to verify they pass**
@@ -836,8 +838,11 @@ def test_controls_start_from_the_command_line() -> None:
     from control import Controls
     from tower_bot import parse_args
 
-    args = parse_args(["--auto-navigate", "--affordability", "brightness"])
-    controls = Controls(auto_navigate=args.auto_navigate, strategy=args.affordability)
+    args = parse_args(["--interval", "3.0", "--auto-navigate", "--affordability", "brightness"])
+    controls = Controls(
+        interval=args.interval, auto_navigate=args.auto_navigate, strategy=args.affordability
+    )
+    assert controls.snapshot()["interval"] == 3.0
     assert controls.snapshot()["auto_navigate"] is True
     assert controls.snapshot()["strategy"] == "brightness"
 ```
@@ -876,6 +881,7 @@ with:
             "digits": digits_check if isinstance(digits_check, DigitAffordability) else None,
         }
         controls = Controls(
+            interval=args.interval,
             auto_navigate=args.auto_navigate,
             strategy=args.affordability if checks.get(args.affordability) else "brightness",
         )
