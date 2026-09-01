@@ -14,7 +14,12 @@ import type { BotEvent, RunRow, Snapshot, StatusPayload } from "@/lib/types";
 function usePoll(load: () => Promise<void>, ms: number) {
   useEffect(() => {
     let alive = true;
-    const tick = () => { if (alive) void load(); };
+    const tick = () => {
+      // A poll failing is expected while the bot restarts; swallow it and
+      // keep the last good state rather than blanking the page. The SSE
+      // `connected` indicator already tells the reader the bot is unreachable.
+      if (alive) void load().catch(() => {});
+    };
     tick();
     const id = setInterval(tick, ms);
     return () => { alive = false; clearInterval(id); };

@@ -21,10 +21,10 @@ export function StatBar({ status, connected }: { status: StatusPayload | null; c
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label="screen" value={status?.screen ?? "-"} />
         <Stat label="uptime" value={status ? Math.round(status.uptime) + "s" : "-"} />
-        <Stat label="scans" value={status?.scans ?? 0} />
-        <Stat label="runs" value={status?.runs_completed ?? 0} />
-        <Stat label="wallet" value={money(status?.wallet)} />
-        <Stat label="dropped" value={status?.dropped ?? 0} />
+        <Stat label="scans" value={status ? status.scans : "-"} />
+        <Stat label="runs" value={status ? status.runs_completed : "-"} />
+        <Stat label="wallet" value={status ? money(status.wallet) : "-"} />
+        <Stat label="dropped" value={status ? status.dropped : "-"} />
       </div>
     </div>
   );
