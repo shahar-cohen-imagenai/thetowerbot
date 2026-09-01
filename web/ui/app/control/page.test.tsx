@@ -79,6 +79,61 @@ group("ControlPage", () => {
     expect(checkbox.checked).toBe(false);
   });
 
+  it("shows the server's value, not the rejected one, after an interval patch is refused", async () => {
+    // Regression: control.interval is unchanged on a 422 (send() deliberately
+    // skips setControl on failure), so a key on control.interval alone never
+    // remounts the field and the browser's dirty, rejected value stays on
+    // screen - the specific failure this finding named.
+    patchControl.mockRejectedValue(new Error("interval: must be between 0.1 and 3600"));
+    render(<ControlPage />);
+
+    const getInput = async () =>
+      (await screen.findByText("Scan interval (s)")).closest("label")!.querySelector("input")! as HTMLInputElement;
+
+    expect((await getInput()).value).toBe("1.5");
+    fireEvent.change(await getInput(), { target: { value: "99999" } });
+    fireEvent.blur(await getInput());
+
+    await screen.findByText(/must be between/);
+    // Re-query: a forced remount replaces the DOM node.
+    expect((await getInput()).value).toBe("1.5");
+  });
+
+  it("repaints the interval field once a cross-tab change converges", async () => {
+    const { rerender } = render(<ControlPage />);
+    const getInput = async () =>
+      (await screen.findByText("Scan interval (s)")).closest("label")!.querySelector("input")! as HTMLInputElement;
+    expect((await getInput()).value).toBe("1.5");
+
+    fetchControl.mockResolvedValue({ ...baseControl, interval: 5 });
+    streamState.events = [
+      { type: "ControlChanged", seq: 1, ts: 0, changed: { interval: 5 }, source: "web" },
+    ];
+    rerender(<ControlPage />);
+
+    await waitFor(async () => expect((await getInput()).value).toBe("5"));
+  });
+
+  it("keeps an in-progress, uncommitted edit when an unrelated remote change arrives", async () => {
+    const { rerender } = render(<ControlPage />);
+    const getInput = async () =>
+      (await screen.findByText("Scan interval (s)")).closest("label")!.querySelector("input")! as HTMLInputElement;
+
+    // Typing, not yet blurred - nothing has been sent to the server.
+    fireEvent.change(await getInput(), { target: { value: "42" } });
+
+    // An unrelated field changes remotely - interval itself does not, so
+    // this must not stomp the still-uncommitted "42".
+    fetchControl.mockResolvedValue({ ...baseControl, paused: true });
+    streamState.events = [
+      { type: "ControlChanged", seq: 1, ts: 0, changed: { paused: true }, source: "web" },
+    ];
+    rerender(<ControlPage />);
+
+    await screen.findByText("Resume"); // proves the convergence refetch ran
+    expect((await getInput()).value).toBe("42");
+  });
+
   it("renders a strategy with no atlas as disabled rather than silently inert", async () => {
     render(<ControlPage />);
 

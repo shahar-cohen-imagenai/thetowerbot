@@ -11,6 +11,14 @@ import type { ControlPayload } from "@/lib/types";
 export default function ControlPage() {
   const [control, setControl] = useState<ControlPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Bumped on a rejected patch, and nowhere else. The interval Input below
+  // is keyed on this alongside control.interval: a 422 leaves control.interval
+  // unchanged (send() deliberately does not call setControl on failure), so
+  // the key alone would never remount the field and the browser's dirty,
+  // rejected value would sit there looking live. Bumping this forces that
+  // remount without touching the cross-tab / unrelated-change behaviour that
+  // keying on control.interval already gets right.
+  const [rejectedInterval, setRejectedInterval] = useState(0);
   const { events } = useEventStream();
 
   useEffect(() => {
@@ -56,6 +64,10 @@ export default function ControlPage() {
       setControl(await patchControl(patch));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
+      // A rejected interval patch leaves control.interval untouched, so the
+      // Input's key would not change and the rejected value would stay on
+      // screen - see rejectedInterval's declaration above.
+      if ("interval" in patch) setRejectedInterval((n) => n + 1);
     }
   }
 
@@ -100,7 +112,7 @@ export default function ControlPage() {
         <label className="flex items-center justify-between text-sm">
           Scan interval (s)
           <Input
-            key={control.interval}
+            key={`${rejectedInterval}-${control.interval}`}
             type="number" min={0.1} max={3600} step={0.1} defaultValue={control.interval}
             onBlur={(e) => send({ interval: Number(e.target.value) })}
             className="w-24 text-right"
