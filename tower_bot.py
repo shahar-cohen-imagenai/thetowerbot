@@ -130,7 +130,13 @@ class TowerBot:
         Rejects are ordered cheapest-first (spec section 7): screen, then
         match score, then brightness, then cooldown.
         """
-        key = action.template
+        # `cooldown_key` is purely internal - a stable per-template handle
+        # for `_last_click`. `name` is what leaves the class: it is what
+        # every Tapped/Skipped event carries, so the log, the dashboard feed
+        # and the stored `events.action` column all speak the same
+        # vocabulary as the control page, which gates on action.name too.
+        cooldown_key = action.template
+        name = action.name
 
         if self.tracker.state is not screens.ScreenState.IN_RUN:
             # Defence in depth, and deliberately silent. run_once already
@@ -158,21 +164,21 @@ class TowerBot:
                 else "dimmed"
             )
             self.bus.publish(
-                events.Skipped(action=key, reason=reason, detail=detail)
+                events.Skipped(action=name, reason=reason, detail=detail)
             )
             return False
 
         now = time.monotonic()
-        if now - self._last_click.get(key, 0.0) < self.click_cooldown:
-            self.bus.publish(events.Skipped(action=key, reason="cooldown"))
+        if now - self._last_click.get(cooldown_key, 0.0) < self.click_cooldown:
+            self.bus.publish(events.Skipped(action=name, reason="cooldown"))
             return False
 
         x, y = config.buy_point(match.top_left)
         tap(self.device, x, y)
-        self._last_click[key] = now
+        self._last_click[cooldown_key] = now
         self.bus.publish(
             events.Tapped(
-                action=key,
+                action=name,
                 x=x,
                 y=y,
                 score=match.score,

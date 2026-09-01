@@ -168,10 +168,10 @@ def test_a_per_action_brightness_ratio_reaches_the_scan_loop(
 
     bot.run_once()
 
-    assert [e.action for e in rec.of(events.Tapped)] == ["upgrade_damage.png"]
+    assert [e.action for e in rec.of(events.Tapped)] == ["Damage"]
     skipped = rec.of(events.Skipped)
     assert [(e.action, e.reason) for e in skipped] == [
-        ("upgrade_critical_chance.png", "dimmed")
+        ("Critical Chance", "dimmed")
     ]
 
 
@@ -218,6 +218,38 @@ def test_cooldown_suppresses_a_repeat_tap(monkeypatch: pytest.MonkeyPatch) -> No
     assert {e.reason for e in rec.of(events.Skipped)} == {"cooldown"}
 
 
+def test_tapped_events_carry_the_human_name_and_cooldown_still_works(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Pins the contract this fix exists for.
+
+    `Tapped.action` must be `action.name` ("Damage"), not `action.template`
+    ("upgrade_damage.png") - that is the vocabulary the control page, the
+    log, the SSE feed and the stored `events.action` column all need to
+    agree on. But cooldown gating must still key on the template
+    internally: proven here by scanning twice in a row and seeing the
+    second scan suppressed, exactly as it was before the two identities
+    were split apart.
+    """
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+
+    bot.run_once()
+
+    tapped = rec.of(events.Tapped)
+    assert len(tapped) == 4
+    names = {a.name for a in config.ACTIONS}
+    templates = {a.template for a in config.ACTIONS}
+    assert {e.action for e in tapped} == names
+    assert not {e.action for e in tapped} & templates
+
+    rec.seen.clear()
+    bot.run_once()  # immediately again - cooldown must still suppress this
+
+    assert rec.of(events.Tapped) == []
+    assert {e.reason for e in rec.of(events.Skipped)} == {"cooldown"}
+
+
 def test_taps_land_on_the_buy_button_not_the_label(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -243,8 +275,9 @@ def test_taps_land_on_the_buy_button_not_the_label(
 
     cache = vision.TemplateCache(TEMPLATES)
     region = config.PRICE_REGION
+    template_by_name = {a.name: a.template for a in config.ACTIONS}
     for event in tapped:
-        template = cache.get(event.action)
+        template = cache.get(template_by_name[event.action])
         match = vision.locate_template(bot._screen, template, 0.9)
         assert match is not None, event.action
         left, top = match.top_left
