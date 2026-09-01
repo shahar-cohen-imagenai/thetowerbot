@@ -84,8 +84,10 @@ def test_concurrent_publish_and_read_do_not_crash() -> None:
     only ever whole-object reference-swapped, and the GIL already makes a
     single attribute read/write atomic, so there is no torn state for this
     test to observe even with no lock at all. See
-    test_returned_pair_is_self_consistent_under_forced_interleaving for the
-    test that actually forces and checks the race the re-check exists for.
+    test_a_slow_stale_encode_does_not_evict_a_fresher_cache_entry for the
+    test that actually forces the interleaving the re-check guards and checks
+    for it: that a late-finishing encode of a superseded frame does not evict
+    an already-cached fresher one and force a needless re-encode.
     """
     buffer = FrameBuffer()
     errors: list[Exception] = []
