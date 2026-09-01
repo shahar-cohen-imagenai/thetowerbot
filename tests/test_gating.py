@@ -275,9 +275,30 @@ def test_paused_keeps_scanning_but_never_taps(bot_in_run) -> None:
     kinds = [event.type for event in seen]
     assert "ScanCompleted" in kinds
     assert "Tapped" not in kinds
-    assert any(
-        event.type == "Skipped" and event.reason == "paused" for event in seen
+    # Exactly one, not "at least one": the paused skip is hoisted out of the
+    # action loop for the same reason screen_gated is - one per scan, not
+    # one per action, or an idle bot emits 4 identical events every 2s
+    # (~172k/day) instead of 1.
+    paused_skips = [
+        event for event in seen if event.type == "Skipped" and event.reason == "paused"
+    ]
+    assert len(paused_skips) == 1
+
+
+def test_paused_does_not_auto_navigate(bot_in_run, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Pausing must gate auto-navigate too, not just the action loop - a
+    paused bot that still tapped RETRY/BATTLE would start a run nobody asked
+    for."""
+    bot, seen = bot_in_run
+    navigated: list[bool] = []
+    monkeypatch.setattr(
+        bot.navigator, "maybe_navigate", lambda *a, **k: navigated.append(True)
     )
+    bot.controls.apply({"auto_navigate": True, "paused": True})
+
+    bot.run_once()
+
+    assert navigated == []
 
 
 def test_resuming_taps_again(bot_in_run) -> None:

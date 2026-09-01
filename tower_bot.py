@@ -101,6 +101,11 @@ class TowerBot:
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
+        # Makes the between-scan sleep interruptible. A plain time.sleep()
+        # ignores stop(): PEP 475 means it resumes after a signal handler
+        # returns rather than aborting, and at a browser-set MAX_INTERVAL of
+        # 3600s that turns Ctrl+C into an hour-long hang.
+        self._stopping = threading.Event()
 
     @property
     def screen_state(self) -> screens.ScreenState:
@@ -354,6 +359,12 @@ class TowerBot:
           MIN_INTERVAL/MAX_INTERVAL because a browser-supplied value has to
           be sane; a test's 0.0 is not a browser and must not be bound by
           those rules.
+
+        The between-scan wait is `self._stopping.wait(...)`, not
+        `time.sleep(...)`: stop() sets that event, so a shutdown ends the
+        wait immediately regardless of how large the interval is, rather
+        than sleeping it out (which a plain time.sleep() would do - PEP 475
+        resumes it after a signal handler returns instead of aborting it).
         """
         startup_interval = self.controls.interval if interval is None else interval
         logger.info(
@@ -377,7 +388,7 @@ class TowerBot:
             except Exception as exc:  # noqa: BLE001 - one bad frame must not kill the loop
                 logger.exception("Unexpected error during scan")
                 self._report(f"Unexpected error during scan: {exc}")
-            time.sleep(current_interval)
+            self._stopping.wait(current_interval)
         logger.info("Bot stopped.")
 
     def _report(self, message: str) -> None:
@@ -392,6 +403,9 @@ class TowerBot:
 
     def stop(self, *_: object) -> None:
         self._running = False
+        # Interrupts an in-flight self._stopping.wait() in run_forever(), so
+        # shutdown does not have to wait out whatever interval is current.
+        self._stopping.set()
 
 
 # --------------------------------------------------------------------------
@@ -675,10 +689,14 @@ def serve_web(
         # sees since the scan loop itself did not end.
         bot.stop()
         stop.set()
-        # Read now, not captured at call time: the browser may have changed
-        # the interval since startup, and the join timeout should reflect the
-        # pace the loop is actually running at.
-        worker.join(timeout=bot.controls.interval + 2.0)
+        # bot.stop() interrupts the between-scan wait immediately regardless
+        # of the current interval (see run_forever's docstring), so this
+        # join is only a backstop for a scan already in flight - not a
+        # deadline sized to the interval itself.
+        #
+        # Bounded on purpose: the browser can set the interval as high as
+        # MAX_INTERVAL, and a shutdown must not inherit that as its deadline.
+        worker.join(timeout=min(bot.controls.interval, 5.0) + 2.0)
 
 
 def main(argv: list[str] | None = None) -> int:
