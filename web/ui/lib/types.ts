@@ -16,7 +16,8 @@ export type BotEvent =
   | (EventBase & { type: "RunEnded"; run_id: number; duration: number; wave: number | null; coins: number | null; tier: number | null; abandoned: boolean })
   | (EventBase & { type: "Navigated"; target: string })
   | (EventBase & { type: "UnknownScreen"; snapshot_path: string; best_anchor: string; best_score: number })
-  | (EventBase & { type: "BotError"; message: string; traceback: string });
+  | (EventBase & { type: "BotError"; message: string; traceback: string })
+  | (EventBase & { type: "ControlChanged"; changed: Record<string, unknown>; source: string });
 
 /** A row from the `events` table, which carries columns plus a JSON blob. */
 export interface StoredEvent {
@@ -71,4 +72,14 @@ export interface Snapshot {
   name: string;
   ts: number;
   url: string;
+}
+
+export interface ControlPayload {
+  paused: boolean;
+  interval: number;
+  auto_navigate: boolean;
+  strategy: string;
+  enabled_actions: string[];
+  actions: string[];
+  strategies_available: string[];
 }

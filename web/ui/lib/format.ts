@@ -34,6 +34,12 @@ export function describe(event: BotEvent): string {
       return `UNKNWN best=${event.best_anchor} ${event.best_score.toFixed(3)}`;
     case "BotError":
       return `ERROR  ${event.message}`;
+    case "ControlChanged": {
+      const parts = Object.entries(event.changed)
+        .map(([key, value]) => `${key}=${typeof value === "string" ? value : JSON.stringify(value)}`)
+        .join(" ");
+      return `CTRL   ${parts} (${event.source})`;
+    }
     default:
       // An event type the UI predates. Showing its name beats dropping it.
       return (event as { type: string }).type;

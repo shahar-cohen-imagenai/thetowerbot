@@ -43,4 +43,13 @@ group("describe", () => {
     expect(line).toContain("MENU");
     expect(line).toContain("IN_RUN");
   });
+
+  it("renders a control change with what moved and who moved it", () => {
+    const line = describe({
+      type: "ControlChanged", seq: 4, ts: 0,
+      changed: { paused: true }, source: "web",
+    });
+    expect(line).toContain("paused=true");
+    expect(line).toContain("web");
+  });
 });
