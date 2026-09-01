@@ -28,8 +28,27 @@ async function walk(dir) {
   const found = [];
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) found.push(...(await walk(full)));
-    else if (entry.isFile()) found.push(full);
+    if (entry.isSymbolicLink()) {
+      // A symlink's Dirent is neither isFile() nor isDirectory(), so it would
+      // otherwise vanish silently. Resolve it with stat(): follow it into the
+      // hash when it points at a regular file (the bundler reads through the
+      // link, so an edit to the target changes the build and must be caught
+      // here), but do not descend into it when it points at a directory
+      // (bounds the walk and avoids a symlink cycle). Matches Python's
+      // rglob()+is_file(), which follows file symlinks but never descends
+      // into symlinked directories.
+      let resolved;
+      try {
+        resolved = await stat(full);
+      } catch {
+        continue; // broken symlink: nothing to hash
+      }
+      if (resolved.isFile()) found.push(full);
+    } else if (entry.isDirectory()) {
+      found.push(...(await walk(full)));
+    } else if (entry.isFile()) {
+      found.push(full);
+    }
   }
   return found;
 }
