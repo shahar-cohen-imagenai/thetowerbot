@@ -49,6 +49,10 @@ class Controls:
 
     def __post_init__(self) -> None:
         self._lock = threading.Lock()
+        # Copy rather than alias: a caller that keeps its reference to a
+        # set passed in as enabled_actions must not be able to mutate this
+        # object's state behind the lock and without going through apply().
+        self.enabled_actions = set(self.enabled_actions)
 
     def snapshot(self) -> dict[str, Any]:
         """A JSON-safe, detached copy. Safe to hand to a request handler."""

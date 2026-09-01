@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 import threading
 
 import pytest
@@ -17,6 +18,17 @@ def test_snapshot_is_json_safe_and_detached() -> None:
     # whole point of snapshotting is that the loop and the web thread never
     # share a mutable structure.
     snap["enabled_actions"].append("Tier")
+    assert controls.snapshot()["enabled_actions"] == ["Damage"]
+
+
+def test_constructor_does_not_alias_the_caller_s_set() -> None:
+    """A caller-supplied enabled_actions set must be copied at construction,
+    not aliased - otherwise a caller that keeps its reference can mutate
+    Controls state behind the lock and without going through apply().
+    """
+    caller_set = {"Damage"}
+    controls = Controls(enabled_actions=caller_set)
+    caller_set.add("Tier")
     assert controls.snapshot()["enabled_actions"] == ["Damage"]
 
 
@@ -68,23 +80,53 @@ def test_a_partial_patch_that_fails_late_changes_nothing() -> None:
     assert controls.snapshot()["paused"] is False
 
 
-def test_concurrent_applies_do_not_corrupt_state() -> None:
-    controls = Controls(interval=2.0)
+def test_a_multi_field_patch_is_never_observed_half_applied() -> None:
+    """apply() commits every staged field inside one lock acquisition, and
+    snapshot() reads them all inside one too - a multi-field patch is the
+    thing the lock actually protects. A writer alternates between two
+    internally-consistent pairs; a reader must never catch it mid-swap.
+    """
+    controls = Controls(paused=False, interval=5.0)
+    iterations = 5000
+    stop = threading.Event()
     errors: list[Exception] = []
 
-    def hammer(value: float) -> None:
+    # Force the interpreter to consider a thread switch far more often than
+    # its 5ms default. Two threads doing nothing but tight setattr/getattr
+    # loops rarely straddle the default switch granularity often enough to
+    # land inside a two-field write; tightening it is what makes an
+    # unlocked implementation lose reliably instead of by luck.
+    old_interval = sys.getswitchinterval()
+    sys.setswitchinterval(1e-6)
+
+    def write() -> None:
         try:
-            for _ in range(200):
-                controls.apply({"interval": value})
-                controls.snapshot()
+            for _ in range(iterations):
+                controls.apply({"paused": True, "interval": 1.0})
+                controls.apply({"paused": False, "interval": 5.0})
+        except Exception as exc:  # noqa: BLE001 - the test is what it catches
+            errors.append(exc)
+        finally:
+            stop.set()
+
+    def read() -> None:
+        try:
+            while not stop.is_set():
+                snap = controls.snapshot()
+                paused, interval = snap["paused"], snap["interval"]
+                assert (paused is True and interval == 1.0) or (
+                    paused is False and interval == 5.0
+                ), f"observed a torn pair: paused={paused!r} interval={interval!r}"
         except Exception as exc:  # noqa: BLE001 - the test is what it catches
             errors.append(exc)
 
-    threads = [threading.Thread(target=hammer, args=(v,)) for v in (1.0, 5.0)]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
+    threads = [threading.Thread(target=write), threading.Thread(target=read)]
+    try:
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+    finally:
+        sys.setswitchinterval(old_interval)
 
     assert not errors
-    assert controls.snapshot()["interval"] in (1.0, 5.0)
