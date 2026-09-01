@@ -332,6 +332,26 @@ def create_app(
             stop.set()
             return {"stopping": True}
 
+    @app.get("/api/stats")
+    def stats() -> dict:
+        # --no-store is a supported mode, not an error: empty aggregates are
+        # the honest answer, and the page renders an explicit empty state.
+        if db_path is None:
+            return {"runs": [], "taps": [], "screens": []}
+        with db.reader(db_path) as conn:
+            return {
+                "runs": db.run_stats(conn),
+                "taps": db.taps_by_action(conn),
+                "screens": db.screen_histogram(conn),
+            }
+
+    @app.get("/api/errors")
+    def errors(limit: int = 100) -> list[dict]:
+        if db_path is None:
+            return []
+        with db.reader(db_path) as conn:
+            return db.error_log(conn, limit=max(1, min(limit, 500)))
+
     # Last, deliberately. Starlette matches routes in registration order and a
     # mount at "/" matches everything, so every /api route above must already
     # be registered or the mount would swallow the whole API.

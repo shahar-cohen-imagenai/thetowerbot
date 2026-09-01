@@ -198,6 +198,65 @@ def prune_events(
     return cursor.rowcount
 
 
+def run_stats(conn: sqlite3.Connection, limit: int = 200) -> list[dict[str, Any]]:
+    """Finished runs, oldest first, with their duration precomputed.
+
+    Oldest first because every consumer is a time series; reversing a DESC
+    result in the browser is work the database already knows how to avoid.
+    """
+    rows = conn.execute(
+        """SELECT id, started_at, ended_at, wave, coins, tier, tap_count,
+                  scan_count, ended_at - started_at AS duration
+             FROM runs
+            WHERE ended_at IS NOT NULL
+            ORDER BY id DESC
+            LIMIT ?""",
+        (limit,),
+    ).fetchall()
+    return [dict(row) for row in reversed(rows)]
+
+
+def taps_by_action(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """Which upgrades actually get bought."""
+    rows = conn.execute(
+        """SELECT action, COUNT(*) AS count
+             FROM events
+            WHERE type = 'Tapped' AND action IS NOT NULL
+            GROUP BY action
+            ORDER BY count DESC"""
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def screen_histogram(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    """Where the bot spends its scans.
+
+    ScanCompleted is never stored (the run row carries scan_count instead), so
+    this counts the screens on every event that names one - which is the same
+    question and the only one this table can answer.
+    """
+    rows = conn.execute(
+        """SELECT screen, COUNT(*) AS count
+             FROM events
+            WHERE screen IS NOT NULL
+            GROUP BY screen
+            ORDER BY count DESC"""
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def error_log(conn: sqlite3.Connection, limit: int = 100) -> list[dict[str, Any]]:
+    """BotError rows, newest first, with their tracebacks decoded."""
+    rows = conn.execute(
+        """SELECT * FROM events
+            WHERE type = 'BotError'
+            ORDER BY seq DESC
+            LIMIT ?""",
+        (limit,),
+    ).fetchall()
+    return [_decode(row) for row in rows]
+
+
 def _decode(row: sqlite3.Row) -> dict[str, Any]:
     data = dict(row)
     raw = data.get("detail")
