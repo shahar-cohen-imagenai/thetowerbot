@@ -45,6 +45,7 @@ from affordability import (
     BrightnessAffordability,
     DigitAffordability,
 )
+from control import Controls
 from device import EmulatorError, Image, capture_screen, connect_device, tap
 from navigate import Navigator
 from runs import RunTracker
@@ -69,7 +70,8 @@ class TowerBot:
         bus: events.EventBus,
         click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
         affordability_check: AffordabilityCheck | None = None,
-        auto_navigate: bool = False,
+        controls: Controls | None = None,
+        checks: dict[str, AffordabilityCheck | None] | None = None,
         reader: digits.NumberReader | None = None,
         first_run_id: int = 1,
     ) -> None:
@@ -84,7 +86,16 @@ class TowerBot:
         self.snapshots = SnapshotWriter(
             config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
         )
-        self.auto_navigate = auto_navigate
+        # One source of truth for every live setting. A separate auto_navigate
+        # attribute alongside this would be two, and they would drift.
+        self.controls = controls if controls is not None else Controls()
+        # Built once, here, and never in a request handler. A None entry means
+        # that strategy is unavailable on this machine - which is what lets
+        # PATCH /api/control refuse it with a reason instead of silently
+        # handing back a different check.
+        self.checks: dict[str, AffordabilityCheck | None] = checks or {
+            self.controls.strategy: self.affordability
+        }
         self.navigator = Navigator(templates, bus)
         self.runs = RunTracker(first_run_id)
         self._screen: Image | None = None
@@ -210,6 +221,13 @@ class TowerBot:
         started run N+1 in the emulator.
         """
         started = time.monotonic()
+        # Exactly one snapshot for the whole pass. Re-reading mid-scan would
+        # let a setting change underneath a half-finished scan - the wallet
+        # read with one strategy and the price gate applied with another.
+        settings = self.controls.snapshot()
+        chosen = self.checks.get(settings["strategy"])
+        if chosen is not None:
+            self.affordability = chosen
         self.refresh_screen()
 
         reading = screens.classify(self.screen, self.templates)
@@ -275,8 +293,17 @@ class TowerBot:
         # The screen gate is hoisted out of the action loop so an idle bot
         # emits ONE skip per scan rather than one per action.
         clicked = False
-        if state is screens.ScreenState.IN_RUN:
+        if settings["paused"]:
+            # Still scanning, still reporting - just not acting. One skip per
+            # scan, not one per action, matching the screen gate below.
+            self.bus.publish(
+                events.Skipped(action="*", reason="paused", detail="paused from the dashboard")
+            )
+        elif state is screens.ScreenState.IN_RUN:
+            enabled = set(settings["enabled_actions"])
             for action in config.ACTIONS:
+                if action.name not in enabled:
+                    continue
                 if self.find_and_click_image(action):
                     clicked = True
         else:
@@ -288,7 +315,11 @@ class TowerBot:
                 )
             )
 
-        if self.auto_navigate and not self.run_cap_reached(max_runs):
+        if (
+            settings["auto_navigate"]
+            and not settings["paused"]
+            and not self.run_cap_reached(max_runs)
+        ):
             self.navigator.maybe_navigate(
                 self.screen, state, self.device, now=time.monotonic()
             )
@@ -304,10 +335,30 @@ class TowerBot:
 
     def run_forever(
         self,
-        interval: float = config.SCAN_INTERVAL_SECONDS,
+        interval: float | None = None,
         max_runs: int | None = None,
     ) -> None:
-        logger.info("Bot started - scanning every %.1fs. Ctrl+C to stop.", interval)
+        """Run scans back to back until stop() is called or max_runs is hit.
+
+        `interval` has two distinct meanings, deliberately:
+
+        - `None` (the default, and what serve_web() passes in production)
+          means the dashboard owns the pace. `self.controls.interval` is
+          re-read at the top of every iteration, so a change made from the
+          browser takes effect on the very next sleep rather than requiring a
+          restart.
+        - An explicit number is a caller override. It is used exactly as
+          given, every iteration, and deliberately never written into
+          Controls - this is the seam the tests use to run the loop without
+          sleeping (`run_forever(interval=0.0)`). Controls.apply() enforces
+          MIN_INTERVAL/MAX_INTERVAL because a browser-supplied value has to
+          be sane; a test's 0.0 is not a browser and must not be bound by
+          those rules.
+        """
+        startup_interval = self.controls.interval if interval is None else interval
+        logger.info(
+            "Bot started - scanning every %.1fs. Ctrl+C to stop.", startup_interval
+        )
         while self._running:
             # Checked before run_once(): if the limit is already reached at
             # entry, the loop must return without scanning at all, not after
@@ -315,15 +366,18 @@ class TowerBot:
             if self.run_cap_reached(max_runs):
                 logger.info("Reached --max-runs=%d, stopping.", max_runs)
                 break
+            # Re-read every iteration (when interval is None) rather than
+            # once at the top of the loop - see the docstring above.
+            current_interval = self.controls.interval if interval is None else interval
             try:
                 self.run_once(max_runs=max_runs)
             except EmulatorError as exc:
-                logger.error("Device error: %s - retrying in %.1fs", exc, interval)
+                logger.error("Device error: %s - retrying in %.1fs", exc, current_interval)
                 self._report(f"Device error: {exc}")
             except Exception as exc:  # noqa: BLE001 - one bad frame must not kill the loop
                 logger.exception("Unexpected error during scan")
                 self._report(f"Unexpected error during scan: {exc}")
-            time.sleep(interval)
+            time.sleep(current_interval)
         logger.info("Bot stopped.")
 
     def _report(self, message: str) -> None:
@@ -549,11 +603,15 @@ def serve_web(
     *,
     host: str,
     port: int,
-    interval: float,
     max_runs: int | None,
     stop: threading.Event | None = None,
 ) -> None:
     """Run the server on this thread and the scan loop beside it.
+
+    No `interval` parameter: the dashboard owns the pace once --web is on, so
+    the scan loop is started with `run_forever(interval=None)` and reads
+    `bot.controls.interval` for itself on every iteration. Passing an
+    interval here would be a second source of truth for the same value.
 
     This way round on purpose. uvicorn installs its own SIGINT/SIGTERM
     handlers and can only do that from the main thread, so it gets the main
@@ -597,7 +655,7 @@ def serve_web(
 
     def _run_loop() -> None:
         try:
-            bot.run_forever(interval=interval, max_runs=max_runs)
+            bot.run_forever(max_runs=max_runs)
         finally:
             # Whether the loop returned because it hit --max-runs or because
             # it raised, the server has nothing left to serve for - and any
@@ -617,7 +675,10 @@ def serve_web(
         # sees since the scan loop itself did not end.
         bot.stop()
         stop.set()
-        worker.join(timeout=interval + 2.0)
+        # Read now, not captured at call time: the browser may have changed
+        # the interval since startup, and the join timeout should reflect the
+        # pace the loop is actually running at.
+        worker.join(timeout=bot.controls.interval + 2.0)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -693,7 +754,9 @@ def main(argv: list[str] | None = None) -> int:
             templates=vision.TemplateCache(config.TEMPLATE_DIR),
             bus=bus,
             affordability_check=build_affordability(args.affordability),
-            auto_navigate=args.auto_navigate,
+            controls=Controls(
+                interval=args.interval, auto_navigate=args.auto_navigate, strategy=args.affordability
+            ),
             first_run_id=last_run + 1,
         )
 
@@ -720,12 +783,15 @@ def main(argv: list[str] | None = None) -> int:
             # would overwrite them anyway.
             serve_web(
                 bot, app, host=args.web_host, port=args.web_port,
-                interval=args.interval, max_runs=args.max_runs,
+                max_runs=args.max_runs,
                 stop=stop,
             )
         else:
             install_signal_handlers(bot)
-            bot.run_forever(interval=args.interval, max_runs=args.max_runs)
+            # No explicit interval: bot.controls was already seeded from
+            # args.interval above, and that stays the one source of truth for
+            # it even without --web.
+            bot.run_forever(max_runs=args.max_runs)
     finally:
         for sink in sinks:
             sink.close()

@@ -47,6 +47,18 @@ def settled_bot(fixture: str, monkeypatch: pytest.MonkeyPatch):
     return bot, rec, dev
 
 
+@pytest.fixture
+def bot_in_run(monkeypatch: pytest.MonkeyPatch):
+    """A bot settled on the IN_RUN screen, paired with its recorded events.
+
+    Reuses settled_bot's fake-device set-up so the Controls-gating tests
+    exercise the real scan loop instead of a hand-rolled stand-in.
+    """
+    bot, rec, _dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()  # ignore cooldown left over from the settling scans
+    return bot, rec.seen
+
+
 def test_game_over_does_not_tap(monkeypatch: pytest.MonkeyPatch) -> None:
     """Regression test for the originating bug.
 
@@ -245,3 +257,45 @@ def test_taps_land_on_the_buy_button_not_the_label(
             and top <= event.y <= top + template.shape[0]
         )
         assert not on_label, f"{event.action} tap landed on the info button"
+
+
+def test_paused_keeps_scanning_but_never_taps(bot_in_run) -> None:
+    """Pause must not blind the dashboard.
+
+    A paused bot that stopped reporting would blank the dashboard at the exact
+    moment you paused it to look at something, and would lose the screen
+    tracking that makes resuming safe. So it still captures, classifies and
+    publishes ScanCompleted - it just does not act.
+    """
+    bot, seen = bot_in_run
+    bot.controls.apply({"paused": True})
+
+    bot.run_once()
+
+    kinds = [event.type for event in seen]
+    assert "ScanCompleted" in kinds
+    assert "Tapped" not in kinds
+    assert any(
+        event.type == "Skipped" and event.reason == "paused" for event in seen
+    )
+
+
+def test_resuming_taps_again(bot_in_run) -> None:
+    bot, seen = bot_in_run
+    bot.controls.apply({"paused": True})
+    bot.run_once()
+    seen.clear()
+    bot.controls.apply({"paused": False})
+
+    bot.run_once()
+
+    assert any(event.type == "Tapped" for event in seen)
+
+
+def test_disabled_actions_are_not_tapped(bot_in_run) -> None:
+    bot, seen = bot_in_run
+    bot.controls.apply({"enabled_actions": []})
+
+    bot.run_once()
+
+    assert not [event for event in seen if event.type == "Tapped"]

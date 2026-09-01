@@ -146,6 +146,7 @@ def test_auto_navigate_does_not_start_a_run_past_the_cap(monkeypatch) -> None:
     import cv2
     import events
     import vision
+    from control import Controls
     from tower_bot import TowerBot
 
     fixtures = Path(__file__).parent / "fixtures"
@@ -153,7 +154,7 @@ def test_auto_navigate_does_not_start_a_run_past_the_cap(monkeypatch) -> None:
         device=MagicMock(),
         templates=vision.TemplateCache(Path(__file__).parent.parent / "templates"),
         bus=events.EventBus(),
-        auto_navigate=True,
+        controls=Controls(auto_navigate=True),
     )
     bot._screen = cv2.imread(str(fixtures / "game_over.png"), cv2.IMREAD_COLOR)
     monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
@@ -388,7 +389,9 @@ def test_web_alone_still_prints_the_dashboard_url(monkeypatch, capsys, tmp_path)
 
     monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
     monkeypatch.setattr(
-        tower_bot.TowerBot, "run_forever", lambda self, interval, max_runs: None
+        tower_bot.TowerBot,
+        "run_forever",
+        lambda self, interval=None, max_runs=None: None,
     )
     _FakeServer.instances.clear()
     monkeypatch.setattr("uvicorn.Server", _FakeServer)
@@ -419,14 +422,18 @@ def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
     """uvicorn owns the main thread; the loop must run on a worker thread,
     finish, and leave nothing behind once serve_web returns."""
     import threading
+    from types import SimpleNamespace
 
     class FakeBot:
         def __init__(self) -> None:
             self.scanned = threading.Event()
             self.stopped = False
             self.ran_on: threading.Thread | None = None
+            # serve_web reads this for the worker join timeout now that it no
+            # longer takes an interval of its own.
+            self.controls = SimpleNamespace(interval=0.01)
 
-        def run_forever(self, interval: float, max_runs: int | None) -> None:
+        def run_forever(self, interval: float | None = None, max_runs: int | None = None) -> None:
             self.ran_on = threading.current_thread()
             self.scanned.set()
 
@@ -438,7 +445,7 @@ def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
 
     bot = FakeBot()
     tower_bot.serve_web(
-        bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=None
+        bot, object(), host="127.0.0.1", port=8123, max_runs=None
     )
 
     assert bot.scanned.wait(timeout=2)
@@ -463,12 +470,16 @@ def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None
     just should_exit, or a held-open dashboard tab keeps the server (and the
     scan loop behind it, as far as the user can tell) alive forever."""
     import threading as _threading
+    from types import SimpleNamespace
 
     class FakeBot:
         def __init__(self) -> None:
             self.stopped = False
+            # serve_web reads this for the worker join timeout now that it no
+            # longer takes an interval of its own.
+            self.controls = SimpleNamespace(interval=0.01)
 
-        def run_forever(self, interval: float, max_runs: int | None) -> None:
+        def run_forever(self, interval: float | None = None, max_runs: int | None = None) -> None:
             return  # simulates --max-runs being reached immediately
 
         def stop(self) -> None:
@@ -481,7 +492,7 @@ def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None
     stop = _threading.Event()
     # Must return promptly rather than hang - that is the whole bug.
     tower_bot.serve_web(
-        bot, object(), host="127.0.0.1", port=8123, interval=0.01, max_runs=1,
+        bot, object(), host="127.0.0.1", port=8123, max_runs=1,
         stop=stop,
     )
 
