@@ -52,7 +52,11 @@ class FrameBuffer:
             return [dict(box) for box in self._boxes]
 
     def latest(self) -> tuple[int, bytes] | None:
-        """The current frame number and its JPEG bytes, or None if never fed.
+        """The current frame number and its JPEG bytes.
+
+        Returns None if the buffer has never been fed a frame, or if the most
+        recent encode attempt failed - the latter is self-healing, since a
+        failed encode never poisons the cache and the next call retries.
 
         Returns the identical bytes object on repeat calls for one frame, which
         is what makes "one encode per frame" observable in a test and true in

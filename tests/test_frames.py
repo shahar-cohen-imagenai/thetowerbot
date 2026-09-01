@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import threading
+import time
+from unittest import mock
 
+import cv2
 import numpy as np
 
 from frames import FrameBuffer
@@ -72,7 +75,18 @@ def test_boxes_are_detached_copies() -> None:
     assert len(buffer.boxes()) == 1
 
 
-def test_concurrent_publish_and_read_do_not_tear() -> None:
+def test_concurrent_publish_and_read_do_not_crash() -> None:
+    """Smoke check only: hammers publish()/latest() from two threads and
+    requires no exception and no malformed JPEG header.
+
+    This does NOT prove the encode-outside-the-lock race is handled
+    correctly: every field it touches (_frame, _number, _boxes, _encoded) is
+    only ever whole-object reference-swapped, and the GIL already makes a
+    single attribute read/write atomic, so there is no torn state for this
+    test to observe even with no lock at all. See
+    test_returned_pair_is_self_consistent_under_forced_interleaving for the
+    test that actually forces and checks the race the re-check exists for.
+    """
     buffer = FrameBuffer()
     errors: list[Exception] = []
 
@@ -98,3 +112,84 @@ def test_concurrent_publish_and_read_do_not_tear() -> None:
     for thread in threads:
         thread.join()
     assert not errors
+
+
+def test_a_slow_stale_encode_does_not_evict_a_fresher_cache_entry() -> None:
+    """Force the exact interleaving the re-check in latest() exists for: a
+    late-finishing encode of an OLD frame returning AFTER a NEWER frame has
+    already been encoded and cached.
+
+    Note what this is not: the (number, payload) pair returned by any single
+    latest() call is self-consistent by construction in every code path -
+    frame and number are captured together, under the lock, before encoding
+    ever starts - so removing the re-check cannot make one call return
+    mismatched number/bytes (confirmed by hand-trace, and by running that
+    assertion against the re-check removed: it still passes). What the
+    re-check actually guards is the CACHE for *later* callers: without it, a
+    slow reader's stale write clobbers an already-valid cache entry for the
+    current frame, forcing a needless re-encode and breaking the "one encode
+    per frame, however many readers" guarantee for everyone after it.
+
+    cv2.imencode is monkeypatched so only its first invocation - the one
+    that will encode the about-to-be-superseded frame - blocks before
+    returning, until told to proceed. That guarantees the interleaving lands:
+    the slow reader is inside its encode when the newer frame is published,
+    encoded, and cached, and only then is it allowed to finish and race to
+    write.
+    """
+    buffer = FrameBuffer()
+    buffer.publish(a_frame(1))
+
+    real_imencode = cv2.imencode
+    call_count = 0
+    entered_first_call = threading.Event()
+    first_call_may_return = threading.Event()
+
+    def gated_imencode(ext: str, img: np.ndarray, params: list[int]):
+        nonlocal call_count
+        call_count += 1
+        is_first_call = call_count == 1
+        if is_first_call:
+            entered_first_call.set()
+        result = real_imencode(ext, img, params)
+        if is_first_call:
+            first_call_may_return.wait(timeout=2)
+        return result
+
+    with mock.patch.object(cv2, "imencode", gated_imencode):
+        stale_result: list[tuple[int, bytes] | None] = [None]
+
+        def stale_reader() -> None:
+            stale_result[0] = buffer.latest()
+
+        reader_thread = threading.Thread(target=stale_reader)
+        reader_thread.start()
+        assert entered_first_call.wait(timeout=2), "stale reader never started encoding"
+
+        # A newer frame lands and gets encoded and cached first, while the
+        # stale reader above is still blocked mid-encode of the old one.
+        buffer.publish(a_frame(2))
+        fresh_first = buffer.latest()
+        fresh_second = buffer.latest()
+        assert fresh_first is not None and fresh_second is not None
+        assert fresh_first[1] is fresh_second[1]  # ordinary cache hit
+
+        # Now let the stale encoder finish and race to write its result.
+        first_call_may_return.set()
+        reader_thread.join()
+
+        assert stale_result[0] is not None
+        assert stale_result[0][0] == 1  # its own return is still self-consistent
+
+        # The property under test: a later read of the CURRENT frame must
+        # still be the object already cached above - the stale finisher must
+        # not have evicted it and forced a needless re-encode.
+        fresh_third = buffer.latest()
+        assert fresh_third is not None
+        assert fresh_third[1] is fresh_second[1], (
+            "a late-finishing encode of the superseded frame evicted the "
+            "current frame's cached bytes, forcing a needless re-encode"
+        )
+        assert call_count == 2, (
+            f"expected exactly one imencode call per frame (2 total), got {call_count}"
+        )
