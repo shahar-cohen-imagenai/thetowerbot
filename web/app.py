@@ -19,6 +19,7 @@ from typing import AsyncIterator, Awaitable, Callable
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 
 import config
 import db
@@ -132,12 +133,6 @@ def create_app(
 
     app = FastAPI(title="The Tower bot")
 
-    @app.get("/", response_class=HTMLResponse)
-    def dashboard() -> str:
-        # Read per request rather than cached at import: editing the page and
-        # hitting refresh is the whole development loop for it.
-        return (STATIC_DIR / "index.html").read_text(encoding="utf-8")
-
     @app.get("/api/status")
     def status() -> dict:
         payload = state.snapshot()
@@ -194,5 +189,23 @@ def create_app(
         if path.parent != unknown_dir.resolve() or not path.is_file():
             raise HTTPException(status_code=404, detail="no such snapshot")
         return FileResponse(path, media_type="image/png")
+
+    # Last, deliberately. Starlette matches routes in registration order and a
+    # mount at "/" matches everything, so every /api route above must already
+    # be registered or the mount would swallow the whole API.
+    #
+    # html=True resolves "/runs/" to "runs/index.html", which is the layout
+    # next.config.ts's trailingSlash:true produces.
+    if STATIC_DIR.is_dir():
+        app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="ui")
+    else:
+        @app.get("/", response_class=HTMLResponse)
+        def not_built() -> str:
+            # Only reachable in a working tree whose build was deleted; the
+            # committed web/static/ means a fresh clone never sees this.
+            return (
+                "<h1>Dashboard not built</h1>"
+                "<p>Run <code>npm run build</code> in <code>web/ui</code>.</p>"
+            )
 
     return app
