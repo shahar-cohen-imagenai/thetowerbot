@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import threading
 from pathlib import Path
 
@@ -12,6 +13,7 @@ import config
 from events import EventBus
 from sinks.sse import SseSink
 from sinks.state import BotState
+from tools.ui_manifest import ui_hash
 from web.app import create_app
 
 STATIC_DIR = Path(__file__).parent.parent / "web" / "static"
@@ -53,3 +55,22 @@ def test_api_routes_still_win_over_the_static_mount(client: TestClient) -> None:
     response = client.get("/api/status")
     assert response.status_code == 200
     assert "screen" in response.json()
+
+
+UI_DIR = Path(__file__).parent.parent / "web" / "ui"
+
+
+def test_committed_build_matches_the_ui_sources() -> None:
+    """The committed build is not stale.
+
+    Committing build output buys `git clone && --web` with no node, and costs
+    exactly one new failure mode: source edited, build not rerun, stale bundle
+    shipped. This is that failure mode's test.
+    """
+    manifest_path = STATIC_DIR / ".build-manifest.json"
+    assert manifest_path.is_file(), "no build manifest - run `npm run build` in web/ui"
+    recorded = json.loads(manifest_path.read_text(encoding="utf-8"))["hash"]
+    assert recorded == ui_hash(UI_DIR), (
+        "web/static/ is stale against web/ui/ - run `npm run build` in web/ui "
+        "and commit the result"
+    )
