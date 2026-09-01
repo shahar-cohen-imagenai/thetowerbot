@@ -28,11 +28,13 @@ from tempfile import mkdtemp
 from typing import Any
 
 import httpx2 as httpx
+import numpy as np
 import uvicorn
 
 import control
 import db
 import events
+from frames import FrameBuffer
 from sinks.sse import SseSink
 from sinks.state import BotState, StateSink
 from web.app import create_app
@@ -47,6 +49,11 @@ results: list[tuple[str, bool, str]] = []
 
 def check(label: str, ok: bool, detail: str = "") -> None:
     results.append((label, ok, detail))
+
+
+def a_frame() -> np.ndarray:
+    """A frame worth publishing - just needs to be real enough to encode."""
+    return np.full((80, 60, 3), 128, dtype=np.uint8)
 
 
 def seeded_database(directory: Path) -> Path:
@@ -89,8 +96,15 @@ def check_routes(db_path: Path, unknown: Path) -> None:
     bus.subscribe(state_sink)
     bus.subscribe(sse)
 
+    # A published frame, or /api/frame.jpg and /api/frame would both 404
+    # here and every check below them would pass without ever touching the
+    # MJPEG endpoint - which is exactly what this file's docstring says no
+    # test can otherwise observe.
+    frames = FrameBuffer()
+    frames.publish(a_frame())
+
     app = create_app(state=state, sse=sse, bus=bus, db_path=db_path,
-                     unknown_dir=unknown)
+                     unknown_dir=unknown, frames=frames)
     server = serve(app, ROUTES_PORT)
 
     bus.publish(events.ScanCompleted(screen="IN_RUN", duration_ms=91.0, wallet=450))
@@ -126,6 +140,20 @@ def check_routes(db_path: Path, unknown: Path) -> None:
         check("a snapshot is served as a png",
               r.status_code == 200 and r.headers["content-type"] == "image/png",
               r.headers.get("content-type", ""))
+
+        r = c.get("/api/frame.jpg")
+        check("GET /api/frame.jpg serves the still",
+              r.status_code == 200 and r.headers["content-type"] == "image/jpeg",
+              f"{r.status_code} {r.headers.get('content-type')}")
+
+        with c.stream("GET", "/api/frame") as r:
+            check("GET /api/frame sets the MJPEG content-type",
+                  r.headers["content-type"].startswith("multipart/x-mixed-replace"),
+                  r.headers.get("content-type", ""))
+            chunk = next(r.iter_bytes())
+        check("the MJPEG stream sends a boundary-delimited part",
+              chunk.startswith(b"--frame") and b"image/jpeg" in chunk,
+              chunk[:80])
 
         seen: list[dict] = []
         ids: list[str] = []
@@ -167,20 +195,30 @@ def check_routes(db_path: Path, unknown: Path) -> None:
     state_sink.close()
 
 
-def shutdown_seconds(db_path: Path, *, hold_stream: bool, set_flag: bool) -> float:
-    """Time server.run()'s return after the scan loop ends. -1.0 means it hung."""
+def shutdown_seconds(db_path: Path, *, path: str, set_flag: bool) -> float:
+    """Time server.run()'s return after the scan loop ends. -1.0 means it hung.
+
+    `path` is whatever GET request to hold open across the shutdown -
+    "/api/status" for a plain, non-streaming request (the control case),
+    "/api/events/stream" or "/api/frame" to hold one of the two streams
+    open instead. Both streams share the same `stop`-watching shape (see
+    event_stream() and frame_stream() in web/app.py), so one function
+    covers both rather than a second copy of this harness for MJPEG.
+    """
     state, sse, bus = BotState(), SseSink(), events.EventBus()
     bus.subscribe(sse)
+    frames = FrameBuffer()
+    frames.publish(a_frame())
     stop = threading.Event()
     app = create_app(state=state, sse=sse, bus=bus, db_path=db_path,
-                     unknown_dir=db_path.parent / "unknown", stop=stop)
+                     unknown_dir=db_path.parent / "unknown", stop=stop,
+                     frames=frames)
     server = serve(app, SHUTDOWN_PORT)
 
     # Watch the serving thread itself: it ends exactly when run() returns.
     serving = [t for t in threading.enumerate() if t.name == f"uvicorn-{SHUTDOWN_PORT}"][0]
 
     sock = socket.create_connection((HOST, SHUTDOWN_PORT), timeout=5)
-    path = "/api/events/stream" if hold_stream else "/api/status"
     sock.sendall(f"GET {path} HTTP/1.1\r\nHost: localhost\r\n\r\n".encode())
     sock.recv(200)  # headers are out; a stream's response stays open
     bus.publish(events.Navigated(target="RETRY"))
@@ -294,13 +332,17 @@ def main() -> int:
     check_routes(db_path, unknown)
 
     # The regression that motivated this file. A stream held open must not stop
-    # the process from exiting once the scan loop is done.
-    for label, hold, flag in (
-        ("a plain request (control)", False, True),
-        ("an SSE stream held open", True, True),
-        ("a stream open, stop flag suppressed (backstop only)", True, False),
+    # the process from exiting once the scan loop is done - for either stream:
+    # /api/events/stream (SSE) and /api/frame (MJPEG) share the same
+    # `stop`-watching shape, and only the former used to be exercised here.
+    for label, path, flag in (
+        ("a plain request (control)", "/api/status", True),
+        ("an SSE stream held open", "/api/events/stream", True),
+        ("an SSE stream, stop flag suppressed (backstop only)", "/api/events/stream", False),
+        ("an MJPEG stream held open", "/api/frame", True),
+        ("an MJPEG stream, stop flag suppressed (backstop only)", "/api/frame", False),
     ):
-        elapsed = shutdown_seconds(db_path, hold_stream=hold, set_flag=flag)
+        elapsed = shutdown_seconds(db_path, path=path, set_flag=flag)
         check(f"shutdown with {label}", elapsed >= 0.0,
               "did not return within 20s")
         if elapsed >= 0.0:

@@ -239,8 +239,13 @@ instead of a coordinate-mapping problem in two languages.
 
 ## 6. Aggregates and errors
 
-New query functions in `db.py`, as SQL aggregates against the existing
-`events_ts_idx` and `events_run_idx` — not Python loops over `list_runs()`:
+New query functions in `db.py`, as SQL aggregates — not Python loops over
+`list_runs()`. `EXPLAIN QUERY PLAN` shows these as full table scans plus a
+temp B-tree for the `GROUP BY`: neither `events_ts_idx` nor `events_run_idx`
+serves a `WHERE type = ?` or `WHERE screen IS NOT NULL` filter or a
+`GROUP BY action` / `GROUP BY screen`. Measured 43–205ms at 1.3M rows, which
+is fine for a loopback dashboard page — acceptable at this table size, not
+something worth a dedicated index for.
 
 | Function | Answers |
 |---|---|

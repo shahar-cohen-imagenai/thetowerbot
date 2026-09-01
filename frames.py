@@ -47,6 +47,20 @@ class FrameBuffer:
         with self._lock:
             self._boxes.append(dict(box))
 
+    def set_boxes(self, boxes: list[dict[str, Any]]) -> None:
+        """Replace every box for the current frame in one atomic swap.
+
+        The caller collects a whole scan's matches locally and hands them
+        over here once, rather than calling add_box() as each is found: a
+        reader between two add_box() calls would catch the frame half
+        described - one box out of four, say - which reads as the overlay
+        randomly blinking empty. publish() still clears _boxes up front for
+        a scan that ends early (an exception before this is ever called),
+        so a stale full set from the previous scan is never shown either.
+        """
+        with self._lock:
+            self._boxes = [dict(box) for box in boxes]
+
     def mark_tapped(self, name: str) -> None:
         """Flag a recorded box as the one that was actually tapped."""
         with self._lock:

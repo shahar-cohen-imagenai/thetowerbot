@@ -298,12 +298,14 @@ dashboard together. Every change goes through the same `Controls.apply()`
 validation a CLI flag would get, and every tab converges on the current
 settings live, over the same SSE feed.
 
-> **The dashboard has no authentication.** It serves a live view of the
-> device, this machine's entire event history, and its control page lets
-> anyone who can reach the port pause the bot, change what it buys, or stop
-> it outright — which is why it binds loopback. `--web-host` will let you
-> bind something else, and the bot logs a warning when you do, but it will
-> not stop you. Do not put it on a network without real auth in front of it.
+> **The dashboard has no authentication.** It serves a continuous MJPEG
+> video stream of the device (`/api/frame`), not just JSON history and
+> screenshots, plus this machine's entire event history, and its control
+> page lets anyone who can reach the port pause the bot, change what it
+> buys, or stop it outright — which is why it binds loopback. `--web-host`
+> will let you bind something else, and the bot logs a warning when you do,
+> but it will not stop you. Do not put it on a network without real auth in
+> front of it.
 
 Ctrl+C stops both the bot and the dashboard, as does reaching `--max-runs` or
 clicking **Stop** on the control page.

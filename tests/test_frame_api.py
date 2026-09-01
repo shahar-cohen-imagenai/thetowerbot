@@ -34,7 +34,26 @@ def wired() -> tuple[TestClient, FrameBuffer, threading.Event]:
 
 def test_still_is_404_before_the_first_scan(wired) -> None:
     client, _, _ = wired
-    assert client.get("/api/frame.jpg").status_code == 404
+    response = client.get("/api/frame.jpg")
+    assert response.status_code == 404
+    # Distinct from the no-buffer-at-all case below: a frame is on its way,
+    # just not captured yet.
+    assert response.json()["detail"] == "no frame captured yet"
+
+
+def test_still_is_404_with_a_distinct_reason_when_there_is_no_frame_buffer() -> None:
+    """--once, --tui, or plain logging never construct a FrameBuffer at all.
+    That is a different fact than a buffer that simply has nothing in it yet
+    (see test_still_is_404_before_the_first_scan), and frame_still() must
+    not conflate the two the way it once did."""
+    app = create_app(
+        state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
+        unknown_dir=config.UNKNOWN_DIR,
+    )
+    client = TestClient(app)
+    response = client.get("/api/frame.jpg")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "no frame buffer"
 
 
 def test_still_serves_a_jpeg(wired) -> None:

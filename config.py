@@ -232,6 +232,12 @@ SSE_POLL_SECONDS: float = 0.25
 # An idle stream sends a comment this often so proxies and browsers do not
 # decide the connection died.
 SSE_HEARTBEAT_SECONDS: float = 15.0
+# How often the MJPEG stream checks whether a new frame has been published.
+# Same reasoning as SSE_POLL_SECONDS: a quarter second against a 2s scan
+# interval is imperceptible, and frame_stream only actually sends when the
+# frame number has moved, so a faster poll here would not deliver frames any
+# sooner anyway.
+FRAME_POLL_SECONDS: float = 0.25
 
 # --- Web dashboard --------------------------------------------------------
 # SECURITY: loopback only, and there is no auth. The dashboard serves

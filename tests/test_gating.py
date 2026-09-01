@@ -128,6 +128,40 @@ def test_recorded_boxes_carry_the_buy_point_not_the_label_origin(
         assert (box["tap_x"], box["tap_y"]) != (box["x"], box["y"])
 
 
+def test_boxes_are_swapped_in_atomically_not_added_incrementally(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """run_once() must hand the whole scan's boxes to FrameBuffer in one
+    set_boxes() call, not build them up with per-match add_box() calls - the
+    latter is exactly the window a reader could catch mid-scan with only
+    some of the frame's matches visible (see test_frames.py for the direct
+    FrameBuffer-level regression test)."""
+    from frames import FrameBuffer
+
+    bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
+    bot._last_click.clear()
+    bot.frames = FrameBuffer()
+    bot.frames.publish(bot._screen)
+
+    calls: list[str] = []
+    monkeypatch.setattr(
+        bot.frames, "add_box",
+        lambda box: calls.append("add_box"),
+    )
+    real_set_boxes = bot.frames.set_boxes
+
+    def spy_set_boxes(boxes: list[dict]) -> None:
+        calls.append("set_boxes")
+        real_set_boxes(boxes)
+
+    monkeypatch.setattr(bot.frames, "set_boxes", spy_set_boxes)
+
+    bot.run_once()
+
+    assert calls == ["set_boxes"], calls
+    assert len(bot.frames.boxes()) == 4
+
+
 def test_brightness_gate_rejects_dimmed_regions() -> None:
     """Direct coverage of BrightnessAffordability, which the full-loop
     game-over test never reaches because screen gating fires first."""

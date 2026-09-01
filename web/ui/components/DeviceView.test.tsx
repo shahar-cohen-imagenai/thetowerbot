@@ -60,10 +60,11 @@ group("DeviceView", () => {
     expect(screen.getByAltText("device screen")).toBeDefined();
   });
 
-  it("renders the image with no boxes when frame_size is null", () => {
+  it("shows a waiting state instead of a blank image before the first frame", () => {
     render(<DeviceView boxes={[matched, tapped]} size={null} />);
 
-    expect(screen.getByAltText("device screen")).toBeDefined();
+    expect(screen.getByText(/Waiting for the first frame/)).toBeDefined();
+    expect(screen.queryByAltText("device screen")).toBeNull();
     expect(screen.queryByTitle(/Damage/)).toBeNull();
     expect(screen.queryByTitle(/Health/)).toBeNull();
   });

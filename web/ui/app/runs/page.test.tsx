@@ -45,4 +45,16 @@ group("RunsPage", () => {
 
     searchParams.delete("id");
   });
+
+  it("shows a not-found state for an id with no matching run", async () => {
+    searchParams.set("id", "999");
+    render(<RunsPage />);
+
+    await screen.findByText("Run #999");
+    await screen.findByText("No such run.");
+    // Indistinguishable-from-real-empty-run tiles/feed must not render either.
+    expect(screen.queryByText("12")).toBeNull();
+
+    searchParams.delete("id");
+  });
 });

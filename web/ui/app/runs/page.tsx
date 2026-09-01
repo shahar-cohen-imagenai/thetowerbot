@@ -16,10 +16,19 @@ function Runs() {
   const selected = params.get("id");
 
   const [runs, setRuns] = useState<RunRow[]>([]);
+  // Distinguishes "haven't heard back yet" from "heard back, no such run":
+  // `runs` alone can't tell the two apart, since both start out empty.
+  // Without this, /runs/?id=999 briefly - and then permanently, since the
+  // fetch always resolves to the same empty match - looks identical to a
+  // real run with no stored events.
+  const [runsLoaded, setRunsLoaded] = useState(false);
   const [events, setEvents] = useState<StoredEvent[]>([]);
 
   useEffect(() => {
-    fetchRuns(200).then(setRuns).catch(() => setRuns([]));
+    fetchRuns(200)
+      .then(setRuns)
+      .catch(() => setRuns([]))
+      .finally(() => setRunsLoaded(true));
   }, []);
 
   useEffect(() => {
@@ -49,8 +58,14 @@ function Runs() {
                 </div>
               ))}
             </div>
+          ) : runsLoaded ? (
+            // Otherwise indistinguishable from a real run with no stored
+            // events: no tiles and an empty feed either way.
+            <p className="text-sm text-muted-foreground">No such run.</p>
           ) : null}
-          <EventFeed events={events.map((row) => ({ ...row, ...row.detail }) as unknown as BotEvent)} />
+          {run || !runsLoaded ? (
+            <EventFeed events={events.map((row) => ({ ...row, ...row.detail }) as unknown as BotEvent)} />
+          ) : null}
         </>
       ) : (
         <RunTable runs={runs} onSelect={(id) => router.push(`/runs/?id=${id}`)} />

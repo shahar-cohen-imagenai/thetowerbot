@@ -27,7 +27,7 @@ import time
 import traceback
 from pathlib import Path
 from types import FrameType
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from adbutils import AdbDevice
 
@@ -131,11 +131,21 @@ class TowerBot:
         return self._screen
 
     # -- the core helper ---------------------------------------------------
-    def find_and_click_image(self, action: config.Action) -> bool:
+    def find_and_click_image(
+        self, action: config.Action, boxes: list[dict[str, Any]] | None = None
+    ) -> bool:
         """Find the action's template on the current screen and tap it.
 
         Rejects are ordered cheapest-first (spec section 7): screen, then
         match score, then brightness, then cooldown.
+
+        `boxes`, when given, collects this match for the overlay - a plain
+        local list owned by run_once() for the whole scan, not FrameBuffer
+        directly. run_once() hands the finished list to frames.set_boxes()
+        in one atomic swap once every action has been tried, rather than
+        each match landing in the buffer the instant it is found: a reader
+        between two such landings would catch the frame's matches only
+        partially drawn.
         """
         # `cooldown_key` is purely internal - a stable per-template handle
         # for `_last_click`. `name` is what leaves the class: it is what
@@ -163,11 +173,12 @@ class TowerBot:
         # front, so the box recorded below and the eventual tap agree.
         tap_x, tap_y = config.buy_point(match.top_left)
 
-        if self.frames is not None:
+        box: dict[str, Any] | None = None
+        if boxes is not None:
             # Recorded whether or not the tap happens, because "matched but
             # rejected" is exactly what you open the device view to see.
             height, width = template.shape[:2]
-            self.frames.add_box({
+            box = {
                 "name": name,
                 "x": int(match.top_left[0]),
                 "y": int(match.top_left[1]),
@@ -177,7 +188,8 @@ class TowerBot:
                 "tap_y": int(tap_y),
                 "score": float(match.score),
                 "tapped": False,
-            })
+            }
+            boxes.append(box)
 
         ok, detail = self.affordability.affordable(
             self.screen, match, template, action
@@ -214,8 +226,15 @@ class TowerBot:
                 wallet=self.affordability.last_wallet,
             )
         )
-        if self.frames is not None:
-            self.frames.mark_tapped(name)
+        if box is not None:
+            # `box` is still the same dict already appended to `boxes` above
+            # - the swap into FrameBuffer has not happened yet, so there is
+            # nothing there yet for mark_tapped() to find by name. Flipping
+            # the local dict in place is what mark_tapped() would do to it
+            # once it is FrameBuffer's; FrameBuffer.mark_tapped() itself
+            # stays available for a caller that already holds published
+            # boxes (see its own tests).
+            box["tapped"] = True
         return True
 
     # -- the death modal ---------------------------------------------------
@@ -334,6 +353,12 @@ class TowerBot:
         # The screen gate is hoisted out of the action loop so an idle bot
         # emits ONE skip per scan rather than one per action.
         clicked = False
+        # Collected locally and swapped into `frames` in one atomic call
+        # once the loop below is done, rather than each match landing there
+        # the instant it is found - see FrameBuffer.set_boxes(). Stays empty
+        # here whenever the loop below does not run (paused, screen-gated),
+        # matching add_box() never having been called in those cases before.
+        boxes: list[dict[str, Any]] = []
         if settings["paused"]:
             # Still scanning, still reporting - just not acting. One skip per
             # scan, not one per action, matching the screen gate below.
@@ -345,7 +370,7 @@ class TowerBot:
             for action in config.ACTIONS:
                 if action.name not in enabled:
                     continue
-                if self.find_and_click_image(action):
+                if self.find_and_click_image(action, boxes):
                     clicked = True
         else:
             self.bus.publish(
@@ -355,6 +380,9 @@ class TowerBot:
                     detail=f"screen is {state.value}",
                 )
             )
+
+        if self.frames is not None:
+            self.frames.set_boxes(boxes)
 
         if (
             settings["auto_navigate"]

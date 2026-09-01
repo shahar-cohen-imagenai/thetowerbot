@@ -126,7 +126,7 @@ async def frame_stream(
     is_disconnected: Callable[[], Awaitable[bool]],
     *,
     stop: threading.Event,
-    poll: float = 0.25,
+    poll: float = config.FRAME_POLL_SECONDS,
 ) -> AsyncIterator[bytes]:
     """MJPEG: one connection, rendered natively by a plain <img>.
 
@@ -258,7 +258,14 @@ def create_app(
 
     @app.get("/api/frame.jpg")
     def frame_still() -> Response:
-        current = frames.latest() if frames is not None else None
+        # Same distinction frame_mjpeg already makes: no buffer at all (this
+        # process was never given one - --once, --tui, or plain logging) is
+        # a different fact than a buffer that simply has not been fed a
+        # frame yet, and deserves its own message rather than one that
+        # implies a frame is merely still on its way.
+        if frames is None:
+            raise HTTPException(status_code=404, detail="no frame buffer")
+        current = frames.latest()
         if current is None:
             raise HTTPException(status_code=404, detail="no frame captured yet")
         return Response(content=current[1], media_type="image/jpeg",
