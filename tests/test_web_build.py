@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import threading
 from pathlib import Path
 
@@ -73,4 +74,24 @@ def test_committed_build_matches_the_ui_sources() -> None:
     assert recorded == ui_hash(UI_DIR), (
         "web/static/ is stale against web/ui/ - run `npm run build` in web/ui "
         "and commit the result"
+    )
+
+
+EVENT_REDUCER_PATH = UI_DIR / "lib" / "eventReducer.ts"
+
+
+def test_feed_limit_matches_the_sse_ring_size() -> None:
+    """web/ui/lib/eventReducer.ts's FEED_LIMIT and config.SSE_RING_SIZE are two
+    hardcoded constants in two languages with nothing tying them together.
+    Change either alone and nothing else fails - the drift would only show up
+    as a subtly wrong feed length in a browser. This is that invariant's test.
+    """
+    source = EVENT_REDUCER_PATH.read_text(encoding="utf-8")
+    match = re.search(r"FEED_LIMIT\s*=\s*(\d+)", source)
+    assert match, f"could not find FEED_LIMIT in {EVENT_REDUCER_PATH}"
+    feed_limit = int(match.group(1))
+    assert feed_limit == config.SSE_RING_SIZE, (
+        f"FEED_LIMIT in {EVENT_REDUCER_PATH} ({feed_limit}) does not match "
+        f"config.SSE_RING_SIZE in config.py ({config.SSE_RING_SIZE}) - "
+        "the browser's feed cap must match the server's SSE ring size"
     )
