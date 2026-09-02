@@ -116,6 +116,52 @@ def test_patching_the_action_list_reorders_the_strategy(wired) -> None:
     assert body["strategy"]["affordability"] == "brightness"
 
 
+def test_an_absolute_template_is_refused(wired) -> None:
+    """The request body must not get to choose which file the bot reads.
+
+    vision.TemplateCache.get() hands its path straight to cv2.imread, and an
+    unresolvable one raises out of every scan pass forever - so this has to
+    fail once, here, with a field name, rather than recurring as a BotError.
+    """
+    client, controls, seen, _ = wired
+    before = controls.snapshot().strategy
+    response = client.patch("/api/control", json={"actions": [
+        {"name": "Damage", "template": "/etc/passwd"},
+    ]})
+    assert response.status_code == 422
+    assert "template" in response.json()["detail"]
+    assert controls.snapshot().strategy == before
+    assert not [event for event in seen if event.type == "ControlChanged"]
+
+
+def test_a_template_that_is_not_on_disk_is_refused(wired) -> None:
+    # Inside TEMPLATE_DIR but absent: a typo must be a 422 naming the field,
+    # not a bot that runs and fails on every pass.
+    client, controls, _, _ = wired
+    before = controls.snapshot().strategy
+    response = client.patch("/api/control", json={"actions": [
+        {"name": "Damage", "template": "nope.png"},
+    ]})
+    assert response.status_code == 422
+    assert "nope.png" in response.json()["detail"]
+    assert controls.snapshot().strategy == before
+
+
+def test_a_real_template_still_patches(wired) -> None:
+    # The other half of the check above: refusing everything would "fix" the
+    # traversal by breaking the feature.
+    client, controls, _, _ = wired
+    real = config.ACTIONS[0].template
+    response = client.patch("/api/control", json={"actions": [
+        {"name": "Damage", "template": real, "threshold": 0.9},
+    ]})
+    assert response.status_code == 200
+    rows = controls.snapshot().strategy.actions
+    assert [(r.name, r.template, r.threshold) for r in rows] == [
+        ("Damage", real, 0.9)
+    ]
+
+
 def test_an_invalid_patch_names_the_field(wired) -> None:
     client, _, _, _ = wired
     response = client.patch("/api/control", json={"interval": 0})

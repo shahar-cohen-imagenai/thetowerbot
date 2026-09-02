@@ -328,6 +328,22 @@ def create_app(
                 )
 
             try:
+                if "actions" in requested:
+                    # Controls.apply() validates everything a Strategy can
+                    # know about itself, which does not include whether a
+                    # template is a real file inside TEMPLATE_DIR - that is
+                    # disk I/O, and control.py is imported by the scan loop
+                    # and must stay I/O-free. So the filesystem half runs
+                    # here. Without it a request body chooses which file
+                    # cv2.imread opens, and an unresolvable template raises
+                    # out of every single scan pass, forever, instead of
+                    # once as the 422 below.
+                    #
+                    # Yes, this merges twice - once to validate, once inside
+                    # apply(). merged() is pure and this runs once per
+                    # request rather than once per scan, so the duplicate
+                    # costs nothing that matters.
+                    controls.snapshot().strategy.merged(requested).validated()
                 changed = controls.apply(requested)
             except ControlError as exc:
                 raise HTTPException(status_code=422, detail=f"{exc.field}: {exc}") from exc
