@@ -12,6 +12,13 @@
 
 **Depends on:** plan 1 (`2026-09-02-strategy-1-model-and-store.md`) — `Strategy`, `ActionRule`, `ControlError` and `StrategyStore` must exist.
 
+> **Drift from plan 1 as built.** Plan 1's final review changed three things this plan assumes:
+> - `ControlError.__init__` is now `(field: str, message: str, code: str = "invalid")`, with `code` naming the *kind* of failure (`"not_found"`, `"conflict"`, `"invalid"`) so an HTTP layer maps it without reading messages. `control.py`'s re-export must carry the class itself, so the attribute comes along for free — but any `ControlError(...)` raised in `control.py` should pass a `code` where one of the non-default kinds applies.
+> - `ActionRule.__post_init__` and `Strategy.__post_init__` now type-check their scalar fields (rejecting `enabled="no"`, `interval=True`, and friends). `_parse_actions` in this plan therefore gets that checking for free and must not duplicate it.
+> - `StrategyStore.path_for_exists` was renamed `exists`.
+>
+> **Open question this plan should settle:** `_parse_actions` here re-implements per-row parsing that `Strategy.from_dict` already does, and better. Consider putting a `Strategy.merged(patch: Mapping) -> Strategy` on `strategy.py` and calling it from `apply()`, rather than keeping two row-parsers that can drift. Task 1's implementer should weigh this and say which they chose and why.
+
 ## Global Constraints
 
 - Every function and method carries type hints; `from __future__ import annotations` at the top of every module.

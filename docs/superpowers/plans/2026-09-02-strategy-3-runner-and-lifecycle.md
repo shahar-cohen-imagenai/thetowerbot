@@ -1231,7 +1231,15 @@ Expected: FAIL — `create_app() got an unexpected keyword argument 'store'`
 
 - [ ] **Step 3: Add the routes**
 
-Add `store: StrategyStore | None = None` to `create_app`'s signature and `from strategy import ControlError as StrategyError, Strategy, StrategyStore` to its imports (the existing `from control import ControlError` already covers the same class — they are the same object after plan 2's re-export, so import it once and use one name).
+Add this mapping beside `MAX_RUNS_PER_PAGE` at module scope in `web/app.py`, so every route that catches a `ControlError` maps it the same way:
+
+```python
+# strategy.ControlError carries a `code` naming the KIND of failure, so the
+# routes below map a status without matching on message text.
+_STATUS_FOR_CODE = {"not_found": 404, "conflict": 409, "invalid": 422}
+```
+
+Then add `store: StrategyStore | None = None` to `create_app`'s signature and `from strategy import ControlError as StrategyError, Strategy, StrategyStore` to its imports (the existing `from control import ControlError` already covers the same class — they are the same object after plan 2's re-export, so import it once and use one name).
 
 Inside `create_app`, after the lifecycle block:
 
@@ -1257,7 +1265,12 @@ Inside `create_app`, after the lifecycle block:
             try:
                 return store.load(name).to_dict()
             except ControlError as exc:
-                raise HTTPException(status_code=404, detail=str(exc)) from exc
+                # A corrupt profile is not a missing one: load() raises
+                # "not_found" for absent and the default "invalid" for
+                # unparseable JSON, and the reader deserves to be told which.
+                raise HTTPException(
+                    status_code=_STATUS_FOR_CODE.get(exc.code, 422), detail=str(exc)
+                ) from exc
 
         @app.put("/api/strategies/{name}")
         def write_strategy(name: str, body: dict[str, Any]) -> dict:
@@ -1297,10 +1310,14 @@ Inside `create_app`, after the lifecycle block:
             try:
                 store.delete(name)
             except ControlError as exc:
-                # 409, not 404: the profile exists, and the refusal is about
-                # what deleting it would leave behind.
-                code = 404 if "no strategy named" in str(exc) else 409
-                raise HTTPException(status_code=code, detail=str(exc)) from exc
+                # exc.code, not the message text. Plan 1's final review added
+                # a discriminator precisely so this route does not string-match
+                # its way to a status: "not_found" when the profile is absent,
+                # "conflict" when it exists and the refusal is about what
+                # deleting it would leave behind (active, or the last one).
+                raise HTTPException(
+                    status_code=_STATUS_FOR_CODE.get(exc.code, 422), detail=str(exc)
+                ) from exc
             return {"active": store.active_name(), "names": store.names()}
 ```
 
