@@ -1,5 +1,6 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ApiError } from "@/lib/api";
 import ControlPage from "./page";
 
 const strategy = {
@@ -25,7 +26,13 @@ const api = vi.hoisted(() => ({
   stopBot: vi.fn(),
   shutdown: vi.fn(),
 }));
-vi.mock("@/lib/api", () => api);
+// Spread the real module first so `ApiError` stays the real class - the page
+// branches on `e instanceof ApiError`, and a hand-rolled double here would
+// pass whether or not lib/api still throws that type.
+vi.mock("@/lib/api", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/api")>()),
+  ...api,
+}));
 
 const sync = vi.hoisted(() => ({ onChange: null as null | (() => void) }));
 vi.mock("@/lib/useControlSync", () => ({
@@ -47,6 +54,13 @@ beforeEach(() => {
     Promise.resolve({ paused: !!p.paused, strategy, affordability_available: [] }),
   );
 });
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+/** The red banner, found by the border that makes it read as a failure. */
+const redBanner = () => document.querySelector(".border-red-500");
 
 describe("ControlPage", () => {
   it("offers Start when the bot is stopped", async () => {
@@ -71,11 +85,54 @@ describe("ControlPage", () => {
   });
 
   it("shows a dead emulator's message instead of failing silently", async () => {
-    api.startBot.mockRejectedValue(new Error("no emulator at 127.0.0.1:5555"));
+    api.startBot.mockRejectedValue(new ApiError(503, "no emulator at 127.0.0.1:5555"));
     render(<ControlPage />);
     await waitFor(() => screen.getByText("Start"));
     fireEvent.click(screen.getByText("Start"));
     await waitFor(() => expect(screen.getByText(/no emulator/)).toBeTruthy());
+    // A 503 IS a failure and keeps the red banner.
+    expect(redBanner()).not.toBeNull();
+  });
+
+  it("treats a 409 from Start as a refresh, not a red failure", async () => {
+    // Another tab already started one. The bot the user asked for is
+    // running; a red banner over a running bot is a lie the poll then
+    // contradicts two seconds later without clearing it.
+    api.startBot.mockRejectedValue(new ApiError(409, "the bot is already running"));
+    api.fetchStatus.mockResolvedValueOnce({ bot: { running: false, since: null, error: null } });
+    api.fetchStatus.mockResolvedValue({ bot: { running: true, since: 1, error: null } });
+    render(<ControlPage />);
+    await waitFor(() => screen.getByText("Start"));
+    fireEvent.click(screen.getByText("Start"));
+
+    // Re-polled and converged on the truth, said in the muted voice.
+    await waitFor(() => expect(screen.getByText("Stop bot")).toBeTruthy());
+    expect(screen.getByText(/already running/)).toBeTruthy();
+    expect(redBanner()).toBeNull();
+  });
+
+  it("marks itself stale when the status poll keeps failing", async () => {
+    // A dead /api/status leaves `bot` null, which renders as "stopped" and
+    // offers Start for a bot that may well be running. Saying nothing was
+    // the bug; one blip is not enough to say it.
+    vi.useFakeTimers();
+    api.fetchStatus.mockRejectedValue(new Error("network"));
+    render(<ControlPage />);
+    await act(async () => {
+      // Ticks at 0ms, 2000ms and 4000ms - three consecutive failures.
+      await vi.advanceTimersByTimeAsync(4500);
+    });
+    expect(screen.getByText(/stale/i)).toBeTruthy();
+  });
+
+  it("does not call itself stale on a single failed poll", async () => {
+    vi.useFakeTimers();
+    api.fetchStatus.mockRejectedValueOnce(new Error("network"));
+    render(<ControlPage />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+    expect(screen.queryByText(/stale/i)).toBeNull();
   });
 
   it("disables Pause when the bot is stopped, so Resume can't contradict the status text", async () => {

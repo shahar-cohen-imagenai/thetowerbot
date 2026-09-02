@@ -79,8 +79,16 @@ describe("StrategyEditor", () => {
   });
 
   it("disables every input when told to", () => {
-    render(<StrategyEditor value={strategy} onChange={vi.fn()} disabled />);
-    expect(screen.getByLabelText("Scan interval (s)").hasAttribute("disabled")).toBe(true);
+    // Named "every", so check every one: the page raises this while a save
+    // is in flight, and a single control that missed the prop is exactly
+    // the edit that would be lost when the response repaints the form.
+    const { container } = render(
+      <StrategyEditor value={strategy} onChange={vi.fn()} disabled />,
+    );
+    const controls = Array.from(container.querySelectorAll("input, button"));
+    expect(controls.length).toBeGreaterThan(10);
+    const live = controls.filter((c) => !c.hasAttribute("disabled"));
+    expect(live.map((c) => c.getAttribute("aria-label") ?? c.outerHTML)).toEqual([]);
   });
 
   it("repaints a row's threshold when the prop changes, e.g. after a Revert", () => {

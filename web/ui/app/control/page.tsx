@@ -5,10 +5,19 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
-  fetchControl, fetchStatus, patchControl, shutdown, startBot, stopBot,
+  ApiError, fetchControl, fetchStatus, patchControl, shutdown, startBot, stopBot,
 } from "@/lib/api";
 import { useControlSync } from "@/lib/useControlSync";
+import { errorText } from "@/lib/utils";
 import type { BotStatus, ControlPayload } from "@/lib/types";
+
+/** Consecutive status-poll failures before the page admits it is stale.
+ *
+ * One failure is a blip and flapping the status text on it would be worse
+ * than silence; three (six seconds) is a dead server. Saying nothing at all
+ * was the real bug: a null `bot` renders as "stopped" and offers Start for a
+ * bot that may well be running. */
+const STALE_AFTER_FAILURES = 3;
 
 /** Session concerns only.
  *
@@ -20,14 +29,18 @@ export default function ControlPage() {
   const [control, setControl] = useState<ControlPayload | null>(null);
   const [bot, setBot] = useState<BotStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Something happened that is not a failure - said in the status text's own
+   * muted voice, not the red banner. */
+  const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pollFailures, setPollFailures] = useState(0);
 
   const reload = useCallback(async () => {
     setControl(await fetchControl());
   }, []);
 
   useEffect(() => {
-    reload().catch((e) => setError(String(e)));
+    reload().catch((e) => setError(errorText(e)));
   }, [reload]);
 
   // Polled rather than pushed: starting and stopping are not events on the
@@ -37,8 +50,14 @@ export default function ControlPage() {
     let alive = true;
     const tick = () =>
       void fetchStatus()
-        .then((s) => alive && setBot(s.bot))
-        .catch(() => {});
+        .then((s) => {
+          if (!alive) return;
+          setBot(s.bot);
+          setPollFailures(0);
+        })
+        .catch(() => {
+          if (alive) setPollFailures((n) => n + 1);
+        });
     tick();
     const id = setInterval(tick, 2000);
     return () => {
@@ -51,13 +70,30 @@ export default function ControlPage() {
 
   async function guard(work: () => Promise<void>) {
     setError(null);
+    setNotice(null);
     setBusy(true);
     try {
       await work();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
     } finally {
       setBusy(false);
+    }
+  }
+
+  /** Start, with 409 read as an answer rather than a fault.
+   *
+   * A 409 means another tab already started the bot - the bot the user asked
+   * for is running. Banner it in red and the next poll flips the button to
+   * "Stop bot" two seconds later while the failure notice sits above it,
+   * unread by anything until the next guard() clears it. */
+  async function start(): Promise<void> {
+    try {
+      setBot(await startBot());
+    } catch (e) {
+      if (!(e instanceof ApiError) || e.status !== 409) throw e;
+      setBot((await fetchStatus()).bot);
+      setNotice("already running — started from somewhere else");
     }
   }
 
@@ -66,6 +102,7 @@ export default function ControlPage() {
   }
 
   const running = bot?.running ?? false;
+  const stale = pollFailures >= STALE_AFTER_FAILURES;
   const s = control.strategy;
 
   return (
@@ -83,10 +120,7 @@ export default function ControlPage() {
             Stop bot
           </Button>
         ) : (
-          <Button
-            disabled={busy}
-            onClick={() => void guard(async () => setBot(await startBot()))}
-          >
+          <Button disabled={busy} onClick={() => void guard(start)}>
             Start
           </Button>
         )}
@@ -114,13 +148,21 @@ export default function ControlPage() {
           Shut down
         </Button>
 
-        <span className="self-center text-sm text-muted-foreground">
-          {!running
-            ? "stopped"
-            : control.paused
-              ? "paused — scanning, not tapping"
-              : "running"}
+        <span
+          className={`self-center text-sm ${stale ? "text-amber-600" : "text-muted-foreground"}`}
+        >
+          {stale
+            ? "stale — /api/status is not answering"
+            : !running
+              ? "stopped"
+              : control.paused
+                ? "paused — scanning, not tapping"
+                : "running"}
         </span>
+
+        {notice ? (
+          <span className="self-center text-sm text-muted-foreground">{notice}</span>
+        ) : null}
       </Card>
 
       {bot?.error ? (

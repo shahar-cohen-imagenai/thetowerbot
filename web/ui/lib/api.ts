@@ -10,10 +10,37 @@ import type {
   StoredEvent,
 } from "./types";
 
+/** An HTTP failure that kept its status code.
+ *
+ * A bare Error flattens every rejection into one string, leaving callers to
+ * match on prose to tell an expected answer from a real fault - a 409 from
+ * /api/bot/start ("another tab already started one") means refresh, a 503
+ * ("no emulator") means failure. The status is the only stable way to say
+ * which is which. */
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path, { headers: { accept: "application/json" } });
-  if (!response.ok) throw new Error(`${path} -> ${response.status}`);
-  return (await response.json()) as T;
+  // Parsed before the ok check and flattened through the same describeDetail
+  // as the writes below: the server takes real trouble to distinguish
+  // 404-absent from 422-corrupt with a message, and a read that reported
+  // only "/api/strategies/crit -> 422" threw that reason away.
+  const parsed = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      (parsed && describeDetail(parsed.detail)) ?? `${path} -> ${response.status}`,
+    );
+  }
+  return parsed as T;
 }
 
 export const fetchStatus = () => getJson<StatusPayload>("/api/status");
@@ -51,7 +78,11 @@ export async function patchControl(
     body: JSON.stringify(patch),
   });
   const body = await response.json();
-  if (!response.ok) throw new Error(describeDetail(body.detail) ?? `PATCH /api/control -> ${response.status}`);
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      describeDetail(body.detail) ?? `PATCH /api/control -> ${response.status}`,
+    );
   return body as ControlPayload;
 }
 
@@ -65,7 +96,8 @@ async function send<T>(path: string, method: string, body?: unknown): Promise<T>
   // failed parse must still surface as the status, not as a JSON error.
   const parsed = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(
+    throw new ApiError(
+      response.status,
       (parsed && describeDetail(parsed.detail)) ?? `${method} ${path} -> ${response.status}`,
     );
   }
@@ -83,8 +115,9 @@ export const deleteStrategy = (name: string) =>
   send<StrategyList>(`/api/strategies/${encodeURIComponent(name)}`, "DELETE");
 
 /** Starts the bot. A 409 (already running - another tab may have started
- * one) is a normal answer, not swallowed here: it surfaces via send()'s
- * error like any other rejection, with the server's own message. */
+ * one) is a normal answer, not swallowed here: it surfaces as an ApiError
+ * carrying status 409, which is what lets the control page treat it as a
+ * cue to re-read the status rather than as a failure. */
 export const startBot = () => send<BotStatus>("/api/bot/start", "POST");
 
 /** Ends the bot but keeps the dashboard serving. Distinct from `shutdown()`,
@@ -92,11 +125,12 @@ export const startBot = () => send<BotStatus>("/api/bot/start", "POST");
 export const stopBot = () => send<BotStatus>("/api/bot/stop", "POST");
 
 /**
- * Ends the process, bot and dashboard together - which is what the control
- * page's stop button confirms ("Stop the bot and the dashboard?").
+ * Ends the process, bot and dashboard together - the control page's "Shut
+ * down" button, which confirms with "Shut down the bot AND the dashboard?".
  *
- * The lifecycle split gave the bot itself its own start/stop
- * (`startBot`/`stopBot` above); this is the separate, more drastic action of
- * ending the dashboard process.
+ * Explicitly NOT the "Stop bot" button sitting beside it: that is `stopBot`
+ * above, which ends the bot and leaves the dashboard serving. This export
+ * has already been pointed at the wrong control once, so the button it
+ * belongs to is named here rather than described.
  */
 export const shutdown = () => send<{ stopping: boolean }>("/api/shutdown", "POST");

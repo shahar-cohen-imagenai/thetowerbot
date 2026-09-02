@@ -19,12 +19,12 @@ export function StatBar({ status, connected }: { status: StatusPayload | null; c
         {status?.last_error ? <span className="ml-2 text-red-500">{status.last_error}</span> : null}
         <span
           className={`rounded-full px-2 py-0.5 text-xs ${
-            status?.bot?.running
+            status?.bot.running
               ? "bg-emerald-500/15 text-emerald-600"
               : "bg-muted text-muted-foreground"
           }`}
         >
-          {status?.bot?.running ? "bot running" : "bot stopped"}
+          {status?.bot.running ? "bot running" : "bot stopped"}
         </span>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

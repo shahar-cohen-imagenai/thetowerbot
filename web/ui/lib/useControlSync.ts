@@ -30,7 +30,15 @@ export function shouldResync(
 }
 
 /** Call `onChange` whenever another tab (or another client) changes the
- * controls, so this tab converges without polling. */
+ * controls, so this tab converges without polling.
+ *
+ * `onChange` must be stable (a useCallback with no changing deps). The
+ * high-water mark below protects correctness on its own - a re-run with
+ * `lastSeenSeq` already at `latest` answers `resync: false` - so an unstable
+ * identity would not double-fire; it would just re-run this effect on every
+ * render of the caller, for nothing. Stability is what keeps that churn out,
+ * and it is the contract a caller has to hold up either way.
+ */
 export function useControlSync(onChange: () => void): void {
   const { events } = useEventStream();
   const lastSeenSeq = useRef(0);
@@ -38,7 +46,5 @@ export function useControlSync(onChange: () => void): void {
     const { resync, seq } = shouldResync(events, lastSeenSeq.current);
     lastSeenSeq.current = seq;
     if (resync) onChange();
-    // onChange is expected to be a useCallback; a fresh identity every
-    // render would re-run this on every event and defeat the high-water mark.
   }, [events, onChange]);
 }

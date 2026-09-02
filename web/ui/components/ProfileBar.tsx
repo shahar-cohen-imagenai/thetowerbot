@@ -5,11 +5,16 @@ import { Card } from "@/components/ui/card";
 import type { StrategyList } from "@/lib/types";
 
 export function ProfileBar({
-  list, current, dirty, onSelect, onActivate, onDuplicate, onDelete, onSave, onRevert,
+  list, current, dirty, busy = false,
+  onSelect, onActivate, onDuplicate, onDelete, onSave, onRevert,
 }: {
   list: StrategyList;
   current: string;
   dirty: boolean;
+  /** A request this bar started is still in flight. Every control here
+   * either writes or replaces what is on screen, so a second click during
+   * one is never what the user meant - a double-clicked Save is two PUTs. */
+  busy?: boolean;
   onSelect: (name: string) => void;
   onActivate: () => void;
   onDuplicate: () => void;
@@ -23,6 +28,7 @@ export function ProfileBar({
       <select
         aria-label="Strategy"
         value={current}
+        disabled={busy}
         onChange={(e) => onSelect(e.target.value)}
         className="rounded-md border bg-background px-2 py-1.5 text-sm"
       >
@@ -34,23 +40,23 @@ export function ProfileBar({
         ))}
       </select>
 
-      <Button size="sm" onClick={onSave} disabled={!dirty}>
+      <Button size="sm" onClick={onSave} disabled={busy || !dirty}>
         Save
       </Button>
-      <Button size="sm" variant="outline" onClick={onRevert} disabled={!dirty}>
+      <Button size="sm" variant="outline" onClick={onRevert} disabled={busy || !dirty}>
         Revert
       </Button>
-      <Button size="sm" variant="outline" onClick={onActivate} disabled={isActive}>
+      <Button size="sm" variant="outline" onClick={onActivate} disabled={busy || isActive}>
         {isActive ? "Active" : "Activate"}
       </Button>
-      <Button size="sm" variant="outline" onClick={onDuplicate}>
+      <Button size="sm" variant="outline" onClick={onDuplicate} disabled={busy}>
         Duplicate
       </Button>
       <Button
         size="sm" variant="destructive" onClick={onDelete}
         // The server refuses both of these too - this only saves a round
         // trip and makes the rule visible before you click.
-        disabled={isActive || list.names.length <= 1}
+        disabled={busy || isActive || list.names.length <= 1}
       >
         Delete
       </Button>

@@ -40,6 +40,18 @@ describe("ProfileBar", () => {
     expect(screen.getByText("Active").hasAttribute("disabled")).toBe(true);
   });
 
+  it("disables every control while a request is in flight", () => {
+    // Each of these either writes or replaces what is on screen, so a second
+    // click during the first is never what the user meant.
+    const list: StrategyList = { active: "default", names: ["default", "crit"] };
+    const { container } = render(
+      <ProfileBar list={list} current="crit" dirty busy {...handlers} />,
+    );
+    const controls = Array.from(container.querySelectorAll("select, button"));
+    expect(controls.length).toBe(6);
+    expect(controls.filter((c) => !c.hasAttribute("disabled"))).toEqual([]);
+  });
+
   it("enables Activate for a selected profile that is not the active one", () => {
     const list: StrategyList = { active: "default", names: ["default", "crit"] };
     render(<ProfileBar list={list} current="crit" dirty={false} {...handlers} />);

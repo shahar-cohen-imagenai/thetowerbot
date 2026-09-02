@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ProfileBar } from "@/components/ProfileBar";
 import { StrategyEditor } from "@/components/StrategyEditor";
 import {
@@ -8,7 +8,15 @@ import {
   fetchStrategy, saveStrategy,
 } from "@/lib/api";
 import { useControlSync } from "@/lib/useControlSync";
+import { errorText } from "@/lib/utils";
 import type { Strategy, StrategyList } from "@/lib/types";
+
+// Mirrors strategy.py's NAME_PATTERN, because a profile name becomes a
+// filename. Checking it here turns "my copy" from a 422 round trip into a
+// re-prompt that says the rule.
+const NAME_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+const NAME_RULE =
+  "A strategy name must be 1-64 characters of letters, digits, '-' or '_'.";
 
 export default function StrategyPage() {
   const [list, setList] = useState<StrategyList | null>(null);
@@ -20,19 +28,39 @@ export default function StrategyPage() {
   const [draft, setDraft] = useState<Strategy | null>(null);
   const [available, setAvailable] = useState<string[] | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const dirty =
+    draft !== null && saved !== null && JSON.stringify(draft) !== JSON.stringify(saved);
+
+  // Read by onRemoteChange, which useControlSync requires to keep one stable
+  // identity - it cannot close over `selected`/`dirty` directly.
+  const selectedRef = useRef<string | null>(null);
+  const dirtyRef = useRef(false);
+  useEffect(() => {
+    selectedRef.current = selected;
+    dirtyRef.current = dirty;
+  }, [selected, dirty]);
 
   const load = useCallback(async (name?: string) => {
     const listing = await fetchStrategies();
-    setList(listing);
     const target = name ?? listing.active;
-    setSelected(target);
     const loaded = await fetchStrategy(target);
+    // Nothing is committed until every fetch has resolved. Committing
+    // `selected` first meant a rejected fetchStrategy (a 404 from a profile
+    // another tab deleted, a 422 from one hand-edited into invalid JSON)
+    // left the selector naming one profile while the editor still held
+    // another's body - and the next Save would write that body under this
+    // name. It also makes two fast selector clicks land in call order
+    // rather than in whichever order the network happened to answer.
+    setList(listing);
+    setSelected(target);
     setSaved(loaded);
     setDraft(loaded);
   }, []);
 
   useEffect(() => {
-    load().catch((e) => setError(String(e)));
+    load().catch((e) => setError(errorText(e)));
     // Only for which affordability methods this machine can actually serve -
     // the atlas either built or it did not, and the strategy has no way to
     // know.
@@ -41,11 +69,22 @@ export default function StrategyPage() {
       .catch(() => setAvailable(undefined));
   }, [load]);
 
-  // Another tab activated a profile, or the CLI overrode one at startup.
-  // Re-read the listing, but keep the selection - yanking the reader to a
-  // different profile mid-edit would be worse than being briefly stale.
+  // Another tab (or the CLI) changed the controls. This is the only page
+  // that PUTs whole documents, so a stale `saved` here does not go stale
+  // quietly - it reverts the other tab's work on the next Save. Converge:
+  // the listing always, and this profile's body too. `saved` unconditionally,
+  // so `dirty`, Revert and the "unsaved" hint all measure against what the
+  // server actually holds; `draft` only while this tab is clean, so a reader
+  // catches up without an editor's work being yanked out from under them.
   const onRemoteChange = useCallback(() => {
-    fetchStrategies().then(setList).catch(() => {});
+    void fetchStrategies().then(setList).catch(() => {});
+    if (!selectedRef.current) return;
+    void fetchStrategy(selectedRef.current)
+      .then((fresh) => {
+        setSaved(fresh);
+        if (!dirtyRef.current) setDraft(fresh);
+      })
+      .catch(() => {});
   }, []);
   useControlSync(onRemoteChange);
 
@@ -53,14 +92,15 @@ export default function StrategyPage() {
     return <p className="text-sm text-muted-foreground">{error ?? "Loading…"}</p>;
   }
 
-  const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
-
   async function guard(work: () => Promise<void>) {
     setError(null);
+    setBusy(true);
     try {
       await work();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -74,7 +114,16 @@ export default function StrategyPage() {
         list={list}
         current={selected}
         dirty={dirty}
-        onSelect={(name) => void guard(() => load(name))}
+        busy={busy}
+        onSelect={(name) =>
+          void guard(async () => {
+            // Duplicate carries a dirty draft into a new profile; switching
+            // throws it away. The bar is displaying the word "unsaved" at
+            // this very moment, so ask rather than silently discarding.
+            if (dirty && !window.confirm(`Discard unsaved changes to "${selected}"?`)) return;
+            await load(name);
+          })
+        }
         onSave={() =>
           void guard(async () => {
             // The server is the validator and the server's answer is what we
@@ -93,7 +142,13 @@ export default function StrategyPage() {
         }
         onDuplicate={() =>
           void guard(async () => {
-            const name = window.prompt("Name for the copy", `${selected}-copy`);
+            let name = window.prompt("Name for the copy", `${selected}-copy`);
+            // Re-prompt rather than round-trip: the server would answer a
+            // bare 422, which arrives as a red banner over a dialog the user
+            // has already dismissed. Cancel (null) still leaves the loop.
+            while (name !== null && !NAME_PATTERN.test(name)) {
+              name = window.prompt(NAME_RULE, name);
+            }
             if (!name) return;
             const copy = { ...draft, name };
             // Discard saveStrategy's response and re-load rather than just
@@ -109,13 +164,14 @@ export default function StrategyPage() {
           void guard(async () => {
             if (!window.confirm(`Delete strategy "${selected}"?`)) return;
             const after = await deleteStrategy(selected);
-            setList(after);
+            // No setList(after) here - load() re-fetches the listing itself,
+            // and setting it first only paints a state one fetch older.
             await load(after.active);
           })
         }
       />
 
-      <StrategyEditor value={draft} onChange={setDraft} available={available} />
+      <StrategyEditor value={draft} onChange={setDraft} available={available} disabled={busy} />
     </div>
   );
 }
