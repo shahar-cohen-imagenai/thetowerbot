@@ -40,6 +40,17 @@ class RunTracker:
         self.completed = 0
         self._started_at: float | None = None
 
+    @property
+    def next_id(self) -> int:
+        """The id the next run will take.
+
+        Public so a restarting BotRunner can seed the next tracker from the
+        last one. prepare_store() seeds this from the database at launch, but
+        the database is only re-read at launch - and the dashboard can now
+        start several bots between two launches.
+        """
+        return self._next_id
+
     def transition(self, curr: ScreenState, now: float) -> events.Event | None:
         """Return an unstamped RunStarted / RunEnded, or None.
 

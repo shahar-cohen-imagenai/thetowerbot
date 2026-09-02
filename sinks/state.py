@@ -38,6 +38,28 @@ class BotState:
         self.wallet: int | None = None
         self.run_taps: Counter[str] = Counter()
 
+    def reset(self) -> None:
+        """Forget the previous bot. Called by BotRunner on every start.
+
+        BotState now outlives any individual bot, because the dashboard does.
+        Without this, uptime, scans and the tap tallies accumulate across bot
+        lifetimes and the status bar shows a stopped bot's scan count beside
+        a fresh bot's uptime.
+        """
+        with self._lock:
+            self.screen = "UNKNOWN"
+            self.scans = 0
+            self.started = time.monotonic()
+            self.runs_completed = 0
+            self.run_id = None
+            self.run_started = None
+            self.run_taps = Counter()
+            self.wallet = None
+            self.last_error = None
+            self.taps = Counter()
+            self.skips = Counter()
+            self.tail.clear()
+
     def apply(self, event: events.Event) -> None:
         with self._lock:
             match event:

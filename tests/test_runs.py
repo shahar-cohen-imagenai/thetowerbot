@@ -184,3 +184,33 @@ def test_run_ids_can_be_seeded_so_a_restart_does_not_reuse_them() -> None:
     started = tracker.transition(ScreenState.IN_RUN, now=0.0)
 
     assert started.run_id == 12
+
+
+def test_next_id_is_readable_so_a_restart_can_carry_it_forward() -> None:
+    """A second bot in one process must not reissue the first bot's run ids.
+
+    prepare_store() seeds the id once, at launch. Once the dashboard can
+    start several bots without relaunching, the runner has to carry the
+    counter across - and it needs a public way to read it.
+    """
+    from runs import RunTracker
+    from screens import ScreenState
+
+    tracker = RunTracker(start_id=5)
+    assert tracker.next_id == 5
+    tracker.transition(ScreenState.IN_RUN, now=0.0)
+    assert tracker.current_id == 5
+    assert tracker.next_id == 6
+
+
+def test_a_fresh_tracker_seeded_from_next_id_does_not_collide() -> None:
+    from runs import RunTracker
+    from screens import ScreenState
+
+    first = RunTracker(start_id=1)
+    first.transition(ScreenState.IN_RUN, now=0.0)
+    first.transition(ScreenState.GAME_OVER, now=1.0)
+
+    second = RunTracker(start_id=first.next_id)
+    second.transition(ScreenState.IN_RUN, now=2.0)
+    assert second.current_id == 2
