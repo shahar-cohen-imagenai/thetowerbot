@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import time
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -527,7 +528,7 @@ def test_the_loop_taps_in_strategy_order_not_config_order(
         ),
     ))
 
-    def record(action, boxes=None):
+    def record(action, boxes=None, cooldown=None):
         tried.append(action.name)
         return False
 
@@ -552,7 +553,8 @@ def test_a_disabled_row_is_never_tried(
         ),
     ))
     monkeypatch.setattr(
-        bot, "find_and_click_image", lambda action, boxes=None: tried.append(action.name)
+        bot, "find_and_click_image",
+        lambda action, boxes=None, cooldown=None: tried.append(action.name),
     )
     bot.run_once()
     assert tried == ["Critical Chance"]
@@ -577,7 +579,7 @@ def test_the_per_row_threshold_reaches_the_matcher(
     ))
     monkeypatch.setattr(
         bot, "find_and_click_image",
-        lambda action, boxes=None: seen_thresholds.append(action.threshold),
+        lambda action, boxes=None, cooldown=None: seen_thresholds.append(action.threshold),
     )
     bot.run_once()
     assert seen_thresholds == [0.42]
@@ -611,6 +613,76 @@ def test_click_cooldown_comes_from_the_strategy(
     bot.run_once()
     taps_after_second = len([e for e in seen if isinstance(e, events.Tapped)])
     assert taps_after_second == taps_after_first
+
+
+def test_a_pass_reuses_its_own_snapshot_for_every_matched_row(
+    bot_in_run, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The one-snapshot-per-pass invariant covers click_cooldown too, not
+    just the top-of-loop reads.
+
+    find_and_click_image() is called once per matched rule inside the
+    action loop, with no `break` after a tap - so if it fell back to
+    re-reading self.controls.snapshot() instead of using the value run_once
+    already threads down, a PATCH landing mid-scan (run_forever and
+    serve_web run on different threads) could judge a later row's cooldown
+    against a click_cooldown from a different instant than the strategy
+    that selected and ordered the rows.
+
+    Proven by making every snapshot() call after the pass's own first one
+    return a maximally restrictive click_cooldown: both rows can only tap if
+    the loop passed down the *first* snapshot's permissive value rather
+    than asking again per row.
+    """
+    from control import Controls
+    from strategy import ActionRule, Strategy, MAX_COOLDOWN
+
+    bot, seen = bot_in_run
+    bot.controls = Controls(strategy=Strategy(
+        name="t",
+        actions=(
+            ActionRule(name="Attack Speed", template="upgrade_attack_speed.png"),
+            ActionRule(name="Critical Chance", template="upgrade_critical_chance.png"),
+        ),
+        click_cooldown=1.0,
+    ))
+
+    # Both "last tapped" 2s ago: affordable under the strategy's 1.0s
+    # cooldown, still cooling down under the poisoned MAX_COOLDOWN below
+    # (Strategy.__post_init__ caps click_cooldown there, so that - not an
+    # arbitrarily large number - is the most restrictive legal value).
+    now = time.monotonic()
+    bot._last_click["upgrade_attack_speed.png"] = now - 2.0
+    bot._last_click["upgrade_critical_chance.png"] = now - 2.0
+
+    real_snapshot = bot.controls.snapshot
+    calls = {"n": 0}
+
+    def poisoned_snapshot():
+        calls["n"] += 1
+        live = real_snapshot()
+        if calls["n"] == 1:
+            # run_once()'s own top-of-pass read - the value every row must
+            # actually be judged against.
+            return live
+        # Any snapshot taken after that one, inside the loop, must never be
+        # consulted - if it is, this restrictive cooldown blocks the row
+        # that asked for it.
+        return dataclasses.replace(
+            live,
+            strategy=dataclasses.replace(live.strategy, click_cooldown=MAX_COOLDOWN),
+        )
+
+    monkeypatch.setattr(bot.controls, "snapshot", poisoned_snapshot)
+
+    bot.run_once()
+
+    tapped = {e.action for e in seen if isinstance(e, events.Tapped)}
+    assert tapped == {"Attack Speed", "Critical Chance"}
+    # Exactly one snapshot for the whole pass - find_and_click_image's own
+    # None-fallback (its only other caller is a direct test) never fires
+    # when run_once is the one calling it.
+    assert calls["n"] == 1
 
 
 def test_max_runs_falls_back_to_the_strategy(bot_in_run) -> None:

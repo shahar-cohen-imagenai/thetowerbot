@@ -132,19 +132,12 @@ class TowerBot:
             return self.refresh_screen()
         return self._screen
 
-    def _click_cooldown(self) -> float:
-        """The live per-template cooldown.
-
-        Read here rather than passed down from run_once's snapshot only
-        because find_and_click_image is also called directly by tests and by
-        no other caller; the value still comes from the same Controls, so
-        there is no second source of truth.
-        """
-        return self.controls.snapshot().strategy.click_cooldown
-
     # -- the core helper ---------------------------------------------------
     def find_and_click_image(
-        self, action: config.Action, boxes: list[dict[str, Any]] | None = None
+        self,
+        action: config.Action,
+        boxes: list[dict[str, Any]] | None = None,
+        cooldown: float | None = None,
     ) -> bool:
         """Find the action's template on the current screen and tap it.
 
@@ -158,6 +151,22 @@ class TowerBot:
         each match landing in the buffer the instant it is found: a reader
         between two such landings would catch the frame's matches only
         partially drawn.
+
+        `cooldown`, when given, is the click_cooldown to gate against -
+        run_once() always passes `settings.strategy.click_cooldown` from the
+        one snapshot it took at the top of the pass. `None` (the default)
+        falls back to a fresh `self.controls.snapshot()` here instead, which
+        is what lets a test or any other direct caller invoke this method
+        without first constructing a settings object of its own. Re-reading
+        per call is exactly what the loop path must NOT do, though: this
+        method is called once per matched rule inside run_once()'s action
+        loop without a `break`, and a PATCH landing between two of those
+        calls (run_forever and serve_web run on different threads) would
+        otherwise let one row's cooldown be judged against a click_cooldown
+        from a different instant than the strategy that selected and
+        ordered the rows - the same class of hazard run_once()'s own
+        docstring warns about for the wallet and the price gate, just on a
+        narrower field.
         """
         # `cooldown_key` is purely internal - a stable per-template handle
         # for `_last_click`. `name` is what leaves the class: it is what
@@ -222,7 +231,11 @@ class TowerBot:
             return False
 
         now = time.monotonic()
-        if now - self._last_click.get(cooldown_key, 0.0) < self._click_cooldown():
+        effective_cooldown = (
+            cooldown if cooldown is not None
+            else self.controls.snapshot().strategy.click_cooldown
+        )
+        if now - self._last_click.get(cooldown_key, 0.0) < effective_cooldown:
             self.bus.publish(events.Skipped(action=name, reason="cooldown"))
             return False
 
@@ -399,7 +412,9 @@ class TowerBot:
             for rule in settings.strategy.actions:
                 if not rule.enabled:
                     continue
-                if self.find_and_click_image(rule.as_action(), boxes):
+                if self.find_and_click_image(
+                    rule.as_action(), boxes, cooldown=settings.strategy.click_cooldown
+                ):
                     clicked = True
         else:
             self.bus.publish(
