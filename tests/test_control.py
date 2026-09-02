@@ -8,6 +8,7 @@ already right.
 
 from __future__ import annotations
 
+import sys
 import threading
 
 import pytest
@@ -186,3 +187,115 @@ def test_concurrent_applies_do_not_interleave() -> None:
     for t in threads:
         t.join()
     assert not errors
+
+
+def test_a_multi_field_patch_is_never_observed_half_applied() -> None:
+    """apply() commits every staged field inside one lock acquisition, and
+    snapshot() reads them all inside one too - a multi-field patch is the
+    thing the lock actually protects. A writer alternates between two
+    internally-consistent pairs; a reader must never catch it mid-swap.
+
+    Restored from the pre-reshape test file (git show af5fd59), adapted to
+    the new API: `interval` now lives on `strategy`, not directly on
+    Controls, and snapshot() returns attributes rather than dict keys.
+    """
+    controls = a_controls(interval=5.0)
+    iterations = 5000
+    stop = threading.Event()
+    errors: list[Exception] = []
+
+    # Force the interpreter to consider a thread switch far more often than
+    # its 5ms default. Two threads doing nothing but tight setattr/getattr
+    # loops rarely straddle the default switch granularity often enough to
+    # land inside a two-field write; tightening it is what makes an
+    # unlocked implementation lose reliably instead of by luck.
+    old_interval = sys.getswitchinterval()
+    sys.setswitchinterval(1e-6)
+
+    def write() -> None:
+        try:
+            for _ in range(iterations):
+                controls.apply({"paused": True, "interval": 1.0})
+                controls.apply({"paused": False, "interval": 5.0})
+        except Exception as exc:  # noqa: BLE001 - the test is what it catches
+            errors.append(exc)
+        finally:
+            stop.set()
+
+    def read() -> None:
+        try:
+            while not stop.is_set():
+                snap = controls.snapshot()
+                paused, interval = snap.paused, snap.strategy.interval
+                assert (paused is True and interval == 1.0) or (
+                    paused is False and interval == 5.0
+                ), f"observed a torn pair: paused={paused!r} interval={interval!r}"
+        except Exception as exc:  # noqa: BLE001 - the test is what it catches
+            errors.append(exc)
+
+    threads = [threading.Thread(target=write), threading.Thread(target=read)]
+    try:
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+    finally:
+        sys.setswitchinterval(old_interval)
+
+    assert not errors
+
+
+def test_apply_never_reports_or_reverts_a_field_the_caller_never_patched() -> None:
+    """The regression this guards: apply() used to read `self.paused` (and
+    `self.strategy`) before releasing the lock to build a candidate, so a
+    concurrent apply() that landed in that window would be silently
+    reverted by the next commit - and reported in `changed` as if the
+    reverting patch had asked for it, which it never did.
+
+    One thread patches only `interval`; another patches only `paused`. A
+    patch that never mentions `paused` must never report it in `changed`.
+    """
+    controls = a_controls(interval=2.0)
+    stop = threading.Event()
+    errors: list[BaseException] = []
+    bad_changes: list[dict] = []
+
+    old_interval = sys.getswitchinterval()
+    sys.setswitchinterval(1e-6)
+
+    def hammer_interval() -> None:
+        try:
+            for _ in range(3000):
+                for value in (5.0, 2.0):
+                    changed = controls.apply({"interval": value})
+                    if "paused" in changed:
+                        bad_changes.append(changed)
+        except BaseException as exc:  # noqa: BLE001 - recorded, re-raised below
+            errors.append(exc)
+        finally:
+            stop.set()
+
+    def hammer_paused() -> None:
+        try:
+            while not stop.is_set():
+                controls.apply({"paused": True})
+                controls.apply({"paused": False})
+        except BaseException as exc:  # noqa: BLE001 - recorded, re-raised below
+            errors.append(exc)
+
+    threads = [
+        threading.Thread(target=hammer_interval),
+        threading.Thread(target=hammer_paused),
+    ]
+    try:
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+    finally:
+        sys.setswitchinterval(old_interval)
+
+    assert not errors
+    assert not bad_changes, (
+        f"a patch without 'paused' reported it as changed: {bad_changes[:5]}"
+    )

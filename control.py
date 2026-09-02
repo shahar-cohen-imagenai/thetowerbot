@@ -94,18 +94,27 @@ class Controls:
         All-or-nothing, and structurally so rather than by discipline:
         Strategy.merged() builds a candidate whose constructor validates
         every field, and only a candidate that survives that is swapped in.
-        A patch whose third field is invalid never touches the live object -
-        merged() raises before this method's own lock is ever taken to write.
+        A patch whose third field is invalid never touches the live object.
+
+        Read, merge and commit all happen inside ONE lock acquisition -
+        merged() is pure (a dict comprehension plus dataclasses.replace, no
+        I/O), so there is no cost to holding the lock across it. Splitting
+        the read from the commit - read self.paused/self.strategy, release,
+        compute, re-acquire to write - was tried and is a real bug, not a
+        style nit: a second apply() landing in the gap commits, and this
+        call's re-acquire then sees `self.paused` disagree with the
+        `was_paused` it captured before the release and "corrects" it back,
+        silently reverting a field this patch never mentioned and reporting
+        it in `changed` as though it had.
         """
         with self._lock:
-            current = self.strategy
-            was_paused = self.paused
+            # bool() never raises, so `paused` has no separate validation
+            # path the way interval/affordability/etc. do - there is no
+            # value of it that could make this patch fail.
+            staged_paused = bool(patch["paused"]) if "paused" in patch else self.paused
+            candidate = self.strategy.merged(patch)
 
-        staged_paused = bool(patch["paused"]) if "paused" in patch else was_paused
-        candidate = current.merged(patch)
-
-        changed: dict[str, Any] = {}
-        with self._lock:
+            changed: dict[str, Any] = {}
             if staged_paused != self.paused:
                 self.paused = staged_paused
                 changed["paused"] = staged_paused
