@@ -45,7 +45,16 @@ export async function patchControl(
   return body as ControlPayload;
 }
 
+/**
+ * Ends the process, bot and dashboard together - which is what the button's
+ * own confirm text ("Stop the bot and the dashboard?") promises.
+ *
+ * /api/shutdown, not /api/control/stop: that route no longer exists. The
+ * lifecycle split replaced it with /api/bot/stop (ends the bot, keeps
+ * serving) and /api/shutdown (ends the process), and this call sat pointing
+ * at the deleted one - a destructive button that only ever 404'd.
+ */
 export async function stopBot(): Promise<void> {
-  const response = await fetch("/api/control/stop", { method: "POST" });
-  if (!response.ok) throw new Error(`POST /api/control/stop -> ${response.status}`);
+  const response = await fetch("/api/shutdown", { method: "POST" });
+  if (!response.ok) throw new Error(`POST /api/shutdown -> ${response.status}`);
 }

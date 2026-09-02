@@ -66,13 +66,16 @@ group("ControlPage", () => {
 
   it("surfaces a failed stop instead of failing silently", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
-    stopBot.mockRejectedValue(new Error("POST /api/control/stop -> 500"));
+    // The message the real stopBot() throws, route and all - so a mock that
+    // has drifted from lib/api.ts is visible here rather than passing
+    // happily against a route nobody serves.
+    stopBot.mockRejectedValue(new Error("POST /api/shutdown -> 500"));
     render(<ControlPage />);
 
     fireEvent.click(await screen.findByText("Stop"));
 
     expect(stopBot).toHaveBeenCalled();
-    await screen.findByText(/POST \/api\/control\/stop -> 500/);
+    await screen.findByText(/POST \/api\/shutdown -> 500/);
   });
 
   it("surfaces the server's reason on a rejected patch and leaves the displayed state unchanged", async () => {
