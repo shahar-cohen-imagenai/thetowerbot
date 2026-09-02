@@ -92,7 +92,7 @@ export default function ControlPage() {
         )}
 
         <Button
-          variant="outline" disabled={busy}
+          variant="outline" disabled={busy || !running}
           onClick={() => void guard(async () => setControl(await patchControl({
             paused: !control.paused,
           })))}

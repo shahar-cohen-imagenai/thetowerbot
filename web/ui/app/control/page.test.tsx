@@ -78,7 +78,21 @@ describe("ControlPage", () => {
     await waitFor(() => expect(screen.getByText(/no emulator/)).toBeTruthy());
   });
 
+  it("disables Pause when the bot is stopped, so Resume can't contradict the status text", async () => {
+    render(<ControlPage />);
+    await waitFor(() => screen.getByText("Pause"));
+    expect(screen.getByText("Pause").hasAttribute("disabled")).toBe(true);
+  });
+
+  it("enables Pause once the bot is running", async () => {
+    api.fetchStatus.mockResolvedValue({ bot: { running: true, since: 1, error: null } });
+    render(<ControlPage />);
+    await waitFor(() => screen.getByText("Pause"));
+    expect(screen.getByText("Pause").hasAttribute("disabled")).toBe(false);
+  });
+
   it("pause is a control patch, not a lifecycle call", async () => {
+    api.fetchStatus.mockResolvedValue({ bot: { running: true, since: 1, error: null } });
     render(<ControlPage />);
     await waitFor(() => screen.getByText("Pause"));
     fireEvent.click(screen.getByText("Pause"));
