@@ -21,9 +21,11 @@ import dataclasses
 import json
 import os
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any
+from uuid import uuid4
 
 import config
 
@@ -45,20 +47,99 @@ MAX_CONFIRMATIONS = 10
 
 
 class ControlError(ValueError):
-    """A value the caller may not set. `field` names the offending key.
+    """A value the caller may not set.
+
+    `field` names the offending key, so the browser can highlight the input
+    that caused it. `code` names the *kind* of failure - "not_found",
+    "conflict", or the default "invalid" - so an HTTP layer can map one to
+    404, 409 or 422 without string-matching the message text. A message is
+    for a human to read; a status must never depend on its wording.
 
     Defined here rather than in control.py because control.py will need to
     import this module for Strategy - the reverse import would be a cycle.
     """
 
-    def __init__(self, field: str, message: str) -> None:
+    def __init__(self, field: str, message: str, code: str = "invalid") -> None:
         super().__init__(message)
         self.field = field
+        self.code = code
 
 
 def _in_range(field_name: str, value: float, low: float, high: float) -> None:
     if not low <= value <= high:
         raise ControlError(field_name, f"{field_name} must be between {low} and {high}")
+
+
+# Dataclasses do not enforce their annotations, and this policy is fed
+# arbitrary client JSON. `enabled="no"` is truthy, so without these tables a
+# row the user switched OFF keeps being bought - silent wrong behaviour, not
+# a validation nicety. One table per class, shared between __post_init__
+# (which enforces it) and _offending_field (which reads it to name a field).
+_RULE_TYPES: dict[str, tuple[type, ...]] = {
+    "name": (str,),
+    "template": (str,),
+    "enabled": (bool,),
+    "threshold": (int, float),
+    "brightness_ratio": (int, float),
+}
+
+_STRATEGY_TYPES: dict[str, tuple[type, ...]] = {
+    "name": (str,),
+    "affordability": (str,),
+    "interval": (int, float),
+    "click_cooldown": (int, float),
+    "navigation_cooldown": (int, float),
+    "screen_confirmations": (int,),
+    "auto_navigate": (bool,),
+    "max_runs": (int,),
+}
+
+# Fields whose declared type includes None, so None is not a type error.
+_OPTIONAL = frozenset({"max_runs"})
+
+
+def _has_type(value: Any, types: tuple[type, ...]) -> bool:
+    # bool is a subclass of int in Python, so an unguarded isinstance check
+    # would let max_runs=True through as a run limit of 1.
+    if bool not in types and isinstance(value, bool):
+        return False
+    return isinstance(value, types)
+
+
+def _wrong_type(
+    values: Mapping[str, Any], expected: Mapping[str, tuple[type, ...]]
+) -> str | None:
+    """The first key in `values` whose type contradicts `expected`, if any."""
+    for key, types in expected.items():
+        if key not in values:
+            continue
+        value = values[key]
+        if value is None and key in _OPTIONAL:
+            continue
+        if not _has_type(value, types):
+            return key
+    return None
+
+
+def _check_types(
+    values: Mapping[str, Any], expected: Mapping[str, tuple[type, ...]]
+) -> None:
+    key = _wrong_type(values, expected)
+    if key is not None:
+        wanted = " or ".join(t.__name__ for t in expected[key])
+        if key in _OPTIONAL:
+            wanted += " or null"
+        got = type(values[key]).__name__
+        raise ControlError(key, f"{key} must be {wanted}, not {got}")
+
+
+def _own_values(instance: Any) -> dict[str, Any]:
+    """The instance's fields as a plain dict.
+
+    Not dataclasses.asdict(): that deep-copies and recurses into nested
+    dataclasses, and all these checks need is a shallow look at each field.
+    """
+    return {f.name: getattr(instance, f.name) for f in dataclasses.fields(instance)}
 
 
 def _offending_field(values: Mapping[str, Any]) -> str:
@@ -69,22 +150,7 @@ def _offending_field(values: Mapping[str, Any]) -> str:
     value against the annotation to find it; fall back to the whole object
     when nothing obvious is wrong.
     """
-    expected: dict[str, tuple[type, ...]] = {
-        "name": (str,),
-        "affordability": (str,),
-        "interval": (int, float),
-        "click_cooldown": (int, float),
-        "navigation_cooldown": (int, float),
-        "screen_confirmations": (int,),
-        "auto_navigate": (bool,),
-    }
-    for key, types in expected.items():
-        if key in values and not isinstance(values[key], types):
-            return key
-    if "max_runs" in values and values["max_runs"] is not None:
-        if not isinstance(values["max_runs"], int):
-            return "max_runs"
-    return "strategy"
+    return _wrong_type(values, _STRATEGY_TYPES) or "strategy"
 
 
 @dataclass(frozen=True)
@@ -103,6 +169,9 @@ class ActionRule:
     brightness_ratio: float = config.DEFAULT_BRIGHTNESS_RATIO
 
     def __post_init__(self) -> None:
+        # Types before values: the emptiness and range checks below all
+        # assume the field is already the type it claims to be.
+        _check_types(_own_values(self), _RULE_TYPES)
         if not self.name:
             raise ControlError("name", "an action needs a name")
         if not self.template:
@@ -153,6 +222,11 @@ class Strategy:
         # Normalise before validating: from_dict will hand in a list, and the
         # loop must never be given something a caller could append to.
         object.__setattr__(self, "actions", tuple(self.actions))
+
+        # Types before values, for the same reason as in ActionRule: _in_range
+        # on a str raises a bare TypeError, and "no" in `auto_navigate` is
+        # truthy rather than wrong.
+        _check_types(_own_values(self), _STRATEGY_TYPES)
 
         if not self.actions:
             raise ControlError("actions", "a strategy needs at least one action")
@@ -237,7 +311,10 @@ class Strategy:
         rules: list[ActionRule] = []
         rule_fields = {f.name for f in dataclasses.fields(ActionRule)}
 
-        # Validate that actions is a list or tuple before iterating
+        # Checked explicitly rather than left to the loop below, because the
+        # wrong types here iterate without complaining: a str yields its
+        # characters and a dict its keys, so the caller would get a confusing
+        # per-character error instead of one that names what actions must be.
         if not isinstance(raw["actions"], (list, tuple)):
             raise ControlError(
                 "actions",
@@ -245,11 +322,10 @@ class Strategy:
             )
 
         for entry in raw["actions"]:
-            # Validate that each action entry is a Mapping (dict-like)
-            if not isinstance(entry, dict):
+            if not isinstance(entry, Mapping):
                 raise ControlError(
                     "actions",
-                    f"each action must be a dict, not {type(entry).__name__!r}",
+                    f"each action must be a mapping, not {type(entry).__name__!r}",
                 )
             for key in entry:
                 if key not in rule_fields:
@@ -262,12 +338,13 @@ class Strategy:
         values = {key: raw[key] for key in raw if key != "actions"}
         try:
             return cls(actions=tuple(rules), **values)
+        except ControlError:
+            raise
         except (TypeError, ValueError) as exc:
-            if isinstance(exc, ControlError):
-                raise
-            # A wrong type reaches here as a bare TypeError from the
-            # dataclass; find which field it was so the browser can point at
-            # the right input rather than the whole form.
+            # Anything that gets past __post_init__'s own checks and still
+            # fails - a missing or duplicated argument, say - arrives as a
+            # bare TypeError; find which field it was so the browser can
+            # point at the right input rather than the whole form.
             raise ControlError(_offending_field(values), str(exc)) from None
 
     def validated(self, template_dir: Path | None = None) -> Strategy:
@@ -277,10 +354,34 @@ class Strategy:
         Disabled rows are checked too: a disabled row is one checkbox away
         from running, and letting it hold a broken template only moves the
         failure to whenever someone switches it on.
+
+        A template arrives in the same client JSON as the profile name and is
+        joined to a path just as the name is, so it gets the same suspicion:
+        it must name a file INSIDE the template directory, not merely a file
+        that exists. vision.py passes an absolute template straight to
+        cv2.imread, so an unchecked one lets the request body choose which
+        file on disk the bot reads.
         """
         root = template_dir if template_dir is not None else config.TEMPLATE_DIR
         for rule in self.actions:
-            if not (root / rule.template).is_file():
+            # Belt and braces with ActionRule's own type check: this runs on
+            # whatever self holds, and frozen is not the same as unreachable.
+            if not isinstance(rule.template, str):
+                raise ControlError(
+                    "template", f"{rule.name}: template must be a filename"
+                )
+            full = root / rule.template
+            # Containment, not a no-separators rule: config.NAV_TARGETS uses
+            # names like "nav/claim.png", so a legitimate template may live in
+            # a subdirectory. What must never be legitimate is leaving the
+            # directory - an absolute path (which Path.__truediv__ silently
+            # takes whole, discarding root) or a "../" walk out of it.
+            inside = full.resolve().is_relative_to(root.resolve())
+            if Path(rule.template).is_absolute() or not inside:
+                raise ControlError(
+                    "template", f"{rule.name}: template must be inside {root}"
+                )
+            if not full.is_file():
                 raise ControlError(
                     "template",
                     f"{rule.name}: no template file {rule.template!r} in {root}",
@@ -321,6 +422,10 @@ class StrategyStore:
     than at the next restart.
     """
 
+    # Hidden, and with no .json suffix, so it can neither collide with a
+    # profile named "active" nor be picked up by names()'s glob.
+    _ACTIVE = ".active"
+
     def __init__(self, directory: Path | None = None) -> None:
         # Not bound as a default argument: that would evaluate
         # config.STRATEGY_DIR once at import time, and a test that
@@ -339,14 +444,27 @@ class StrategyStore:
         # listings compare equal when nothing changed. glob("*.json") never
         # matches the .active pointer file, so it is excluded without a
         # special case.
-        return sorted(p.stem for p in self.directory.glob("*.json"))
+        #
+        # Filtered through load()'s own rule so the listing and the loader
+        # agree: a hand-placed "my strategy.json" is a valid glob hit whose
+        # stem validate_name refuses, and offering a name that cannot then be
+        # opened is worse than omitting a file nobody could have opened.
+        found: list[str] = []
+        for path in self.directory.glob("*.json"):
+            try:
+                found.append(validate_name(path.stem))
+            except ControlError:
+                continue
+        return sorted(found)
 
     def load(self, name: str) -> Strategy:
         path = self.path_for(name)
         try:
             raw = json.loads(path.read_text())
         except FileNotFoundError:
-            raise ControlError("name", f"no strategy named {name!r}") from None
+            raise ControlError(
+                "name", f"no strategy named {name!r}", "not_found"
+            ) from None
         except json.JSONDecodeError as exc:
             raise ControlError("name", f"{name}.json is not valid JSON: {exc}") from None
         return Strategy.from_dict(raw)
@@ -356,9 +474,17 @@ class StrategyStore:
 
         Temp file in the SAME directory, then os.replace: replace is atomic
         within a filesystem, and a same-directory temp file is what
-        guarantees there is only one filesystem involved. A crash mid-write
-        can leave the temp file behind, but never a half-written profile that
-        fails to parse on next launch.
+        guarantees there is only one filesystem involved. What this
+        guarantees is that a reader of `name.json` always sees a complete
+        document - either the previous save's or this one's. It does not
+        order concurrent writers: two saves of the same profile still race,
+        and the last replace wins whole.
+
+        No lock, because the writers that matter are not in one process: the
+        bot runs alongside the web server, so a threading.Lock would guard
+        the half of the problem that is already the smaller half. Making
+        every writer's temp path unique is what keeps the race to "one of
+        the two documents wins" instead of "the two interleave into one".
         """
         strategy.validated()
         # Redundant with path_for()'s own call below, but deliberately kept:
@@ -367,9 +493,14 @@ class StrategyStore:
         validate_name(strategy.name)
         self.directory.mkdir(parents=True, exist_ok=True)
         target = self.path_for(strategy.name)
-        # Named from the target so two concurrent saves of *different*
-        # profiles cannot collide on one temp path.
-        tmp = target.with_name(f".{target.name}.tmp")
+        # Unique per writer, not merely per target: a later stage saves on
+        # every settings change, so two saves of the SAME profile are the
+        # expected case. Sharing one temp path would let their write_text
+        # calls interleave into a single spliced file, and leave whichever
+        # writer replaced second with a FileNotFoundError from the other's
+        # finally clause. The .gitignore pattern "strategies/.*.tmp" still
+        # matches this name.
+        tmp = target.with_name(f".{target.name}.{os.getpid()}.{uuid4().hex}.tmp")
         try:
             # Indented and newline-terminated: these files are meant to be
             # read in a diff and edited by hand.
@@ -377,10 +508,6 @@ class StrategyStore:
             os.replace(tmp, target)
         finally:
             tmp.unlink(missing_ok=True)
-
-    # Hidden, and with no .json suffix, so it can neither collide with a
-    # profile named "active" nor be picked up by names()'s glob.
-    _ACTIVE = ".active"
 
     @property
     def _active_path(self) -> Path:
@@ -397,12 +524,12 @@ class StrategyStore:
             name = self._active_path.read_text().strip()
         except FileNotFoundError:
             name = ""
-        if name and self.path_for_exists(name):
+        if name and self.exists(name):
             return name
         remaining = self.names()
         return remaining[0] if remaining else "default"
 
-    def path_for_exists(self, name: str) -> bool:
+    def exists(self, name: str) -> bool:
         """True if `name` is both safe and on disk."""
         try:
             return self.path_for(name).is_file()
@@ -410,10 +537,10 @@ class StrategyStore:
             return False
 
     def set_active(self, name: str) -> None:
-        # No mkdir: path_for_exists(name) can only be true if self.directory
-        # already holds name.json, so the directory is guaranteed to exist.
-        if not self.path_for_exists(name):
-            raise ControlError("name", f"no strategy named {name!r}")
+        # No mkdir: exists(name) can only be true if self.directory already
+        # holds name.json, so the directory is guaranteed to exist.
+        if not self.exists(name):
+            raise ControlError("name", f"no strategy named {name!r}", "not_found")
         self._active_path.write_text(f"{name}\n")
 
     def delete(self, name: str) -> None:
@@ -425,13 +552,17 @@ class StrategyStore:
         "last strategy" message would never fire, and a test written to
         cover it would exercise the active guard instead without saying so.
         """
-        if not self.path_for_exists(name):
-            raise ControlError("name", f"no strategy named {name!r}")
+        if not self.exists(name):
+            raise ControlError("name", f"no strategy named {name!r}", "not_found")
         if len(self.names()) <= 1:
-            raise ControlError("name", "the last strategy cannot be deleted")
+            raise ControlError(
+                "name", "the last strategy cannot be deleted", "conflict"
+            )
         if name == self.active_name():
             raise ControlError(
-                "name", f"{name!r} is active - activate another strategy first"
+                "name",
+                f"{name!r} is active - activate another strategy first",
+                "conflict",
             )
         self.path_for(name).unlink()
 
@@ -445,13 +576,36 @@ class StrategyStore:
         """
         if not self.names():
             self.save(Strategy.from_config("default"))
-        name = self.active_name()
-        # active_name() already fell back to a surviving profile if the
-        # pointer was stale or absent; write that choice down so the next
-        # reader agrees with this one rather than falling back again.
-        current = ""
-        if self._active_path.is_file():
-            current = self._active_path.read_text().strip()
-        if current != name:
-            self.set_active(name)
-        return self.load(name)
+
+        # active_name() checks that the pointer's target exists, not that it
+        # parses, so its answer can still be a corrupt file - and a bot that
+        # will not start because one profile was hand-edited badly is the
+        # same failure the pointer fallback above exists to avoid. Try the
+        # pointer first, then every surviving profile, and take the first
+        # that loads. dict.fromkeys keeps that order without retrying the
+        # pointer's own profile a second time.
+        tried: list[str] = []
+        for name in dict.fromkeys([self.active_name(), *self.names()]):
+            tried.append(name)
+            try:
+                strategy = self.load(name)
+            except ControlError:
+                continue
+            # Whatever was fallen back to, write it down so the next reader
+            # agrees with this one rather than falling back again.
+            current = ""
+            if self._active_path.is_file():
+                current = self._active_path.read_text().strip()
+            if current != name:
+                self.set_active(name)
+            return strategy
+
+        # Nothing on disk parses. Raising beats quietly seeding over the top:
+        # a silent reseed is indistinguishable from a tuned profile having
+        # been reset, and it would overwrite the very file whose contents the
+        # owner still needs in order to repair it.
+        raise ControlError(
+            "name",
+            f"no loadable strategy in {self.directory} (tried {', '.join(tried)})",
+            "not_found",
+        )

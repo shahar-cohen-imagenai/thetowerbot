@@ -113,6 +113,83 @@ def test_out_of_range_fields_name_themselves(field: str, value: object) -> None:
     assert caught.value.field == field
 
 
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("interval", 0.1),
+        ("interval", 3600.0),
+        ("click_cooldown", 60.0),
+        ("navigation_cooldown", 60.0),
+        ("screen_confirmations", 1),
+        ("screen_confirmations", 10),
+        ("max_runs", 1),
+    ],
+)
+def test_the_bounds_themselves_are_accepted(field: str, value: object) -> None:
+    """Every limit is inclusive, and only an accept case can prove it.
+
+    The reject cases above pass just as happily against a `<` where a `<=`
+    belongs - they only ever sit outside the bound. These sit exactly on it.
+    """
+    assert getattr(a_strategy(**{field: value}), field) == value
+
+
+@pytest.mark.parametrize("threshold", [0.01, 1.0])
+def test_a_threshold_at_its_bound_is_accepted(threshold: float) -> None:
+    # 1.0 is a demand for a perfect correlation - unwise, but not invalid.
+    rule = ActionRule(name="D", template="d.png", threshold=threshold)
+    assert rule.threshold == threshold
+
+
+def test_brightness_ratio_of_one_is_legal() -> None:
+    rule = ActionRule(name="D", template="d.png", brightness_ratio=1.0)
+    assert rule.brightness_ratio == 1.0
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("enabled", "no"),        # truthy string: the row would keep firing
+        ("name", 123),
+        ("template", 456),
+        ("threshold", "high"),
+    ],
+)
+def test_a_rule_rejects_a_field_of_the_wrong_type(field: str, value: object) -> None:
+    """Dataclasses do not check types, and this one is fed client JSON.
+
+    enabled="no" is the one that matters: it constructs, it is truthy, and a
+    row the user switched OFF would go on being bought with no error anywhere.
+    """
+    base = dict(name="D", template="d.png")
+    with pytest.raises(ControlError) as caught:
+        ActionRule(**{**base, field: value})
+    assert caught.value.field == field
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("auto_navigate", "maybe"),
+        ("name", 123),
+        ("interval", True),               # bool subclasses int: 1 second
+        ("screen_confirmations", True),
+        ("max_runs", True),
+        ("affordability", 7),
+    ],
+)
+def test_a_strategy_rejects_a_field_of_the_wrong_type(field: str, value: object) -> None:
+    with pytest.raises(ControlError) as caught:
+        a_strategy(**{field: value})
+    assert caught.value.field == field
+
+
+def test_numeric_fields_still_accept_a_plain_int() -> None:
+    # The bool guard must not become an int guard: interval=2 is a fine way
+    # to write two seconds.
+    assert a_strategy(interval=2, click_cooldown=1).interval == 2
+
+
 def test_zero_cooldowns_are_legal() -> None:
     strategy = a_strategy(click_cooldown=0.0, navigation_cooldown=0.0)
     assert strategy.click_cooldown == 0.0
@@ -249,6 +326,52 @@ def test_validated_checks_disabled_rows_too(tmp_path) -> None:
     )
     with pytest.raises(ControlError):
         strategy.validated(template_dir=tmp_path)
+
+
+def test_validated_accepts_a_template_in_a_subdirectory(tmp_path) -> None:
+    """Containment, not "no separators" - config.NAV_TARGETS uses subfolders.
+
+    This is the over-tightening guard: a rule that banned "/" outright would
+    pass every escape test above and still break "nav/claim.png".
+    """
+    (tmp_path / "sub").mkdir()
+    (tmp_path / "sub" / "x.png").write_bytes(b"")
+    strategy = a_strategy(actions=(ActionRule(name="D", template="sub/x.png"),))
+    assert strategy.validated(template_dir=tmp_path) is strategy
+
+
+@pytest.mark.parametrize("template", ["/etc/passwd", "../secret.png", "sub/../../out.png"])
+def test_validated_refuses_a_template_outside_the_directory(template, tmp_path) -> None:
+    """A template is client input joined to a path, exactly like a name.
+
+    Path.__truediv__ discards the left side when the right is absolute, so an
+    unchecked absolute template is passed to cv2.imread unmodified - the
+    request body would choose which file on disk the bot reads.
+    """
+    # The escape targets are made to exist, so it is containment being
+    # tested and not merely "the file is missing".
+    (tmp_path.parent / "secret.png").write_bytes(b"")
+    (tmp_path.parent / "out.png").write_bytes(b"")
+    strategy = a_strategy(actions=(ActionRule(name="D", template=template),))
+    with pytest.raises(ControlError) as caught:
+        strategy.validated(template_dir=tmp_path)
+    assert caught.value.field == "template"
+    assert "inside" in str(caught.value)
+
+
+def test_validated_refuses_a_non_string_template(tmp_path) -> None:
+    """A non-string template used to reach Path.__truediv__ as a TypeError.
+
+    ActionRule now rejects one at construction, so this reaches validated()
+    only by going around __post_init__ - which is the point: the guard has to
+    hold for whatever self actually contains, and an untested guard is one
+    the next reader deletes.
+    """
+    rule = ActionRule(name="D", template="d.png")
+    object.__setattr__(rule, "template", 123)
+    with pytest.raises(ControlError) as caught:
+        a_strategy(actions=(rule,)).validated(template_dir=tmp_path)
+    assert caught.value.field == "template"
 
 
 def test_the_shipped_default_passes_its_own_template_check() -> None:

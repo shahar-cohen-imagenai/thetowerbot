@@ -11,6 +11,7 @@ import json
 
 import pytest
 
+import config
 from strategy import ControlError, Strategy, StrategyStore, validate_name
 
 
@@ -23,8 +24,6 @@ def store(tmp_path, monkeypatch) -> StrategyStore:
     in this file would fail for a reason that has nothing to do with the
     store.
     """
-    import config
-
     templates = tmp_path / "templates"
     templates.mkdir()
     for action in config.ACTIONS:
@@ -103,6 +102,33 @@ def test_save_is_atomic(store, monkeypatch) -> None:
     with pytest.raises(OSError):
         store.save(Strategy.from_dict({**original.to_dict(), "interval": 9.0}))
     assert store.path_for("mine").read_text() == before
+    # The docstring's other half, now actually asserted: the finally clause
+    # cleans up after a failed replace, so the directory holds exactly the
+    # profile that was there before and nothing else.
+    assert sorted(p.name for p in store.directory.iterdir()) == ["mine.json"]
+
+
+def test_two_saves_of_one_profile_do_not_share_a_temp_path(store, monkeypatch) -> None:
+    """Same-profile concurrency is the expected case, not the exotic one.
+
+    A later stage saves on every settings change. With one temp path per
+    target, two writers' write_text calls interleave into a single spliced
+    file, the first replace promotes it, and the second writer dies on a
+    FileNotFoundError from the first one's finally clause.
+    """
+    import os
+
+    seen: list[str] = []
+    real_replace = os.replace
+
+    def recording(src, dst):
+        seen.append(str(src))
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "replace", recording)
+    store.save(Strategy.from_config("mine"))
+    store.save(Strategy.from_config("mine"))
+    assert len(set(seen)) == 2
 
 
 def test_save_leaves_no_temp_files_behind(store) -> None:
@@ -111,8 +137,6 @@ def test_save_leaves_no_temp_files_behind(store) -> None:
 
 
 def test_save_rejects_a_strategy_with_a_missing_template(store, monkeypatch) -> None:
-    import config
-
     monkeypatch.setattr(config, "TEMPLATE_DIR", store.directory / "empty")
     with pytest.raises(ControlError):
         store.save(Strategy.from_config("mine"))
@@ -150,10 +174,54 @@ def test_reasonable_names_are_accepted(name: str) -> None:
 
 
 def test_the_store_refuses_unsafe_names_on_every_path(store) -> None:
+    # Every entry point takes the name from a URL, so every entry point has
+    # to refuse it - not just the two that happened to get tested first.
+    store.ensure_seeded()
     with pytest.raises(ControlError):
         store.load("../../etc/passwd")
     with pytest.raises(ControlError):
         store.path_for("../escape")
+    with pytest.raises(ControlError):
+        store.delete("../escape")
+    with pytest.raises(ControlError):
+        store.set_active("../escape")
+    assert store.exists("../escape") is False
+
+
+def test_save_refuses_a_bad_name_before_creating_the_directory(store) -> None:
+    """save()'s validate_name call looks redundant with path_for()'s. It isn't.
+
+    It runs before mkdir, so a name that will be refused anyway cannot create
+    the strategies directory as a side effect first. Without this assertion
+    the redundancy has nothing pinning it, and reads like dead code.
+    """
+    escaping = Strategy.from_dict(
+        {**Strategy.from_config("mine").to_dict(), "name": "../escape"}
+    )
+    with pytest.raises(ControlError) as caught:
+        store.save(escaping)
+    assert caught.value.field == "name"
+    assert not store.directory.exists()
+
+
+def test_names_omits_a_file_the_loader_would_refuse(store) -> None:
+    # A listing that offers a name load() then rejects is a dead entry in the
+    # dashboard's dropdown.
+    store.save(Strategy.from_config("mine"))
+    (store.directory / "my strategy.json").write_text("{}")
+    assert store.names() == ["mine"]
+
+
+def test_the_committed_default_matches_config_actions() -> None:
+    """The committed profile and config.ACTIONS must not drift.
+
+    ensure_seeded() only writes default.json when strategies/ is empty, and
+    it never is in a real clone - so config.ACTIONS is never consulted there.
+    Without this test, adding an upgrade to config.ACTIONS would reach no
+    clone, new or old, and nothing would say so.
+    """
+    raw = json.loads((config.STRATEGY_DIR / "default.json").read_text())
+    assert Strategy.from_dict(raw) == Strategy.from_config("default")
 
 
 def test_ensure_seeded_writes_the_shipped_defaults(store) -> None:
@@ -202,6 +270,36 @@ def test_ensure_seeded_recovers_from_an_active_pointer_at_a_deleted_file(store) 
     assert store.active_name() == "default"
 
 
+def test_ensure_seeded_skips_a_profile_that_does_not_parse(store) -> None:
+    """A hand-edit that breaks the JSON must not stop the bot starting.
+
+    active_name() checks that the pointer's target exists, not that it
+    parses, so without a skip here the load at the end of ensure_seeded()
+    propagates straight out of startup - contradicting the fallback the
+    method's own docstring promises.
+    """
+    store.ensure_seeded()
+    store.save(Strategy.from_config("crit"))
+    store.set_active("crit")
+    store.path_for("crit").write_text("{not json")
+
+    recovered = store.ensure_seeded()
+    assert recovered.name == "default"
+    assert store.active_name() == "default"
+
+
+def test_ensure_seeded_raises_when_nothing_on_disk_parses(store) -> None:
+    # The fallback stops here on purpose: quietly reseeding would overwrite
+    # the very file whose contents its owner needs in order to repair it,
+    # and would look exactly like a tuned profile having been reset.
+    store.directory.mkdir(parents=True)
+    store.path_for("default").write_text("{not json")
+    with pytest.raises(ControlError) as caught:
+        store.ensure_seeded()
+    assert caught.value.code == "not_found"
+    assert store.path_for("default").read_text() == "{not json"
+
+
 def test_set_active_persists_across_stores(store) -> None:
     store.ensure_seeded()
     store.save(Strategy.from_config("crit"))
@@ -231,6 +329,10 @@ def test_delete_refuses_the_active_profile(store) -> None:
     with pytest.raises(ControlError) as caught:
         store.delete("default")
     assert caught.value.field == "name"
+    # Both guards raise field == "name", so only the message tells them
+    # apart - and the order they run in is a fix that nothing else pins.
+    assert "is active" in str(caught.value)
+    assert caught.value.code == "conflict"
     assert store.names() == ["crit", "default"]
 
 
@@ -239,12 +341,43 @@ def test_delete_refuses_the_last_profile(store) -> None:
     # which has no recovery short of hand-editing the directory.
     store.ensure_seeded()
     store.set_active("default")
-    with pytest.raises(ControlError):
+    with pytest.raises(ControlError) as caught:
         store.delete("default")
+    # A lone profile is necessarily the active one, so this assertion is what
+    # proves the last-profile guard ran first. Without it, flipping the order
+    # back would silently make this branch unreachable and this test would
+    # still pass against the active-profile guard.
+    assert "the last strategy cannot be deleted" in str(caught.value)
+    assert caught.value.code == "conflict"
 
 
 def test_delete_refuses_an_absent_profile(store) -> None:
     store.ensure_seeded()
     store.save(Strategy.from_config("crit"))
-    with pytest.raises(ControlError):
+    with pytest.raises(ControlError) as caught:
         store.delete("ghost")
+    assert caught.value.code == "not_found"
+
+
+def test_errors_carry_the_code_an_http_layer_maps_on(store) -> None:
+    """404 vs 409 vs 422 must not be decided by string-matching a message.
+
+    Every raise below carries field == "name"; only the code separates
+    "no such profile" from "you may not delete this one" from "the file is
+    corrupt", and a status a route derives from wording breaks the first
+    time a message is reworded.
+    """
+    store.ensure_seeded()
+    with pytest.raises(ControlError) as absent:
+        store.load("ghost")
+    assert absent.value.code == "not_found"
+
+    with pytest.raises(ControlError) as pointed:
+        store.set_active("ghost")
+    assert pointed.value.code == "not_found"
+
+    store.path_for("broken").write_text("{not json")
+    with pytest.raises(ControlError) as corrupt:
+        store.load("broken")
+    # Corrupt content is a bad file, not a missing one: it stays the default.
+    assert corrupt.value.code == "invalid"
