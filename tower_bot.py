@@ -27,7 +27,6 @@ import sys
 import threading
 import time
 import traceback
-from dataclasses import replace
 from pathlib import Path
 from types import FrameType
 from typing import TYPE_CHECKING, Any
@@ -474,8 +473,9 @@ class TowerBot:
 
         `interval` has two distinct meanings, deliberately:
 
-        - `None` (the default, and what serve_web() passes in production)
-          means the dashboard owns the pace. `self.controls.snapshot().strategy.interval`
+        - `None` (the default, and what `BotRunner._run()` passes in
+          production - see runner.py) means the dashboard owns the pace.
+          `self.controls.snapshot().strategy.interval`
           is re-read at the top of every iteration, so a change made from the
           browser takes effect on the very next sleep rather than requiring a
           restart.
@@ -850,7 +850,7 @@ def apply_cli_overrides(
     if not supplied:
         return loaded
 
-    updated = replace(loaded, **supplied)
+    updated = dataclasses.replace(loaded, **supplied)
     store.save(updated)
     logger.info(
         "Applied and saved CLI override(s) into strategy %r: %s",
@@ -946,7 +946,11 @@ def main(argv: list[str] | None = None) -> int:
     # `main()` refusing to serve at all. Every other path - --once,
     # plain logging, --tui - has no dashboard to report a failure into, so
     # it still connects eagerly and fails fast the way it always has.
-    serving = args.web and not args.once
+    # --debug-scores is one of those: it captures a frame and exits before
+    # anything ever serves, with or without --web, so it always needs a
+    # device up front - deferring it here would only trade a clean
+    # "no emulator" error for capture_screen(None) blowing up below.
+    serving = args.web and not args.once and not args.debug_scores
     device = None
     if not serving:
         try:

@@ -174,6 +174,51 @@ def test_debug_scores_prints_a_table_and_exits_without_scanning(
         assert name in out
 
 
+def test_web_debug_scores_still_connects_eagerly_and_exits_cleanly(
+    monkeypatch, capsys
+) -> None:
+    """Regression: --debug-scores captures a frame and exits before anything
+    ever serves, with or without --web - so it must always get an eagerly
+    connected device, not the web path's lazy device_factory. Before this
+    fix, `serving = args.web and not args.once` left `device = None` for
+    `--web --debug-scores`, and capture_screen(None) blew up with a raw
+    AttributeError instead of degrading into the same one-shot diagnostic
+    plain --debug-scores gives.
+
+    Deliberately does NOT stub tower_bot.capture_screen the way the plain
+    --debug-scores test above does: that stub ignores its `device` argument
+    entirely, so it would happily "succeed" even if `device` were None and
+    mask exactly the regression this test exists to catch. Instead this
+    stubs only connect_device, and lets the real capture_screen() run
+    against a fake AdbDevice - the same fake-screenshot pattern
+    tests/test_device.py uses - so a None device would fail for real, the
+    way it did before the fix.
+    """
+    import config
+    import tower_bot
+    from PIL import Image as PILImage
+
+    fixtures = Path(__file__).parent / "fixtures"
+    fake_device = MagicMock()
+    fake_device.screenshot.return_value = PILImage.open(fixtures / "main_menu.png")
+
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: fake_device)
+
+    def _boom(*args, **kwargs):
+        raise AssertionError("TowerBot must not be constructed in --debug-scores mode")
+
+    monkeypatch.setattr(tower_bot, "TowerBot", _boom)
+
+    exit_code = tower_bot.main(["--web", "--debug-scores"])
+
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    for action in config.ACTIONS:
+        assert action.template in out
+    for name in config.SCREEN_ANCHORS:
+        assert name in out
+
+
 def test_resolution_guard_warns_without_crashing_when_capture_fails(
     monkeypatch, caplog
 ) -> None:
@@ -456,6 +501,38 @@ def test_web_alone_still_prints_the_dashboard_url(monkeypatch, capsys, tmp_path)
 
     assert exit_code == 0
     assert "Dashboard on http://127.0.0.1:8765" in capsys.readouterr().out
+
+
+def test_idle_through_main_never_starts_the_bot(monkeypatch, capsys, tmp_path) -> None:
+    """--idle's headline behaviour, glued together through main() rather than
+    tested piecemeal: parse_args's --idle and serve_web's
+    start_immediately=False are each unit-tested on their own, but nothing
+    before this proved main() actually wires
+    start_immediately=not args.idle through. Asserts on the strongest signal
+    available without standing up a real uvicorn: connect_device (the
+    runner's device_factory) must never be called, because runner.start()
+    must never run under --idle."""
+    import tower_bot
+
+    connect_calls: list[tuple[str, int]] = []
+
+    def _connect(host: str, port: int):
+        connect_calls.append((host, port))
+        return MagicMock()
+
+    monkeypatch.setattr(tower_bot, "connect_device", _connect)
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    exit_code = tower_bot.main(
+        ["--web", "--idle", "--db", str(tmp_path / "bot.db")]
+    )
+
+    assert exit_code == 0
+    # The whole point: serve_web must never call runner.start() under
+    # --idle, so the lazy device_factory (connect_device) is never invoked.
+    assert connect_calls == []
+    assert "no bot running, press Start" in capsys.readouterr().out
 
 
 class _FakeServer:
