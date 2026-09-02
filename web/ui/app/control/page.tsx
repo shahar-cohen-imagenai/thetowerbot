@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { fetchControl, patchControl, stopBot } from "@/lib/api";
 import { useEventStream } from "@/lib/useEventStream";
-import type { ControlPayload } from "@/lib/types";
+import type { ControlPayload, Strategy } from "@/lib/types";
 
 export default function ControlPage() {
   const [control, setControl] = useState<ControlPayload | null>(null);
@@ -58,7 +58,7 @@ export default function ControlPage() {
 
   // Every write goes through here so the page always renders what the server
   // actually accepted, never what we optimistically hoped it would.
-  async function send(patch: Partial<ControlPayload>) {
+  async function send(patch: Partial<Strategy> & { paused?: boolean }) {
     setError(null);
     try {
       setControl(await patchControl(patch));
@@ -87,9 +87,9 @@ export default function ControlPage() {
 
   const toggleAction = (name: string) =>
     send({
-      enabled_actions: control.enabled_actions.includes(name)
-        ? control.enabled_actions.filter((a) => a !== name)
-        : [...control.enabled_actions, name],
+      actions: control.strategy.actions.map((rule) =>
+        rule.name === name ? { ...rule, enabled: !rule.enabled } : rule,
+      ),
     });
 
   return (
@@ -112,8 +112,8 @@ export default function ControlPage() {
         <label className="flex items-center justify-between text-sm">
           Scan interval (s)
           <Input
-            key={`${rejectedInterval}-${control.interval}`}
-            type="number" min={0.1} max={3600} step={0.1} defaultValue={control.interval}
+            key={`${rejectedInterval}-${control.strategy.interval}`}
+            type="number" min={0.1} max={3600} step={0.1} defaultValue={control.strategy.interval}
             onBlur={(e) => send({ interval: Number(e.target.value) })}
             className="w-24 text-right"
           />
@@ -121,18 +121,18 @@ export default function ControlPage() {
 
         <label className="flex items-center justify-between text-sm">
           Auto-navigate
-          <input type="checkbox" checked={control.auto_navigate}
+          <input type="checkbox" checked={control.strategy.auto_navigate}
                  onChange={(e) => send({ auto_navigate: e.target.checked })} />
         </label>
 
         <div className="text-sm">
           <div className="mb-1">Affordability</div>
           {["digits", "brightness"].map((name) => {
-            const usable = control.strategies_available.includes(name);
+            const usable = control.affordability_available.includes(name);
             return (
               <label key={name} className={`mr-4 ${usable ? "" : "text-muted-foreground"}`}>
-                <input type="radio" name="strategy" checked={control.strategy === name}
-                       disabled={!usable} onChange={() => send({ strategy: name })} />{" "}
+                <input type="radio" name="strategy" checked={control.strategy.affordability === name}
+                       disabled={!usable} onChange={() => send({ affordability: name })} />{" "}
                 {name}{usable ? "" : " (no atlas)"}
               </label>
             );
@@ -141,11 +141,11 @@ export default function ControlPage() {
 
         <div className="text-sm">
           <div className="mb-1">Actions</div>
-          {control.actions.map((name) => (
-            <label key={name} className="mr-4 inline-block">
-              <input type="checkbox" checked={control.enabled_actions.includes(name)}
-                     onChange={() => toggleAction(name)} />{" "}
-              {name}
+          {control.strategy.actions.map((rule) => (
+            <label key={rule.name} className="mr-4 inline-block">
+              <input type="checkbox" checked={rule.enabled}
+                     onChange={() => toggleAction(rule.name)} />{" "}
+              {rule.name}
             </label>
           ))}
         </div>

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import threading
+from dataclasses import replace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,6 +13,7 @@ from control import Controls
 from events import EventBus
 from sinks.sse import SseSink
 from sinks.state import BotState
+from strategy import Strategy
 from web.app import create_app
 
 
@@ -26,7 +28,9 @@ def wired() -> tuple[TestClient, Controls, list, threading.Event]:
 
     bus = EventBus()
     bus.subscribe(Recorder())
-    controls = Controls(paused=False, interval=2.0, strategy="brightness")
+    controls = Controls(strategy=replace(
+        Strategy.from_config(), affordability="brightness"
+    ))
     stop = threading.Event()
     app = create_app(
         state=BotState(), sse=SseSink(), bus=bus, db_path=None,
@@ -36,22 +40,22 @@ def wired() -> tuple[TestClient, Controls, list, threading.Event]:
     return TestClient(app), controls, seen, stop
 
 
-def test_get_returns_the_current_settings_and_the_action_names(wired) -> None:
+def test_get_returns_the_whole_strategy(wired) -> None:
     client, _, _, _ = wired
     body = client.get("/api/control").json()
     assert body["paused"] is False
-    assert body["strategy"] == "brightness"
-    assert body["actions"] == [action.name for action in config.ACTIONS]
+    assert body["strategy"]["affordability"] == "brightness"
+    assert [row["name"] for row in body["strategy"]["actions"]] == [
+        action.name for action in config.ACTIONS
+    ]
 
 
-def test_patch_applies_and_echoes_the_full_state(wired) -> None:
-    client, controls, _, _ = wired
-    body = client.patch("/api/control", json={"paused": True}).json()
-    assert body["paused"] is True
-    # The full state, not just the delta: a client must never have to guess
-    # what was accepted.
-    assert "interval" in body and "enabled_actions" in body
-    assert controls.snapshot()["paused"] is True
+def test_available_affordability_is_advertised_under_its_new_name(wired) -> None:
+    client, _, _, _ = wired
+    body = client.get("/api/control").json()
+    # digits is None in the fixture's checks - no atlas on this machine - so
+    # the browser must be told not to offer it.
+    assert body["affordability_available"] == ["brightness"]
 
 
 def test_patch_publishes_a_control_changed_event(wired) -> None:
@@ -71,11 +75,13 @@ def test_an_invalid_patch_is_422_and_changes_nothing(wired) -> None:
     client, controls, seen, _ = wired
     response = client.patch("/api/control", json={"interval": -1})
     assert response.status_code == 422
-    assert controls.snapshot()["interval"] == 2.0
+    assert controls.snapshot().strategy.interval == pytest.approx(
+        Strategy.from_config().interval
+    )
     assert not [event for event in seen if event.type == "ControlChanged"]
 
 
-def test_switching_to_an_unavailable_strategy_is_refused(wired) -> None:
+def test_patching_an_unavailable_affordability_is_refused(wired) -> None:
     """Silently downgrading would misrepresent what the bot is doing.
 
     build_affordability() degrades digits -> brightness on its own, which is
@@ -83,10 +89,27 @@ def test_switching_to_an_unavailable_strategy_is_refused(wired) -> None:
     digits, get brightness, and never be told.
     """
     client, controls, _, _ = wired
-    response = client.patch("/api/control", json={"strategy": "digits"})
+    response = client.patch("/api/control", json={"affordability": "digits"})
     assert response.status_code == 422
-    assert "atlas" in response.json()["detail"].lower()
-    assert controls.snapshot()["strategy"] == "brightness"
+    assert "atlas" in response.json()["detail"]
+    assert controls.snapshot().strategy.affordability == "brightness"
+
+
+def test_patching_the_action_list_reorders_the_strategy(wired) -> None:
+    client, controls, _, _ = wired
+    rows = [row for row in reversed(client.get("/api/control").json()["strategy"]["actions"])]
+    body = client.patch("/api/control", json={"actions": rows})
+    assert body.status_code == 200
+    assert [r.name for r in controls.snapshot().strategy.actions] == [
+        row["name"] for row in rows
+    ]
+
+
+def test_an_invalid_patch_names_the_field(wired) -> None:
+    client, _, _, _ = wired
+    response = client.patch("/api/control", json={"interval": 0})
+    assert response.status_code == 422
+    assert "interval" in response.json()["detail"]
 
 
 def test_stop_sets_the_shutdown_flag(wired) -> None:

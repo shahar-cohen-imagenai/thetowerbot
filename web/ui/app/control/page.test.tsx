@@ -26,13 +26,22 @@ vi.mock("@/lib/useEventStream", () => ({
 
 const baseControl: ControlPayload = {
   paused: false,
-  interval: 1.5,
-  auto_navigate: false,
-  strategy: "digits",
-  enabled_actions: ["Damage"],
-  actions: ["Damage", "Health"],
+  strategy: {
+    name: "default",
+    actions: [
+      { name: "Damage", template: "damage.png", enabled: true, threshold: 0.85, brightness_ratio: 0.5 },
+      { name: "Health", template: "health.png", enabled: false, threshold: 0.85, brightness_ratio: 0.5 },
+    ],
+    affordability: "digits",
+    interval: 1.5,
+    click_cooldown: 1.0,
+    auto_navigate: false,
+    max_runs: null,
+    navigation_cooldown: 1.0,
+    screen_confirmations: 2,
+  },
   // "digits" itself is unavailable here - no glyph atlas built.
-  strategies_available: ["brightness"],
+  affordability_available: ["brightness"],
 };
 
 beforeEach(() => {
@@ -105,7 +114,7 @@ group("ControlPage", () => {
       (await screen.findByText("Scan interval (s)")).closest("label")!.querySelector("input")! as HTMLInputElement;
     expect((await getInput()).value).toBe("1.5");
 
-    fetchControl.mockResolvedValue({ ...baseControl, interval: 5 });
+    fetchControl.mockResolvedValue({ ...baseControl, strategy: { ...baseControl.strategy, interval: 5 } });
     streamState.events = [
       { type: "ControlChanged", seq: 1, ts: 0, changed: { interval: 5 }, source: "web" },
     ];

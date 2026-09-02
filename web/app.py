@@ -157,14 +157,20 @@ class ControlPatch(BaseModel):
 
     Deliberately loose on types beyond the obvious - Controls.apply() is the
     single validator, so the rules live in one place rather than being spelled
-    out here and there and drifting apart.
+    out here and there and drifting apart. `actions` is a list of raw objects
+    for the same reason: mirroring ActionRule's fields here would be a second
+    schema to keep in step with strategy.py.
     """
 
     paused: bool | None = None
+    affordability: str | None = None
     interval: float | None = None
+    click_cooldown: float | None = None
     auto_navigate: bool | None = None
-    strategy: str | None = None
-    enabled_actions: list[str] | None = None
+    max_runs: int | None = None
+    navigation_cooldown: float | None = None
+    screen_confirmations: int | None = None
+    actions: list[dict[str, Any]] | None = None
 
 
 def create_app(
@@ -285,14 +291,13 @@ def create_app(
         available = dict(checks or {})
 
         def _control_payload() -> dict:
-            # The browser needs the full action list to render checkboxes for
-            # the ones currently switched off, which the snapshot omits, plus
-            # which strategies actually built (see build_affordability()) so
-            # it can grey out one with no atlas rather than let a switch to it
-            # silently do nothing.
-            payload = controls.snapshot()
-            payload["actions"] = [action.name for action in config.ACTIONS]
-            payload["strategies_available"] = sorted(
+            # The browser needs to know which affordability methods actually
+            # built (see build_affordability()) so it can grey out one with no
+            # atlas rather than let a switch to it silently do nothing. The
+            # action list needs no separate advertisement any more: the
+            # strategy carries every row, enabled or not.
+            payload = controls.payload()
+            payload["affordability_available"] = sorted(
                 name for name, check in available.items() if check is not None
             )
             return payload
@@ -303,17 +308,23 @@ def create_app(
 
         @app.patch("/api/control")
         def patch_control(patch: ControlPatch) -> dict:
+            # exclude_none means "absent" and "explicitly null" are the same
+            # request, so max_runs cannot be cleared through this route. The
+            # strategy page clears it by PUTting the whole profile instead.
             requested = patch.model_dump(exclude_none=True)
 
             # Refuse before applying, not after: build_affordability() falls
             # back to brightness on its own, so accepting this and letting the
             # loop pick would leave the browser showing "digits" while the bot
             # used brightness.
-            strategy = requested.get("strategy")
+            strategy = requested.get("affordability")
             if strategy is not None and available.get(strategy) is None:
                 raise HTTPException(
                     status_code=422,
-                    detail=f"strategy {strategy!r} is unavailable - no glyph atlas is built",
+                    detail=(
+                        f"affordability {strategy!r} is unavailable - no glyph "
+                        "atlas is built"
+                    ),
                 )
 
             try:

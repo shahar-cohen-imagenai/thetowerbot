@@ -1,4 +1,4 @@
-import type { ControlPayload, RunRow, Snapshot, StatsPayload, StatusPayload, StoredEvent } from "./types";
+import type { ControlPayload, RunRow, Snapshot, StatsPayload, StatusPayload, Strategy, StoredEvent } from "./types";
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path, { headers: { accept: "application/json" } });
@@ -32,7 +32,9 @@ function describeDetail(detail: unknown): string | null {
 }
 
 /** Returns the full new state, or throws with the server's reason. */
-export async function patchControl(patch: Partial<ControlPayload>): Promise<ControlPayload> {
+export async function patchControl(
+  patch: Partial<Strategy> & { paused?: boolean },
+): Promise<ControlPayload> {
   const response = await fetch("/api/control", {
     method: "PATCH",
     headers: { "content-type": "application/json" },
