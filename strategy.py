@@ -18,6 +18,9 @@ depends on this module, so this module must not depend on the web layer.
 from __future__ import annotations
 
 import dataclasses
+import json
+import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -283,3 +286,87 @@ class Strategy:
                     f"{rule.name}: no template file {rule.template!r} in {root}",
                 )
         return self
+
+
+# A profile name becomes a filename, and arrives off a URL. Anything outside
+# this set is refused before it is ever joined to a path.
+NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
+
+def validate_name(name: str) -> str:
+    """Return `name` if it is safe to turn into a filename, else raise.
+
+    Refusing outright rather than resolving-and-checking: the set of names
+    worth having is small and obvious, and a rule you can read in one line
+    has nowhere for a traversal to hide.
+    """
+    if not isinstance(name, str) or not NAME_PATTERN.match(name):
+        raise ControlError(
+            "name",
+            "a strategy name must be 1-64 characters of letters, digits, "
+            "'-' or '_'",
+        )
+    return name
+
+
+class StrategyStore:
+    """Named strategies as JSON files in one directory.
+
+    No caching. A profile is read when it is asked for, so a file edited by
+    hand while the dashboard is open is picked up on the next load rather
+    than at the next restart.
+    """
+
+    def __init__(self, directory: Path | None = None) -> None:
+        # Not bound as a default argument: that would evaluate
+        # config.STRATEGY_DIR once at import time, and a test that
+        # monkeypatches the constant afterwards would never be seen.
+        self.directory = (
+            directory if directory is not None else config.STRATEGY_DIR
+        )
+
+    def path_for(self, name: str) -> Path:
+        return self.directory / f"{validate_name(name)}.json"
+
+    def names(self) -> list[str]:
+        if not self.directory.is_dir():
+            return []
+        # Sorted so the browser's list is stable between polls, and so two
+        # listings compare equal when nothing changed. glob("*.json") never
+        # matches the .active pointer file, so it is excluded without a
+        # special case.
+        return sorted(p.stem for p in self.directory.glob("*.json"))
+
+    def load(self, name: str) -> Strategy:
+        path = self.path_for(name)
+        try:
+            raw = json.loads(path.read_text())
+        except FileNotFoundError:
+            raise ControlError("name", f"no strategy named {name!r}") from None
+        except json.JSONDecodeError as exc:
+            raise ControlError("name", f"{name}.json is not valid JSON: {exc}") from None
+        return Strategy.from_dict(raw)
+
+    def save(self, strategy: Strategy) -> None:
+        """Validate, then write atomically.
+
+        Temp file in the SAME directory, then os.replace: replace is atomic
+        within a filesystem, and a same-directory temp file is what
+        guarantees there is only one filesystem involved. A crash mid-write
+        can leave the temp file behind, but never a half-written profile that
+        fails to parse on next launch.
+        """
+        strategy.validated()
+        validate_name(strategy.name)
+        self.directory.mkdir(parents=True, exist_ok=True)
+        target = self.path_for(strategy.name)
+        # Named from the target so two concurrent saves of *different*
+        # profiles cannot collide on one temp path.
+        tmp = target.with_name(f".{target.name}.tmp")
+        try:
+            # Indented and newline-terminated: these files are meant to be
+            # read in a diff and edited by hand.
+            tmp.write_text(json.dumps(strategy.to_dict(), indent=2) + "\n")
+            os.replace(tmp, target)
+        finally:
+            tmp.unlink(missing_ok=True)
