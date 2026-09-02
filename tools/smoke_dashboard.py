@@ -253,9 +253,11 @@ def check_stop_route_stops_serve_web(tmp: Path) -> None:
     import tower_bot
 
     class FakeBot:
-        """Enough of TowerBot's shape for serve_web(): a controls.interval to
-        size the shutdown join, a run_forever() that loops harmlessly until
-        told to stop, and a stop() that flips both."""
+        """Enough of TowerBot's shape for serve_web(): a controls whose
+        snapshot().strategy.interval sizes the shutdown join (matching how
+        the real bot reads it - see tower_bot.py's run_forever/serve_web),
+        a run_forever() that loops harmlessly until told to stop, and a
+        stop() that flips both."""
 
         def __init__(self) -> None:
             self.controls = control.Controls(
@@ -268,7 +270,7 @@ def check_stop_route_stops_serve_web(tmp: Path) -> None:
         def run_forever(self, max_runs: int | None = None) -> None:
             while self._running:
                 self.scans += 1
-                self._stopping.wait(self.controls.interval)
+                self._stopping.wait(self.controls.snapshot().strategy.interval)
 
         def stop(self, *_: object) -> None:
             self._running = False
