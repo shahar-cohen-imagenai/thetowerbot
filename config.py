@@ -250,7 +250,9 @@ FRAME_POLL_SECONDS: float = 0.25
 # Binding 0.0.0.0 puts both on the local network in the clear - do not change
 # this without putting real authentication in front of it first.
 # Since the control plane landed this server is no longer read-only: anything
-# that can reach it can pause the bot, change what it buys, and stop the
-# process. Loopback is doing real work here, not just avoiding an open port.
+# that can reach it can start and stop the bot, change what it buys, end the
+# process, and create or delete strategy files under strategies/. That last
+# one is a write path onto the disk, not just a knob on a running loop.
+# Loopback is doing real work here, not just avoiding an open port.
 WEB_HOST: str = "127.0.0.1"
 WEB_PORT: int = 8765

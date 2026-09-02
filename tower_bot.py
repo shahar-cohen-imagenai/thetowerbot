@@ -503,8 +503,21 @@ class TowerBot:
             # Checked before run_once(): if the limit is already reached at
             # entry, the loop must return without scanning at all, not after
             # one more pass.
-            if self.run_cap_reached(max_runs):
-                logger.info("Reached --max-runs=%d, stopping.", max_runs)
+            #
+            # One snapshot feeds both the check and the message. The cap is
+            # logged RESOLVED rather than as the parameter, because in the
+            # web path the parameter is None: BotRunner._run() calls
+            # run_forever() with no arguments and the cap comes from the
+            # strategy. "%d" % None raises inside logging, so the operator
+            # would get a "--- Logging error ---" traceback at exactly the
+            # moment the line exists to explain - the dashboard parking with
+            # a stopped bot.
+            capped = self.controls.snapshot().strategy
+            if self.run_cap_reached(max_runs, capped):
+                logger.info(
+                    "Reached the run cap of %d, stopping.",
+                    max_runs if max_runs is not None else capped.max_runs,
+                )
                 break
             # Re-read every iteration (when interval is None) rather than
             # once at the top of the loop - see the docstring above.
@@ -569,7 +582,14 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--tui", action="store_true", help="live terminal panel instead of log lines"
     )
     parser.add_argument(
-        "--auto-navigate", action="store_true", default=None,
+        # BooleanOptionalAction, so --no-auto-navigate exists too. With a
+        # plain store_true the flag was a one-way switch: passing it saved
+        # True into the strategy (see apply_cli_overrides), and nothing on
+        # the command line could ever put it back - the only way off was the
+        # dashboard. `default=None` still distinguishes "not passed" from
+        # "passed False", which is what keeps an absent flag from
+        # overwriting the saved profile.
+        "--auto-navigate", action=argparse.BooleanOptionalAction, default=None,
         help="tap RETRY / BATTLE to loop runs unattended - overrides and saves",
     )
     parser.add_argument(
@@ -659,12 +679,18 @@ def build_checks(
     `atlas_root` exists so this can be exercised without a device: it is
     threaded straight through to `build_affordability`.
 
-    Deliberately does not touch `Controls`. `BotRunner` calls this once per
-    start() to get a bot-affecting-only dict, while `Controls` is built once,
-    at process startup, and lives for as long as the server does - conflating
-    the two here would hand every restart a fresh `Controls` while the HTTP
-    routes kept patching the old one, with the running bot never seeing the
+    Deliberately does not touch `Controls`. This returns a
+    bot-affecting-only dict; `Controls` is built once, at process startup,
+    and lives for as long as the server does - conflating the two here would
+    make it possible to hand out a fresh `Controls` while the HTTP routes
+    kept patching the old one, with the running bot never seeing the
     dashboard's edits.
+
+    `BotRunner` does NOT call this: it is handed the dict in its constructor
+    and reuses it for every bot it ever starts, because checks are
+    per-process, not per-bot (rebuilding the glyph atlas on every Start would
+    make the button slow for no gain). "Safe to call on every start" above is
+    about this function being free of hidden state, not an invitation to.
     """
     brightness = BrightnessAffordability()
     digits_check = build_affordability("digits", atlas_root=atlas_root)
@@ -761,9 +787,10 @@ def warn_if_web_host_exposed(host: str) -> None:
     config.WEB_HOST's docstring carries the real warning, but nobody reads a
     default's docstring on the way to overriding it with --web-host. The
     dashboard serves live screenshots and full event history with no auth,
-    and - now that the control plane is wired in - lets a caller pause,
-    reconfigure or stop the bot too, so binding anything but loopback
-    deserves pushback at the point someone is actually about to do it.
+    and - now that the control plane is wired in - lets a caller start and
+    stop the bot, rewrite what it buys, and create or delete strategy files
+    on disk, so binding anything but loopback deserves pushback at the point
+    someone is actually about to do it.
     """
     try:
         loopback = ipaddress.ip_address(host).is_loopback
@@ -774,9 +801,10 @@ def warn_if_web_host_exposed(host: str) -> None:
     if not loopback:
         logger.warning(
             "--web-host %s is not loopback - the dashboard's live "
-            "screenshots, event history, and control over the bot (pause, "
-            "reconfigure, stop) will be reachable by anyone on this "
-            "network, and there is no authentication.",
+            "screenshots, event history, and control over the bot (start, "
+            "stop, rewrite what it buys, create or delete strategy files on "
+            "disk) will be reachable by anyone on this network, and there is "
+            "no authentication.",
             host,
         )
 
@@ -907,6 +935,13 @@ def serve_web(
 
     config_ = uvicorn.Config(
         app, host=host, port=port, log_level="warning",
+        # uvicorn's default here is None, which means "wait forever" for
+        # in-flight responses - and an SSE feed or an MJPEG stream is
+        # in-flight for as long as the tab is open. This is a BACKSTOP, not
+        # the fix: the fix is `shutdown` being set before graceful shutdown
+        # begins (see handle_exit above), so both generators end themselves
+        # in the normal path. The 2s is what keeps a stream that somehow
+        # missed the flag from hanging Ctrl+C indefinitely.
         timeout_graceful_shutdown=2,
     )
     server = _Server(config_)

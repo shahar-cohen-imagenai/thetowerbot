@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import logging
+import signal
 import threading
 import time
 from pathlib import Path
@@ -28,6 +29,14 @@ def test_auto_navigate_defaults_off() -> None:
 
 def test_auto_navigate_can_be_enabled() -> None:
     assert parse_args(["--auto-navigate"]).auto_navigate is True
+
+
+def test_auto_navigate_can_be_turned_back_off() -> None:
+    """--auto-navigate persists into the strategy (see apply_cli_overrides),
+    so without a counterpart it was a one-way switch: on from the command
+    line, off only from the dashboard. False and None must stay distinct -
+    False is "turn it off and save that", None is still "don't touch it"."""
+    assert parse_args(["--no-auto-navigate"]).auto_navigate is False
 
 
 def test_tui_defaults_off() -> None:
@@ -543,10 +552,18 @@ class _FakeServer:
     def __init__(self, config) -> None:
         self.config = config
         self.should_exit = False
+        # serve_web's own _Server subclasses whatever uvicorn.Server is, so
+        # with this patched in it subclasses THIS - and its handle_exit
+        # calls super().handle_exit(). Without a stand-in here that call is
+        # an AttributeError and the Ctrl+C path cannot be tested at all.
+        self.exits: list[int] = []
         _FakeServer.instances.append(self)
 
     def run(self) -> None:
         return
+
+    def handle_exit(self, sig, frame) -> None:
+        self.exits.append(sig)
 
 
 class FakeRunner:
@@ -660,6 +677,47 @@ def test_serve_web_watches_shutdown_and_stops_the_runner(monkeypatch) -> None:
     assert not thread.is_alive()
     assert _FakeServer.instances[-1].should_exit is True
     assert runner.stopped >= 1
+
+
+def test_ctrl_c_sets_the_shutdown_flag_before_uvicorn_stops(monkeypatch) -> None:
+    """The Ctrl+C path, which nothing exercised.
+
+    uvicorn's own handle_exit begins a graceful shutdown that waits for
+    in-flight responses, and an SSE feed or an MJPEG stream is in-flight for
+    as long as a tab is open. Both generators end themselves only once
+    `shutdown` is set, so setting it BEFORE delegating is what lets them
+    finish inside the normal path instead of waiting out the
+    timeout_graceful_shutdown backstop. The ordering IS the behaviour, so
+    that is what this asserts - not merely that both things happened.
+    """
+    order: list[object] = []
+
+    class _RecordingEvent(threading.Event):
+        def set(self) -> None:
+            order.append("shutdown")
+            super().set()
+
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    shutdown = _RecordingEvent()
+    tower_bot.serve_web(
+        FakeRunner(), object(), host="127.0.0.1", port=8123, shutdown=shutdown
+    )
+
+    # serve_web's own finally already set the flag on the way out. This is
+    # about handle_exit alone, so start it from a clean slate - and point the
+    # server's own record at the same list, so the two halves are ordered
+    # against each other rather than merely both present.
+    server = _FakeServer.instances[-1]
+    shutdown.clear()
+    order.clear()
+    server.exits = order
+
+    server.handle_exit(signal.SIGINT, None)
+
+    assert shutdown.is_set()
+    assert order == ["shutdown", signal.SIGINT]
 
 
 def test_controls_carry_whatever_strategy_they_are_handed() -> None:

@@ -394,13 +394,15 @@ def main() -> int:
     # The regression that motivated this file. A stream held open must not stop
     # the process from exiting once the scan loop is done - for either stream:
     # /api/events/stream (SSE) and /api/frame (MJPEG) share the same
-    # `stop`-watching shape, and only the former used to be exercised here.
+    # `shutdown`-watching shape, and only the former used to be exercised
+    # here. "shutdown", not "stop": the flag means the PROCESS is going
+    # down, and the runner's per-bot stop is a different thing entirely.
     for label, path, flag in (
         ("a plain request (control)", "/api/status", True),
         ("an SSE stream held open", "/api/events/stream", True),
-        ("an SSE stream, stop flag suppressed (backstop only)", "/api/events/stream", False),
+        ("an SSE stream, shutdown flag suppressed (backstop only)", "/api/events/stream", False),
         ("an MJPEG stream held open", "/api/frame", True),
-        ("an MJPEG stream, stop flag suppressed (backstop only)", "/api/frame", False),
+        ("an MJPEG stream, shutdown flag suppressed (backstop only)", "/api/frame", False),
     ):
         elapsed = shutdown_seconds(db_path, path=path, set_flag=flag)
         check(f"shutdown with {label}", elapsed >= 0.0,
