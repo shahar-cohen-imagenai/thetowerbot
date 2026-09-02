@@ -36,6 +36,21 @@ MAX_INTERVAL = 3600.0
 
 AFFORDABILITY = ("digits", "brightness")
 
+# Fields a PATCH may set directly on a Strategy via merged(). `name` is
+# absent on purpose: renaming a profile is the store's business (save under
+# a new name), not a live edit to the running policy. `actions` is absent
+# too - it is handled separately because replacing it means re-parsing a raw
+# row list, not copying a scalar.
+PATCHABLE_FIELDS = (
+    "affordability",
+    "interval",
+    "click_cooldown",
+    "auto_navigate",
+    "max_runs",
+    "navigation_cooldown",
+    "screen_confirmations",
+)
+
 # Longest a cooldown may be. Zero is legal - it means "no cooldown" - but a
 # minute between two taps on one button is not a strategy, it is a typo.
 MAX_COOLDOWN = 60.0
@@ -194,6 +209,37 @@ class ActionRule:
         )
 
 
+def _parse_action_rows(raw: Any) -> tuple[ActionRule, ...]:
+    """Turn a raw action list into ActionRules, naming what it got wrong.
+
+    The one place that parses a client-supplied action row - used by both
+    from_dict() (a whole document) and Strategy.merged() (a partial patch).
+    Two independent per-row parsers is how "unknown field" ends up meaning
+    two different things depending which endpoint you hit; this way there is
+    only one meaning to keep straight.
+    """
+    if not isinstance(raw, (list, tuple)):
+        raise ControlError(
+            "actions", f"actions must be a list or tuple, not {type(raw).__name__!r}"
+        )
+    rule_fields = {f.name for f in dataclasses.fields(ActionRule)}
+    rules: list[ActionRule] = []
+    for entry in raw:
+        if not isinstance(entry, Mapping):
+            raise ControlError(
+                "actions",
+                f"each action must be a mapping, not {type(entry).__name__!r}",
+            )
+        for key in entry:
+            if key not in rule_fields:
+                raise ControlError(key, f"unknown action field {key!r}")
+        try:
+            rules.append(ActionRule(**entry))
+        except TypeError as exc:
+            raise ControlError("actions", str(exc)) from None
+    return tuple(rules)
+
+
 @dataclass(frozen=True)
 class Strategy:
     """The whole decision policy, as one immutable value.
@@ -308,36 +354,11 @@ class Strategy:
             if required not in raw:
                 raise ControlError(required, f"{required} is required")
 
-        rules: list[ActionRule] = []
-        rule_fields = {f.name for f in dataclasses.fields(ActionRule)}
-
-        # Checked explicitly rather than left to the loop below, because the
-        # wrong types here iterate without complaining: a str yields its
-        # characters and a dict its keys, so the caller would get a confusing
-        # per-character error instead of one that names what actions must be.
-        if not isinstance(raw["actions"], (list, tuple)):
-            raise ControlError(
-                "actions",
-                f"actions must be a list or tuple, not {type(raw['actions']).__name__!r}",
-            )
-
-        for entry in raw["actions"]:
-            if not isinstance(entry, Mapping):
-                raise ControlError(
-                    "actions",
-                    f"each action must be a mapping, not {type(entry).__name__!r}",
-                )
-            for key in entry:
-                if key not in rule_fields:
-                    raise ControlError(key, f"unknown action field {key!r}")
-            try:
-                rules.append(ActionRule(**entry))
-            except TypeError as exc:
-                raise ControlError("actions", str(exc)) from None
+        rules = _parse_action_rows(raw["actions"])
 
         values = {key: raw[key] for key in raw if key != "actions"}
         try:
-            return cls(actions=tuple(rules), **values)
+            return cls(actions=rules, **values)
         except ControlError:
             raise
         except (TypeError, ValueError) as exc:
@@ -346,6 +367,39 @@ class Strategy:
             # bare TypeError; find which field it was so the browser can
             # point at the right input rather than the whole form.
             raise ControlError(_offending_field(values), str(exc)) from None
+
+    def merged(self, patch: Mapping[str, Any]) -> Strategy:
+        """Validate `patch` against this Strategy and return the result.
+
+        The validate-and-merge half of Controls.apply(): unlike from_dict(),
+        which parses a whole document and rejects anything it does not
+        recognise, this ignores keys outside PATCHABLE_FIELDS and "actions"
+        rather than erroring on them - Controls.apply() feeds it session
+        state (like `paused`) that this type deliberately does not own, and
+        that is not a typo to reject, just a field for someone else.
+
+        What patch DOES touch is still validated whole: the candidate goes
+        through the same constructor - and so the same __post_init__ - as
+        every other Strategy, so a bad field never reaches self. Reuses
+        _parse_action_rows for "actions" rather than parsing rows itself, so
+        a raw action dict means the same thing here as it does in
+        from_dict() - one parser, not two that must be kept in step.
+        """
+        updates: dict[str, Any] = {
+            key: patch[key] for key in PATCHABLE_FIELDS if key in patch
+        }
+        if "actions" in patch:
+            updates["actions"] = _parse_action_rows(patch["actions"])
+        if not updates:
+            return self
+        try:
+            return dataclasses.replace(self, **updates)
+        except TypeError as exc:
+            # Belt and braces with __post_init__'s own checks: PATCHABLE_FIELDS
+            # only ever names real fields, so this should be unreachable, but
+            # a bare TypeError with no field name is worse than a defensive
+            # catch that names one.
+            raise ControlError(_offending_field(updates), str(exc)) from None
 
     def validated(self, template_dir: Path | None = None) -> Strategy:
         """Check what construction could not: that the templates are on disk.

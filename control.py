@@ -1,9 +1,21 @@
 """What the browser is allowed to change while the bot runs.
 
+Two things live here, and the split is deliberate. `paused` is session
+state - a fact about this bot right now, not something you would save under
+a name and load next week. Everything else is policy, and policy lives in a
+Strategy (see strategy.py), held here as one immutable value swapped whole.
+
 Shaped like BotState on purpose: one lock, one snapshot() that hands out a
-detached copy, and no mutable structure ever shared across the boundary. The
+detached view, and no mutable structure ever shared across the boundary. The
 scan loop reads a snapshot once per pass; the web layer patches through
-apply(). Neither ever holds the other's objects.
+apply(). Neither ever holds the other's objects - and since a Strategy is
+frozen all the way down, that now costs no copying at all.
+
+apply() does not parse a raw action list itself: Strategy.merged() does.
+Validate-and-merge lives in the module that owns the type, next to
+from_dict()'s own row parsing, so there is exactly one place that decides
+what a raw action dict may contain - two parsers that must agree is a drift
+risk neither module needs to carry.
 
 This module is deliberately at the top level rather than under web/: the scan
 loop depends on it, and the scan loop must not import the web layer.
@@ -12,114 +24,99 @@ loop depends on it, and the scan loop must not import the web layer.
 from __future__ import annotations
 
 import threading
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Mapping
 
-import config
+from strategy import AFFORDABILITY, MAX_INTERVAL, MIN_INTERVAL, ControlError, Strategy
 
-STRATEGIES = ("digits", "brightness")
+# Re-exported so `from control import ControlError` keeps working for every
+# existing caller. It is DEFINED in strategy.py because control.py imports
+# Strategy, and the reverse import would be a cycle.
+__all__ = ["ControlError", "Controls", "Live", "STRATEGIES", "MIN_INTERVAL", "MAX_INTERVAL"]
 
-# A floor because a zero or negative interval is a busy loop against ADB, and
-# a ceiling because an hour between scans is indistinguishable from a hang.
-MIN_INTERVAL = 0.1
-MAX_INTERVAL = 3600.0
-
-
-class ControlError(ValueError):
-    """A patch the caller may not apply. `field` names the offending key."""
-
-    def __init__(self, field: str, message: str) -> None:
-        super().__init__(message)
-        self.field = field
+# The affordability methods. Kept under the old name too because the CLI's
+# --affordability choices and several tests still spell it this way.
+STRATEGIES = AFFORDABILITY
 
 
-def _default_actions() -> set[str]:
-    return {action.name for action in config.ACTIONS}
+@dataclass(frozen=True)
+class Live:
+    """One pass's view of the settings. Frozen, so it needs no copying.
+
+    Returned by snapshot() and read by run_once() on every scan. An
+    attribute, not a dict, because the loop reads it in the hot path and
+    `settings.strategy.actions` beats `settings["strategy"]["actions"]`.
+    """
+
+    paused: bool
+    strategy: Strategy
 
 
 @dataclass
 class Controls:
-    """The live knobs. Construct from CLI args; mutate through apply()."""
+    """The live knobs. Construct from a loaded Strategy; mutate through
+    apply() or replace()."""
 
+    strategy: Strategy
     paused: bool = False
-    interval: float = config.SCAN_INTERVAL_SECONDS
-    auto_navigate: bool = False
-    strategy: str = "digits"
-    enabled_actions: set[str] = field(default_factory=_default_actions)
 
     def __post_init__(self) -> None:
         self._lock = threading.Lock()
-        # Copy rather than alias: a caller that keeps its reference to a
-        # set passed in as enabled_actions must not be able to mutate this
-        # object's state behind the lock and without going through apply().
-        self.enabled_actions = set(self.enabled_actions)
 
-    def snapshot(self) -> dict[str, Any]:
-        """A JSON-safe, detached copy. Safe to hand to a request handler."""
+    def snapshot(self) -> Live:
+        """A frozen view. Safe to hand to the scan loop or a request handler."""
         with self._lock:
-            return {
-                "paused": self.paused,
-                "interval": self.interval,
-                "auto_navigate": self.auto_navigate,
-                "strategy": self.strategy,
-                # Sorted so the JSON is stable and two snapshots compare equal
-                # when nothing changed; a set's iteration order is not.
-                "enabled_actions": sorted(self.enabled_actions),
-            }
+            return Live(paused=self.paused, strategy=self.strategy)
+
+    def payload(self) -> dict[str, Any]:
+        """The JSON shape. Separate from snapshot() because the loop wants
+        attributes and the browser wants keys, and one type serving both
+        made the loop pay for the browser's convenience."""
+        live = self.snapshot()
+        return {"paused": live.paused, "strategy": live.strategy.to_dict()}
+
+    def replace(self, strategy: Strategy) -> dict[str, Any]:
+        """Swap the whole policy - how activating a saved profile lands.
+
+        Returns what changed, in the same shape apply() does, so both feed
+        one ControlChanged event. An identical strategy reports nothing: a
+        no-op is not a state change and must not fill the log with noise.
+        """
+        with self._lock:
+            if strategy == self.strategy:
+                return {}
+            self.strategy = strategy
+        return strategy.to_dict()
 
     def apply(self, patch: Mapping[str, Any]) -> dict[str, Any]:
         """Validate the whole patch, then commit it. Returns what changed.
 
-        All-or-nothing: a patch whose third field is invalid must not leave the
-        first two applied. Validation therefore happens entirely before the
-        lock is taken to write anything.
+        All-or-nothing, and structurally so rather than by discipline:
+        Strategy.merged() builds a candidate whose constructor validates
+        every field, and only a candidate that survives that is swapped in.
+        A patch whose third field is invalid never touches the live object -
+        merged() raises before this method's own lock is ever taken to write.
         """
-        staged: dict[str, Any] = {}
+        with self._lock:
+            current = self.strategy
+            was_paused = self.paused
 
-        if "paused" in patch:
-            staged["paused"] = bool(patch["paused"])
-
-        if "auto_navigate" in patch:
-            staged["auto_navigate"] = bool(patch["auto_navigate"])
-
-        if "interval" in patch:
-            try:
-                interval = float(patch["interval"])
-            except (TypeError, ValueError):
-                raise ControlError("interval", "interval must be a number") from None
-            if not MIN_INTERVAL <= interval <= MAX_INTERVAL:
-                raise ControlError(
-                    "interval", f"interval must be between {MIN_INTERVAL} and {MAX_INTERVAL}"
-                )
-            staged["interval"] = interval
-
-        if "strategy" in patch:
-            strategy = patch["strategy"]
-            if strategy not in STRATEGIES:
-                raise ControlError("strategy", f"strategy must be one of {STRATEGIES}")
-            staged["strategy"] = strategy
-
-        if "enabled_actions" in patch:
-            actions = patch["enabled_actions"]
-            if not isinstance(actions, (list, tuple, set)) or not all(
-                isinstance(name, str) for name in actions
-            ):
-                raise ControlError("enabled_actions", "enabled_actions must be a list of names")
-            unknown = set(actions) - _default_actions()
-            if unknown:
-                raise ControlError(
-                    "enabled_actions",
-                    f"unknown action(s): {', '.join(sorted(unknown))}",
-                )
-            staged["enabled_actions"] = set(actions)
+        staged_paused = bool(patch["paused"]) if "paused" in patch else was_paused
+        candidate = current.merged(patch)
 
         changed: dict[str, Any] = {}
         with self._lock:
-            for key, value in staged.items():
-                if getattr(self, key) == value:
-                    continue
-                setattr(self, key, value)
-                # Report the JSON shape, not the internal one - this dict goes
-                # straight into a ControlChanged event and out to the browser.
-                changed[key] = sorted(value) if isinstance(value, set) else value
+            if staged_paused != self.paused:
+                self.paused = staged_paused
+                changed["paused"] = staged_paused
+            if candidate != self.strategy:
+                before = self.strategy.to_dict()
+                after = candidate.to_dict()
+                self.strategy = candidate
+                # Report only the fields that actually moved - the whole
+                # strategy would make every patch look like a full swap in
+                # the event log.
+                changed.update(
+                    {key: after[key] for key in after if before[key] != after[key]}
+                )
         return changed
