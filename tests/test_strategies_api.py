@@ -140,6 +140,17 @@ def test_activating_an_absent_strategy_is_a_404(wired) -> None:
     assert controls.snapshot().strategy.name == "default"
 
 
+def test_activating_a_corrupt_strategy_is_a_422_not_a_404(wired) -> None:
+    """load() raises "not_found" for an absent profile but the default
+    "invalid" for one that exists and is corrupt JSON - a 404 here would
+    send the caller looking for a file that is sitting right there."""
+    client, store, controls, _ = wired
+    (store.directory / "broken.json").write_text("{not json")
+    response = client.post("/api/strategies/broken/activate")
+    assert response.status_code == 422
+    assert controls.snapshot().strategy.name == "default"
+
+
 def test_deleting_a_spare_strategy_works(wired) -> None:
     client, store, _, _ = wired
     body = client.get("/api/strategies/default").json()
@@ -180,6 +191,43 @@ def test_a_rejected_patch_writes_nothing(wired) -> None:
     before = store.load("default").interval
     assert client.patch("/api/control", json={"interval": 0}).status_code == 422
     assert store.load("default").interval == before
+
+
+def test_a_patch_unrelated_to_actions_is_rejected_when_a_template_goes_missing(
+    wired,
+) -> None:
+    """The precheck must fire whether or not the patch touches "actions" -
+    the live profile can go invalid on its own (a template deleted out from
+    under a running bot), and an interval-only patch has to catch that too,
+    not just ones that happen to mention actions."""
+    client, store, controls, seen = wired
+    strategy = store.load("default")
+    (config.TEMPLATE_DIR / strategy.actions[0].template).unlink()
+
+    response = client.patch("/api/control", json={"interval": 9.0})
+
+    assert response.status_code == 422
+    assert controls.snapshot().strategy.interval != 9.0
+    assert not any(e.type == "ControlChanged" for e in seen)
+
+
+def test_a_patch_whose_persist_fails_rolls_back_live_state(wired, monkeypatch) -> None:
+    """One source of truth means the live object must not survive a failed
+    write: apply() has already committed by the time save() can fail, so a
+    save failure has to be put back, not just reported."""
+    client, store, controls, seen = wired
+    before = controls.snapshot().strategy.interval
+
+    def broken_save(strategy) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr(store, "save", broken_save)
+
+    response = client.patch("/api/control", json={"interval": 9.0})
+
+    assert response.status_code == 500
+    assert controls.snapshot().strategy.interval == before
+    assert not any(e.type == "ControlChanged" for e in seen)
 
 
 def test_the_strategy_routes_are_absent_without_a_store() -> None:

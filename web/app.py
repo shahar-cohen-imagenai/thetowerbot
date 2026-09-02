@@ -365,23 +365,34 @@ def create_app(
                     ),
                 )
 
+            # Captured before apply() so a failed save (below) has something
+            # to put back - the live object must never survive a failed
+            # write, or Controls and the file disagree exactly the way "one
+            # source of truth" exists to prevent.
+            before = controls.snapshot().strategy
+
             try:
-                if "actions" in requested:
-                    # Controls.apply() validates everything a Strategy can
-                    # know about itself, which does not include whether a
-                    # template is a real file inside TEMPLATE_DIR - that is
-                    # disk I/O, and control.py is imported by the scan loop
-                    # and must stay I/O-free. So the filesystem half runs
-                    # here. Without it a request body chooses which file
-                    # cv2.imread opens, and an unresolvable template raises
-                    # out of every single scan pass, forever, instead of
-                    # once as the 422 below.
-                    #
-                    # Yes, this merges twice - once to validate, once inside
-                    # apply(). merged() is pure and this runs once per
-                    # request rather than once per scan, so the duplicate
-                    # costs nothing that matters.
-                    controls.snapshot().strategy.merged(requested).validated()
+                # Controls.apply() validates everything a Strategy can know
+                # about itself, which does not include whether a template is
+                # a real file inside TEMPLATE_DIR - that is disk I/O, and
+                # control.py is imported by the scan loop and must stay
+                # I/O-free. So the filesystem half runs here, unconditionally
+                # - not just when the patch touches "actions": a strategy
+                # already resident in Controls is not guaranteed to still
+                # pass this (a template file can vanish out from under a
+                # running bot), so an interval-only patch needs the same
+                # check. Without it a request body chooses which file
+                # cv2.imread opens, and an unresolvable template raises out
+                # of every single scan pass, forever, instead of once as the
+                # 422 below.
+                #
+                # Yes, this merges twice - once to validate, once inside
+                # apply(). merged() is pure and this runs once per request
+                # rather than once per scan, so the duplicate costs nothing
+                # that matters. And it runs BEFORE apply(), not after: apply()
+                # commits to live state, so validating first is what keeps a
+                # rejected patch from ever being observable as a live change.
+                before.merged(requested).validated()
                 changed = controls.apply(requested)
             except ControlError as exc:
                 raise HTTPException(status_code=422, detail=f"{exc.field}: {exc}") from exc
@@ -393,7 +404,22 @@ def create_app(
                 # remove. Inlined rather than hoisted into a helper - the
                 # store block below is the only other writer, and it already
                 # has store.save(incoming) right there for the same reason.
-                store.save(controls.snapshot().strategy)
+                try:
+                    store.save(controls.snapshot().strategy)
+                except Exception as exc:
+                    # The precheck above only rules out an invalid strategy;
+                    # save() can still fail for reasons no precheck can catch
+                    # (a full disk, a permissions change, a template deleted
+                    # in the gap between validating and writing). apply()
+                    # already committed the change to live state, so an
+                    # uncaught failure here would leave the bot running on a
+                    # policy the disk never agreed to and no ControlChanged
+                    # to say so. Put the pre-patch strategy back before
+                    # answering, so live state matches what's on disk again.
+                    controls.replace(before)
+                    raise HTTPException(
+                        status_code=500, detail=f"failed to persist strategy: {exc}"
+                    ) from exc
             if changed:
                 # Only when something actually moved. A no-op patch is not a
                 # state change and must not fill the log with noise.
@@ -460,7 +486,14 @@ def create_app(
                 loaded = store.load(name)
                 store.set_active(name)
             except ControlError as exc:
-                raise HTTPException(status_code=404, detail=str(exc)) from exc
+                # load() raises "not_found" for an absent profile but the
+                # default "invalid" for one that exists and is corrupt JSON
+                # - those are different facts, and a present-but-corrupt
+                # profile deserves a 422 that says so, not a 404 that sends
+                # the caller looking for a file that is sitting right there.
+                raise HTTPException(
+                    status_code=_STATUS_FOR_CODE.get(exc.code, 422), detail=str(exc)
+                ) from exc
             if controls is not None:
                 changed = controls.replace(loaded)
                 if changed:
