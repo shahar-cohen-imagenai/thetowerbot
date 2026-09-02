@@ -1,83 +1,63 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { fetchControl, patchControl, shutdown } from "@/lib/api";
-import { useEventStream } from "@/lib/useEventStream";
-import type { ControlPayload, Strategy } from "@/lib/types";
+import {
+  fetchControl, fetchStatus, patchControl, shutdown, startBot, stopBot,
+} from "@/lib/api";
+import { useControlSync } from "@/lib/useControlSync";
+import type { BotStatus, ControlPayload } from "@/lib/types";
 
+/** Session concerns only.
+ *
+ * Everything this page used to edit is policy, and policy lives on
+ * /strategy/ now - the split follows the model: Controls holds `paused` and
+ * a Strategy, and only `paused` is a fact about this bot right now rather
+ * than a decision you would save under a name. */
 export default function ControlPage() {
   const [control, setControl] = useState<ControlPayload | null>(null);
+  const [bot, setBot] = useState<BotStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // Bumped on a rejected patch, and nowhere else. The interval Input below
-  // is keyed on this alongside control.interval: a 422 leaves control.interval
-  // unchanged (send() deliberately does not call setControl on failure), so
-  // the key alone would never remount the field and the browser's dirty,
-  // rejected value would sit there looking live. Bumping this forces that
-  // remount without touching the cross-tab / unrelated-change behaviour that
-  // keying on control.interval already gets right.
-  const [rejectedInterval, setRejectedInterval] = useState(0);
-  const { events } = useEventStream();
+  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    fetchControl().then(setControl).catch((e) => setError(String(e)));
+  const reload = useCallback(async () => {
+    setControl(await fetchControl());
   }, []);
 
-  // A change from another tab (or another client entirely) arrives here as
-  // ControlChanged over SSE, not as a response to our own fetch - re-fetch
-  // so this tab converges without polling.
-  //
-  // Checking only the last element of `events` is not enough: the server
-  // writes a whole sse.since() batch in one poll, EventSource dispatches
-  // those messages within one browser task, and React batches the resulting
-  // dispatches into a single render - so a ControlChanged followed by, say,
-  // a ScanCompleted in the same batch would leave a non-ControlChanged event
-  // at the tail and this effect would never fire. Track a high-water seq
-  // instead and scan every event that arrived since the last time this ran.
-  //
-  // eventReducer resets the feed (to a single element, with a lower seq)
-  // when the bus's own seq counter moves backwards - a bot restart. That
-  // must not wedge the high-water mark: if the newest seq is lower than what
-  // we last saw, this is a new session none of whose events have been
-  // scanned yet, so treat the whole (freshly reset) array as new.
-  const lastSeenSeqRef = useRef(0);
   useEffect(() => {
-    if (events.length === 0) return;
-    const latestSeq = events[events.length - 1].seq;
-    const sessionReset = latestSeq < lastSeenSeqRef.current;
-    const newEvents = sessionReset
-      ? events
-      : events.filter((e) => e.seq > lastSeenSeqRef.current);
-    lastSeenSeqRef.current = latestSeq;
-    if (newEvents.some((e) => e.type === "ControlChanged")) {
-      fetchControl().then(setControl).catch((e) => setError(String(e)));
-    }
-  }, [events]);
+    reload().catch((e) => setError(String(e)));
+  }, [reload]);
 
-  // Every write goes through here so the page always renders what the server
-  // actually accepted, never what we optimistically hoped it would.
-  async function send(patch: Partial<Strategy> & { paused?: boolean }) {
+  // Polled rather than pushed: starting and stopping are not events on the
+  // bus, and a two-second lag on a button you just pressed is invisible
+  // because the response updates it immediately anyway.
+  useEffect(() => {
+    let alive = true;
+    const tick = () =>
+      void fetchStatus()
+        .then((s) => alive && setBot(s.bot))
+        .catch(() => {});
+    tick();
+    const id = setInterval(tick, 2000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, []);
+
+  useControlSync(useCallback(() => void reload().catch(() => {}), [reload]));
+
+  async function guard(work: () => Promise<void>) {
     setError(null);
+    setBusy(true);
     try {
-      setControl(await patchControl(patch));
+      await work();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
-      // A rejected interval patch leaves control.interval untouched, so the
-      // Input's key would not change and the rejected value would stay on
-      // screen - see rejectedInterval's declaration above.
-      if ("interval" in patch) setRejectedInterval((n) => n + 1);
-    }
-  }
-
-  async function stop() {
-    if (!confirm("Stop the bot and the dashboard?")) return;
-    setError(null);
-    try {
-      await shutdown();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -85,70 +65,92 @@ export default function ControlPage() {
     return <p className="text-sm text-muted-foreground">{error ?? "Loading…"}</p>;
   }
 
-  const toggleAction = (name: string) =>
-    send({
-      actions: control.strategy.actions.map((rule) =>
-        rule.name === name ? { ...rule, enabled: !rule.enabled } : rule,
-      ),
-    });
+  const running = bot?.running ?? false;
+  const s = control.strategy;
 
   return (
     <div className="flex max-w-xl flex-col gap-4">
-      {error ? <p className="rounded-md border border-red-500 p-2 text-sm text-red-500">{error}</p> : null}
+      {error ? (
+        <p className="rounded-md border border-red-500 p-2 text-sm text-red-500">{error}</p>
+      ) : null}
 
-      <Card className="flex-row items-center gap-2 p-3">
-        <Button variant="outline" onClick={() => send({ paused: !control.paused })}>
+      <Card className="flex-row flex-wrap items-center gap-2 p-3">
+        {running ? (
+          <Button
+            variant="outline" disabled={busy}
+            onClick={() => void guard(async () => setBot(await stopBot()))}
+          >
+            Stop bot
+          </Button>
+        ) : (
+          <Button
+            disabled={busy}
+            onClick={() => void guard(async () => setBot(await startBot()))}
+          >
+            Start
+          </Button>
+        )}
+
+        <Button
+          variant="outline" disabled={busy}
+          onClick={() => void guard(async () => setControl(await patchControl({
+            paused: !control.paused,
+          })))}
+        >
           {control.paused ? "Resume" : "Pause"}
         </Button>
-        <Button variant="destructive" onClick={() => void stop()}>
-          Stop
+
+        <Button
+          variant="destructive" disabled={busy}
+          onClick={() =>
+            void guard(async () => {
+              // Distinct from Stop bot, and worth confirming: this ends the
+              // dashboard too, and there is no button to bring it back.
+              if (!window.confirm("Shut down the bot AND the dashboard?")) return;
+              await shutdown();
+            })
+          }
+        >
+          Shut down
         </Button>
+
         <span className="self-center text-sm text-muted-foreground">
-          {control.paused ? "paused — scanning, not tapping" : "running"}
+          {!running
+            ? "stopped"
+            : control.paused
+              ? "paused — scanning, not tapping"
+              : "running"}
         </span>
       </Card>
 
-      <Card className="gap-3 p-3">
-        <label className="flex items-center justify-between text-sm">
-          Scan interval (s)
-          <Input
-            key={`${rejectedInterval}-${control.strategy.interval}`}
-            type="number" min={0.1} max={3600} step={0.1} defaultValue={control.strategy.interval}
-            onBlur={(e) => send({ interval: Number(e.target.value) })}
-            className="w-24 text-right"
-          />
-        </label>
+      {bot?.error ? (
+        <p className="rounded-md border border-amber-500 p-2 text-sm text-amber-600">
+          Last start failed: {bot.error}
+        </p>
+      ) : null}
 
-        <label className="flex items-center justify-between text-sm">
-          Auto-navigate
-          <input type="checkbox" checked={control.strategy.auto_navigate}
-                 onChange={(e) => send({ auto_navigate: e.target.checked })} />
-        </label>
-
-        <div className="text-sm">
-          <div className="mb-1">Affordability</div>
-          {["digits", "brightness"].map((name) => {
-            const usable = control.affordability_available.includes(name);
-            return (
-              <label key={name} className={`mr-4 ${usable ? "" : "text-muted-foreground"}`}>
-                <input type="radio" name="strategy" checked={control.strategy.affordability === name}
-                       disabled={!usable} onChange={() => send({ affordability: name })} />{" "}
-                {name}{usable ? "" : " (no atlas)"}
-              </label>
-            );
-          })}
+      <Card className="gap-2 p-3 text-sm">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xs uppercase tracking-wide text-muted-foreground">
+            Active strategy
+          </h2>
+          <Link href="/strategy/" className="text-xs underline">
+            Edit strategy
+          </Link>
         </div>
-
-        <div className="text-sm">
-          <div className="mb-1">Actions</div>
-          {control.strategy.actions.map((rule) => (
-            <label key={rule.name} className="mr-4 inline-block">
-              <input type="checkbox" checked={rule.enabled}
-                     onChange={() => toggleAction(rule.name)} />{" "}
-              {rule.name}
-            </label>
+        <p className="font-medium">{s.name}</p>
+        <p className="text-muted-foreground">
+          {s.interval}s scans · {s.affordability} · auto-navigate{" "}
+          {s.auto_navigate ? "on" : "off"} ·{" "}
+          {s.max_runs === null ? "unlimited runs" : `${s.max_runs} runs`}
+        </p>
+        <ol className="list-inside list-decimal text-muted-foreground">
+          {s.actions.map((row) => (
+            <li key={row.name} className={row.enabled ? "" : "line-through opacity-60"}>
+              {row.name}
+            </li>
           ))}
-        </div>
+        </ol>
       </Card>
     </div>
   );

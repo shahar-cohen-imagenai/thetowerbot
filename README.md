@@ -288,8 +288,9 @@ current screen, uptime, scan count, a tap tally per action, a skip tally per
 reason, the last error, and the twelve most recent events. Logging is silenced
 while it runs, because rich owns the terminal.
 
-**`--web`** serves a dashboard at `http://127.0.0.1:8765`, five pages behind a
-sidebar:
+**`--web`** serves a dashboard at `http://127.0.0.1:8765`, six pages behind a
+sidebar. `--web --idle` serves the dashboard without starting a bot — press
+**Start** in the browser.
 
 - **Live** — the current run, the live device screen with its match overlay,
   a wave sparkline, a filterable live event feed, a run-history table, and
@@ -302,6 +303,12 @@ sidebar:
   over time, taps by action, and events by screen.
 - **Errors** — `BotError` tracebacks alongside the unknown-screen snapshots,
   in one place.
+- **Strategy** — the whole decision policy: which upgrades to buy and in
+  what order, per-row match and brightness thresholds, loop timing, and run
+  policy. Named profiles live in `strategies/*.json`, switchable live and
+  editable by hand. Two fields — navigation cooldown and screen
+  confirmations — configure objects built once per bot, so they are labelled
+  *applies on next Start*.
 - **Control** — see below.
 
 The live device screen is `GET /api/frame`, an MJPEG stream
@@ -312,21 +319,24 @@ over SSE and reconnects on its own — a laptop that slept resumes from
 `Last-Event-ID` rather than starting blank, as long as it was gone for less
 than the 500-event ring.
 
-The **control** page lets a connected browser pause the bot (still scanning,
-not tapping), change the scan interval, auto-navigate, and the affordability
-strategy, and choose which actions are enabled. Every change goes through the
-same `Controls.apply()` validation a CLI flag would get, and every tab
-converges on the current settings live, over the same SSE feed.
+The **control** page is session concerns only: **Start**, **Stop bot**
+(ends the bot, keeps the dashboard serving), **Shut down** (ends the bot and
+the dashboard together, with a confirmation since there is no button to
+bring it back), and **Pause** (still scanning, not tapping). It also shows a
+read-only summary of the active strategy with a link to the **Strategy**
+page, which is where the policy itself — what to buy, thresholds, timing —
+is edited. Every tab converges on the current pause state live, over the
+same SSE feed.
 
 > **The dashboard has no authentication.** It serves a continuous MJPEG
 > video stream of the device (`/api/frame`), not just JSON history and
 > screenshots, plus this machine's entire event history, and its control
-> page lets anyone who can reach the port pause the bot, change what it
-> buys, or stop it outright — and now start a bot, rewrite what it buys,
-> and create or delete strategy files — which is why it binds loopback.
-> `--web-host` will let you bind something else, and the bot logs a warning
-> when you do, but it will not stop you. Do not put it on a network without
-> real auth in front of it.
+> page lets anyone who can reach the port pause the bot, start or stop it,
+> shut down the whole dashboard process, rewrite what it buys, and create
+> or delete strategy files — which is why it binds loopback. `--web-host`
+> will let you bind something else, and the bot logs a warning when you do,
+> but it will not stop you. Do not put it on a network without real auth in
+> front of it.
 
 Ctrl+C and `POST /api/shutdown` stop both the bot and the dashboard.
 Reaching `--max-runs`, or stopping the bot from the dashboard, stops only the

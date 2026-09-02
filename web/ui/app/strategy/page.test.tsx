@@ -25,10 +25,17 @@ const api = vi.hoisted(() => ({
   fetchControl: vi.fn(),
 }));
 vi.mock("@/lib/api", () => api);
-vi.mock("@/lib/useControlSync", () => ({ useControlSync: () => {} }));
+
+const sync = vi.hoisted(() => ({ onChange: null as null | (() => void) }));
+vi.mock("@/lib/useControlSync", () => ({
+  useControlSync: (cb: () => void) => {
+    sync.onChange = cb;
+  },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
+  sync.onChange = null;
   api.fetchStrategies.mockResolvedValue({ active: "default", names: ["default", "crit"] });
   api.fetchStrategy.mockResolvedValue(strategy);
   api.fetchControl.mockResolvedValue({
@@ -107,6 +114,15 @@ describe("StrategyPage", () => {
       expect((screen.getByLabelText("Damage threshold") as HTMLInputElement).value).toBe("0.9"),
     );
     expect(api.saveStrategy).not.toHaveBeenCalled();
+  });
+
+  it("re-fetches the strategy list when useControlSync reports another tab changed it", async () => {
+    render(<StrategyPage />);
+    await waitFor(() => expect(api.fetchStrategies).toHaveBeenCalledTimes(1));
+    expect(sync.onChange).not.toBeNull();
+    api.fetchStrategies.mockClear();
+    sync.onChange!();
+    await waitFor(() => expect(api.fetchStrategies).toHaveBeenCalledTimes(1));
   });
 
   it("switching profiles fetches the other one", async () => {
