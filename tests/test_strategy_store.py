@@ -120,7 +120,18 @@ def test_save_rejects_a_strategy_with_a_missing_template(store, monkeypatch) -> 
 
 @pytest.mark.parametrize(
     "name",
-    ["../escape", "/etc/passwd", "a/b", "", "x" * 65, "has space", "dot.name", ".."],
+    [
+        "../escape",
+        "/etc/passwd",
+        "a/b",
+        "",
+        "x" * 65,
+        "has space",
+        "dot.name",
+        "..",
+        "mine\n",  # `$` matches before a trailing "\n"; must use fullmatch
+        "tab\tname",
+    ],
 )
 def test_unsafe_names_are_refused_before_they_become_paths(name: str) -> None:
     """A name arrives off a URL and becomes a filename.

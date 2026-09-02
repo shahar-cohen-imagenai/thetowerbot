@@ -300,7 +300,11 @@ def validate_name(name: str) -> str:
     worth having is small and obvious, and a rule you can read in one line
     has nowhere for a traversal to hide.
     """
-    if not isinstance(name, str) or not NAME_PATTERN.match(name):
+    # fullmatch, not match: `$` matches at end-of-string OR just before a
+    # trailing "\n", and .match() does not require consuming the rest of the
+    # string either way - "mine\n" would slip through as an "accepted" name
+    # and land in a filename with a literal newline in it.
+    if not isinstance(name, str) or not NAME_PATTERN.fullmatch(name):
         raise ControlError(
             "name",
             "a strategy name must be 1-64 characters of letters, digits, "
@@ -357,6 +361,9 @@ class StrategyStore:
         fails to parse on next launch.
         """
         strategy.validated()
+        # Redundant with path_for()'s own call below, but deliberately kept:
+        # this one runs before mkdir, so an invalid name fails before it can
+        # create the strategies directory as a side effect.
         validate_name(strategy.name)
         self.directory.mkdir(parents=True, exist_ok=True)
         target = self.path_for(strategy.name)
