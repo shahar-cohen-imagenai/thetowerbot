@@ -59,7 +59,6 @@ all of them at once.
 
 ```bash
 uv run tower_bot.py                      # scan every 2s until Ctrl+C
-uv run tower_bot.py --auto-navigate      # and loop runs unattended
 uv run tower_bot.py --tui                # live terminal panel
 uv run tower_bot.py --web                # browser dashboard on :8765
 uv run tower_bot.py --debug-scores       # one-shot diagnostic, taps nothing
@@ -68,19 +67,24 @@ uv run tower_bot.py --debug-scores       # one-shot diagnostic, taps nothing
 | Flag | Default | What it does |
 |---|---|---|
 | `--host` / `--port` | `127.0.0.1:5555` | emulator ADB endpoint |
-| `--interval N` | `2.0` | seconds between scans |
+| `--interval N` | `2.0` | **currently ignored** — the active strategy supplies the scan interval |
 | `--once` | off | scan just long enough for the screen tracker to settle, then exit |
 | `--debug-scores` | off | capture one frame, print every action's and anchor's match score plus brightness ratio, exit without tapping |
 | `--tui` | off | live `rich` panel instead of log lines |
-| `--auto-navigate` | off | tap RETRY / BATTLE to loop runs unattended |
+| `--auto-navigate` | off | **currently ignored** — the active strategy supplies this |
 | `--max-runs N` | unlimited | stop after N runs |
-| `--affordability` | `digits` | `digits` (read the numbers) or `brightness` (the older heuristic) |
+| `--affordability` | `digits` | **currently ignored** — the active strategy supplies this |
 | `--web` | off | serve the dashboard while the bot runs |
 | `--web-host` / `--web-port` | `127.0.0.1:8765` | where the dashboard binds — read the warning below before changing the host |
 | `--db PATH` | `tower_bot.db` | SQLite file for the event log |
 | `--no-store` | store | run with no database at all |
 
 `--tui` and `--web` can be on at once.
+
+Three of those flags are accepted but not read: `--interval`, `--auto-navigate`
+and `--affordability`. Those three settings now live in the active strategy
+profile (`strategies/*.json`, editable from the dashboard), and the CLI cannot
+yet override it — passing any of them logs a warning saying so at startup.
 
 ## Screens, gating, and runs
 
@@ -131,9 +135,9 @@ seeded the same way, and both are read *before* the retention prune so an
 aged-out number is never reissued. Under `--no-store` both restart at 1,
 because there is nothing to collide with.
 
-### `--auto-navigate`
+### Auto-navigation
 
-Off by default. The bot still watches, gates, tracks runs and snapshots unknown
+Off by default (`auto_navigate` in the active strategy). The bot still watches, gates, tracks runs and snapshots unknown
 screens — it just never taps between screens, so it sits on the death modal
 until you act.
 
@@ -230,7 +234,8 @@ large enough numbers, and label them by hand off the contact sheet.
 
 ### Brightness, the older heuristic
 
-`--affordability brightness` selects it outright. Otherwise it is the fallback:
+Setting the strategy's `affordability` to `brightness` selects it outright.
+Otherwise it is the fallback:
 `digits` uses it for any single read it could not complete, and
 `build_affordability` drops to it for the whole session if *any* size class is
 missing from the atlas.

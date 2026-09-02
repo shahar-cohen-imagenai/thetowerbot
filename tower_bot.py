@@ -11,7 +11,8 @@ Usage:
     python tower_bot.py                 # run the loop
     python tower_bot.py --once          # a few scans, enough to settle on the real screen
     python tower_bot.py --debug-scores  # one frame, one table of every template's score
-    python tower_bot.py --tui --auto-navigate  # live panel, loops runs unattended
+    python tower_bot.py --tui           # live panel instead of log lines
+    python tower_bot.py --web           # dashboard: pause, retune, loop runs
 """
 
 from __future__ import annotations
@@ -56,7 +57,7 @@ from sinks.sse import SseSink
 from sinks.state import BotState, StateSink
 from sinks.store import StoreSink
 from sinks.tui import TuiSink
-from strategy import Strategy, StrategyStore
+from strategy import ControlError, Strategy, StrategyStore
 
 logger = logging.getLogger("tower_bot")
 
@@ -304,6 +305,14 @@ class TowerBot:
         supplies it. The two can never both be meaningfully set in the web
         path, because the CLI persists its flag into the strategy rather
         than carrying it alongside (see the spec, section 10).
+
+        The `strategy` fallback to a fresh snapshot is NOT the re-read hazard
+        that was removed from find_and_click_image: run_once always hands
+        down the snapshot its own pass took, so a mid-pass PATCH cannot split
+        one scan across two policies, while run_forever calls this with no
+        strategy *between* passes - where reading the newest one is the whole
+        point, because a run cap raised from the dashboard should take effect
+        on the next iteration rather than the next restart.
         """
         cap = max_runs
         if cap is None:
@@ -579,6 +588,34 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="do not persist events to SQLite",
     )
     return parser.parse_args(argv)
+
+
+# Flags parse_args still accepts whose values nothing reads: the strategy on
+# disk supplies all three, and the CLI has no way to override it yet. Mapped
+# dest -> spelling so the warning can name what the user actually typed.
+UNWIRED_FLAGS = {
+    "interval": "--interval",
+    "auto_navigate": "--auto-navigate",
+    "affordability": "--affordability",
+}
+
+
+def unwired_flags(args: argparse.Namespace) -> list[str]:
+    """Which ignored flags this invocation actually passed.
+
+    Compared against parse_args([])'s own defaults rather than scanned out of
+    sys.argv: argparse already knows what a default is, and main() may be
+    handed an argv that never touched sys.argv at all (every test does). The
+    cost is that spelling a default out by hand - `--interval 2.0` when 2.0
+    is the default - warns about nothing, which is the harmless direction:
+    that invocation gets exactly the behaviour it asked for anyway.
+    """
+    defaults = parse_args([])
+    return [
+        flag
+        for dest, flag in UNWIRED_FLAGS.items()
+        if getattr(args, dest) != getattr(defaults, dest)
+    ]
 
 
 def build_affordability(
@@ -963,7 +1000,32 @@ def main(argv: list[str] | None = None) -> int:
                     width, height, *config.EXPECTED_RESOLUTION,
                 )
 
-        checks, controls = build_checks_and_controls(StrategyStore().ensure_seeded())
+        store = StrategyStore()
+        try:
+            loaded = store.ensure_seeded()
+        except ControlError as exc:
+            # Every profile on disk failed to parse - almost always one
+            # hand-edited file with a trailing comma. Same treatment as a
+            # missing emulator: say which directory to look in and exit,
+            # rather than dumping a traceback the owner has to decode.
+            logger.error(
+                "%s - fix or delete the offending file in %s", exc, store.directory
+            )
+            return 1
+
+        ignored = unwired_flags(args)
+        if ignored:
+            # Honest about the gap rather than silently doing something else:
+            # these flags are still accepted (removing them would break
+            # scripts) but the loaded strategy is the only source of truth
+            # for interval, auto-navigation and affordability today.
+            logger.warning(
+                "%s ignored - strategy %r supplies these; edit it in the "
+                "dashboard or in %s",
+                ", ".join(ignored), loaded.name, store.path_for(loaded.name),
+            )
+
+        checks, controls = build_checks_and_controls(loaded)
         # checks[controls.snapshot().strategy.affordability] is never None
         # here: build_checks_and_controls() already seeded controls' strategy
         # to an affordability name whose check built (falling back to
@@ -1012,9 +1074,11 @@ def main(argv: list[str] | None = None) -> int:
             )
         else:
             install_signal_handlers(bot)
-            # No explicit interval: bot.controls was already seeded from
-            # args.interval above, and that stays the one source of truth for
-            # it even without --web.
+            # No explicit interval, so run_forever re-reads
+            # bot.controls.snapshot().strategy.interval every iteration -
+            # the loaded strategy is the one source of truth for the pace
+            # even without --web, and --interval is not wired to it (see
+            # unwired_flags).
             bot.run_forever(max_runs=args.max_runs)
     finally:
         for sink in sinks:

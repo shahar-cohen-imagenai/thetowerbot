@@ -567,14 +567,17 @@ def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None
     assert stop.is_set() is True
 
 
-def test_controls_start_from_the_command_line() -> None:
-    """The flags you launched with must not be silently overridden.
+def test_controls_carry_whatever_strategy_they_are_handed() -> None:
+    """Controls' dataclass defaults are a fallback; the Strategy it is
+    constructed with is what snapshot() reports.
 
-    Controls' dataclass defaults are a fallback; a Strategy built from argv
-    and handed to Controls is what actually wins. (Wiring argv into the
-    loaded Strategy is main()'s job - see build_checks_and_controls's own
-    docstring - this pins that Controls itself carries whatever Strategy
-    it is given.)
+    Named for what it does: it builds the Strategy itself and drives neither
+    main() nor build_checks_and_controls, so it covers none of the CLI
+    seeding path. That path does not exist yet - --interval,
+    --auto-navigate and --affordability are parsed and then ignored (see
+    tower_bot.unwired_flags), and wiring them into the loaded strategy is
+    the next stage's job. parse_args is still called here so this test
+    starts asserting the real thing the moment it is.
     """
     from control import Controls
     from tower_bot import parse_args
@@ -591,6 +594,60 @@ def test_controls_start_from_the_command_line() -> None:
     assert live.strategy.interval == 3.0
     assert live.strategy.auto_navigate is True
     assert live.strategy.affordability == "brightness"
+
+
+def test_only_the_unwired_flags_actually_passed_are_warned_about() -> None:
+    """A warning about a default nobody typed is noise.
+
+    --interval, --auto-navigate and --affordability are parsed and then
+    ignored: the active strategy supplies all three. Saying so is the honest
+    interim behaviour, but only for the flags this invocation really used.
+    """
+    assert tower_bot.unwired_flags(parse_args([])) == []
+    assert tower_bot.unwired_flags(parse_args(["--once", "--tui"])) == []
+    assert tower_bot.unwired_flags(
+        parse_args(["--interval", "5", "--affordability", "brightness"])
+    ) == ["--interval", "--affordability"]
+    assert tower_bot.unwired_flags(parse_args(["--auto-navigate"])) == [
+        "--auto-navigate"
+    ]
+
+
+def test_main_warns_once_that_the_flags_it_took_are_ignored(
+    monkeypatch, caplog
+) -> None:
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
+    monkeypatch.setattr(tower_bot.TowerBot, "run_once", lambda self: False)
+
+    with caplog.at_level(logging.WARNING, logger="tower_bot"):
+        assert tower_bot.main(["--once", "--no-store", "--interval", "5"]) == 0
+
+    warnings = [
+        r.getMessage() for r in caplog.records
+        if r.levelno == logging.WARNING and "--interval" in r.getMessage()
+    ]
+    assert len(warnings) == 1
+    assert "ignored" in warnings[0]
+    # Only what was passed: --affordability defaulted, so it is not named.
+    assert "--affordability" not in warnings[0]
+
+
+def test_a_directory_of_unloadable_strategies_exits_with_a_message(
+    monkeypatch, tmp_path: Path, caplog
+) -> None:
+    """A hand-edited profile with a trailing comma must not end in a
+    traceback - the same treatment connect_device's EmulatorError gets."""
+    import config
+
+    (tmp_path / "default.json").write_text("{ not json")
+    monkeypatch.setattr(config, "STRATEGY_DIR", tmp_path)
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
+
+    with caplog.at_level(logging.ERROR, logger="tower_bot"):
+        assert tower_bot.main(["--once", "--no-store"]) == 1
+
+    errors = [r.getMessage() for r in caplog.records if r.levelno == logging.ERROR]
+    assert errors and str(tmp_path) in errors[-1]
 
 
 def test_build_checks_and_controls_downgrades_when_atlas_is_absent(
