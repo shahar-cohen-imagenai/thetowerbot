@@ -151,6 +151,29 @@ def test_activating_a_corrupt_strategy_is_a_422_not_a_404(wired) -> None:
     assert controls.snapshot().strategy.name == "default"
 
 
+def test_activating_a_profile_whose_template_vanished_is_a_422(wired) -> None:
+    """Activation is the one path that puts a profile straight from the disk
+    into the running loop. load() only parses - PUT gets the filesystem half
+    from store.save() and PATCH does it by hand - so without validated()
+    here, activating a hand-edited profile whose template was since deleted
+    raises out of every scan pass forever instead of once, as this 422.
+    """
+    client, store, controls, _ = wired
+    body = client.get("/api/strategies/default").json()
+    body["name"] = "crit"
+    client.put("/api/strategies/crit", json=body)
+    (config.TEMPLATE_DIR / body["actions"][0]["template"]).unlink()
+
+    response = client.post("/api/strategies/crit/activate")
+
+    assert response.status_code == 422
+    assert "template" in response.json()["detail"]
+    # Neither the loop nor the pointer moved: a profile that cannot run must
+    # not become the one the next launch loads either.
+    assert controls.snapshot().strategy.name == "default"
+    assert store.active_name() == "default"
+
+
 def test_deleting_a_spare_strategy_works(wired) -> None:
     client, store, _, _ = wired
     body = client.get("/api/strategies/default").json()
@@ -228,6 +251,59 @@ def test_a_patch_whose_persist_fails_rolls_back_live_state(wired, monkeypatch) -
     assert response.status_code == 500
     assert controls.snapshot().strategy.interval == before
     assert not any(e.type == "ControlChanged" for e in seen)
+
+
+def test_a_pause_only_patch_never_touches_the_file(wired, monkeypatch) -> None:
+    """`paused` is session state and is never persisted, so a pause has
+    nothing to save. Gating the write on `changed` being non-empty (rather
+    than on the strategy having moved) made a pure pause toggle write the
+    profile anyway - and with a failing save it answered 500 for a request
+    that had fully succeeded: the bot paused, the operator told it failed,
+    and no ControlChanged for the other tabs.
+    """
+    client, store, controls, seen = wired
+
+    def broken_save(strategy) -> None:
+        raise AssertionError("a pause has nothing to persist")
+
+    monkeypatch.setattr(store, "save", broken_save)
+
+    response = client.patch("/api/control", json={"paused": True})
+
+    assert response.status_code == 200
+    assert response.json()["paused"] is True
+    assert controls.snapshot().paused is True
+    assert any(
+        e.type == "ControlChanged" and e.changed == {"paused": True} for e in seen
+    )
+
+
+def test_a_mixed_patch_whose_persist_fails_still_announces_the_pause(
+    wired, monkeypatch
+) -> None:
+    """The lossy half of a rolled-back patch, made honest. The strategy goes
+    back to what the disk holds; `paused` deliberately does not, because it
+    is session state with nothing on disk to diverge from and un-pausing a
+    bot over an unrelated write failure would be worse. What survives has to
+    be announced, or the operator's other tabs show a running bot that is
+    actually paused.
+    """
+    client, store, controls, seen = wired
+    before = controls.snapshot().strategy.interval
+
+    def broken_save(strategy) -> None:
+        raise OSError("disk full")
+
+    monkeypatch.setattr(store, "save", broken_save)
+
+    response = client.patch("/api/control", json={"paused": True, "interval": 9.0})
+
+    assert response.status_code == 500
+    assert controls.snapshot().strategy.interval == before
+    assert controls.snapshot().paused is True
+    announced = [e for e in seen if e.type == "ControlChanged"]
+    assert len(announced) == 1
+    assert announced[0].changed == {"paused": True}
 
 
 def test_the_strategy_routes_are_absent_without_a_store() -> None:

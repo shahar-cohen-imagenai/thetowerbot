@@ -72,7 +72,7 @@ async def event_stream(
     is_disconnected: Callable[[], Awaitable[bool]],
     poll: float = config.SSE_POLL_SECONDS,
     heartbeat: float = config.SSE_HEARTBEAT_SECONDS,
-    stop: threading.Event | None = None,
+    shutdown: threading.Event | None = None,
 ) -> AsyncIterator[str]:
     """Server-sent events, resumable through Last-Event-ID.
 
@@ -90,20 +90,24 @@ async def event_stream(
     that reason too - production passes `request.is_disconnected`, tests
     pass a fake that reports disconnection after a bounded number of polls.
 
-    `stop` is the other way this can end, and the one that matters at
+    `shutdown` is the other way this can end, and the one that matters at
     process shutdown: `is_disconnected()` only reports true once the browser
     closes the tab, which it never does on its own just because the process
-    is going down. Without `stop`, a held-open dashboard tab and a uvicorn
-    server with `should_exit = True` wait on each other forever - the
+    is going down. Without `shutdown`, a held-open dashboard tab and a
+    uvicorn server with `should_exit = True` wait on each other forever - the
     response is still "in flight" as far as the server's graceful shutdown
     is concerned, so the transport never closes. Checking the flag lets the
     generator end itself, the response complete, and the connection close
-    normally. Optional so existing callers (and every test predating this)
-    keep working; a fresh Event() that nobody ever sets is exactly "never
-    stop this way", which is the old behaviour.
+    normally. It is the PROCESS going down, never merely the bot - the same
+    Event create_app() and serve_web() take under that name, and the reason
+    it is not called `stop` any more: the runner owns a per-bot stop, and one
+    Event with two names was how the two got confused. Optional so existing
+    callers (and every test predating this) keep working; a fresh Event()
+    that nobody ever sets is exactly "never end this way", which is the old
+    behaviour.
     """
-    if stop is None:
-        stop = threading.Event()
+    if shutdown is None:
+        shutdown = threading.Event()
 
     latest = sse.latest_seq()
     if cursor > latest:
@@ -115,7 +119,7 @@ async def event_stream(
         cursor = 0
 
     idle = 0.0
-    while not stop.is_set() and not await is_disconnected():
+    while not shutdown.is_set() and not await is_disconnected():
         batch = sse.since(cursor)
         for event in batch:
             cursor = event.seq
@@ -137,7 +141,7 @@ async def frame_stream(
     frames: FrameBuffer,
     is_disconnected: Callable[[], Awaitable[bool]],
     *,
-    stop: threading.Event,
+    shutdown: threading.Event,
     poll: float = config.FRAME_POLL_SECONDS,
 ) -> AsyncIterator[bytes]:
     """MJPEG: one connection, rendered natively by a plain <img>.
@@ -145,14 +149,16 @@ async def frame_stream(
     Same two exits as event_stream(), and for the same reasons: the browser
     closing the tab, and the process shutting down. An <img> holds its
     response open indefinitely and never disconnects on its own, so without
-    the `stop` check a held-open device view and a shutting-down uvicorn
-    would wait on each other forever.
+    the `shutdown` check a held-open device view and a shutting-down uvicorn
+    would wait on each other forever. Named for the process, not the bot,
+    like every other holder of that Event: stopping the bot leaves the
+    device view connected and waiting for the next Start.
 
     Only sends when the frame number moves, so an idle bot costs one send per
     scan rather than one per poll.
     """
     sent = 0
-    while not stop.is_set() and not await is_disconnected():
+    while not shutdown.is_set() and not await is_disconnected():
         current = frames.latest()
         if current is not None and current[0] != sent:
             sent, payload = current
@@ -194,7 +200,7 @@ def create_app(
     unknown_dir: Path = config.UNKNOWN_DIR,
     shutdown: threading.Event | None = None,
     controls: Controls | None = None,
-    checks: Mapping[str, Any] | Callable[[], Mapping[str, Any]] | None = None,
+    checks: Mapping[str, Any] | None = None,
     frames: FrameBuffer | None = None,
     runner: BotRunner | None = None,
     store: StrategyStore | None = None,
@@ -261,7 +267,8 @@ def create_app(
     async def stream(request: Request) -> StreamingResponse:
         return StreamingResponse(
             event_stream(
-                sse, resume_point(request), request.is_disconnected, stop=shutdown
+                sse, resume_point(request), request.is_disconnected,
+                shutdown=shutdown,
             ),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
@@ -309,7 +316,7 @@ def create_app(
         if frames is None:
             raise HTTPException(status_code=404, detail="no frame buffer")
         return StreamingResponse(
-            frame_stream(frames, request.is_disconnected, stop=shutdown),
+            frame_stream(frames, request.is_disconnected, shutdown=shutdown),
             media_type=f"multipart/x-mixed-replace; boundary={BOUNDARY}",
             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
         )
@@ -317,15 +324,14 @@ def create_app(
     if controls is not None:
 
         def _available_checks() -> Mapping[str, Any]:
-            # Resolved on every call, not snapshotted once at create_app
-            # time: under --idle there is no bot (and so no checks) when
-            # create_app runs, so a dict captured here would freeze at {}
-            # forever and refuse every affordability PATCH with "no glyph
-            # atlas is built", even after Start later builds real ones.
-            # `checks` may be a plain dict (every caller today) or a
-            # zero-arg callable that hands back whatever the runner
-            # currently holds - either way this reads it fresh.
-            return checks() if callable(checks) else (checks or {})
+            # A plain dict, resolved once: checks are per-PROCESS, not
+            # per-bot. main() builds them (build_checks_and_controls) before
+            # create_app and hands the same dict to the runner, which reuses
+            # it for every bot it ever starts - so there is no moment, --idle
+            # included, at which this could be empty and later fill in. Only
+            # the None default (a caller that wired no checks at all) needs
+            # covering.
+            return checks or {}
 
         def _control_payload() -> dict:
             # The browser needs to know which affordability methods actually
@@ -397,7 +403,16 @@ def create_app(
             except ControlError as exc:
                 raise HTTPException(status_code=422, detail=f"{exc.field}: {exc}") from exc
 
-            if changed and store is not None:
+            after = controls.snapshot().strategy
+            # Gated on the STRATEGY having moved, not on `changed` being
+            # non-empty. `paused` is session state that is deliberately never
+            # persisted (see control.py's opening paragraph), so a
+            # paused-only patch fills `changed` while leaving the file
+            # correct as it stands - persisting there would rewrite the
+            # profile for nothing and, on a failing save, hand back a 500 for
+            # a request that fully succeeded, with the pause applied and no
+            # ControlChanged to tell the other tabs.
+            if after != before and store is not None:
                 # A patch to the running policy is a save: otherwise the file
                 # and the loop would disagree until the next explicit save,
                 # which is exactly the drift "one source of truth" exists to
@@ -405,7 +420,7 @@ def create_app(
                 # store block below is the only other writer, and it already
                 # has store.save(incoming) right there for the same reason.
                 try:
-                    store.save(controls.snapshot().strategy)
+                    store.save(after)
                 except Exception as exc:
                     # The precheck above only rules out an invalid strategy;
                     # save() can still fail for reasons no precheck can catch
@@ -417,6 +432,21 @@ def create_app(
                     # to say so. Put the pre-patch strategy back before
                     # answering, so live state matches what's on disk again.
                     controls.replace(before)
+                    # `paused` is deliberately NOT restored, and that is not
+                    # an oversight to be tidied up later: it is session state
+                    # with nothing on disk to diverge from, so there is no
+                    # inconsistency for a rollback to repair. Un-pausing a
+                    # bot because an unrelated disk write failed would send
+                    # it back to tapping the game against the operator's
+                    # explicit instruction - strictly worse than leaving it
+                    # paused. It survives, so it is announced here rather
+                    # than in the publish below, which this raise skips.
+                    if "paused" in changed:
+                        bus.publish(
+                            events.ControlChanged(
+                                changed={"paused": changed["paused"]}, source="web"
+                            )
+                        )
                     raise HTTPException(
                         status_code=500, detail=f"failed to persist strategy: {exc}"
                     ) from exc
@@ -483,7 +513,17 @@ def create_app(
         @app.post("/api/strategies/{name}/activate")
         def activate_strategy(name: str) -> dict:
             try:
-                loaded = store.load(name)
+                # validated(), because this is the one path that puts a
+                # profile straight from the disk into the running loop.
+                # load() only parses; the filesystem half - does every
+                # template still exist, inside TEMPLATE_DIR - is what PUT
+                # gets for free from store.save() and PATCH does by hand
+                # before apply(). Without it, activating a hand-edited
+                # profile whose template was since deleted raises out of
+                # every scan pass forever instead of once, here, as a 422.
+                # Before set_active(), so a profile that cannot run does not
+                # become the one the next launch loads either.
+                loaded = store.load(name).validated()
                 store.set_active(name)
             except ControlError as exc:
                 # load() raises "not_found" for an absent profile but the
