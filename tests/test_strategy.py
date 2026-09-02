@@ -194,6 +194,33 @@ def test_from_dict_rejects_a_wrong_type_with_the_field_name() -> None:
     assert caught.value.field == "interval"
 
 
+def test_from_dict_rejects_actions_as_null() -> None:
+    # Malformed actions: None instead of a list - must be caught as ControlError
+    raw = a_strategy().to_dict()
+    raw["actions"] = None
+    with pytest.raises(ControlError) as caught:
+        Strategy.from_dict(raw)
+    assert caught.value.field == "actions"
+
+
+def test_from_dict_rejects_actions_as_a_scalar() -> None:
+    # Malformed actions: a scalar (e.g., int) instead of a list - must be caught
+    raw = a_strategy().to_dict()
+    raw["actions"] = 5
+    with pytest.raises(ControlError) as caught:
+        Strategy.from_dict(raw)
+    assert caught.value.field == "actions"
+
+
+def test_from_dict_rejects_actions_containing_a_non_mapping() -> None:
+    # Malformed action entry: a scalar instead of a dict - must be caught
+    raw = a_strategy().to_dict()
+    raw["actions"] = [123]
+    with pytest.raises(ControlError) as caught:
+        Strategy.from_dict(raw)
+    assert caught.value.field == "actions"
+
+
 def test_validated_accepts_templates_that_exist(tmp_path) -> None:
     (tmp_path / "d.png").write_bytes(b"")
     strategy = a_strategy(actions=(ActionRule(name="D", template="d.png"),))

@@ -8,8 +8,8 @@ another thread without the defensive copying a mutable structure would need.
 Range and structure checks run in __post_init__, so an out-of-range Strategy
 cannot be constructed at all. Template existence is deliberately NOT checked
 there: it touches the filesystem, and a value object should not do I/O to
-know whether it is well formed. That check belongs to a later validated()
-step, once one exists.
+know whether it is well formed. Template validation lives in the validated()
+method instead, so that a disk-I/O check runs only when explicitly requested.
 
 Imports config and the standard library, and nothing else. The scan loop
 depends on this module, so this module must not depend on the web layer.
@@ -233,7 +233,21 @@ class Strategy:
 
         rules: list[ActionRule] = []
         rule_fields = {f.name for f in dataclasses.fields(ActionRule)}
+
+        # Validate that actions is a list or tuple before iterating
+        if not isinstance(raw["actions"], (list, tuple)):
+            raise ControlError(
+                "actions",
+                f"actions must be a list or tuple, not {type(raw['actions']).__name__!r}",
+            )
+
         for entry in raw["actions"]:
+            # Validate that each action entry is a Mapping (dict-like)
+            if not isinstance(entry, dict):
+                raise ControlError(
+                    "actions",
+                    f"each action must be a dict, not {type(entry).__name__!r}",
+                )
             for key in entry:
                 if key not in rule_fields:
                     raise ControlError(key, f"unknown action field {key!r}")
