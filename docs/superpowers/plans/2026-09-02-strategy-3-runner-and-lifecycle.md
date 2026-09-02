@@ -12,6 +12,16 @@
 
 **Depends on:** plans 1 and 2. `Strategy`, `StrategyStore`, and the reshaped `Controls` must exist.
 
+> **Drift and hazards from plan 2 as built.** Plan 2's final review surfaced five things this plan must handle. The first is a real bug this plan's text would otherwise cause.
+>
+> 1. **`build_checks_and_controls` must be split before `BotRunner` calls it.** It currently both builds the affordability checks AND constructs a `Controls`. `create_app` captures ONE `controls` object in a closure for the life of the process, but this plan rebuilds `TowerBot` on every Start. If `BotRunner.start()` calls `build_checks_and_controls`, each start hands the new bot a *fresh* `Controls` while the routes keep patching the old one — a silent split-brain where the dashboard edits settings the running bot never reads. Split it: `build_checks(atlas_root)` for the per-start half, and let the runner own one long-lived `Controls` passed into every `TowerBot`.
+> 2. **`available` in `web/app.py` is a dict snapshot taken at `create_app` time** (`dict(checks or {})`). Under `--idle` there is no bot and so no checks, making `available` empty — every affordability PATCH would be refused with "no glyph atlas is built" until the first Start, and stay wrong afterwards because the closure never sees the checks the runner later builds. Make it late-bound: pass a callable, or read it off the runner.
+> 3. **`serve_web`'s bounded join reads `bot.controls.snapshot().strategy.interval`.** In idle mode there is no `bot`. Take the interval from the runner's `Controls` instead.
+> 4. **The CLI-flag warning added by plan 2 must be deleted here.** Plan 2 left `--interval`, `--auto-navigate` and `--affordability` unwired and emits a startup warning saying so. Task 5's `apply_cli_overrides` is what makes them work; remove the warning in the same commit, or the bot will warn about flags it is now honouring.
+> 5. **`Controls.replace()` returns `{"strategy": {...}}`**, not a flat field diff — a whole-profile swap reads as one event rather than nine. The activate route's `ControlChanged` payload has that shape.
+>
+> Also: this plan's Task 2 fake bot text mentions `controls.interval`, which no longer exists. Fake bots need `Controls(strategy=...)` and must read through `snapshot()`, as `tests/test_cli.py` and `tools/smoke_dashboard.py` now do.
+
 ## Global Constraints
 
 - Every function and method carries type hints; `from __future__ import annotations` at the top of every module.
