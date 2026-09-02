@@ -98,11 +98,22 @@ def test_patching_an_unavailable_affordability_is_refused(wired) -> None:
 def test_patching_the_action_list_reorders_the_strategy(wired) -> None:
     client, controls, _, _ = wired
     rows = [row for row in reversed(client.get("/api/control").json()["strategy"]["actions"])]
-    body = client.patch("/api/control", json={"actions": rows})
-    assert body.status_code == 200
+    response = client.patch("/api/control", json={"actions": rows})
+    assert response.status_code == 200
     assert [r.name for r in controls.snapshot().strategy.actions] == [
         row["name"] for row in rows
     ]
+
+    # A client never has to guess what was accepted: the response carries the
+    # full new state, not just the delta this patch mentioned.
+    body = response.json()
+    assert [row["name"] for row in body["strategy"]["actions"]] == [
+        row["name"] for row in rows
+    ]
+    # affordability_available and affordability itself were never part of
+    # this patch, yet the response still carries them.
+    assert body["affordability_available"] == ["brightness"]
+    assert body["strategy"]["affordability"] == "brightness"
 
 
 def test_an_invalid_patch_names_the_field(wired) -> None:

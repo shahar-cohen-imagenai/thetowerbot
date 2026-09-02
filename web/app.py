@@ -317,12 +317,12 @@ def create_app(
             # back to brightness on its own, so accepting this and letting the
             # loop pick would leave the browser showing "digits" while the bot
             # used brightness.
-            strategy = requested.get("affordability")
-            if strategy is not None and available.get(strategy) is None:
+            affordability = requested.get("affordability")
+            if affordability is not None and available.get(affordability) is None:
                 raise HTTPException(
                     status_code=422,
                     detail=(
-                        f"affordability {strategy!r} is unavailable - no glyph "
+                        f"affordability {affordability!r} is unavailable - no glyph "
                         "atlas is built"
                     ),
                 )
