@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import threading
 import time
+from typing import Any
 
 import pytest
 
@@ -21,9 +22,17 @@ from strategy import ActionRule, Strategy
 
 
 class FakeBot:
-    """Stands in for TowerBot: spins until stopped, and counts its runs."""
+    """Stands in for TowerBot: spins until stopped, and counts its runs.
 
-    def __init__(self, first_run_id: int = 1) -> None:
+    Keeps every construction kwarg. The runner builds each bot from the
+    strategy that is active at Start - that is the whole mechanism behind
+    "a strategy change applies on the next Start" - and a fake that quietly
+    swallowed those kwargs would let the runner stop passing them with no
+    test noticing.
+    """
+
+    def __init__(self, first_run_id: int = 1, **kwargs: Any) -> None:
+        self.kwargs: dict[str, Any] = {"first_run_id": first_run_id, **kwargs}
         self.runs = type("R", (), {"next_id": first_run_id, "completed": 0})()
         self._stopping = threading.Event()
         self.scans = 0
@@ -55,8 +64,9 @@ def runner_parts():
         devices.append(device)
         return device
 
-    def bot_factory(*, device, first_run_id, **kwargs):
-        bot = FakeBot(first_run_id=first_run_id)
+    def bot_factory(**kwargs):
+        # Everything through, nothing dropped: see FakeBot's docstring.
+        bot = FakeBot(**kwargs)
         made.append(bot)
         return bot
 
@@ -120,11 +130,100 @@ def test_starting_twice_is_refused_rather_than_silently_ignored(runner_parts) ->
 
 
 def test_stopping_a_stopped_runner_is_harmless(runner_parts) -> None:
-    # Idempotent on purpose: a double-click on Stop, or a Stop racing the
-    # bot hitting max_runs, must not raise.
+    """Idempotent on purpose: a double-click on Stop, or a Stop racing the
+    bot hitting max_runs, must not raise.
+
+    Starts first, deliberately. Two stops on a runner that was never started
+    both take the `bot is None` early return and prove nothing about the
+    real double-stop path, which is the interesting one: the second call
+    calls stop() on an already-stopped bot and joins a thread that is
+    already dead.
+    """
     runner, _, _, _, _ = runner_parts
+    runner.start()
     assert runner.stop()["running"] is False
     assert runner.stop()["running"] is False
+
+
+def test_a_stop_the_loop_ignores_is_reported_as_still_running(runner_parts) -> None:
+    """The contradiction this exists to prevent: stop() answering "stopped"
+    after a join it just watched time out. status() derives running from
+    thread liveness, so a hardcoded False here meant POST /api/bot/stop said
+    stopped, the next /api/status poll said running, the next Start was
+    refused with 409 - and the bot was still tapping the game throughout.
+    Entirely reachable: a scan pass stuck on an ADB read outlasts the
+    timeout, and a stalled ADB read is exactly when someone presses Stop.
+    """
+    runner, _, _, _, _ = runner_parts
+
+    class DeafBot(FakeBot):
+        def stop(self, *_: object) -> None:
+            pass  # ignores the request, exactly like a wedged scan pass
+
+    runner._bot_factory = lambda **kwargs: DeafBot(**kwargs)
+    runner.start()
+    try:
+        status = runner.stop(timeout=0.05)
+        assert status["running"] is True
+        assert status["since"] is not None
+        # The two answers agree, which is the entire point.
+        assert runner.status()["running"] is True
+    finally:
+        # Release it for real, or the daemon thread spins for the session.
+        runner._bot._stopping.set()
+        runner._thread.join(timeout=5)
+
+
+def test_each_bot_is_built_from_the_strategy_active_at_start(runner_parts) -> None:
+    """"Applies on the next Start" is not a doc claim, it is these two
+    kwargs: the runner reads controls at start() and hands the values to the
+    new bot, which holds them for its whole life. Nothing else covers the
+    mechanism, and a runner that quietly stopped passing them would look
+    fine everywhere else.
+    """
+    runner, made, _, _, _ = runner_parts
+    runner._controls.replace(
+        a_strategy(screen_confirmations=4, navigation_cooldown=9.0)
+    )
+    runner.start()
+    try:
+        assert made[0].kwargs["screen_confirmations"] == 4
+        assert made[0].kwargs["navigation_cooldown"] == 9.0
+    finally:
+        runner.stop()
+
+
+def test_a_crashing_loop_is_published_and_leaves_the_runner_stopped(
+    runner_parts,
+) -> None:
+    """A bot that raises out of run_forever() must end like any other: the
+    error on the feed and in status(), the thread gone, and the runner ready
+    to start another. Silence here would leave the dashboard showing a
+    running bot that is not there.
+    """
+    runner, _, _, seen, _ = runner_parts
+
+    def explodes(**kwargs):
+        bot = FakeBot(**kwargs)
+
+        def boom(**_: object) -> None:
+            raise RuntimeError("matchTemplate blew up")
+
+        bot.run_forever = boom
+        return bot
+
+    runner._bot_factory = explodes
+    runner.start()
+    for _ in range(200):
+        if not runner.status()["running"]:
+            break
+        time.sleep(0.01)
+
+    assert runner.status()["running"] is False
+    assert runner.status()["error"] == "matchTemplate blew up"
+    assert any(
+        e.type == "BotError" and "matchTemplate" in e.message for e in seen
+    )
 
 
 def test_run_ids_carry_across_a_restart(runner_parts) -> None:

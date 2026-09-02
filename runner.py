@@ -12,7 +12,10 @@ by Stop, or by reaching its run cap - without the server ending, and a new
 one can be started in its place.
 
 Everything here is guarded by one lock, so two concurrent starts cannot both
-spawn a thread. Imports the bot, never the web layer.
+spawn a thread. Imports the bot, never the web layer - `frames` and
+`sinks.state` are shared plumbing the scan loop writes to, not part of the
+dashboard, so naming their types below costs nothing the bot did not already
+pay (device.py pulls cv2 in regardless).
 """
 
 from __future__ import annotations
@@ -24,8 +27,11 @@ import traceback
 from typing import Any, Callable
 
 import events
+import vision
 from control import Controls
 from device import EmulatorError
+from frames import FrameBuffer
+from sinks.state import BotState
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +48,7 @@ class RunnerError(Exception):
         self.status_code = status_code
 
 
-def _default_bot_factory(**kwargs: Any):
+def _default_bot_factory(**kwargs: Any) -> Any:
     """Imported lazily: tower_bot imports control, and importing it at module
     scope here would drag the whole bot into any process that only wanted the
     runner's types."""
@@ -59,11 +65,11 @@ class BotRunner:
         *,
         bus: events.EventBus,
         controls: Controls,
-        state: Any,
-        templates: Any,
+        state: BotState,
+        templates: vision.TemplateCache,
         device_factory: Callable[[], Any],
         checks: dict[str, Any],
-        frames: Any = None,
+        frames: FrameBuffer | None = None,
         first_run_id: int = 1,
         bot_factory: Callable[..., Any] = _default_bot_factory,
     ) -> None:
@@ -132,6 +138,16 @@ class BotRunner:
             # or the status bar mixes this bot's uptime with the last one's
             # scan count. The BUS is deliberately not reset - seq keeps
             # climbing so a reconnecting browser resumes across the restart.
+            #
+            # Known and accepted: this reset is not synchronised with
+            # StateSink's consumer queue. A fast Stop-then-Start can reset
+            # the state while the previous bot's last few events are still
+            # queued, and those then land on the NEW bot's counters and
+            # inflate them for as long as it runs (nothing recomputes them).
+            # Left alone deliberately - the damage is display-only, it needs
+            # a restart inside one queue drain to happen at all, and draining
+            # the sink here would put a cross-thread handshake on the Start
+            # path to tidy up a scan count.
             self._state.reset()
 
             strategy = self._controls.snapshot().strategy
@@ -204,6 +220,16 @@ class BotRunner:
         proving it is genuinely gone, not merely flagged - should still find
         it. The slot is reclaimed lazily, by the next start()'s own
         `_reap_locked()` call.
+
+        The join is bounded, so the thread is NOT guaranteed to be gone when
+        this returns, and the answer is derived from `_running_locked()` for
+        exactly that reason rather than hardcoded to False. Reporting
+        "stopped" after a join that timed out would contradict the very
+        thing the timeout just proved: `status()` would keep saying running
+        (same predicate), the next `start()` would refuse with 409, and the
+        bot would still be tapping the game while the browser was told it
+        had stopped. A honest "running": True says instead that the request
+        was made and the loop has not honoured it yet.
         """
         with self._lock:
             bot, thread = self._bot, self._thread
@@ -214,9 +240,14 @@ class BotRunner:
         bot.stop()
         thread.join(timeout=timeout)
         with self._lock:
-            if thread.is_alive():
+            running = self._running_locked()
+            if running:
                 # Daemon thread, so it cannot keep the process alive - but a
                 # loop that ignored stop() is worth saying out loud.
                 logger.warning("the scan loop did not stop within %.1fs", timeout)
             self._harvest_locked(bot)
-            return {"running": False, "since": None, "error": self._error}
+            return {
+                "running": running,
+                "since": self._since if running else None,
+                "error": self._error,
+            }
