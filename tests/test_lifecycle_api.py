@@ -134,5 +134,35 @@ def test_the_lifecycle_routes_are_absent_without_a_runner() -> None:
         unknown_dir=config.UNKNOWN_DIR,
     )
     client = TestClient(app)
-    # 404 from the static mount, not a 405 or a 500: the route never existed.
+    # 404, not a 405 or a 500: the route never existed. StaticFiles itself
+    # would answer a stray POST with 405 ("wrong method"), which is why
+    # web/app.py registers its own catch-all 404 for unmatched /api writes
+    # ahead of the mount - see the test right below this one.
     assert client.post("/api/bot/start").status_code == 404
+
+
+def test_the_unmatched_api_catch_all_does_not_shadow_real_routes() -> None:
+    """web/app.py's catch-all ("/api/{_path:path}", write verbs -> 404),
+    added so a truly-unregistered route like /api/bot/start reads as 404
+    rather than the static mount's 405, has to stay the LAST /api route
+    registered - Starlette matches in order, and that pattern swallows
+    every write-verb request under /api, real or not.
+
+    If a future route (the strategy CRUD routes are next, and three of
+    those five are write verbs) is ever registered *after* the catch-all
+    instead of before it, this test fails: /api/bot/stop would 404 even
+    though a runner is wired and the route very much exists. That failure
+    mode is worse than a normal regression because it looks exactly like
+    "the route was never added" rather than "the route is shadowed" -
+    hence pinning the ordering here instead of trusting the comment above
+    the catch-all alone.
+    """
+    runner = FakeRunner()
+    app = create_app(
+        state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
+        unknown_dir=config.UNKNOWN_DIR, runner=runner,
+    )
+    client = TestClient(app)
+    response = client.post("/api/bot/stop")
+    assert response.status_code == 200
+    assert runner.stops == 1

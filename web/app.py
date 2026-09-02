@@ -444,6 +444,17 @@ def create_app(
     # never-registered route into a misleading 405. GET/HEAD are left to
     # the mount below, which already answers unmatched paths with the SPA's
     # own 404 page.
+    #
+    # Starlette matches in registration order and this pattern
+    # ("/api/{_path:path}") swallows every write-verb request under /api,
+    # real or not - so it has to stay the LAST /api route registered. Any
+    # new /api route (the strategy CRUD routes are next) MUST be added
+    # above this one, not below: a route registered after this catch-all is
+    # unreachable and will 404 as if it were never wired at all, which is a
+    # much more confusing failure than a normal shadowing bug because it
+    # looks identical to "the route was never registered." See
+    # test_the_unmatched_api_catch_all_does_not_shadow_real_routes in
+    # tests/test_lifecycle_api.py, which pins this ordering.
     @app.api_route("/api/{_path:path}", methods=["POST", "PUT", "PATCH", "DELETE"])
     def unmatched_api_route(_path: str) -> None:
         raise HTTPException(status_code=404, detail="no such route")
