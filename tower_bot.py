@@ -77,6 +77,8 @@ class TowerBot:
         reader: digits.NumberReader | None = None,
         first_run_id: int = 1,
         frames: FrameBuffer | None = None,
+        screen_confirmations: int = config.SCREEN_CONFIRMATIONS,
+        navigation_cooldown: float = config.NAVIGATION_COOLDOWN_SECONDS,
     ) -> None:
         self.device = device
         self.templates = templates
@@ -87,7 +89,12 @@ class TowerBot:
         self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
         self.reader = reader if reader is not None else digits.NumberReader()
         self.wallet: int | None = None
-        self.tracker = screens.ScreenTracker()
+        # Read once, here, rather than per scan: both configure an object
+        # that carries state across scans (the tracker's part-confirmed
+        # reading, the navigator's last-navigation timestamp), and changing
+        # either under a running one has no correct answer. This is the
+        # "applies on next Start" boundary the dashboard labels.
+        self.tracker = screens.ScreenTracker(confirmations=screen_confirmations)
         self.snapshots = SnapshotWriter(
             config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
         )
@@ -104,7 +111,7 @@ class TowerBot:
         self.checks: dict[str, AffordabilityCheck | None] = checks or {
             self.controls.snapshot().strategy.affordability: self.affordability
         }
-        self.navigator = Navigator(templates, bus)
+        self.navigator = Navigator(templates, bus, cooldown=navigation_cooldown)
         self.runs = RunTracker(first_run_id)
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
@@ -650,35 +657,69 @@ def build_affordability(
     return DigitAffordability(digits.NumberReader(cache), BrightnessAffordability())
 
 
-def build_checks_and_controls(
-    loaded: Strategy, atlas_root: Path | None = None
-) -> tuple[dict[str, AffordabilityCheck | None], Controls]:
-    """Build every affordability strategy once, and seed Controls from what
-    actually got built rather than from `loaded.affordability` alone.
+def build_checks(
+    atlas_root: Path | None = None,
+) -> dict[str, AffordabilityCheck | None]:
+    """Build every affordability strategy once. Safe to call on every start.
 
-    Both strategies built once, at startup. `digits` degrades to brightness
-    when no atlas exists, and the identity check below is how we notice - so
-    the dashboard can refuse a switch to digits with a reason rather than
-    quietly handing back brightness.
+    `digits` degrades to brightness when no atlas exists, and a None entry
+    here is how the rest of the app notices - see `_reconcile_affordability`
+    for the one place that has to act on it.
 
     `atlas_root` exists so this can be exercised without a device: it is
     threaded straight through to `build_affordability`.
+
+    Deliberately does not touch `Controls`. `BotRunner` calls this once per
+    start() to get a bot-affecting-only dict, while `Controls` is built once,
+    at process startup, and lives for as long as the server does - conflating
+    the two here would hand every restart a fresh `Controls` while the HTTP
+    routes kept patching the old one, with the running bot never seeing the
+    dashboard's edits.
     """
     brightness = BrightnessAffordability()
     digits_check = build_affordability("digits", atlas_root=atlas_root)
-    checks: dict[str, AffordabilityCheck | None] = {
+    return {
         "brightness": brightness,
         "digits": digits_check if isinstance(digits_check, DigitAffordability) else None,
     }
-    # Seeded from the loaded strategy, with the affordability method
-    # downgraded if the atlas this machine has cannot serve it. The CLI
-    # flags that override strategy fields are applied by the caller (see
-    # plan 3's --strategy handling), not here: this function's job is to
-    # build the checks and reconcile them with the policy it is given.
+
+
+def _reconcile_affordability(
+    loaded: Strategy, checks: dict[str, AffordabilityCheck | None]
+) -> Strategy:
+    """Downgrade `loaded.affordability` if the atlas this machine has cannot
+    serve it.
+
+    Must run exactly once, at the point the long-lived `Controls` is built -
+    not on every start(), or a restart could silently re-seed a method the
+    operator had already been downgraded away from. The CLI flags that
+    override strategy fields are applied by the caller (see plan 3's
+    --strategy handling), not here: this function's job is only to reconcile
+    the requested policy with the checks that actually built.
+    """
     affordability = loaded.affordability
     if checks.get(affordability) is None:
         affordability = "brightness"
-    controls = Controls(strategy=dataclasses.replace(loaded, affordability=affordability))
+    return dataclasses.replace(loaded, affordability=affordability)
+
+
+def build_checks_and_controls(
+    loaded: Strategy, atlas_root: Path | None = None
+) -> tuple[dict[str, AffordabilityCheck | None], Controls]:
+    """Thin wrapper over build_checks() + _reconcile_affordability(), kept
+    for main()'s one-time startup call. Seeds Controls from what actually got
+    built rather than from `loaded.affordability` alone - the identity check
+    inside _reconcile_affordability is how the dashboard can refuse a switch
+    to digits with a reason rather than quietly handing back brightness.
+
+    Not for BotRunner: it must never build a Controls of its own (see
+    build_checks()'s docstring) or a checks dict of its own (checks are
+    per-process, not per-bot - the CPU cost of rebuilding the digit atlas on
+    every Start would be silly, and the whole point of the split above is
+    that restarting a bot must not re-run this).
+    """
+    checks = build_checks(atlas_root=atlas_root)
+    controls = Controls(strategy=_reconcile_affordability(loaded, checks))
     return checks, controls
 
 
