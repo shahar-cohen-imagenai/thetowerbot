@@ -86,16 +86,16 @@ async def event_stream(
     pass a fake that reports disconnection after a bounded number of polls.
 
     `stop` is the other way this can end, and the one that matters at
-    shutdown: `is_disconnected()` only reports true once the browser closes
-    the tab, which it never does on its own just because the bot stopped.
-    Without `stop`, a held-open dashboard tab and a uvicorn server with
-    `should_exit = True` wait on each other forever - the response is still
-    "in flight" as far as the server's graceful shutdown is concerned, so
-    the transport never closes. Checking the flag lets the generator end
-    itself, the response complete, and the connection close normally.
-    Optional so existing callers (and every test predating this) keep
-    working; a fresh Event() that nobody ever sets is exactly "never stop
-    this way", which is the old behaviour.
+    process shutdown: `is_disconnected()` only reports true once the browser
+    closes the tab, which it never does on its own just because the process
+    is going down. Without `stop`, a held-open dashboard tab and a uvicorn
+    server with `should_exit = True` wait on each other forever - the
+    response is still "in flight" as far as the server's graceful shutdown
+    is concerned, so the transport never closes. Checking the flag lets the
+    generator end itself, the response complete, and the connection close
+    normally. Optional so existing callers (and every test predating this)
+    keep working; a fresh Event() that nobody ever sets is exactly "never
+    stop this way", which is the old behaviour.
     """
     if stop is None:
         stop = threading.Event()
@@ -138,10 +138,10 @@ async def frame_stream(
     """MJPEG: one connection, rendered natively by a plain <img>.
 
     Same two exits as event_stream(), and for the same reasons: the browser
-    closing the tab, and the bot shutting down. An <img> holds its response
-    open indefinitely and never disconnects on its own, so without the `stop`
-    check a held-open device view and a shutting-down uvicorn would wait on
-    each other forever.
+    closing the tab, and the process shutting down. An <img> holds its
+    response open indefinitely and never disconnects on its own, so without
+    the `stop` check a held-open device view and a shutting-down uvicorn
+    would wait on each other forever.
 
     Only sends when the frame number moves, so an idle bot costs one send per
     scan rather than one per poll.
