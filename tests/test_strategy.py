@@ -145,3 +145,86 @@ def test_actions_are_normalised_to_a_tuple() -> None:
     # caller could append to.
     strategy = a_strategy(actions=[ActionRule(name="D", template="d.png")])
     assert isinstance(strategy.actions, tuple)
+
+
+def test_dict_round_trip_preserves_everything() -> None:
+    original = a_strategy(
+        interval=3.5, auto_navigate=True, max_runs=7,
+        affordability="brightness", click_cooldown=0.5,
+        navigation_cooldown=4.0, screen_confirmations=3,
+        actions=(
+            ActionRule(name="Damage", template="d.png", threshold=0.95),
+            ActionRule(name="Speed", template="s.png", enabled=False),
+        ),
+    )
+    assert Strategy.from_dict(original.to_dict()) == original
+
+
+def test_to_dict_is_json_serialisable() -> None:
+    import json
+    # The store writes this straight to a file; a tuple that json cannot
+    # encode would only show up at save time.
+    text = json.dumps(a_strategy().to_dict())
+    assert "actions" in text
+
+
+def test_from_dict_rejects_an_unknown_key() -> None:
+    # A typo in a hand-edited file must not be silently ignored - that is
+    # exactly the case where the file says one thing and the bot does another.
+    raw = a_strategy().to_dict()
+    raw["intervall"] = 5.0
+    with pytest.raises(ControlError) as caught:
+        Strategy.from_dict(raw)
+    assert caught.value.field == "intervall"
+
+
+def test_from_dict_rejects_a_missing_required_key() -> None:
+    raw = a_strategy().to_dict()
+    del raw["actions"]
+    with pytest.raises(ControlError) as caught:
+        Strategy.from_dict(raw)
+    assert caught.value.field == "actions"
+
+
+def test_from_dict_rejects_a_wrong_type_with_the_field_name() -> None:
+    raw = a_strategy().to_dict()
+    raw["interval"] = "fast"
+    with pytest.raises(ControlError) as caught:
+        Strategy.from_dict(raw)
+    assert caught.value.field == "interval"
+
+
+def test_validated_accepts_templates_that_exist(tmp_path) -> None:
+    (tmp_path / "d.png").write_bytes(b"")
+    strategy = a_strategy(actions=(ActionRule(name="D", template="d.png"),))
+    assert strategy.validated(template_dir=tmp_path) is strategy
+
+
+def test_validated_rejects_a_missing_template(tmp_path) -> None:
+    """A mistyped filename does not fail loudly on its own.
+
+    TemplateCache.get() raises when the loop first reaches that row, deep
+    inside a scan, and the bot then reports an error every pass forever.
+    Rejecting it at save turns a recurring runtime failure into one 422.
+    """
+    strategy = a_strategy(actions=(ActionRule(name="D", template="nope.png"),))
+    with pytest.raises(ControlError) as caught:
+        strategy.validated(template_dir=tmp_path)
+    assert caught.value.field == "template"
+    assert "nope.png" in str(caught.value)
+
+
+def test_validated_checks_disabled_rows_too(tmp_path) -> None:
+    # A disabled row is one checkbox away from running. Letting it hold a
+    # broken template just moves the failure to whenever it gets switched on.
+    strategy = a_strategy(
+        actions=(ActionRule(name="D", template="nope.png", enabled=False),)
+    )
+    with pytest.raises(ControlError):
+        strategy.validated(template_dir=tmp_path)
+
+
+def test_the_shipped_default_passes_its_own_template_check() -> None:
+    # If this fails, config.ACTIONS references a template that is not in the
+    # repo - which would make ensure_seeded() write an unloadable profile.
+    Strategy.from_config().validated()
