@@ -17,7 +17,6 @@ No emulator and no game interaction: the bot itself never runs here.
 
 from __future__ import annotations
 
-import dataclasses
 import json
 import signal
 import socket
@@ -32,19 +31,18 @@ import httpx2 as httpx
 import numpy as np
 import uvicorn
 
-import control
 import db
 import events
 from frames import FrameBuffer
 from sinks.sse import SseSink
 from sinks.state import BotState, StateSink
-from strategy import Strategy
 from web.app import create_app
 
 HOST = "127.0.0.1"
 ROUTES_PORT = 8799
 SHUTDOWN_PORT = 8801
 STOP_PORT = 8802
+BOT_STOP_PORT = 8803
 
 results: list[tuple[str, bool, str]] = []
 
@@ -211,9 +209,9 @@ def shutdown_seconds(db_path: Path, *, path: str, set_flag: bool) -> float:
     bus.subscribe(sse)
     frames = FrameBuffer()
     frames.publish(a_frame())
-    stop = threading.Event()
+    shutdown = threading.Event()
     app = create_app(state=state, sse=sse, bus=bus, db_path=db_path,
-                     unknown_dir=db_path.parent / "unknown", stop=stop,
+                     unknown_dir=db_path.parent / "unknown", shutdown=shutdown,
                      frames=frames)
     server = serve(app, SHUTDOWN_PORT)
 
@@ -226,76 +224,96 @@ def shutdown_seconds(db_path: Path, *, path: str, set_flag: bool) -> float:
     bus.publish(events.Navigated(target="RETRY"))
     time.sleep(0.5)
 
-    # Exactly what serve_web's worker does when run_forever returns.
+    # Exactly what serve_web's shutdown-watcher does once told to stop.
     started = time.monotonic()
     server.should_exit = True
     if set_flag:
-        stop.set()
+        shutdown.set()
     serving.join(timeout=20)
     elapsed = time.monotonic() - started
     sock.close()
     return -1.0 if serving.is_alive() else elapsed
 
 
-def check_stop_route_stops_serve_web(tmp: Path) -> None:
+class FakeRunner:
+    """Stands in for BotRunner (no emulator needed): a background loop that
+    "scans" until told to stop, so the checks below can prove a browser's
+    request actually reaches it - not just kills the SSE feed.
+
+    Shaped like BotRunner - start()/stop()/status() behind the same
+    dict contract - because that is everything serve_web() and the /api/bot/*
+    routes touch. See tests/test_lifecycle_api.py's FakeRunner for the same
+    shape used by the pytest side of this split.
+    """
+
+    def __init__(self, interval: float = 0.05) -> None:
+        self.interval = interval
+        self.scans = 0
+        self.running = False
+        self._stopping = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def _loop(self) -> None:
+        while not self._stopping.is_set():
+            self.scans += 1
+            self._stopping.wait(self.interval)
+
+    def start(self) -> dict:
+        self._stopping.clear()
+        self.running = True
+        self._thread = threading.Thread(
+            target=self._loop, name="fake-scan-loop", daemon=True
+        )
+        self._thread.start()
+        return {"running": True, "since": time.monotonic(), "error": None}
+
+    def stop(self) -> dict:
+        self._stopping.set()
+        self.running = False
+        if self._thread is not None:
+            self._thread.join(timeout=5)
+        return {"running": False, "since": None, "error": None}
+
+    def status(self) -> dict:
+        return {"running": self.running, "since": None, "error": None}
+
+
+def check_shutdown_route_stops_serve_web(tmp: Path) -> None:
     """The Critical the whole-branch review reproduced: POST
-    /api/control/stop set the shared `stop` Event, but nothing in serve_web()
-    ever waited on it - only event_stream() did. The route killed every SSE
+    /api/control/stop (now /api/shutdown - the route that ends the process,
+    not merely the bot) set the shared Event, but nothing in serve_web() ever
+    waited on it - only event_stream() did. The route killed every SSE
     connection (so the dashboard's feed went dead and looked stopped) while
     the scan loop and the server both kept right on running underneath.
 
     Drives the real serve_web() - a real uvicorn Server, no monkeypatching -
-    with a fake bot (no emulator needed) and proves it actually returns after
-    a browser's stop request, and that the loop stops scanning. This is
-    exactly the kind of process-lifecycle behaviour this file's own docstring
-    says pytest cannot observe.
+    with a FakeRunner (no emulator needed) and proves it actually returns
+    after a browser's shutdown request, and that the loop stops scanning.
+    This is exactly the kind of process-lifecycle behaviour this file's own
+    docstring says pytest cannot observe.
     """
     import tower_bot
 
-    class FakeBot:
-        """Enough of TowerBot's shape for serve_web(): a controls whose
-        snapshot().strategy.interval sizes the shutdown join (matching how
-        the real bot reads it - see tower_bot.py's run_forever/serve_web),
-        a run_forever() that loops harmlessly until told to stop, and a
-        stop() that flips both."""
-
-        def __init__(self) -> None:
-            self.controls = control.Controls(
-                strategy=dataclasses.replace(Strategy.from_config(), interval=0.05)
-            )
-            self._running = True
-            self._stopping = threading.Event()
-            self.scans = 0
-
-        def run_forever(self, max_runs: int | None = None) -> None:
-            while self._running:
-                self.scans += 1
-                self._stopping.wait(self.controls.snapshot().strategy.interval)
-
-        def stop(self, *_: object) -> None:
-            self._running = False
-            self._stopping.set()
-
-    bot = FakeBot()
+    runner = FakeRunner()
     state, sse, bus = BotState(), SseSink(), events.EventBus()
-    stop = threading.Event()
-    unknown = tmp / "stop-route-unknown"
+    shutdown = threading.Event()
+    unknown = tmp / "shutdown-route-unknown"
     unknown.mkdir(exist_ok=True)
     app = create_app(
         state=state, sse=sse, bus=bus, db_path=None, unknown_dir=unknown,
-        stop=stop, controls=bot.controls, checks={"brightness": object()},
+        shutdown=shutdown, runner=runner,
     )
 
     result: dict[str, Any] = {}
 
     def _run() -> None:
         started = time.monotonic()
-        tower_bot.serve_web(bot, app, host=HOST, port=STOP_PORT, max_runs=None, stop=stop)
+        tower_bot.serve_web(runner, app, host=HOST, port=STOP_PORT, shutdown=shutdown)
         result["elapsed"] = time.monotonic() - started
         result["returned"] = True
 
-    runner = threading.Thread(target=_run, name="serve-web-under-test", daemon=True)
-    runner.start()
+    thread = threading.Thread(target=_run, name="serve-web-under-test", daemon=True)
+    thread.start()
 
     for _ in range(100):
         try:
@@ -309,22 +327,58 @@ def check_stop_route_stops_serve_web(tmp: Path) -> None:
     time.sleep(0.3)  # let a few scans happen, matching the reproduction
 
     with httpx.Client(base_url=f"http://{HOST}:{STOP_PORT}", timeout=10.0) as c:
-        r = c.post("/api/control/stop")
-        check("POST /api/control/stop returns 200",
+        r = c.post("/api/shutdown")
+        check("POST /api/shutdown returns 200",
               r.status_code == 200 and r.json() == {"stopping": True}, str(r.text))
 
-    runner.join(timeout=8.0)
-    check("serve_web returns after a browser stop",
-          not runner.is_alive() and result.get("returned") is True,
+    thread.join(timeout=8.0)
+    check("serve_web returns after a browser shutdown request",
+          not thread.is_alive() and result.get("returned") is True,
           f"still running after 8s (elapsed={result.get('elapsed')})")
-    check("bot._running is False after a browser stop",
-          bot._running is False, f"_running={bot._running}")
+    check("the runner stopped after a browser shutdown request",
+          runner.running is False, f"running={runner.running}")
 
-    scans_at_stop = bot.scans
+    scans_at_stop = runner.scans
     time.sleep(0.3)
-    check("scanning stopped after the browser's stop request",
-          bot.scans == scans_at_stop,
-          f"kept scanning after stop: {scans_at_stop} -> {bot.scans}")
+    check("scanning stopped after the browser's shutdown request",
+          runner.scans == scans_at_stop,
+          f"kept scanning after shutdown: {scans_at_stop} -> {runner.scans}")
+
+
+def check_bot_stop_leaves_the_server_serving(tmp: Path) -> None:
+    """The whole point of splitting one flag into two.
+
+    Before, one Event meant both "stop the bot" and "shut the process down",
+    so a browser pressing Stop killed the dashboard it was pressed from.
+    Assert the server still answers after the bot has stopped.
+    """
+    runner = FakeRunner()
+    runner.start()  # a bot already running, the way the dashboard would find it
+
+    state, sse, bus = BotState(), SseSink(), events.EventBus()
+    shutdown = threading.Event()
+    unknown = tmp / "bot-stop-unknown"
+    unknown.mkdir(exist_ok=True)
+    app = create_app(
+        state=state, sse=sse, bus=bus, db_path=None, unknown_dir=unknown,
+        shutdown=shutdown, runner=runner,
+    )
+    server = serve(app, BOT_STOP_PORT)
+
+    with httpx.Client(base_url=f"http://{HOST}:{BOT_STOP_PORT}", timeout=10.0) as c:
+        r = c.post("/api/bot/stop")
+        check("POST /api/bot/stop returns 200", r.status_code == 200, str(r.text))
+
+        r = c.get("/api/status")
+        body = r.json()
+        check("GET /api/status still answers after the bot stopped",
+              r.status_code == 200 and body.get("bot", {}).get("running") is False,
+              str(body)[:200])
+
+    check("stopping the bot did not trip process shutdown",
+          not shutdown.is_set(), "")
+
+    server.should_exit = True
 
 
 def main() -> int:
@@ -355,9 +409,14 @@ def main() -> int:
             results[-1] = (f"{results[-1][0]} -> {elapsed:.1f}s", True, "")
         time.sleep(0.5)
 
-    # The Critical this file's docstring exists for: the Stop button itself,
-    # driven end to end against the real serve_web().
-    check_stop_route_stops_serve_web(tmp)
+    # The Critical this file's docstring exists for: the shutdown button
+    # itself, driven end to end against the real serve_web().
+    check_shutdown_route_stops_serve_web(tmp)
+
+    # The single most valuable thing this file can assert about the
+    # start/stop split: a browser stopping the bot must not take the
+    # dashboard down with it.
+    check_bot_stop_leaves_the_server_serving(tmp)
 
     width = max(len(label) for label, _, _ in results)
     for label, ok, detail in results:
