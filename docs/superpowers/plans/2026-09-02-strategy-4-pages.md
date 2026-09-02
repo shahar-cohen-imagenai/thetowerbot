@@ -12,6 +12,18 @@
 
 **Depends on:** plans 1-3. Every route this plan calls must already exist and be tested.
 
+> **What plan 3's final review says this plan will trip on.** Read these before writing a component; each is a real property of the API you are building against.
+>
+> 1. **`/api/control` returns two different 422 shapes.** A `ControlError` becomes `detail: "interval: interval must be between…"` — a string with the field as a `": "`-delimited prefix. A pydantic type failure on the *same* endpoint becomes `detail: [{loc, msg, type}, …]` — a list. `web/ui/lib/api.ts`'s existing `describeDetail` already flattens both; use it rather than re-deriving. If a task wants to highlight the offending row or input rather than just show a message, say so — the honest fix is adding `{"field": exc.field}` to the server's response, not splitting strings in TypeScript.
+> 2. **No optimistic concurrency anywhere.** `PUT /api/strategies/{name}` and `PATCH /api/control` are both last-write-wins over the whole document, and reorder is a whole-`actions` PUT — so two tabs on the Strategy page silently clobber each other, and the loser loses every row. The pages converge over SSE, which narrows the window but does not close it. Do not design as though it is closed.
+> 3. **There is no restart endpoint.** A Restart button is `stop` then `start`, and another tab — or the bot hitting `max_runs` — can land in between, turning the second call into a 409. Treat 409 from `/api/bot/start` as "already running, refresh", not an error toast.
+> 4. **`bot.error` is sticky and has no clear.** The runner clears it only on a *successful* start, and `stop()` returns it too — so after a failed Start the dashboard shows that error indefinitely, through stops and page loads. Render it as "last start failed", never as current state.
+> 5. **`{running: false, since: null, error: null}` is identical for "never started" and "stopped cleanly".** A pill cannot distinguish idle from finished from this payload. Do not invent a distinction the API cannot support; if one is wanted, it needs a new field server-side.
+> 6. **`bot.since` is wall-clock (`time.time()`), while `BotState`'s uptime is monotonic-derived.** The StatBar must not mix them in one calculation.
+> 7. **`PATCH /api/control` cannot clear `max_runs`** — `exclude_none` makes absent and explicit-null the same request. The Strategy page must clear it by PUTting the whole profile, which is what it already does; do not add a `PATCH {"max_runs": null}` path expecting it to work.
+>
+> Also: `web/ui/lib/api.ts`'s `stopBot()` was repointed at `/api/shutdown` during plan 3, and `app/control/page.test.tsx` updated with it. Task 1 renames `stopBot` to mean `/api/bot/stop` — check what is there now rather than assuming the pre-plan-3 shape.
+
 ## Global Constraints
 
 - The dashboard is a **static export**. No server components, no route handlers — `"use client"` at the top of every page, and every path in `Sidebar` keeps its trailing slash (`/strategy/`), which is what `next.config.ts`'s `trailingSlash: true` produces and what `StaticFiles(html=True)` resolves.
