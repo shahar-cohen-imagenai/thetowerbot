@@ -1,4 +1,14 @@
-import type { ControlPayload, RunRow, Snapshot, StatsPayload, StatusPayload, Strategy, StoredEvent } from "./types";
+import type {
+  BotStatus,
+  ControlPayload,
+  RunRow,
+  Snapshot,
+  StatsPayload,
+  StatusPayload,
+  Strategy,
+  StrategyList,
+  StoredEvent,
+} from "./types";
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path, { headers: { accept: "application/json" } });
@@ -45,16 +55,48 @@ export async function patchControl(
   return body as ControlPayload;
 }
 
-/**
- * Ends the process, bot and dashboard together - which is what the button's
- * own confirm text ("Stop the bot and the dashboard?") promises.
- *
- * /api/shutdown, not /api/control/stop: that route no longer exists. The
- * lifecycle split replaced it with /api/bot/stop (ends the bot, keeps
- * serving) and /api/shutdown (ends the process), and this call sat pointing
- * at the deleted one - a destructive button that only ever 404'd.
- */
-export async function stopBot(): Promise<void> {
-  const response = await fetch("/api/shutdown", { method: "POST" });
-  if (!response.ok) throw new Error(`POST /api/shutdown -> ${response.status}`);
+async function send<T>(path: string, method: string, body?: unknown): Promise<T> {
+  const response = await fetch(path, {
+    method,
+    headers: body === undefined ? {} : { "content-type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  // 204 and empty bodies are not expected from any of these routes, but a
+  // failed parse must still surface as the status, not as a JSON error.
+  const parsed = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(
+      (parsed && describeDetail(parsed.detail)) ?? `${method} ${path} -> ${response.status}`,
+    );
+  }
+  return parsed as T;
 }
+
+export const fetchStrategies = () => getJson<StrategyList>("/api/strategies");
+export const fetchStrategy = (name: string) =>
+  getJson<Strategy>(`/api/strategies/${encodeURIComponent(name)}`);
+export const saveStrategy = (name: string, body: Strategy) =>
+  send<Strategy>(`/api/strategies/${encodeURIComponent(name)}`, "PUT", body);
+export const activateStrategy = (name: string) =>
+  send<StrategyList>(`/api/strategies/${encodeURIComponent(name)}/activate`, "POST");
+export const deleteStrategy = (name: string) =>
+  send<StrategyList>(`/api/strategies/${encodeURIComponent(name)}`, "DELETE");
+
+/** Starts the bot. A 409 (already running - another tab may have started
+ * one) is a normal answer, not swallowed here: it surfaces via send()'s
+ * error like any other rejection, with the server's own message. */
+export const startBot = () => send<BotStatus>("/api/bot/start", "POST");
+
+/** Ends the bot but keeps the dashboard serving. Distinct from `shutdown()`,
+ * which ends the whole process - see that function's own comment. */
+export const stopBot = () => send<BotStatus>("/api/bot/stop", "POST");
+
+/**
+ * Ends the process, bot and dashboard together - which is what the control
+ * page's stop button confirms ("Stop the bot and the dashboard?").
+ *
+ * The lifecycle split gave the bot itself its own start/stop
+ * (`startBot`/`stopBot` above); this is the separate, more drastic action of
+ * ending the dashboard process.
+ */
+export const shutdown = () => send<{ stopping: boolean }>("/api/shutdown", "POST");

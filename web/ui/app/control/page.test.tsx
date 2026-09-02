@@ -8,13 +8,13 @@ import type { BotEvent, ControlPayload } from "@/lib/types";
 // vi.hoisted() rather than referenced as outer consts (see app/page.test.tsx
 // for the alternative - fixtures inlined in the factory itself - which
 // doesn't work here because these mocks need per-test return values).
-const { fetchControl, patchControl, stopBot } = vi.hoisted(() => ({
+const { fetchControl, patchControl, shutdown } = vi.hoisted(() => ({
   fetchControl: vi.fn(),
   patchControl: vi.fn(),
-  stopBot: vi.fn(),
+  shutdown: vi.fn(),
 }));
 
-vi.mock("@/lib/api", () => ({ fetchControl, patchControl, stopBot }));
+vi.mock("@/lib/api", () => ({ fetchControl, patchControl, shutdown }));
 
 const { streamState } = vi.hoisted(() => ({
   streamState: { events: [] as BotEvent[], connected: true },
@@ -66,15 +66,15 @@ group("ControlPage", () => {
 
   it("surfaces a failed stop instead of failing silently", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
-    // The message the real stopBot() throws, route and all - so a mock that
+    // The message the real shutdown() throws, route and all - so a mock that
     // has drifted from lib/api.ts is visible here rather than passing
     // happily against a route nobody serves.
-    stopBot.mockRejectedValue(new Error("POST /api/shutdown -> 500"));
+    shutdown.mockRejectedValue(new Error("POST /api/shutdown -> 500"));
     render(<ControlPage />);
 
     fireEvent.click(await screen.findByText("Stop"));
 
-    expect(stopBot).toHaveBeenCalled();
+    expect(shutdown).toHaveBeenCalled();
     await screen.findByText(/POST \/api\/shutdown -> 500/);
   });
 

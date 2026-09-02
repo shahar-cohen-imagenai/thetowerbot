@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { fetchControl, patchControl, stopBot } from "@/lib/api";
+import { fetchControl, patchControl, shutdown } from "@/lib/api";
 import { useEventStream } from "@/lib/useEventStream";
 import type { ControlPayload, Strategy } from "@/lib/types";
 
@@ -75,7 +75,7 @@ export default function ControlPage() {
     if (!confirm("Stop the bot and the dashboard?")) return;
     setError(null);
     try {
-      await stopBot();
+      await shutdown();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }

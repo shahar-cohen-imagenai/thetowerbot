@@ -55,6 +55,20 @@ export interface MatchBox {
   tapped: boolean;
 }
 
+export interface BotStatus {
+  running: boolean;
+  /** Unix seconds when the current bot started, or null when stopped. */
+  since: number | null;
+  /** The last start failure - a dead emulator, usually. Cleared by a
+   * successful start. */
+  error: string | null;
+}
+
+export interface StrategyList {
+  active: string;
+  names: string[];
+}
+
 export interface StatusPayload {
   screen: string;
   uptime: number;
@@ -69,6 +83,7 @@ export interface StatusPayload {
   dropped: number;
   boxes: MatchBox[];
   frame_size: { width: number; height: number } | null;
+  bot: BotStatus;
 }
 
 /** A row from the `runs` table. */
