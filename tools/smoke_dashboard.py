@@ -17,6 +17,7 @@ No emulator and no game interaction: the bot itself never runs here.
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import signal
 import socket
@@ -37,6 +38,7 @@ import events
 from frames import FrameBuffer
 from sinks.sse import SseSink
 from sinks.state import BotState, StateSink
+from strategy import Strategy
 from web.app import create_app
 
 HOST = "127.0.0.1"
@@ -256,7 +258,9 @@ def check_stop_route_stops_serve_web(tmp: Path) -> None:
         told to stop, and a stop() that flips both."""
 
         def __init__(self) -> None:
-            self.controls = control.Controls(interval=0.05)
+            self.controls = control.Controls(
+                strategy=dataclasses.replace(Strategy.from_config(), interval=0.05)
+            )
             self._running = True
             self._stopping = threading.Event()
             self.scans = 0

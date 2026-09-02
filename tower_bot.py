@@ -56,6 +56,7 @@ from sinks.sse import SseSink
 from sinks.state import BotState, StateSink
 from sinks.store import StoreSink
 from sinks.tui import TuiSink
+from strategy import Strategy, StrategyStore
 
 logger = logging.getLogger("tower_bot")
 
@@ -69,7 +70,6 @@ class TowerBot:
         device: AdbDevice,
         templates: vision.TemplateCache,
         bus: events.EventBus,
-        click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
         affordability_check: AffordabilityCheck | None = None,
         controls: Controls | None = None,
         checks: dict[str, AffordabilityCheck | None] | None = None,
@@ -83,7 +83,6 @@ class TowerBot:
         # Optional: --tui and --once have nobody to show a frame to, and every
         # test predating this constructs a bot without one.
         self.frames = frames
-        self.click_cooldown = click_cooldown
         self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
         self.reader = reader if reader is not None else digits.NumberReader()
         self.wallet: int | None = None
@@ -91,15 +90,18 @@ class TowerBot:
         self.snapshots = SnapshotWriter(
             config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
         )
-        # One source of truth for every live setting. A separate auto_navigate
-        # attribute alongside this would be two, and they would drift.
-        self.controls = controls if controls is not None else Controls()
+        # One source of truth for every live setting. A Controls built here
+        # would need a Strategy to hold, and inventing one would compete with
+        # StrategyStore.ensure_seeded() - so callers build it and pass it.
+        self.controls = controls if controls is not None else Controls(
+            strategy=Strategy.from_config()
+        )
         # Built once, here, and never in a request handler. A None entry means
         # that strategy is unavailable on this machine - which is what lets
         # PATCH /api/control refuse it with a reason instead of silently
         # handing back a different check.
         self.checks: dict[str, AffordabilityCheck | None] = checks or {
-            self.controls.strategy: self.affordability
+            self.controls.snapshot().strategy.affordability: self.affordability
         }
         self.navigator = Navigator(templates, bus)
         self.runs = RunTracker(first_run_id)
@@ -129,6 +131,16 @@ class TowerBot:
         if self._screen is None:
             return self.refresh_screen()
         return self._screen
+
+    def _click_cooldown(self) -> float:
+        """The live per-template cooldown.
+
+        Read here rather than passed down from run_once's snapshot only
+        because find_and_click_image is also called directly by tests and by
+        no other caller; the value still comes from the same Controls, so
+        there is no second source of truth.
+        """
+        return self.controls.snapshot().strategy.click_cooldown
 
     # -- the core helper ---------------------------------------------------
     def find_and_click_image(
@@ -210,7 +222,7 @@ class TowerBot:
             return False
 
         now = time.monotonic()
-        if now - self._last_click.get(cooldown_key, 0.0) < self.click_cooldown:
+        if now - self._last_click.get(cooldown_key, 0.0) < self._click_cooldown():
             self.bus.publish(events.Skipped(action=name, reason="cooldown"))
             return False
 
@@ -269,8 +281,22 @@ class TowerBot:
         )
 
     # -- main loop ---------------------------------------------------------
-    def run_cap_reached(self, max_runs: int | None) -> bool:
-        return max_runs is not None and self.runs.completed >= max_runs
+    def run_cap_reached(
+        self, max_runs: int | None = None, strategy: Strategy | None = None
+    ) -> bool:
+        """Has the bot completed as many runs as it was asked for?
+
+        The explicit parameter wins when set - that is the non-web path,
+        which has a CLI flag and no strategy loaded. Otherwise the strategy
+        supplies it. The two can never both be meaningfully set in the web
+        path, because the CLI persists its flag into the strategy rather
+        than carrying it alongside (see the spec, section 10).
+        """
+        cap = max_runs
+        if cap is None:
+            source = strategy if strategy is not None else self.controls.snapshot().strategy
+            cap = source.max_runs
+        return cap is not None and self.runs.completed >= cap
 
     def run_once(self, max_runs: int | None = None) -> bool:
         """One scan pass over the configured actions. True if anything clicked.
@@ -285,7 +311,7 @@ class TowerBot:
         # let a setting change underneath a half-finished scan - the wallet
         # read with one strategy and the price gate applied with another.
         settings = self.controls.snapshot()
-        chosen = self.checks.get(settings["strategy"])
+        chosen = self.checks.get(settings.strategy.affordability)
         if chosen is not None:
             self.affordability = chosen
         self.refresh_screen()
@@ -359,18 +385,21 @@ class TowerBot:
         # here whenever the loop below does not run (paused, screen-gated),
         # matching add_box() never having been called in those cases before.
         boxes: list[dict[str, Any]] = []
-        if settings["paused"]:
+        if settings.paused:
             # Still scanning, still reporting - just not acting. One skip per
             # scan, not one per action, matching the screen gate below.
             self.bus.publish(
                 events.Skipped(action="*", reason="paused", detail="paused from the dashboard")
             )
         elif state is screens.ScreenState.IN_RUN:
-            enabled = set(settings["enabled_actions"])
-            for action in config.ACTIONS:
-                if action.name not in enabled:
+            # The strategy's rows, in the strategy's order - order IS
+            # priority. Before, this walked config.ACTIONS and used the
+            # settings only as an on/off filter, so neither reordering nor
+            # a per-row threshold could reach the matcher.
+            for rule in settings.strategy.actions:
+                if not rule.enabled:
                     continue
-                if self.find_and_click_image(action, boxes):
+                if self.find_and_click_image(rule.as_action(), boxes):
                     clicked = True
         else:
             self.bus.publish(
@@ -385,9 +414,9 @@ class TowerBot:
             self.frames.set_boxes(boxes)
 
         if (
-            settings["auto_navigate"]
-            and not settings["paused"]
-            and not self.run_cap_reached(max_runs)
+            settings.strategy.auto_navigate
+            and not settings.paused
+            and not self.run_cap_reached(max_runs, settings.strategy)
         ):
             self.navigator.maybe_navigate(
                 self.screen, state, self.device, now=time.monotonic()
@@ -412,8 +441,8 @@ class TowerBot:
         `interval` has two distinct meanings, deliberately:
 
         - `None` (the default, and what serve_web() passes in production)
-          means the dashboard owns the pace. `self.controls.interval` is
-          re-read at the top of every iteration, so a change made from the
+          means the dashboard owns the pace. `self.controls.snapshot().strategy.interval`
+          is re-read at the top of every iteration, so a change made from the
           browser takes effect on the very next sleep rather than requiring a
           restart.
         - An explicit number is a caller override. It is used exactly as
@@ -430,7 +459,9 @@ class TowerBot:
         than sleeping it out (which a plain time.sleep() would do - PEP 475
         resumes it after a signal handler returns instead of aborting it).
         """
-        startup_interval = self.controls.interval if interval is None else interval
+        startup_interval = (
+            self.controls.snapshot().strategy.interval if interval is None else interval
+        )
         logger.info(
             "Bot started - scanning every %.1fs. Ctrl+C to stop.", startup_interval
         )
@@ -443,7 +474,9 @@ class TowerBot:
                 break
             # Re-read every iteration (when interval is None) rather than
             # once at the top of the loop - see the docstring above.
-            current_interval = self.controls.interval if interval is None else interval
+            current_interval = (
+                self.controls.snapshot().strategy.interval if interval is None else interval
+            )
             try:
                 self.run_once(max_runs=max_runs)
             except EmulatorError as exc:
@@ -566,10 +599,10 @@ def build_affordability(
 
 
 def build_checks_and_controls(
-    args: argparse.Namespace, atlas_root: Path | None = None
+    loaded: Strategy, atlas_root: Path | None = None
 ) -> tuple[dict[str, AffordabilityCheck | None], Controls]:
     """Build every affordability strategy once, and seed Controls from what
-    actually got built rather than from `args.affordability` alone.
+    actually got built rather than from `loaded.affordability` alone.
 
     Both strategies built once, at startup. `digits` degrades to brightness
     when no atlas exists, and the identity check below is how we notice - so
@@ -585,11 +618,15 @@ def build_checks_and_controls(
         "brightness": brightness,
         "digits": digits_check if isinstance(digits_check, DigitAffordability) else None,
     }
-    controls = Controls(
-        interval=args.interval,
-        auto_navigate=args.auto_navigate,
-        strategy=args.affordability if checks.get(args.affordability) else "brightness",
-    )
+    # Seeded from the loaded strategy, with the affordability method
+    # downgraded if the atlas this machine has cannot serve it. The CLI
+    # flags that override strategy fields are applied by the caller (see
+    # plan 3's --strategy handling), not here: this function's job is to
+    # build the checks and reconcile them with the policy it is given.
+    affordability = loaded.affordability
+    if checks.get(affordability) is None:
+        affordability = "brightness"
+    controls = Controls(strategy=dataclasses.replace(loaded, affordability=affordability))
     return checks, controls
 
 
@@ -718,8 +755,9 @@ def serve_web(
 
     No `interval` parameter: the dashboard owns the pace once --web is on, so
     the scan loop is started with `run_forever(interval=None)` and reads
-    `bot.controls.interval` for itself on every iteration. Passing an
-    interval here would be a second source of truth for the same value.
+    `bot.controls.snapshot().strategy.interval` for itself on every
+    iteration. Passing an interval here would be a second source of truth
+    for the same value.
 
     This way round on purpose. uvicorn installs its own SIGINT/SIGTERM
     handlers and can only do that from the main thread, so it gets the main
@@ -838,7 +876,7 @@ def serve_web(
         #
         # Bounded on purpose: the browser can set the interval as high as
         # MAX_INTERVAL, and a shutdown must not inherit that as its deadline.
-        worker.join(timeout=min(bot.controls.interval, 5.0) + 2.0)
+        worker.join(timeout=min(bot.controls.snapshot().strategy.interval, 5.0) + 2.0)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -910,16 +948,18 @@ def main(argv: list[str] | None = None) -> int:
                     width, height, *config.EXPECTED_RESOLUTION,
                 )
 
-        checks, controls = build_checks_and_controls(args)
+        checks, controls = build_checks_and_controls(StrategyStore().ensure_seeded())
+        # checks[controls.snapshot().strategy.affordability] is never None
+        # here: build_checks_and_controls() already seeded controls' strategy
+        # to an affordability name whose check built (falling back to
+        # "brightness" itself when it did not), so a "checks[...] or
+        # checks['brightness']" fallback would be dead code.
+        loaded_affordability = controls.snapshot().strategy.affordability
         bot = TowerBot(
             device=device,
             templates=vision.TemplateCache(config.TEMPLATE_DIR),
             bus=bus,
-            # checks[controls.strategy] is never None here: build_checks_and_controls()
-            # already seeded controls.strategy to a name whose check built
-            # (falling back to "brightness" itself when it did not), so a
-            # "checks[...] or checks['brightness']" fallback would be dead code.
-            affordability_check=checks[controls.strategy],
+            affordability_check=checks[loaded_affordability],
             controls=controls,
             checks=checks,
             first_run_id=last_run + 1,

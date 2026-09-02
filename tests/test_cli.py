@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import logging
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -9,6 +10,7 @@ import pytest
 import digits
 import tower_bot
 from affordability import BrightnessAffordability, DigitAffordability
+from strategy import Strategy
 from tests.test_digits import build_synthetic_atlas
 from tower_bot import parse_args
 
@@ -196,7 +198,7 @@ def test_auto_navigate_does_not_start_a_run_past_the_cap(monkeypatch) -> None:
         device=MagicMock(),
         templates=vision.TemplateCache(Path(__file__).parent.parent / "templates"),
         bus=events.EventBus(),
-        controls=Controls(auto_navigate=True),
+        controls=Controls(strategy=dataclasses.replace(Strategy.from_config(), auto_navigate=True)),
     )
     bot._screen = cv2.imread(str(fixtures / "game_over.png"), cv2.IMREAD_COLOR)
     monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
@@ -466,7 +468,8 @@ def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
     """uvicorn owns the main thread; the loop must run on a worker thread,
     finish, and leave nothing behind once serve_web returns."""
     import threading
-    from types import SimpleNamespace
+
+    from control import Controls
 
     class FakeBot:
         def __init__(self) -> None:
@@ -475,8 +478,12 @@ def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
             self.ran_on: threading.Thread | None = None
             self.called_with: tuple[float | None, int | None] | None = None
             # serve_web reads this for the worker join timeout now that it no
-            # longer takes an interval of its own.
-            self.controls = SimpleNamespace(interval=0.01)
+            # longer takes an interval of its own - through snapshot(),
+            # exactly as run_once() does, so a real Controls is what a fake
+            # bot needs here rather than a bare namespace.
+            self.controls = Controls(
+                strategy=dataclasses.replace(Strategy.from_config(), interval=0.1)
+            )
 
         def run_forever(self, interval: float | None = None, max_runs: int | None = None) -> None:
             self.called_with = (interval, max_runs)
@@ -519,15 +526,20 @@ def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None
     just should_exit, or a held-open dashboard tab keeps the server (and the
     scan loop behind it, as far as the user can tell) alive forever."""
     import threading as _threading
-    from types import SimpleNamespace
+
+    from control import Controls
 
     class FakeBot:
         def __init__(self) -> None:
             self.stopped = False
             self.called_with: tuple[float | None, int | None] | None = None
             # serve_web reads this for the worker join timeout now that it no
-            # longer takes an interval of its own.
-            self.controls = SimpleNamespace(interval=0.01)
+            # longer takes an interval of its own - through snapshot(),
+            # exactly as run_once() does, so a real Controls is what a fake
+            # bot needs here rather than a bare namespace.
+            self.controls = Controls(
+                strategy=dataclasses.replace(Strategy.from_config(), interval=0.1)
+            )
 
         def run_forever(self, interval: float | None = None, max_runs: int | None = None) -> None:
             self.called_with = (interval, max_runs)
@@ -558,18 +570,27 @@ def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None
 def test_controls_start_from_the_command_line() -> None:
     """The flags you launched with must not be silently overridden.
 
-    Controls' dataclass defaults are a fallback; main() seeds them from argv.
+    Controls' dataclass defaults are a fallback; a Strategy built from argv
+    and handed to Controls is what actually wins. (Wiring argv into the
+    loaded Strategy is main()'s job - see build_checks_and_controls's own
+    docstring - this pins that Controls itself carries whatever Strategy
+    it is given.)
     """
     from control import Controls
     from tower_bot import parse_args
 
     args = parse_args(["--interval", "3.0", "--auto-navigate", "--affordability", "brightness"])
-    controls = Controls(
-        interval=args.interval, auto_navigate=args.auto_navigate, strategy=args.affordability
+    strategy = dataclasses.replace(
+        Strategy.from_config(),
+        interval=args.interval,
+        auto_navigate=args.auto_navigate,
+        affordability=args.affordability,
     )
-    assert controls.snapshot()["interval"] == 3.0
-    assert controls.snapshot()["auto_navigate"] is True
-    assert controls.snapshot()["strategy"] == "brightness"
+    controls = Controls(strategy=strategy)
+    live = controls.snapshot()
+    assert live.strategy.interval == 3.0
+    assert live.strategy.auto_navigate is True
+    assert live.strategy.affordability == "brightness"
 
 
 def test_build_checks_and_controls_downgrades_when_atlas_is_absent(
@@ -578,16 +599,17 @@ def test_build_checks_and_controls_downgrades_when_atlas_is_absent(
     """The behaviour this whole task exists to protect: requesting digits
     with no atlas built must not let the dashboard claim "digits" while the
     bot actually runs brightness."""
-    args = parse_args(["--affordability", "digits"])
+    strategy = dataclasses.replace(Strategy.from_config(), affordability="digits")
 
-    checks, controls = tower_bot.build_checks_and_controls(args, atlas_root=tmp_path)
+    checks, controls = tower_bot.build_checks_and_controls(strategy, atlas_root=tmp_path)
 
     assert checks["digits"] is None
     assert isinstance(checks["brightness"], BrightnessAffordability)
-    assert controls.strategy == "brightness"
+    affordability = controls.snapshot().strategy.affordability
+    assert affordability == "brightness"
     # The invariant a future refactor has to keep true: whatever strategy
     # Controls names, checks must have a real entry for it - never None.
-    assert checks[controls.strategy] is not None
+    assert checks[affordability] is not None
 
 
 def test_build_checks_and_controls_uses_digits_when_atlas_is_present(
@@ -595,10 +617,11 @@ def test_build_checks_and_controls_uses_digits_when_atlas_is_present(
 ) -> None:
     for size_class in digits.SIZE_CLASSES:
         build_synthetic_atlas(tmp_path / size_class)
-    args = parse_args(["--affordability", "digits"])
+    strategy = dataclasses.replace(Strategy.from_config(), affordability="digits")
 
-    checks, controls = tower_bot.build_checks_and_controls(args, atlas_root=tmp_path)
+    checks, controls = tower_bot.build_checks_and_controls(strategy, atlas_root=tmp_path)
 
     assert isinstance(checks["digits"], DigitAffordability)
-    assert controls.strategy == "digits"
-    assert checks[controls.strategy] is not None
+    affordability = controls.snapshot().strategy.affordability
+    assert affordability == "digits"
+    assert checks[affordability] is not None
