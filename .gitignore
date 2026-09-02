@@ -20,3 +20,8 @@ web/ui/.eslintcache
 # Atomic-save temp files. The profiles themselves ARE committed - a strategy
 # is a decision worth reviewing in a diff.
 strategies/.*.tmp
+
+# The active-profile pointer is per-machine runtime state, not a decision -
+# set_active() rewrites it, so it belongs with tower_bot.db* above, not with
+# the profile definitions beside it.
+strategies/.active

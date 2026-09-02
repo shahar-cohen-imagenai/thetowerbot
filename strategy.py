@@ -410,9 +410,10 @@ class StrategyStore:
             return False
 
     def set_active(self, name: str) -> None:
+        # No mkdir: path_for_exists(name) can only be true if self.directory
+        # already holds name.json, so the directory is guaranteed to exist.
         if not self.path_for_exists(name):
             raise ControlError("name", f"no strategy named {name!r}")
-        self.directory.mkdir(parents=True, exist_ok=True)
         self._active_path.write_text(f"{name}\n")
 
     def delete(self, name: str) -> None:
