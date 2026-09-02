@@ -154,3 +154,97 @@ def test_the_store_refuses_unsafe_names_on_every_path(store) -> None:
         store.load("../../etc/passwd")
     with pytest.raises(ControlError):
         store.path_for("../escape")
+
+
+def test_ensure_seeded_writes_the_shipped_defaults(store) -> None:
+    seeded = store.ensure_seeded()
+    assert seeded == Strategy.from_config("default")
+    assert store.names() == ["default"]
+    assert store.active_name() == "default"
+
+
+def test_ensure_seeded_is_idempotent_and_does_not_overwrite(store) -> None:
+    """A second launch must not undo your edits.
+
+    This is the failure that would be worst to discover late: seeding on
+    every start would silently reset a tuned profile back to config.ACTIONS.
+    """
+    store.ensure_seeded()
+    edited = Strategy.from_config("default")
+    edited = Strategy.from_dict({**edited.to_dict(), "interval": 9.0})
+    store.save(edited)
+
+    again = store.ensure_seeded()
+    assert again.interval == 9.0
+    assert store.load("default").interval == 9.0
+
+
+def test_ensure_seeded_returns_the_active_profile_not_the_default(store) -> None:
+    store.ensure_seeded()
+    store.save(Strategy.from_config("crit"))
+    store.set_active("crit")
+    assert store.ensure_seeded().name == "crit"
+
+
+def test_ensure_seeded_recovers_from_an_active_pointer_at_a_deleted_file(store) -> None:
+    """The pointer can outlive its target - someone deletes a file by hand.
+
+    Falling back to any surviving profile beats refusing to start: the bot
+    is more useful running the wrong strategy than not running.
+    """
+    store.ensure_seeded()
+    store.save(Strategy.from_config("crit"))
+    store.set_active("crit")
+    store.path_for("crit").unlink()
+
+    recovered = store.ensure_seeded()
+    assert recovered.name == "default"
+    assert store.active_name() == "default"
+
+
+def test_set_active_persists_across_stores(store) -> None:
+    store.ensure_seeded()
+    store.save(Strategy.from_config("crit"))
+    store.set_active("crit")
+    # A fresh store over the same directory is what a restart looks like.
+    assert StrategyStore(store.directory).active_name() == "crit"
+
+
+def test_set_active_refuses_a_name_with_no_file(store) -> None:
+    store.ensure_seeded()
+    with pytest.raises(ControlError) as caught:
+        store.set_active("ghost")
+    assert caught.value.field == "name"
+    assert store.active_name() == "default"
+
+
+def test_delete_removes_a_profile(store) -> None:
+    store.ensure_seeded()
+    store.save(Strategy.from_config("crit"))
+    store.delete("crit")
+    assert store.names() == ["default"]
+
+
+def test_delete_refuses_the_active_profile(store) -> None:
+    store.ensure_seeded()
+    store.save(Strategy.from_config("crit"))
+    with pytest.raises(ControlError) as caught:
+        store.delete("default")
+    assert caught.value.field == "name"
+    assert store.names() == ["crit", "default"]
+
+
+def test_delete_refuses_the_last_profile(store) -> None:
+    # Both guards exist because both leave the bot with no policy to load,
+    # which has no recovery short of hand-editing the directory.
+    store.ensure_seeded()
+    store.set_active("default")
+    with pytest.raises(ControlError):
+        store.delete("default")
+
+
+def test_delete_refuses_an_absent_profile(store) -> None:
+    store.ensure_seeded()
+    store.save(Strategy.from_config("crit"))
+    with pytest.raises(ControlError):
+        store.delete("ghost")

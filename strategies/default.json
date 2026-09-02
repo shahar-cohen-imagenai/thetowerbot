@@ -1,0 +1,40 @@
+{
+  "name": "default",
+  "actions": [
+    {
+      "name": "Attack Speed",
+      "template": "upgrade_attack_speed.png",
+      "enabled": true,
+      "threshold": 0.9,
+      "brightness_ratio": 0.75
+    },
+    {
+      "name": "Critical Chance",
+      "template": "upgrade_critical_chance.png",
+      "enabled": true,
+      "threshold": 0.9,
+      "brightness_ratio": 0.75
+    },
+    {
+      "name": "Damage",
+      "template": "upgrade_damage.png",
+      "enabled": true,
+      "threshold": 0.9,
+      "brightness_ratio": 0.75
+    },
+    {
+      "name": "Critical Factor",
+      "template": "upgrade_critical_factor.png",
+      "enabled": true,
+      "threshold": 0.9,
+      "brightness_ratio": 0.75
+    }
+  ],
+  "affordability": "digits",
+  "interval": 2.0,
+  "click_cooldown": 1.0,
+  "auto_navigate": false,
+  "max_runs": null,
+  "navigation_cooldown": 3.0,
+  "screen_confirmations": 2
+}

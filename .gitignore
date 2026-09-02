@@ -16,3 +16,7 @@ web/ui/node_modules/
 web/ui/.next/
 web/ui/out/
 web/ui/.eslintcache
+
+# Atomic-save temp files. The profiles themselves ARE committed - a strategy
+# is a decision worth reviewing in a diff.
+strategies/.*.tmp

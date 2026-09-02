@@ -377,3 +377,80 @@ class StrategyStore:
             os.replace(tmp, target)
         finally:
             tmp.unlink(missing_ok=True)
+
+    # Hidden, and with no .json suffix, so it can neither collide with a
+    # profile named "active" nor be picked up by names()'s glob.
+    _ACTIVE = ".active"
+
+    @property
+    def _active_path(self) -> Path:
+        return self.directory / self._ACTIVE
+
+    def active_name(self) -> str:
+        """Which profile the bot loads. Falls back rather than failing.
+
+        A pointer can outlive its target - someone deletes a file by hand -
+        and a bot that refuses to start because of a stale one-line file is
+        worse than one that picks a surviving profile and says so.
+        """
+        try:
+            name = self._active_path.read_text().strip()
+        except FileNotFoundError:
+            name = ""
+        if name and self.path_for_exists(name):
+            return name
+        remaining = self.names()
+        return remaining[0] if remaining else "default"
+
+    def path_for_exists(self, name: str) -> bool:
+        """True if `name` is both safe and on disk."""
+        try:
+            return self.path_for(name).is_file()
+        except ControlError:
+            return False
+
+    def set_active(self, name: str) -> None:
+        if not self.path_for_exists(name):
+            raise ControlError("name", f"no strategy named {name!r}")
+        self.directory.mkdir(parents=True, exist_ok=True)
+        self._active_path.write_text(f"{name}\n")
+
+    def delete(self, name: str) -> None:
+        """Remove a profile, refusing the two states with no recovery.
+
+        Order matters: the last-profile guard runs before the active-profile
+        guard. A lone profile is necessarily the active one, so checking
+        active-first would make the last-profile branch unreachable - the
+        "last strategy" message would never fire, and a test written to
+        cover it would exercise the active guard instead without saying so.
+        """
+        if not self.path_for_exists(name):
+            raise ControlError("name", f"no strategy named {name!r}")
+        if len(self.names()) <= 1:
+            raise ControlError("name", "the last strategy cannot be deleted")
+        if name == self.active_name():
+            raise ControlError(
+                "name", f"{name!r} is active - activate another strategy first"
+            )
+        self.path_for(name).unlink()
+
+    def ensure_seeded(self) -> Strategy:
+        """Guarantee a loadable active profile, and return it.
+
+        Called once at startup. Writes default.json from config.ACTIONS only
+        when the directory holds nothing - seeding on every launch would
+        silently reset a tuned profile back to the shipped defaults, which is
+        the worst version of this bug to find late.
+        """
+        if not self.names():
+            self.save(Strategy.from_config("default"))
+        name = self.active_name()
+        # active_name() already fell back to a surviving profile if the
+        # pointer was stale or absent; write that choice down so the next
+        # reader agrees with this one rather than falling back again.
+        current = ""
+        if self._active_path.is_file():
+            current = self._active_path.read_text().strip()
+        if current != name:
+            self.set_active(name)
+        return self.load(name)
