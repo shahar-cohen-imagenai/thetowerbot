@@ -734,3 +734,54 @@ def test_apply_cli_overrides_writes_nothing_when_no_flag_was_passed(
 
     assert apply_cli_overrides(store, loaded, parse_args([])) == loaded
     assert store.path_for("default").read_text() == before
+
+
+def test_a_default_constructed_store_cannot_reach_the_real_strategies_dir(
+    fenced_strategy_dir, tmp_path, monkeypatch
+) -> None:
+    """The regression test for the anomaly a full-suite run once produced:
+    the repo's committed strategies/default.json turning up modified
+    (interval rewritten from 2.0 to 5.0) with no test asserting it should
+    be.
+
+    tower_bot.main() builds `StrategyStore()` with no directory, which
+    resolves to config.STRATEGY_DIR - the repo's real, tracked strategies/
+    - and apply_cli_overrides() PERSISTS by design (see its own docstring).
+    So any test that ever drives main() with an overlapping flag
+    (--interval, --auto-navigate, --max-runs, --affordability) would write
+    straight into the committed profile. This proves the fix:
+    tests/conftest.py's session-scoped, autouse fenced_strategy_dir fixture
+    repoints config.STRATEGY_DIR at a throwaway directory for the whole
+    suite, so a default-constructed StrategyStore can no longer reach the
+    real one no matter what a test - present or future - passes to main().
+
+    Delete that fixture from conftest.py and this test fails: `store.directory`
+    resolves to `tests.conftest.REAL_STRATEGY_DIR` instead of the fixture's
+    temp path, and the write below lands in the tracked file this test
+    exists to protect.
+    """
+    import json
+
+    import config
+    from strategy import StrategyStore
+    from tests.conftest import REAL_STRATEGY_DIR
+    from tower_bot import apply_cli_overrides, parse_args
+
+    templates = tmp_path / "templates"
+    templates.mkdir()
+    for action in config.ACTIONS:
+        (templates / action.template).write_bytes(b"")
+    monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
+
+    store = StrategyStore()  # no directory - exactly what main() builds
+    assert store.directory == fenced_strategy_dir
+    assert store.directory != REAL_STRATEGY_DIR
+
+    loaded = store.ensure_seeded()
+    apply_cli_overrides(store, loaded, parse_args(["--interval", "9"]))
+
+    # The write landed in the fence...
+    assert store.load("default").interval == 9.0
+    # ...never in the repo's tracked file.
+    real_default = json.loads((REAL_STRATEGY_DIR / "default.json").read_text())
+    assert real_default["interval"] != 9.0

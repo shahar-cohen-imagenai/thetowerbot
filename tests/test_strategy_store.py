@@ -13,6 +13,7 @@ import pytest
 
 import config
 from strategy import ControlError, Strategy, StrategyStore, validate_name
+from tests.conftest import REAL_STRATEGY_DIR
 
 
 @pytest.fixture
@@ -219,8 +220,17 @@ def test_the_committed_default_matches_config_actions() -> None:
     it never is in a real clone - so config.ACTIONS is never consulted there.
     Without this test, adding an upgrade to config.ACTIONS would reach no
     clone, new or old, and nothing would say so.
+
+    Deliberately reads tests/conftest.py's REAL_STRATEGY_DIR rather than
+    config.STRATEGY_DIR: the session-scoped fenced_strategy_dir fixture in
+    conftest.py repoints the latter at a throwaway directory for the whole
+    suite (see its docstring), so config.STRATEGY_DIR here would read that
+    empty stand-in instead of the tracked file this test exists to check -
+    failing or passing vacuously depending on what other tests happened to
+    seed into the shared fence first, either of which is wrong. This is the
+    one test in the suite meant to see the real, committed directory.
     """
-    raw = json.loads((config.STRATEGY_DIR / "default.json").read_text())
+    raw = json.loads((REAL_STRATEGY_DIR / "default.json").read_text())
     assert Strategy.from_dict(raw) == Strategy.from_config("default")
 
 

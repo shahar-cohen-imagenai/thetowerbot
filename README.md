@@ -314,10 +314,9 @@ than the 500-event ring.
 
 The **control** page lets a connected browser pause the bot (still scanning,
 not tapping), change the scan interval, auto-navigate, and the affordability
-strategy, choose which actions are enabled, and stop the bot and the
-dashboard together. Every change goes through the same `Controls.apply()`
-validation a CLI flag would get, and every tab converges on the current
-settings live, over the same SSE feed.
+strategy, and choose which actions are enabled. Every change goes through the
+same `Controls.apply()` validation a CLI flag would get, and every tab
+converges on the current settings live, over the same SSE feed.
 
 > **The dashboard has no authentication.** It serves a continuous MJPEG
 > video stream of the device (`/api/frame`), not just JSON history and
@@ -329,8 +328,10 @@ settings live, over the same SSE feed.
 > when you do, but it will not stop you. Do not put it on a network without
 > real auth in front of it.
 
-Ctrl+C stops both the bot and the dashboard, as does reaching `--max-runs` or
-clicking **Stop** on the control page.
+Ctrl+C and `POST /api/shutdown` stop both the bot and the dashboard.
+Reaching `--max-runs`, or stopping the bot from the dashboard, stops only the
+bot — the dashboard keeps serving, with a **Start** button ready to run
+another one.
 
 ## Where the data goes
 
