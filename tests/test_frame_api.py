@@ -27,7 +27,7 @@ def wired() -> tuple[TestClient, FrameBuffer, threading.Event]:
     stop = threading.Event()
     app = create_app(
         state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
-        unknown_dir=config.UNKNOWN_DIR, stop=stop, frames=frames,
+        unknown_dir=config.UNKNOWN_DIR, shutdown=stop, frames=frames,
     )
     return TestClient(app), frames, stop
 

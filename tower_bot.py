@@ -1101,7 +1101,11 @@ def main(argv: list[str] | None = None) -> int:
             app = create_app(
                 state=state, sse=sse, bus=bus,
                 db_path=db_path if args.store else None,
-                stop=stop,
+                # web/app.py's `stop` is now `shutdown` - the process-level
+                # flag, not the bot's. No runner wired yet, so /api/bot/*
+                # stays absent here; this CLI path still starts the bot
+                # itself, as it always has.
+                shutdown=stop,
                 controls=controls,
                 checks=checks,
                 frames=frames,

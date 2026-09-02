@@ -1,0 +1,138 @@
+"""Start, stop, and shut down - three verbs where there was one.
+
+The old POST /api/control/stop meant both "stop the bot" and "shut the
+process down". Once the dashboard outlives the bot those are different
+things, and one route cannot mean both.
+"""
+
+from __future__ import annotations
+
+import threading
+
+import pytest
+from fastapi.testclient import TestClient
+
+import config
+from control import Controls
+from events import EventBus
+from runner import RunnerError
+from sinks.sse import SseSink
+from sinks.state import BotState
+from strategy import ActionRule, Strategy
+from web.app import create_app
+
+
+class FakeRunner:
+    """Records what the routes asked for, without any threads."""
+
+    def __init__(self) -> None:
+        self.running = False
+        self.starts = 0
+        self.stops = 0
+        self.fail_with: RunnerError | None = None
+
+    def start(self) -> dict:
+        self.starts += 1
+        if self.fail_with is not None:
+            raise self.fail_with
+        self.running = True
+        return {"running": True, "since": 1.0, "error": None}
+
+    def stop(self) -> dict:
+        self.stops += 1
+        self.running = False
+        return {"running": False, "since": None, "error": None}
+
+    def status(self) -> dict:
+        return {"running": self.running, "since": 1.0 if self.running else None,
+                "error": None}
+
+
+@pytest.fixture
+def wired():
+    runner = FakeRunner()
+    shutdown = threading.Event()
+    controls = Controls(strategy=Strategy(
+        name="test",
+        actions=(ActionRule(name="Damage", template="upgrade_damage.png"),),
+    ))
+    app = create_app(
+        state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
+        unknown_dir=config.UNKNOWN_DIR, shutdown=shutdown,
+        controls=controls, checks={"brightness": object(), "digits": None},
+        runner=runner,
+    )
+    return TestClient(app), runner, shutdown
+
+
+def test_start_starts_the_bot_and_not_the_shutdown(wired) -> None:
+    client, runner, shutdown = wired
+    body = client.post("/api/bot/start")
+    assert body.status_code == 200
+    assert body.json()["running"] is True
+    assert runner.starts == 1
+    assert not shutdown.is_set()
+
+
+def test_starting_a_running_bot_is_a_409(wired) -> None:
+    client, runner, _ = wired
+    runner.fail_with = RunnerError("already running", 409)
+    response = client.post("/api/bot/start")
+    assert response.status_code == 409
+    assert "already running" in response.json()["detail"]
+
+
+def test_a_dead_emulator_is_a_503_not_a_500(wired) -> None:
+    client, runner, _ = wired
+    runner.fail_with = RunnerError("no emulator at 127.0.0.1:5555", 503)
+    response = client.post("/api/bot/start")
+    assert response.status_code == 503
+    assert "emulator" in response.json()["detail"]
+
+
+def test_stopping_the_bot_leaves_the_server_up(wired) -> None:
+    """The whole point of the split. Stop must not kill the dashboard you
+    pressed it from."""
+    client, runner, shutdown = wired
+    client.post("/api/bot/start")
+    response = client.post("/api/bot/stop")
+    assert response.status_code == 200
+    assert response.json()["running"] is False
+    assert runner.stops == 1
+    assert not shutdown.is_set()
+    # Still serving.
+    assert client.get("/api/status").status_code == 200
+
+
+def test_shutdown_sets_the_process_flag(wired) -> None:
+    client, _, shutdown = wired
+    assert client.post("/api/shutdown").json() == {"stopping": True}
+    assert shutdown.is_set()
+
+
+def test_status_reports_the_bot_block(wired) -> None:
+    client, _, _ = wired
+    assert client.get("/api/status").json()["bot"]["running"] is False
+    client.post("/api/bot/start")
+    assert client.get("/api/status").json()["bot"]["running"] is True
+
+
+def test_status_has_a_bot_block_even_with_no_runner() -> None:
+    """--once, --tui and every test predating this pass no runner. The key
+    must still be there, so the browser needs no special case."""
+    app = create_app(
+        state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
+        unknown_dir=config.UNKNOWN_DIR,
+    )
+    body = TestClient(app).get("/api/status").json()
+    assert body["bot"] == {"running": False, "since": None, "error": None}
+
+
+def test_the_lifecycle_routes_are_absent_without_a_runner() -> None:
+    app = create_app(
+        state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
+        unknown_dir=config.UNKNOWN_DIR,
+    )
+    client = TestClient(app)
+    # 404 from the static mount, not a 405 or a 500: the route never existed.
+    assert client.post("/api/bot/start").status_code == 404

@@ -2,12 +2,18 @@
 
 Two sources, deliberately separate. "What is the bot doing right now" is a
 memory question, answered from the shared BotState. "What did it do" is a
-history question, answered by read-only SQLite connections opened per request
-- the web layer never writes, and cannot: db.reader() opens mode=ro.
+history question, answered by read-only SQLite connections opened per request.
 
 Binds 127.0.0.1. No auth, /api/unknown serves screenshots of a live session,
-and /api/control lets a caller pause, reconfigure or stop the bot - see the
-warning beside config.WEB_HOST before changing the bind address.
+and the control plane lets a caller start and stop the bot, rewrite what it
+buys, and create or delete strategy files on disk - see the warning beside
+config.WEB_HOST before changing the bind address.
+
+"The web layer never writes" is no longer true in general, and the narrower
+claim is the one that matters: it never writes to the DATABASE. db.reader()
+opens mode=ro and nothing here can change that. Strategy files are the one
+thing it does write, through StrategyStore, which validates every profile
+before it reaches the disk.
 """
 
 from __future__ import annotations
@@ -29,6 +35,7 @@ import events
 from control import ControlError, Controls
 from events import EventBus
 from frames import FrameBuffer
+from runner import BotRunner, RunnerError
 from sinks.sse import SseSink, to_payload
 from sinks.state import BotState
 
@@ -180,10 +187,11 @@ def create_app(
     bus: EventBus,
     db_path: Path | None = config.DB_PATH,
     unknown_dir: Path = config.UNKNOWN_DIR,
-    stop: threading.Event | None = None,
+    shutdown: threading.Event | None = None,
     controls: Controls | None = None,
-    checks: Mapping[str, Any] | None = None,
+    checks: Mapping[str, Any] | Callable[[], Mapping[str, Any]] | None = None,
     frames: FrameBuffer | None = None,
+    runner: BotRunner | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -191,8 +199,13 @@ def create_app(
     # function signature, so a caller that never passes one (every test
     # predating this finding) keeps the old "never stops this way" behaviour
     # without every call site sharing one mutable Event by accident.
-    if stop is None:
-        stop = threading.Event()
+    #
+    # This is the PROCESS going down, not the bot - see runner.BotRunner for
+    # that half. A dashboard can now outlive the bot it was watching, so the
+    # two can no longer share one flag: stopping the bot must never trip
+    # this one, and this one is not the runner's business at all.
+    if shutdown is None:
+        shutdown = threading.Event()
 
     app = FastAPI(title="The Tower bot")
 
@@ -211,6 +224,14 @@ def create_app(
             size = frames.size()
             if size is not None:
                 payload["frame_size"] = {"width": size[0], "height": size[1]}
+        # Always present, even with no runner (--once, --tui, and every test
+        # predating the lifecycle split), so the browser needs no special case
+        # for "this build cannot start a bot".
+        payload["bot"] = (
+            runner.status()
+            if runner is not None
+            else {"running": False, "since": None, "error": None}
+        )
         return payload
 
     @app.get("/api/runs")
@@ -234,7 +255,7 @@ def create_app(
     async def stream(request: Request) -> StreamingResponse:
         return StreamingResponse(
             event_stream(
-                sse, resume_point(request), request.is_disconnected, stop=stop
+                sse, resume_point(request), request.is_disconnected, stop=shutdown
             ),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
@@ -282,13 +303,23 @@ def create_app(
         if frames is None:
             raise HTTPException(status_code=404, detail="no frame buffer")
         return StreamingResponse(
-            frame_stream(frames, request.is_disconnected, stop=stop),
+            frame_stream(frames, request.is_disconnected, stop=shutdown),
             media_type=f"multipart/x-mixed-replace; boundary={BOUNDARY}",
             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
         )
 
     if controls is not None:
-        available = dict(checks or {})
+
+        def _available_checks() -> Mapping[str, Any]:
+            # Resolved on every call, not snapshotted once at create_app
+            # time: under --idle there is no bot (and so no checks) when
+            # create_app runs, so a dict captured here would freeze at {}
+            # forever and refuse every affordability PATCH with "no glyph
+            # atlas is built", even after Start later builds real ones.
+            # `checks` may be a plain dict (every caller today) or a
+            # zero-arg callable that hands back whatever the runner
+            # currently holds - either way this reads it fresh.
+            return checks() if callable(checks) else (checks or {})
 
         def _control_payload() -> dict:
             # The browser needs to know which affordability methods actually
@@ -298,7 +329,8 @@ def create_app(
             # strategy carries every row, enabled or not.
             payload = controls.payload()
             payload["affordability_available"] = sorted(
-                name for name, check in available.items() if check is not None
+                name for name, check in _available_checks().items()
+                if check is not None
             )
             return payload
 
@@ -318,7 +350,7 @@ def create_app(
             # loop pick would leave the browser showing "digits" while the bot
             # used brightness.
             affordability = requested.get("affordability")
-            if affordability is not None and available.get(affordability) is None:
+            if affordability is not None and _available_checks().get(affordability) is None:
                 raise HTTPException(
                     status_code=422,
                     detail=(
@@ -355,16 +387,34 @@ def create_app(
 
             return _control_payload()
 
-        @app.post("/api/control/stop")
+    if runner is not None:
+
+        @app.post("/api/bot/start")
+        def start_bot() -> dict:
+            try:
+                return runner.start()
+            except RunnerError as exc:
+                # The runner already published a BotError for anything worth
+                # seeing in the feed; this is just the caller's answer.
+                raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+
+        @app.post("/api/bot/stop")
         def stop_bot() -> dict:
-            # This route has no handle on the worker thread or the Server -
-            # the shared `stop` Event is the only thing it can reach from a
-            # request handler. serve_web()'s stop-watch thread is the one
-            # actually waiting on it: it calls bot.stop() and sets
-            # server.should_exit, which is what brings the loop and the
-            # server down together.
-            stop.set()
-            return {"stopping": True}
+            return runner.stop()
+
+    @app.post("/api/shutdown")
+    def shutdown_all() -> dict:
+        # This route has no handle on the worker thread or the Server - the
+        # shared `shutdown` Event is the only thing it can reach from a
+        # request handler. serve_web()'s watcher thread is the one actually
+        # waiting on it: it stops the runner and sets server.should_exit,
+        # which brings the loop and the server down together.
+        #
+        # Registered unconditionally, with no `runner is not None` guard: a
+        # dashboard that cannot shut itself down is worse than one that can,
+        # and ending the process needs no bot to be running at all.
+        shutdown.set()
+        return {"stopping": True}
 
     @app.get("/api/stats")
     def stats() -> dict:
@@ -385,6 +435,18 @@ def create_app(
             return []
         with db.reader(db_path) as conn:
             return db.error_log(conn, limit=max(1, min(limit, 500)))
+
+    # A write verb against an /api path nothing above registered (e.g.
+    # /api/bot/start with no runner wired) must read as "this route does
+    # not exist" - 404 - not as the mount's own answer for a method it
+    # rejects outright. StaticFiles refuses POST/PUT/PATCH/DELETE before it
+    # ever checks whether a matching file exists, which would turn a
+    # never-registered route into a misleading 405. GET/HEAD are left to
+    # the mount below, which already answers unmatched paths with the SPA's
+    # own 404 page.
+    @app.api_route("/api/{_path:path}", methods=["POST", "PUT", "PATCH", "DELETE"])
+    def unmatched_api_route(_path: str) -> None:
+        raise HTTPException(status_code=404, detail="no such route")
 
     # Last, deliberately. Starlette matches routes in registration order and a
     # mount at "/" matches everything, so every /api route above must already

@@ -34,7 +34,7 @@ def wired() -> tuple[TestClient, Controls, list, threading.Event]:
     stop = threading.Event()
     app = create_app(
         state=BotState(), sse=SseSink(), bus=bus, db_path=None,
-        unknown_dir=config.UNKNOWN_DIR, stop=stop,
+        unknown_dir=config.UNKNOWN_DIR, shutdown=stop,
         controls=controls, checks={"brightness": object(), "digits": None},
     )
     return TestClient(app), controls, seen, stop
@@ -169,16 +169,10 @@ def test_an_invalid_patch_names_the_field(wired) -> None:
     assert "interval" in response.json()["detail"]
 
 
-def test_stop_sets_the_shutdown_flag(wired) -> None:
-    client, _, _, stop = wired
-    assert client.post("/api/control/stop").status_code == 200
-    assert stop.is_set()
-
-
 def test_control_routes_are_absent_when_no_controls_were_wired(wired) -> None:
     """--once and the tests that predate this build an app with no controls."""
     app = create_app(
         state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
-        unknown_dir=config.UNKNOWN_DIR, stop=threading.Event(),
+        unknown_dir=config.UNKNOWN_DIR, shutdown=threading.Event(),
     )
     assert TestClient(app).get("/api/control").status_code == 404
