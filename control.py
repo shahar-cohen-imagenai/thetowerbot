@@ -27,16 +27,12 @@ import threading
 from dataclasses import dataclass
 from typing import Any, Mapping
 
-from strategy import AFFORDABILITY, MAX_INTERVAL, MIN_INTERVAL, ControlError, Strategy
+from strategy import ControlError, Strategy
 
 # Re-exported so `from control import ControlError` keeps working for every
 # existing caller. It is DEFINED in strategy.py because control.py imports
 # Strategy, and the reverse import would be a cycle.
-__all__ = ["ControlError", "Controls", "Live", "STRATEGIES", "MIN_INTERVAL", "MAX_INTERVAL"]
-
-# The affordability methods. Kept under the old name too because the CLI's
-# --affordability choices and several tests still spell it this way.
-STRATEGIES = AFFORDABILITY
+__all__ = ["ControlError", "Controls", "Live"]
 
 
 @dataclass(frozen=True)
@@ -78,15 +74,23 @@ class Controls:
     def replace(self, strategy: Strategy) -> dict[str, Any]:
         """Swap the whole policy - how activating a saved profile lands.
 
-        Returns what changed, in the same shape apply() does, so both feed
-        one ControlChanged event. An identical strategy reports nothing: a
-        no-op is not a state change and must not fill the log with noise.
+        Returns a changed-dict that feeds one ControlChanged event, exactly
+        as apply() does - but deliberately with a different shape. A patch
+        reports the fields that moved; a swap reports ONE key, `strategy`,
+        because that is what actually happened: the profile was exchanged,
+        not nine settings independently retuned. Spreading a swap across
+        nine field keys would also emit `name`, which apply() can never
+        produce, and would make "activated the crit profile" read in the
+        event feed exactly like a nine-field edit.
+
+        An identical strategy reports nothing: a no-op is not a state change
+        and must not fill the log with noise.
         """
         with self._lock:
             if strategy == self.strategy:
                 return {}
             self.strategy = strategy
-        return strategy.to_dict()
+        return {"strategy": strategy.to_dict()}
 
     def apply(self, patch: Mapping[str, Any]) -> dict[str, Any]:
         """Validate the whole patch, then commit it. Returns what changed.
@@ -128,4 +132,16 @@ class Controls:
                 changed.update(
                     {key: after[key] for key in after if before[key] != after[key]}
                 )
+                if "actions" in changed:
+                    # A summary, not the rows. `changed` is rendered as one
+                    # line in the dashboard's event feed and persisted into
+                    # the events table's JSON blob, and the full row list
+                    # turns a single checkbox toggle into a wall of JSON in
+                    # both. The ordered list of enabled names is what a
+                    # reader of the feed actually wants ("what is it buying,
+                    # in what order, now"); the thresholds and templates are
+                    # one GET /api/control away.
+                    changed["actions"] = [
+                        rule.name for rule in candidate.actions if rule.enabled
+                    ]
         return changed

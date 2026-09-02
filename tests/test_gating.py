@@ -590,10 +590,14 @@ def test_click_cooldown_comes_from_the_strategy(
 ) -> None:
     """A per-strategy click_cooldown must reach find_and_click_image.
 
-    Two passes back to back: the second must be refused by the cooldown,
-    which only happens if the loop reads the strategy's 30s. click_cooldown
-    is no longer a constructor argument at all - it would have to come from
-    here or nowhere.
+    Asserted in the permissive direction on purpose. A strategy with a LONG
+    cooldown proves nothing here: config.CLICK_COOLDOWN_SECONDS is 1.0 and
+    two passes run milliseconds apart, so the config default alone would
+    refuse the second tap and the assertion could not tell the strategy's
+    value from any non-zero one. A cooldown of 0.0 is the opposite: the
+    second pass taps again only if the strategy's own 0.0 reached the
+    matcher, and fails under the default. click_cooldown is no longer a
+    constructor argument at all - it comes from here or nowhere.
     """
     from control import Controls
     from strategy import ActionRule, Strategy
@@ -602,17 +606,15 @@ def test_click_cooldown_comes_from_the_strategy(
     bot.controls = Controls(strategy=Strategy(
         name="t",
         actions=(ActionRule(name="Damage", template="upgrade_damage.png"),),
-        click_cooldown=30.0,
+        click_cooldown=0.0,
     ))
     monkeypatch.setattr("tower_bot.tap", lambda *a, **k: None)
 
     bot.run_once()
-    taps_after_first = len([e for e in seen if isinstance(e, events.Tapped)])
-    assert taps_after_first == 1
+    assert len([e for e in seen if isinstance(e, events.Tapped)]) == 1
 
     bot.run_once()
-    taps_after_second = len([e for e in seen if isinstance(e, events.Tapped)])
-    assert taps_after_second == taps_after_first
+    assert len([e for e in seen if isinstance(e, events.Tapped)]) == 2
 
 
 def test_a_pass_reuses_its_own_snapshot_for_every_matched_row(

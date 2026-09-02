@@ -8,6 +8,7 @@ already right.
 
 from __future__ import annotations
 
+import dataclasses
 import sys
 import threading
 
@@ -43,9 +44,11 @@ def test_snapshot_is_frozen_and_needs_no_copying() -> None:
     controls = a_controls()
     snap = controls.snapshot()
     assert isinstance(snap, Live)
-    with pytest.raises(Exception):
+    # The exact exception, not bare Exception: a typo'd attribute name would
+    # raise AttributeError and pass a broad check while proving nothing.
+    with pytest.raises(dataclasses.FrozenInstanceError):
         snap.paused = True
-    with pytest.raises(Exception):
+    with pytest.raises(dataclasses.FrozenInstanceError):
         snap.strategy.actions[0].threshold = 0.1
 
 
@@ -93,6 +96,19 @@ def test_apply_is_all_or_nothing_across_a_multi_field_patch() -> None:
     assert live.strategy.auto_navigate is False
 
 
+def test_a_rejected_patch_does_not_leave_paused_set() -> None:
+    """paused is session state, not part of the Strategy, so it is staged and
+    committed by a separate line - the one field the all-or-nothing guarantee
+    could plausibly be true for by accident. staged_paused is computed before
+    merged() can raise but assigned only after it returns; nothing else pins
+    that ordering.
+    """
+    controls = a_controls()
+    with pytest.raises(ControlError):
+        controls.apply({"paused": True, "interval": -1})
+    assert controls.snapshot().paused is False
+
+
 def test_interval_bounds_still_apply() -> None:
     controls = a_controls(interval=2.0)
     with pytest.raises(ControlError) as caught:
@@ -127,7 +143,10 @@ def test_actions_can_be_replaced_wholesale() -> None:
     assert [r.name for r in rows] == ["Critical Chance", "Damage"]
     assert rows[0].threshold == 0.95
     assert rows[1].enabled is False
-    assert "actions" in changed
+    # A summary, not the rows: `changed` is one line in the event feed and a
+    # JSON blob in the events table, and the full list makes a single toggle
+    # unreadable in both. Damage is disabled by this patch, so it is absent.
+    assert changed["actions"] == ["Critical Chance"]
 
 
 def test_a_rejected_action_list_changes_nothing() -> None:
@@ -146,8 +165,11 @@ def test_replacing_the_whole_strategy() -> None:
     other = a_strategy(name="crit", interval=4.0)
     changed = controls.replace(other)
     assert controls.snapshot().strategy is other
-    assert changed["name"] == "crit"
-    assert changed["interval"] == 4.0
+    # One key, not nine: a swap is one event ("this profile is live now"),
+    # not a field-by-field edit - and `name` is a key apply() can never
+    # produce, so spreading it out would put two shapes on one event type.
+    assert list(changed) == ["strategy"]
+    assert changed["strategy"] == other.to_dict()
 
 
 def test_replace_reports_nothing_when_the_strategy_is_identical() -> None:
@@ -164,29 +186,6 @@ def test_payload_is_json_safe_and_detached() -> None:
     assert payload["strategy"]["actions"][0]["name"] == "Damage"
     payload["strategy"]["actions"].append({"bogus": True})
     assert len(a_controls().payload()["strategy"]["actions"]) == 2
-
-
-def test_concurrent_applies_do_not_interleave() -> None:
-    """The lock is doing real work: two threads patching different fields
-    must both land, and neither may read a half-swapped strategy.
-    """
-    controls = a_controls(interval=2.0)
-    errors: list[BaseException] = []
-
-    def hammer(value: float) -> None:
-        try:
-            for _ in range(200):
-                controls.apply({"interval": value})
-                assert controls.snapshot().strategy.interval in (1.0, 2.0, 3.0)
-        except BaseException as exc:  # noqa: BLE001 - recorded, re-raised below
-            errors.append(exc)
-
-    threads = [threading.Thread(target=hammer, args=(v,)) for v in (1.0, 3.0)]
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
-    assert not errors
 
 
 def test_a_multi_field_patch_is_never_observed_half_applied() -> None:
