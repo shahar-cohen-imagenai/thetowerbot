@@ -206,6 +206,11 @@ NAV_DISMISS: tuple[str, ...] = (
 # --- Persistence ----------------------------------------------------------
 DB_PATH: Path = Path(__file__).parent / "tower_bot.db"
 
+# One JSON file per named strategy, plus a `.active` pointer. Committed, not
+# gitignored: a strategy is a decision worth reviewing in a diff, and a fresh
+# clone should start from the same defaults everyone else has.
+STRATEGY_DIR: Path = Path(__file__).parent / "strategies"
+
 # Events older than this are deleted at startup. ScanCompleted is never
 # stored - it fires every 2s, roughly 43,000 near-identical rows a day - so
 # what remains is state changes only, and 30 days of those stays small.
