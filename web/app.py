@@ -38,12 +38,17 @@ from frames import FrameBuffer
 from runner import BotRunner, RunnerError
 from sinks.sse import SseSink, to_payload
 from sinks.state import BotState
+from strategy import Strategy, StrategyStore
 
 STATIC_DIR = Path(__file__).parent / "static"
 
 # One page of history is plenty for a dashboard, and it bounds the response
 # whatever the query string asks for.
 MAX_RUNS_PER_PAGE = 500
+
+# strategy.ControlError carries a `code` naming the KIND of failure, so the
+# routes below map a status without matching on message text.
+_STATUS_FOR_CODE = {"not_found": 404, "conflict": 409, "invalid": 422}
 
 
 def resume_point(request: Request) -> int:
@@ -192,6 +197,7 @@ def create_app(
     checks: Mapping[str, Any] | Callable[[], Mapping[str, Any]] | None = None,
     frames: FrameBuffer | None = None,
     runner: BotRunner | None = None,
+    store: StrategyStore | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -380,6 +386,14 @@ def create_app(
             except ControlError as exc:
                 raise HTTPException(status_code=422, detail=f"{exc.field}: {exc}") from exc
 
+            if changed and store is not None:
+                # A patch to the running policy is a save: otherwise the file
+                # and the loop would disagree until the next explicit save,
+                # which is exactly the drift "one source of truth" exists to
+                # remove. Inlined rather than hoisted into a helper - the
+                # store block below is the only other writer, and it already
+                # has store.save(incoming) right there for the same reason.
+                store.save(controls.snapshot().strategy)
             if changed:
                 # Only when something actually moved. A no-op patch is not a
                 # state change and must not fill the log with noise.
@@ -401,6 +415,72 @@ def create_app(
         @app.post("/api/bot/stop")
         def stop_bot() -> dict:
             return runner.stop()
+
+    if store is not None:
+
+        @app.get("/api/strategies")
+        def list_strategies() -> dict:
+            return {"active": store.active_name(), "names": store.names()}
+
+        @app.get("/api/strategies/{name}")
+        def read_strategy(name: str) -> dict:
+            try:
+                return store.load(name).to_dict()
+            except ControlError as exc:
+                # A corrupt profile is not a missing one: load() raises
+                # "not_found" for absent and the default "invalid" for
+                # unparseable JSON, and the reader deserves to be told which.
+                raise HTTPException(
+                    status_code=_STATUS_FOR_CODE.get(exc.code, 422), detail=str(exc)
+                ) from exc
+
+        @app.put("/api/strategies/{name}")
+        def write_strategy(name: str, body: dict[str, Any]) -> dict:
+            # The URL's name wins. Otherwise a body naming something else
+            # writes a different file and the caller has no way to know
+            # where their profile went.
+            try:
+                incoming = Strategy.from_dict({**body, "name": name})
+                store.save(incoming)
+            except ControlError as exc:
+                raise HTTPException(
+                    status_code=422, detail=f"{exc.field}: {exc}"
+                ) from exc
+
+            # Saving the profile the bot is currently running IS a live edit.
+            if controls is not None and name == store.active_name():
+                changed = controls.replace(incoming)
+                if changed:
+                    bus.publish(events.ControlChanged(changed=changed, source="web"))
+            return incoming.to_dict()
+
+        @app.post("/api/strategies/{name}/activate")
+        def activate_strategy(name: str) -> dict:
+            try:
+                loaded = store.load(name)
+                store.set_active(name)
+            except ControlError as exc:
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
+            if controls is not None:
+                changed = controls.replace(loaded)
+                if changed:
+                    bus.publish(events.ControlChanged(changed=changed, source="web"))
+            return {"active": name, "names": store.names()}
+
+        @app.delete("/api/strategies/{name}")
+        def remove_strategy(name: str) -> dict:
+            try:
+                store.delete(name)
+            except ControlError as exc:
+                # exc.code, not the message text. Plan 1's final review added
+                # a discriminator precisely so this route does not string-match
+                # its way to a status: "not_found" when the profile is absent,
+                # "conflict" when it exists and the refusal is about what
+                # deleting it would leave behind (active, or the last one).
+                raise HTTPException(
+                    status_code=_STATUS_FOR_CODE.get(exc.code, 422), detail=str(exc)
+                ) from exc
+            return {"active": store.active_name(), "names": store.names()}
 
     @app.post("/api/shutdown")
     def shutdown_all() -> dict:
