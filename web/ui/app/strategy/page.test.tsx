@@ -89,6 +89,26 @@ describe("StrategyPage", () => {
     await waitFor(() => expect(screen.getByText(/must be between/)).toBeTruthy());
   });
 
+  it("Revert repaints a per-row threshold, not just the top-level fields", async () => {
+    // Regression: the per-row threshold/brightness inputs had no remount
+    // key of their own (only NumberField's top-level fields did), so a
+    // Revert updated the underlying draft but left the row's DOM node
+    // showing the stale, previously-typed number.
+    render(<StrategyPage />);
+    await waitFor(() => screen.getByLabelText("Damage threshold"));
+    fireEvent.blur(screen.getByLabelText("Damage threshold"), {
+      target: { value: "0.3" },
+    });
+    await waitFor(() =>
+      expect((screen.getByLabelText("Damage threshold") as HTMLInputElement).value).toBe("0.3"),
+    );
+    fireEvent.click(screen.getByText("Revert"));
+    await waitFor(() =>
+      expect((screen.getByLabelText("Damage threshold") as HTMLInputElement).value).toBe("0.9"),
+    );
+    expect(api.saveStrategy).not.toHaveBeenCalled();
+  });
+
   it("switching profiles fetches the other one", async () => {
     render(<StrategyPage />);
     await waitFor(() => screen.getByLabelText("Strategy"));

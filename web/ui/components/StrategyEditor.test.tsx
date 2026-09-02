@@ -82,4 +82,56 @@ describe("StrategyEditor", () => {
     render(<StrategyEditor value={strategy} onChange={vi.fn()} disabled />);
     expect(screen.getByLabelText("Scan interval (s)").hasAttribute("disabled")).toBe(true);
   });
+
+  it("repaints a row's threshold when the prop changes, e.g. after a Revert", () => {
+    // Regression: React only honours `defaultValue` at mount - on later
+    // renders it patches the DOM's `value` *attribute* but never the live
+    // `.value` property an input actually displays, and the row's own
+    // key={row.name} does not change when row.threshold does. So without
+    // its own key on the field, a prop change here left the field showing
+    // whatever was on screen before, forever. Reading `.value` (not
+    // getAttribute) is what makes that gap visible in a test - the
+    // attribute updates either way.
+    const { rerender } = render(<StrategyEditor value={strategy} onChange={vi.fn()} />);
+    const getInput = () => screen.getByLabelText("Damage threshold") as HTMLInputElement;
+    expect(getInput().value).toBe("0.9");
+
+    const changed: Strategy = {
+      ...strategy,
+      actions: [{ ...strategy.actions[0], threshold: 0.5 }, strategy.actions[1]],
+    };
+    rerender(<StrategyEditor value={changed} onChange={vi.fn()} />);
+
+    expect(getInput().value).toBe("0.5");
+  });
+
+  it("repaints a row's brightness_ratio when the prop changes", () => {
+    const { rerender } = render(<StrategyEditor value={strategy} onChange={vi.fn()} />);
+    const getInput = () => screen.getByLabelText("Damage brightness") as HTMLInputElement;
+    expect(getInput().value).toBe("0.75");
+
+    const changed: Strategy = {
+      ...strategy,
+      actions: [{ ...strategy.actions[0], brightness_ratio: 0.3 }, strategy.actions[1]],
+    };
+    rerender(<StrategyEditor value={changed} onChange={vi.fn()} />);
+
+    expect(getInput().value).toBe("0.3");
+  });
+
+  it("repaints max_runs when the prop changes", () => {
+    // Starting from a set number rather than null/"" on purpose: Base UI's
+    // Input treats the empty-to-number transition as a special case and
+    // repaints it even without a key, which would make a null-starting
+    // test pass whether or not the fix is present. Number-to-number is the
+    // transition that actually exercises the bug.
+    const withRuns: Strategy = { ...strategy, max_runs: 5 };
+    const { rerender } = render(<StrategyEditor value={withRuns} onChange={vi.fn()} />);
+    const getInput = () => screen.getByLabelText("Max runs") as HTMLInputElement;
+    expect(getInput().value).toBe("5");
+
+    rerender(<StrategyEditor value={{ ...withRuns, max_runs: 12 }} onChange={vi.fn()} />);
+
+    expect(getInput().value).toBe("12");
+  });
 });

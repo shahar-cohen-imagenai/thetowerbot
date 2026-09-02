@@ -96,6 +96,11 @@ export default function StrategyPage() {
             const name = window.prompt("Name for the copy", `${selected}-copy`);
             if (!name) return;
             const copy = { ...draft, name };
+            // Discard saveStrategy's response and re-load rather than just
+            // setSaved/setDraft(copy) here: saveStrategy returns only the
+            // Strategy, but the new name also has to appear in the profile
+            // *list*, which only load() re-fetches. Not a redundant round
+            // trip - it's the only call that refreshes both pieces of state.
             await saveStrategy(name, copy);
             await load(name);
           })

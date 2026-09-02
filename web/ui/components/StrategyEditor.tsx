@@ -84,6 +84,12 @@ export function StrategyEditor({
               <Input
                 type="number" min={0.05} max={1} step={0.05}
                 aria-label={`${row.name} threshold`}
+                // Keyed on the value for the same reason NumberField below
+                // is: defaultValue is only honoured at mount, and this row's
+                // own key={row.name} does not change when row.threshold
+                // does, so without this a Revert would update the draft but
+                // leave the field showing the stale, previously-typed number.
+                key={row.threshold}
                 defaultValue={row.threshold}
                 disabled={disabled}
                 onBlur={(e) => setRow(index, { threshold: Number(e.target.value) })}
@@ -95,6 +101,8 @@ export function StrategyEditor({
               <Input
                 type="number" min={0} max={1} step={0.05}
                 aria-label={`${row.name} brightness`}
+                // Same reasoning as the threshold field's key above.
+                key={row.brightness_ratio}
                 defaultValue={row.brightness_ratio}
                 disabled={disabled}
                 onBlur={(e) =>
@@ -189,6 +197,10 @@ export function StrategyEditor({
             // An empty field IS null here - the only way to express
             // "unlimited" in a number input, and why the page saves the whole
             // profile rather than PATCHing (PATCH cannot carry a null).
+            // Keyed on the value for the same reason as the fields above -
+            // otherwise a Revert to null would leave a previously-typed
+            // number sitting on screen.
+            key={value.max_runs}
             defaultValue={value.max_runs ?? ""}
             disabled={disabled}
             onBlur={(e) =>
