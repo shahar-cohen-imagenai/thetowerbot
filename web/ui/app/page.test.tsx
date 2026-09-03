@@ -10,6 +10,10 @@ vi.mock("@/lib/api", () => ({
     screen: "MENU", uptime: 10, scans: 1, taps: {}, skips: {}, runs_completed: 1,
     run: null, wallet: null, last_error: null, tail: [], dropped: 0,
     boxes: [], frame_size: null,
+    // `bot` is required on StatusPayload and the server always sends it.
+    // Omitting it here was what let StatBar keep an optional-chain the type
+    // said could never be needed.
+    bot: { running: false, since: null, error: null },
   })),
   fetchRuns: vi.fn(() => Promise.resolve([
     { id: 7, started_at: 0, ended_at: 30, wave: 12, coins: 500, tier: 2, abandoned: 0, scan_count: 10, tap_count: 4 },

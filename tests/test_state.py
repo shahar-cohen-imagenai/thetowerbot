@@ -77,3 +77,56 @@ def test_the_last_error_clears_on_the_next_successful_scan() -> None:
     state.apply(stamped(events.ScanCompleted(screen="IN_RUN", duration_ms=9.0)))
 
     assert state.snapshot()["last_error"] is None
+
+
+def test_reset_clears_the_previous_bot_s_accumulators() -> None:
+    """BotState outlives a bot now, so its counters must be resettable.
+
+    Without this the status bar shows a stopped bot's scan count beside a
+    fresh bot's uptime, which reads as one impossibly slow session.
+    """
+    import time
+
+    import events
+    from sinks.state import BotState
+
+    state = BotState()
+    state.apply(events.ScanCompleted(seq=1, ts=time.time(), screen="IN_RUN", duration_ms=1.0))
+    state.apply(events.Tapped(seq=2, ts=time.time(), action="Damage", x=1, y=2, score=0.9))
+    state.apply(events.BotError(seq=3, ts=time.time(), message="boom"))
+    assert state.snapshot()["scans"] == 1
+
+    state.reset()
+    after = state.snapshot()
+    assert after["scans"] == 0
+    assert after["taps"] == {}
+    assert after["last_error"] is None
+    assert after["run"] is None
+    assert after["uptime"] < 1.0
+
+
+def test_reset_is_safe_while_events_are_arriving() -> None:
+    import threading
+    import time
+
+    import events
+    from sinks.state import BotState
+
+    state = BotState()
+    stop = threading.Event()
+
+    def feed() -> None:
+        while not stop.is_set():
+            state.apply(
+                events.ScanCompleted(seq=1, ts=time.time(), screen="IN_RUN", duration_ms=1.0)
+            )
+
+    thread = threading.Thread(target=feed)
+    thread.start()
+    try:
+        for _ in range(100):
+            state.reset()
+            state.snapshot()
+    finally:
+        stop.set()
+        thread.join()

@@ -55,6 +55,20 @@ export interface MatchBox {
   tapped: boolean;
 }
 
+export interface BotStatus {
+  running: boolean;
+  /** Unix seconds when the current bot started, or null when stopped. */
+  since: number | null;
+  /** The last start failure - a dead emulator, usually. Cleared by a
+   * successful start. */
+  error: string | null;
+}
+
+export interface StrategyList {
+  active: string;
+  names: string[];
+}
+
 export interface StatusPayload {
   screen: string;
   uptime: number;
@@ -69,6 +83,7 @@ export interface StatusPayload {
   dropped: number;
   boxes: MatchBox[];
   frame_size: { width: number; height: number } | null;
+  bot: BotStatus;
 }
 
 /** A row from the `runs` table. */
@@ -90,14 +105,31 @@ export interface Snapshot {
   url: string;
 }
 
+export interface ActionRule {
+  name: string;
+  template: string;
+  enabled: boolean;
+  threshold: number;
+  brightness_ratio: number;
+}
+
+/** Mirrors strategy.py's Strategy.to_dict(). */
+export interface Strategy {
+  name: string;
+  actions: ActionRule[];
+  affordability: string;
+  interval: number;
+  click_cooldown: number;
+  auto_navigate: boolean;
+  max_runs: number | null;
+  navigation_cooldown: number;
+  screen_confirmations: number;
+}
+
 export interface ControlPayload {
   paused: boolean;
-  interval: number;
-  auto_navigate: boolean;
-  strategy: string;
-  enabled_actions: string[];
-  actions: string[];
-  strategies_available: string[];
+  strategy: Strategy;
+  affordability_available: string[];
 }
 
 export interface RunStat {

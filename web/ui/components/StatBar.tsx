@@ -17,6 +17,15 @@ export function StatBar({ status, connected }: { status: StatusPayload | null; c
         <span className={`inline-block size-2 rounded-full ${connected ? "bg-emerald-500" : "bg-red-500"}`} />
         {connected ? "live" : "reconnecting"}
         {status?.last_error ? <span className="ml-2 text-red-500">{status.last_error}</span> : null}
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs ${
+            status?.bot.running
+              ? "bg-emerald-500/15 text-emerald-600"
+              : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {status?.bot.running ? "bot running" : "bot stopped"}
+        </span>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label="screen" value={status?.screen ?? "-"} />

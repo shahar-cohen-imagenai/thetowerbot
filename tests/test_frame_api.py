@@ -24,12 +24,12 @@ def a_frame() -> np.ndarray:
 @pytest.fixture
 def wired() -> tuple[TestClient, FrameBuffer, threading.Event]:
     frames = FrameBuffer()
-    stop = threading.Event()
+    shutdown = threading.Event()
     app = create_app(
         state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
-        unknown_dir=config.UNKNOWN_DIR, stop=stop, frames=frames,
+        unknown_dir=config.UNKNOWN_DIR, shutdown=shutdown, frames=frames,
     )
-    return TestClient(app), frames, stop
+    return TestClient(app), frames, shutdown
 
 
 def test_still_is_404_before_the_first_scan(wired) -> None:
@@ -74,20 +74,22 @@ def test_status_carries_the_overlay_boxes(wired) -> None:
     assert body["frame_size"] == {"width": 60, "height": 80}
 
 
-def test_the_stream_ends_when_stop_is_set(wired) -> None:
+def test_the_stream_ends_when_shutdown_is_set(wired) -> None:
     """The hang the SSE stream already hit once, not re-introduced.
 
     An in-flight response uvicorn's graceful shutdown waits on forever is
-    exactly what `stop` exists to prevent - and a held-open <img> never
+    exactly what `shutdown` exists to prevent - and a held-open <img> never
     disconnects on its own just because the bot ended.
     """
-    _, frames, stop = wired
+    _, frames, shutdown = wired
     frames.publish(a_frame())
 
     async def drain() -> int:
         chunks = 0
-        stop.set()
-        async for _ in frame_stream(frames, lambda: _never(), stop=stop, poll=0.01):
+        shutdown.set()
+        async for _ in frame_stream(
+            frames, lambda: _never(), shutdown=shutdown, poll=0.01
+        ):
             chunks += 1
         return chunks
 

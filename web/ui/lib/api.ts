@@ -1,9 +1,46 @@
-import type { ControlPayload, RunRow, Snapshot, StatsPayload, StatusPayload, StoredEvent } from "./types";
+import type {
+  BotStatus,
+  ControlPayload,
+  RunRow,
+  Snapshot,
+  StatsPayload,
+  StatusPayload,
+  Strategy,
+  StrategyList,
+  StoredEvent,
+} from "./types";
+
+/** An HTTP failure that kept its status code.
+ *
+ * A bare Error flattens every rejection into one string, leaving callers to
+ * match on prose to tell an expected answer from a real fault - a 409 from
+ * /api/bot/start ("another tab already started one") means refresh, a 503
+ * ("no emulator") means failure. The status is the only stable way to say
+ * which is which. */
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
 
 async function getJson<T>(path: string): Promise<T> {
   const response = await fetch(path, { headers: { accept: "application/json" } });
-  if (!response.ok) throw new Error(`${path} -> ${response.status}`);
-  return (await response.json()) as T;
+  // Parsed before the ok check and flattened through the same describeDetail
+  // as the writes below: the server takes real trouble to distinguish
+  // 404-absent from 422-corrupt with a message, and a read that reported
+  // only "/api/strategies/crit -> 422" threw that reason away.
+  const parsed = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      (parsed && describeDetail(parsed.detail)) ?? `${path} -> ${response.status}`,
+    );
+  }
+  return parsed as T;
 }
 
 export const fetchStatus = () => getJson<StatusPayload>("/api/status");
@@ -32,18 +69,68 @@ function describeDetail(detail: unknown): string | null {
 }
 
 /** Returns the full new state, or throws with the server's reason. */
-export async function patchControl(patch: Partial<ControlPayload>): Promise<ControlPayload> {
+export async function patchControl(
+  patch: Partial<Strategy> & { paused?: boolean },
+): Promise<ControlPayload> {
   const response = await fetch("/api/control", {
     method: "PATCH",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(patch),
   });
   const body = await response.json();
-  if (!response.ok) throw new Error(describeDetail(body.detail) ?? `PATCH /api/control -> ${response.status}`);
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      describeDetail(body.detail) ?? `PATCH /api/control -> ${response.status}`,
+    );
   return body as ControlPayload;
 }
 
-export async function stopBot(): Promise<void> {
-  const response = await fetch("/api/control/stop", { method: "POST" });
-  if (!response.ok) throw new Error(`POST /api/control/stop -> ${response.status}`);
+async function send<T>(path: string, method: string, body?: unknown): Promise<T> {
+  const response = await fetch(path, {
+    method,
+    headers: body === undefined ? {} : { "content-type": "application/json" },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  // 204 and empty bodies are not expected from any of these routes, but a
+  // failed parse must still surface as the status, not as a JSON error.
+  const parsed = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      (parsed && describeDetail(parsed.detail)) ?? `${method} ${path} -> ${response.status}`,
+    );
+  }
+  return parsed as T;
 }
+
+export const fetchStrategies = () => getJson<StrategyList>("/api/strategies");
+export const fetchStrategy = (name: string) =>
+  getJson<Strategy>(`/api/strategies/${encodeURIComponent(name)}`);
+export const saveStrategy = (name: string, body: Strategy) =>
+  send<Strategy>(`/api/strategies/${encodeURIComponent(name)}`, "PUT", body);
+export const activateStrategy = (name: string) =>
+  send<StrategyList>(`/api/strategies/${encodeURIComponent(name)}/activate`, "POST");
+export const deleteStrategy = (name: string) =>
+  send<StrategyList>(`/api/strategies/${encodeURIComponent(name)}`, "DELETE");
+
+/** Starts the bot. A 409 (already running - another tab may have started
+ * one) is a normal answer, not swallowed here: it surfaces as an ApiError
+ * carrying status 409, which is what lets the control page treat it as a
+ * cue to re-read the status rather than as a failure. */
+export const startBot = () => send<BotStatus>("/api/bot/start", "POST");
+
+/** Ends the bot but keeps the dashboard serving. Distinct from `shutdown()`,
+ * which ends the whole process - see that function's own comment. */
+export const stopBot = () => send<BotStatus>("/api/bot/stop", "POST");
+
+/**
+ * Ends the process, bot and dashboard together - the control page's "Shut
+ * down" button, which confirms with "Shut down the bot AND the dashboard?".
+ *
+ * Explicitly NOT the "Stop bot" button sitting beside it: that is `stopBot`
+ * above, which ends the bot and leaves the dashboard serving. This export
+ * has already been pointed at the wrong control once, so the button it
+ * belongs to is named here rather than described.
+ */
+export const shutdown = () => send<{ stopping: boolean }>("/api/shutdown", "POST");

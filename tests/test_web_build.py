@@ -30,7 +30,7 @@ def client() -> TestClient:
             bus=bus,
             db_path=None,
             unknown_dir=config.UNKNOWN_DIR,
-            stop=threading.Event(),
+            shutdown=threading.Event(),
         )
     )
 

@@ -262,14 +262,14 @@ async def _is_never_disconnected() -> bool:
     return False
 
 
-def test_an_already_set_stop_flag_ends_the_stream_immediately() -> None:
+def test_an_already_set_shutdown_flag_ends_the_stream_immediately() -> None:
     """Finding 1: the shutdown deadlock happens because is_disconnected()
-    never fires while a tab is open. `stop` has to be able to end the
+    never fires while a tab is open. `shutdown` has to be able to end the
     generator on its own, with is_disconnected() stuck reporting False."""
     sse = SseSink(capacity=50)
-    stop = threading.Event()
-    stop.set()
-    gen = event_stream(sse, 0, _is_never_disconnected, poll=0.001, stop=stop)
+    shutdown = threading.Event()
+    shutdown.set()
+    gen = event_stream(sse, 0, _is_never_disconnected, poll=0.001, shutdown=shutdown)
 
     async def step() -> None:
         with pytest.raises(StopAsyncIteration):
@@ -278,20 +278,20 @@ def test_an_already_set_stop_flag_ends_the_stream_immediately() -> None:
     asyncio.run(step())
 
 
-def test_stop_set_mid_stream_ends_it_on_the_next_poll() -> None:
+def test_shutdown_set_mid_stream_ends_it_on_the_next_poll() -> None:
     """The actual shutdown scenario: the flag flips after the generator has
     already yielded at least one frame, with the browser still connected.
-    A generator that only checked `stop` before its first yield would pass
-    the test above and still hang here."""
+    A generator that only checked `shutdown` before its first yield would
+    pass the test above and still hang here."""
     sse = SseSink(capacity=50)
     sse.offer(events.RunStarted(run_id=1, seq=1))
-    stop = threading.Event()
-    gen = event_stream(sse, 0, _is_never_disconnected, poll=0.001, stop=stop)
+    shutdown = threading.Event()
+    gen = event_stream(sse, 0, _is_never_disconnected, poll=0.001, shutdown=shutdown)
 
     async def step() -> None:
         first = await gen.__anext__()
         assert "RunStarted" in first
-        stop.set()
+        shutdown.set()
         with pytest.raises(StopAsyncIteration):
             await gen.__anext__()
 

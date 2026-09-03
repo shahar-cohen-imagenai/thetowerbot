@@ -2,12 +2,18 @@
 
 Two sources, deliberately separate. "What is the bot doing right now" is a
 memory question, answered from the shared BotState. "What did it do" is a
-history question, answered by read-only SQLite connections opened per request
-- the web layer never writes, and cannot: db.reader() opens mode=ro.
+history question, answered by read-only SQLite connections opened per request.
 
 Binds 127.0.0.1. No auth, /api/unknown serves screenshots of a live session,
-and /api/control lets a caller pause, reconfigure or stop the bot - see the
-warning beside config.WEB_HOST before changing the bind address.
+and the control plane lets a caller start and stop the bot, rewrite what it
+buys, and create or delete strategy files on disk - see the warning beside
+config.WEB_HOST before changing the bind address.
+
+"The web layer never writes" is no longer true in general, and the narrower
+claim is the one that matters: it never writes to the DATABASE. db.reader()
+opens mode=ro and nothing here can change that. Strategy files are the one
+thing it does write, through StrategyStore, which validates every profile
+before it reaches the disk.
 """
 
 from __future__ import annotations
@@ -29,14 +35,20 @@ import events
 from control import ControlError, Controls
 from events import EventBus
 from frames import FrameBuffer
+from runner import BotRunner, RunnerError
 from sinks.sse import SseSink, to_payload
 from sinks.state import BotState
+from strategy import Strategy, StrategyStore
 
 STATIC_DIR = Path(__file__).parent / "static"
 
 # One page of history is plenty for a dashboard, and it bounds the response
 # whatever the query string asks for.
 MAX_RUNS_PER_PAGE = 500
+
+# strategy.ControlError carries a `code` naming the KIND of failure, so the
+# routes below map a status without matching on message text.
+_STATUS_FOR_CODE = {"not_found": 404, "conflict": 409, "invalid": 422}
 
 
 def resume_point(request: Request) -> int:
@@ -60,7 +72,7 @@ async def event_stream(
     is_disconnected: Callable[[], Awaitable[bool]],
     poll: float = config.SSE_POLL_SECONDS,
     heartbeat: float = config.SSE_HEARTBEAT_SECONDS,
-    stop: threading.Event | None = None,
+    shutdown: threading.Event | None = None,
 ) -> AsyncIterator[str]:
     """Server-sent events, resumable through Last-Event-ID.
 
@@ -78,20 +90,24 @@ async def event_stream(
     that reason too - production passes `request.is_disconnected`, tests
     pass a fake that reports disconnection after a bounded number of polls.
 
-    `stop` is the other way this can end, and the one that matters at
-    shutdown: `is_disconnected()` only reports true once the browser closes
-    the tab, which it never does on its own just because the bot stopped.
-    Without `stop`, a held-open dashboard tab and a uvicorn server with
-    `should_exit = True` wait on each other forever - the response is still
-    "in flight" as far as the server's graceful shutdown is concerned, so
-    the transport never closes. Checking the flag lets the generator end
-    itself, the response complete, and the connection close normally.
-    Optional so existing callers (and every test predating this) keep
-    working; a fresh Event() that nobody ever sets is exactly "never stop
-    this way", which is the old behaviour.
+    `shutdown` is the other way this can end, and the one that matters at
+    process shutdown: `is_disconnected()` only reports true once the browser
+    closes the tab, which it never does on its own just because the process
+    is going down. Without `shutdown`, a held-open dashboard tab and a
+    uvicorn server with `should_exit = True` wait on each other forever - the
+    response is still "in flight" as far as the server's graceful shutdown
+    is concerned, so the transport never closes. Checking the flag lets the
+    generator end itself, the response complete, and the connection close
+    normally. It is the PROCESS going down, never merely the bot - the same
+    Event create_app() and serve_web() take under that name, and the reason
+    it is not called `stop` any more: the runner owns a per-bot stop, and one
+    Event with two names was how the two got confused. Optional so existing
+    callers (and every test predating this) keep working; a fresh Event()
+    that nobody ever sets is exactly "never end this way", which is the old
+    behaviour.
     """
-    if stop is None:
-        stop = threading.Event()
+    if shutdown is None:
+        shutdown = threading.Event()
 
     latest = sse.latest_seq()
     if cursor > latest:
@@ -103,7 +119,7 @@ async def event_stream(
         cursor = 0
 
     idle = 0.0
-    while not stop.is_set() and not await is_disconnected():
+    while not shutdown.is_set() and not await is_disconnected():
         batch = sse.since(cursor)
         for event in batch:
             cursor = event.seq
@@ -125,22 +141,24 @@ async def frame_stream(
     frames: FrameBuffer,
     is_disconnected: Callable[[], Awaitable[bool]],
     *,
-    stop: threading.Event,
+    shutdown: threading.Event,
     poll: float = config.FRAME_POLL_SECONDS,
 ) -> AsyncIterator[bytes]:
     """MJPEG: one connection, rendered natively by a plain <img>.
 
     Same two exits as event_stream(), and for the same reasons: the browser
-    closing the tab, and the bot shutting down. An <img> holds its response
-    open indefinitely and never disconnects on its own, so without the `stop`
-    check a held-open device view and a shutting-down uvicorn would wait on
-    each other forever.
+    closing the tab, and the process shutting down. An <img> holds its
+    response open indefinitely and never disconnects on its own, so without
+    the `shutdown` check a held-open device view and a shutting-down uvicorn
+    would wait on each other forever. Named for the process, not the bot,
+    like every other holder of that Event: stopping the bot leaves the
+    device view connected and waiting for the next Start.
 
     Only sends when the frame number moves, so an idle bot costs one send per
     scan rather than one per poll.
     """
     sent = 0
-    while not stop.is_set() and not await is_disconnected():
+    while not shutdown.is_set() and not await is_disconnected():
         current = frames.latest()
         if current is not None and current[0] != sent:
             sent, payload = current
@@ -157,14 +175,20 @@ class ControlPatch(BaseModel):
 
     Deliberately loose on types beyond the obvious - Controls.apply() is the
     single validator, so the rules live in one place rather than being spelled
-    out here and there and drifting apart.
+    out here and there and drifting apart. `actions` is a list of raw objects
+    for the same reason: mirroring ActionRule's fields here would be a second
+    schema to keep in step with strategy.py.
     """
 
     paused: bool | None = None
+    affordability: str | None = None
     interval: float | None = None
+    click_cooldown: float | None = None
     auto_navigate: bool | None = None
-    strategy: str | None = None
-    enabled_actions: list[str] | None = None
+    max_runs: int | None = None
+    navigation_cooldown: float | None = None
+    screen_confirmations: int | None = None
+    actions: list[dict[str, Any]] | None = None
 
 
 def create_app(
@@ -174,10 +198,12 @@ def create_app(
     bus: EventBus,
     db_path: Path | None = config.DB_PATH,
     unknown_dir: Path = config.UNKNOWN_DIR,
-    stop: threading.Event | None = None,
+    shutdown: threading.Event | None = None,
     controls: Controls | None = None,
     checks: Mapping[str, Any] | None = None,
     frames: FrameBuffer | None = None,
+    runner: BotRunner | None = None,
+    store: StrategyStore | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -185,8 +211,13 @@ def create_app(
     # function signature, so a caller that never passes one (every test
     # predating this finding) keeps the old "never stops this way" behaviour
     # without every call site sharing one mutable Event by accident.
-    if stop is None:
-        stop = threading.Event()
+    #
+    # This is the PROCESS going down, not the bot - see runner.BotRunner for
+    # that half. A dashboard can now outlive the bot it was watching, so the
+    # two can no longer share one flag: stopping the bot must never trip
+    # this one, and this one is not the runner's business at all.
+    if shutdown is None:
+        shutdown = threading.Event()
 
     app = FastAPI(title="The Tower bot")
 
@@ -205,6 +236,14 @@ def create_app(
             size = frames.size()
             if size is not None:
                 payload["frame_size"] = {"width": size[0], "height": size[1]}
+        # Always present, even with no runner (--once, --tui, and every test
+        # predating the lifecycle split), so the browser needs no special case
+        # for "this build cannot start a bot".
+        payload["bot"] = (
+            runner.status()
+            if runner is not None
+            else {"running": False, "since": None, "error": None}
+        )
         return payload
 
     @app.get("/api/runs")
@@ -228,7 +267,8 @@ def create_app(
     async def stream(request: Request) -> StreamingResponse:
         return StreamingResponse(
             event_stream(
-                sse, resume_point(request), request.is_disconnected, stop=stop
+                sse, resume_point(request), request.is_disconnected,
+                shutdown=shutdown,
             ),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
@@ -276,24 +316,33 @@ def create_app(
         if frames is None:
             raise HTTPException(status_code=404, detail="no frame buffer")
         return StreamingResponse(
-            frame_stream(frames, request.is_disconnected, stop=stop),
+            frame_stream(frames, request.is_disconnected, shutdown=shutdown),
             media_type=f"multipart/x-mixed-replace; boundary={BOUNDARY}",
             headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
         )
 
     if controls is not None:
-        available = dict(checks or {})
+
+        def _available_checks() -> Mapping[str, Any]:
+            # A plain dict, resolved once: checks are per-PROCESS, not
+            # per-bot. main() builds them (build_checks_and_controls) before
+            # create_app and hands the same dict to the runner, which reuses
+            # it for every bot it ever starts - so there is no moment, --idle
+            # included, at which this could be empty and later fill in. Only
+            # the None default (a caller that wired no checks at all) needs
+            # covering.
+            return checks or {}
 
         def _control_payload() -> dict:
-            # The browser needs the full action list to render checkboxes for
-            # the ones currently switched off, which the snapshot omits, plus
-            # which strategies actually built (see build_affordability()) so
-            # it can grey out one with no atlas rather than let a switch to it
-            # silently do nothing.
-            payload = controls.snapshot()
-            payload["actions"] = [action.name for action in config.ACTIONS]
-            payload["strategies_available"] = sorted(
-                name for name, check in available.items() if check is not None
+            # The browser needs to know which affordability methods actually
+            # built (see build_affordability()) so it can grey out one with no
+            # atlas rather than let a switch to it silently do nothing. The
+            # action list needs no separate advertisement any more: the
+            # strategy carries every row, enabled or not.
+            payload = controls.payload()
+            payload["affordability_available"] = sorted(
+                name for name, check in _available_checks().items()
+                if check is not None
             )
             return payload
 
@@ -303,24 +352,104 @@ def create_app(
 
         @app.patch("/api/control")
         def patch_control(patch: ControlPatch) -> dict:
+            # exclude_none means "absent" and "explicitly null" are the same
+            # request, so max_runs cannot be cleared through this route. The
+            # strategy page clears it by PUTting the whole profile instead.
             requested = patch.model_dump(exclude_none=True)
 
             # Refuse before applying, not after: build_affordability() falls
             # back to brightness on its own, so accepting this and letting the
             # loop pick would leave the browser showing "digits" while the bot
             # used brightness.
-            strategy = requested.get("strategy")
-            if strategy is not None and available.get(strategy) is None:
+            affordability = requested.get("affordability")
+            if affordability is not None and _available_checks().get(affordability) is None:
                 raise HTTPException(
                     status_code=422,
-                    detail=f"strategy {strategy!r} is unavailable - no glyph atlas is built",
+                    detail=(
+                        f"affordability {affordability!r} is unavailable - no glyph "
+                        "atlas is built"
+                    ),
                 )
 
+            # Captured before apply() so a failed save (below) has something
+            # to put back - the live object must never survive a failed
+            # write, or Controls and the file disagree exactly the way "one
+            # source of truth" exists to prevent.
+            before = controls.snapshot().strategy
+
             try:
+                # Controls.apply() validates everything a Strategy can know
+                # about itself, which does not include whether a template is
+                # a real file inside TEMPLATE_DIR - that is disk I/O, and
+                # control.py is imported by the scan loop and must stay
+                # I/O-free. So the filesystem half runs here, unconditionally
+                # - not just when the patch touches "actions": a strategy
+                # already resident in Controls is not guaranteed to still
+                # pass this (a template file can vanish out from under a
+                # running bot), so an interval-only patch needs the same
+                # check. Without it a request body chooses which file
+                # cv2.imread opens, and an unresolvable template raises out
+                # of every single scan pass, forever, instead of once as the
+                # 422 below.
+                #
+                # Yes, this merges twice - once to validate, once inside
+                # apply(). merged() is pure and this runs once per request
+                # rather than once per scan, so the duplicate costs nothing
+                # that matters. And it runs BEFORE apply(), not after: apply()
+                # commits to live state, so validating first is what keeps a
+                # rejected patch from ever being observable as a live change.
+                before.merged(requested).validated()
                 changed = controls.apply(requested)
             except ControlError as exc:
                 raise HTTPException(status_code=422, detail=f"{exc.field}: {exc}") from exc
 
+            after = controls.snapshot().strategy
+            # Gated on the STRATEGY having moved, not on `changed` being
+            # non-empty. `paused` is session state that is deliberately never
+            # persisted (see control.py's opening paragraph), so a
+            # paused-only patch fills `changed` while leaving the file
+            # correct as it stands - persisting there would rewrite the
+            # profile for nothing and, on a failing save, hand back a 500 for
+            # a request that fully succeeded, with the pause applied and no
+            # ControlChanged to tell the other tabs.
+            if after != before and store is not None:
+                # A patch to the running policy is a save: otherwise the file
+                # and the loop would disagree until the next explicit save,
+                # which is exactly the drift "one source of truth" exists to
+                # remove. Inlined rather than hoisted into a helper - the
+                # store block below is the only other writer, and it already
+                # has store.save(incoming) right there for the same reason.
+                try:
+                    store.save(after)
+                except Exception as exc:
+                    # The precheck above only rules out an invalid strategy;
+                    # save() can still fail for reasons no precheck can catch
+                    # (a full disk, a permissions change, a template deleted
+                    # in the gap between validating and writing). apply()
+                    # already committed the change to live state, so an
+                    # uncaught failure here would leave the bot running on a
+                    # policy the disk never agreed to and no ControlChanged
+                    # to say so. Put the pre-patch strategy back before
+                    # answering, so live state matches what's on disk again.
+                    controls.replace(before)
+                    # `paused` is deliberately NOT restored, and that is not
+                    # an oversight to be tidied up later: it is session state
+                    # with nothing on disk to diverge from, so there is no
+                    # inconsistency for a rollback to repair. Un-pausing a
+                    # bot because an unrelated disk write failed would send
+                    # it back to tapping the game against the operator's
+                    # explicit instruction - strictly worse than leaving it
+                    # paused. It survives, so it is announced here rather
+                    # than in the publish below, which this raise skips.
+                    if "paused" in changed:
+                        bus.publish(
+                            events.ControlChanged(
+                                changed={"paused": changed["paused"]}, source="web"
+                            )
+                        )
+                    raise HTTPException(
+                        status_code=500, detail=f"failed to persist strategy: {exc}"
+                    ) from exc
             if changed:
                 # Only when something actually moved. A no-op patch is not a
                 # state change and must not fill the log with noise.
@@ -328,16 +457,117 @@ def create_app(
 
             return _control_payload()
 
-        @app.post("/api/control/stop")
+    if runner is not None:
+
+        @app.post("/api/bot/start")
+        def start_bot() -> dict:
+            try:
+                return runner.start()
+            except RunnerError as exc:
+                # The runner already published a BotError for anything worth
+                # seeing in the feed; this is just the caller's answer.
+                raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
+
+        @app.post("/api/bot/stop")
         def stop_bot() -> dict:
-            # This route has no handle on the worker thread or the Server -
-            # the shared `stop` Event is the only thing it can reach from a
-            # request handler. serve_web()'s stop-watch thread is the one
-            # actually waiting on it: it calls bot.stop() and sets
-            # server.should_exit, which is what brings the loop and the
-            # server down together.
-            stop.set()
-            return {"stopping": True}
+            return runner.stop()
+
+    if store is not None:
+
+        @app.get("/api/strategies")
+        def list_strategies() -> dict:
+            return {"active": store.active_name(), "names": store.names()}
+
+        @app.get("/api/strategies/{name}")
+        def read_strategy(name: str) -> dict:
+            try:
+                return store.load(name).to_dict()
+            except ControlError as exc:
+                # A corrupt profile is not a missing one: load() raises
+                # "not_found" for absent and the default "invalid" for
+                # unparseable JSON, and the reader deserves to be told which.
+                raise HTTPException(
+                    status_code=_STATUS_FOR_CODE.get(exc.code, 422), detail=str(exc)
+                ) from exc
+
+        @app.put("/api/strategies/{name}")
+        def write_strategy(name: str, body: dict[str, Any]) -> dict:
+            # The URL's name wins. Otherwise a body naming something else
+            # writes a different file and the caller has no way to know
+            # where their profile went.
+            try:
+                incoming = Strategy.from_dict({**body, "name": name})
+                store.save(incoming)
+            except ControlError as exc:
+                raise HTTPException(
+                    status_code=422, detail=f"{exc.field}: {exc}"
+                ) from exc
+
+            # Saving the profile the bot is currently running IS a live edit.
+            if controls is not None and name == store.active_name():
+                changed = controls.replace(incoming)
+                if changed:
+                    bus.publish(events.ControlChanged(changed=changed, source="web"))
+            return incoming.to_dict()
+
+        @app.post("/api/strategies/{name}/activate")
+        def activate_strategy(name: str) -> dict:
+            try:
+                # validated(), because this is the one path that puts a
+                # profile straight from the disk into the running loop.
+                # load() only parses; the filesystem half - does every
+                # template still exist, inside TEMPLATE_DIR - is what PUT
+                # gets for free from store.save() and PATCH does by hand
+                # before apply(). Without it, activating a hand-edited
+                # profile whose template was since deleted raises out of
+                # every scan pass forever instead of once, here, as a 422.
+                # Before set_active(), so a profile that cannot run does not
+                # become the one the next launch loads either.
+                loaded = store.load(name).validated()
+                store.set_active(name)
+            except ControlError as exc:
+                # load() raises "not_found" for an absent profile but the
+                # default "invalid" for one that exists and is corrupt JSON
+                # - those are different facts, and a present-but-corrupt
+                # profile deserves a 422 that says so, not a 404 that sends
+                # the caller looking for a file that is sitting right there.
+                raise HTTPException(
+                    status_code=_STATUS_FOR_CODE.get(exc.code, 422), detail=str(exc)
+                ) from exc
+            if controls is not None:
+                changed = controls.replace(loaded)
+                if changed:
+                    bus.publish(events.ControlChanged(changed=changed, source="web"))
+            return {"active": name, "names": store.names()}
+
+        @app.delete("/api/strategies/{name}")
+        def remove_strategy(name: str) -> dict:
+            try:
+                store.delete(name)
+            except ControlError as exc:
+                # exc.code, not the message text. Plan 1's final review added
+                # a discriminator precisely so this route does not string-match
+                # its way to a status: "not_found" when the profile is absent,
+                # "conflict" when it exists and the refusal is about what
+                # deleting it would leave behind (active, or the last one).
+                raise HTTPException(
+                    status_code=_STATUS_FOR_CODE.get(exc.code, 422), detail=str(exc)
+                ) from exc
+            return {"active": store.active_name(), "names": store.names()}
+
+    @app.post("/api/shutdown")
+    def shutdown_all() -> dict:
+        # This route has no handle on the worker thread or the Server - the
+        # shared `shutdown` Event is the only thing it can reach from a
+        # request handler. serve_web()'s watcher thread is the one actually
+        # waiting on it: it stops the runner and sets server.should_exit,
+        # which brings the loop and the server down together.
+        #
+        # Registered unconditionally, with no `runner is not None` guard: a
+        # dashboard that cannot shut itself down is worse than one that can,
+        # and ending the process needs no bot to be running at all.
+        shutdown.set()
+        return {"stopping": True}
 
     @app.get("/api/stats")
     def stats() -> dict:
@@ -358,6 +588,29 @@ def create_app(
             return []
         with db.reader(db_path) as conn:
             return db.error_log(conn, limit=max(1, min(limit, 500)))
+
+    # A write verb against an /api path nothing above registered (e.g.
+    # /api/bot/start with no runner wired) must read as "this route does
+    # not exist" - 404 - not as the mount's own answer for a method it
+    # rejects outright. StaticFiles refuses POST/PUT/PATCH/DELETE before it
+    # ever checks whether a matching file exists, which would turn a
+    # never-registered route into a misleading 405. GET/HEAD are left to
+    # the mount below, which already answers unmatched paths with the SPA's
+    # own 404 page.
+    #
+    # Starlette matches in registration order and this pattern
+    # ("/api/{_path:path}") swallows every write-verb request under /api,
+    # real or not - so it has to stay the LAST /api route registered. Any
+    # new /api route (the strategy CRUD routes are next) MUST be added
+    # above this one, not below: a route registered after this catch-all is
+    # unreachable and will 404 as if it were never wired at all, which is a
+    # much more confusing failure than a normal shadowing bug because it
+    # looks identical to "the route was never registered." See
+    # test_the_unmatched_api_catch_all_does_not_shadow_real_routes in
+    # tests/test_lifecycle_api.py, which pins this ordering.
+    @app.api_route("/api/{_path:path}", methods=["POST", "PUT", "PATCH", "DELETE"])
+    def unmatched_api_route(_path: str) -> None:
+        raise HTTPException(status_code=404, detail="no such route")
 
     # Last, deliberately. Starlette matches routes in registration order and a
     # mount at "/" matches everything, so every /api route above must already

@@ -11,7 +11,9 @@ Usage:
     python tower_bot.py                 # run the loop
     python tower_bot.py --once          # a few scans, enough to settle on the real screen
     python tower_bot.py --debug-scores  # one frame, one table of every template's score
-    python tower_bot.py --tui --auto-navigate  # live panel, loops runs unattended
+    python tower_bot.py --tui           # live panel instead of log lines
+    python tower_bot.py --web           # dashboard: pause, retune, loop runs
+    python tower_bot.py --web --idle    # dashboard with no bot - press Start
 """
 
 from __future__ import annotations
@@ -49,6 +51,7 @@ from control import Controls
 from device import EmulatorError, Image, capture_screen, connect_device, tap
 from frames import FrameBuffer
 from navigate import Navigator
+from runner import BotRunner, RunnerError
 from runs import RunTracker
 from snapshots import SnapshotWriter
 from sinks.log import LogSink
@@ -56,6 +59,7 @@ from sinks.sse import SseSink
 from sinks.state import BotState, StateSink
 from sinks.store import StoreSink
 from sinks.tui import TuiSink
+from strategy import ControlError, Strategy, StrategyStore
 
 logger = logging.getLogger("tower_bot")
 
@@ -69,13 +73,14 @@ class TowerBot:
         device: AdbDevice,
         templates: vision.TemplateCache,
         bus: events.EventBus,
-        click_cooldown: float = config.CLICK_COOLDOWN_SECONDS,
         affordability_check: AffordabilityCheck | None = None,
         controls: Controls | None = None,
         checks: dict[str, AffordabilityCheck | None] | None = None,
         reader: digits.NumberReader | None = None,
         first_run_id: int = 1,
         frames: FrameBuffer | None = None,
+        screen_confirmations: int = config.SCREEN_CONFIRMATIONS,
+        navigation_cooldown: float = config.NAVIGATION_COOLDOWN_SECONDS,
     ) -> None:
         self.device = device
         self.templates = templates
@@ -83,25 +88,32 @@ class TowerBot:
         # Optional: --tui and --once have nobody to show a frame to, and every
         # test predating this constructs a bot without one.
         self.frames = frames
-        self.click_cooldown = click_cooldown
         self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
         self.reader = reader if reader is not None else digits.NumberReader()
         self.wallet: int | None = None
-        self.tracker = screens.ScreenTracker()
+        # Read once, here, rather than per scan: both configure an object
+        # that carries state across scans (the tracker's part-confirmed
+        # reading, the navigator's last-navigation timestamp), and changing
+        # either under a running one has no correct answer. This is the
+        # "applies on next Start" boundary the dashboard labels.
+        self.tracker = screens.ScreenTracker(confirmations=screen_confirmations)
         self.snapshots = SnapshotWriter(
             config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
         )
-        # One source of truth for every live setting. A separate auto_navigate
-        # attribute alongside this would be two, and they would drift.
-        self.controls = controls if controls is not None else Controls()
+        # One source of truth for every live setting. A Controls built here
+        # would need a Strategy to hold, and inventing one would compete with
+        # StrategyStore.ensure_seeded() - so callers build it and pass it.
+        self.controls = controls if controls is not None else Controls(
+            strategy=Strategy.from_config()
+        )
         # Built once, here, and never in a request handler. A None entry means
         # that strategy is unavailable on this machine - which is what lets
         # PATCH /api/control refuse it with a reason instead of silently
         # handing back a different check.
         self.checks: dict[str, AffordabilityCheck | None] = checks or {
-            self.controls.strategy: self.affordability
+            self.controls.snapshot().strategy.affordability: self.affordability
         }
-        self.navigator = Navigator(templates, bus)
+        self.navigator = Navigator(templates, bus, cooldown=navigation_cooldown)
         self.runs = RunTracker(first_run_id)
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
@@ -132,7 +144,10 @@ class TowerBot:
 
     # -- the core helper ---------------------------------------------------
     def find_and_click_image(
-        self, action: config.Action, boxes: list[dict[str, Any]] | None = None
+        self,
+        action: config.Action,
+        boxes: list[dict[str, Any]] | None = None,
+        cooldown: float | None = None,
     ) -> bool:
         """Find the action's template on the current screen and tap it.
 
@@ -146,6 +161,22 @@ class TowerBot:
         each match landing in the buffer the instant it is found: a reader
         between two such landings would catch the frame's matches only
         partially drawn.
+
+        `cooldown`, when given, is the click_cooldown to gate against -
+        run_once() always passes `settings.strategy.click_cooldown` from the
+        one snapshot it took at the top of the pass. `None` (the default)
+        falls back to a fresh `self.controls.snapshot()` here instead, which
+        is what lets a test or any other direct caller invoke this method
+        without first constructing a settings object of its own. Re-reading
+        per call is exactly what the loop path must NOT do, though: this
+        method is called once per matched rule inside run_once()'s action
+        loop without a `break`, and a PATCH landing between two of those
+        calls (run_forever and serve_web run on different threads) would
+        otherwise let one row's cooldown be judged against a click_cooldown
+        from a different instant than the strategy that selected and
+        ordered the rows - the same class of hazard run_once()'s own
+        docstring warns about for the wallet and the price gate, just on a
+        narrower field.
         """
         # `cooldown_key` is purely internal - a stable per-template handle
         # for `_last_click`. `name` is what leaves the class: it is what
@@ -210,7 +241,11 @@ class TowerBot:
             return False
 
         now = time.monotonic()
-        if now - self._last_click.get(cooldown_key, 0.0) < self.click_cooldown:
+        effective_cooldown = (
+            cooldown if cooldown is not None
+            else self.controls.snapshot().strategy.click_cooldown
+        )
+        if now - self._last_click.get(cooldown_key, 0.0) < effective_cooldown:
             self.bus.publish(events.Skipped(action=name, reason="cooldown"))
             return False
 
@@ -269,8 +304,30 @@ class TowerBot:
         )
 
     # -- main loop ---------------------------------------------------------
-    def run_cap_reached(self, max_runs: int | None) -> bool:
-        return max_runs is not None and self.runs.completed >= max_runs
+    def run_cap_reached(
+        self, max_runs: int | None = None, strategy: Strategy | None = None
+    ) -> bool:
+        """Has the bot completed as many runs as it was asked for?
+
+        The explicit parameter wins when set - that is the non-web path,
+        which has a CLI flag and no strategy loaded. Otherwise the strategy
+        supplies it. The two can never both be meaningfully set in the web
+        path, because the CLI persists its flag into the strategy rather
+        than carrying it alongside (see the spec, section 10).
+
+        The `strategy` fallback to a fresh snapshot is NOT the re-read hazard
+        that was removed from find_and_click_image: run_once always hands
+        down the snapshot its own pass took, so a mid-pass PATCH cannot split
+        one scan across two policies, while run_forever calls this with no
+        strategy *between* passes - where reading the newest one is the whole
+        point, because a run cap raised from the dashboard should take effect
+        on the next iteration rather than the next restart.
+        """
+        cap = max_runs
+        if cap is None:
+            source = strategy if strategy is not None else self.controls.snapshot().strategy
+            cap = source.max_runs
+        return cap is not None and self.runs.completed >= cap
 
     def run_once(self, max_runs: int | None = None) -> bool:
         """One scan pass over the configured actions. True if anything clicked.
@@ -285,7 +342,7 @@ class TowerBot:
         # let a setting change underneath a half-finished scan - the wallet
         # read with one strategy and the price gate applied with another.
         settings = self.controls.snapshot()
-        chosen = self.checks.get(settings["strategy"])
+        chosen = self.checks.get(settings.strategy.affordability)
         if chosen is not None:
             self.affordability = chosen
         self.refresh_screen()
@@ -359,18 +416,23 @@ class TowerBot:
         # here whenever the loop below does not run (paused, screen-gated),
         # matching add_box() never having been called in those cases before.
         boxes: list[dict[str, Any]] = []
-        if settings["paused"]:
+        if settings.paused:
             # Still scanning, still reporting - just not acting. One skip per
             # scan, not one per action, matching the screen gate below.
             self.bus.publish(
                 events.Skipped(action="*", reason="paused", detail="paused from the dashboard")
             )
         elif state is screens.ScreenState.IN_RUN:
-            enabled = set(settings["enabled_actions"])
-            for action in config.ACTIONS:
-                if action.name not in enabled:
+            # The strategy's rows, in the strategy's order - order IS
+            # priority. Before, this walked config.ACTIONS and used the
+            # settings only as an on/off filter, so neither reordering nor
+            # a per-row threshold could reach the matcher.
+            for rule in settings.strategy.actions:
+                if not rule.enabled:
                     continue
-                if self.find_and_click_image(action, boxes):
+                if self.find_and_click_image(
+                    rule.as_action(), boxes, cooldown=settings.strategy.click_cooldown
+                ):
                     clicked = True
         else:
             self.bus.publish(
@@ -385,9 +447,9 @@ class TowerBot:
             self.frames.set_boxes(boxes)
 
         if (
-            settings["auto_navigate"]
-            and not settings["paused"]
-            and not self.run_cap_reached(max_runs)
+            settings.strategy.auto_navigate
+            and not settings.paused
+            and not self.run_cap_reached(max_runs, settings.strategy)
         ):
             self.navigator.maybe_navigate(
                 self.screen, state, self.device, now=time.monotonic()
@@ -411,9 +473,10 @@ class TowerBot:
 
         `interval` has two distinct meanings, deliberately:
 
-        - `None` (the default, and what serve_web() passes in production)
-          means the dashboard owns the pace. `self.controls.interval` is
-          re-read at the top of every iteration, so a change made from the
+        - `None` (the default, and what `BotRunner._run()` passes in
+          production - see runner.py) means the dashboard owns the pace.
+          `self.controls.snapshot().strategy.interval`
+          is re-read at the top of every iteration, so a change made from the
           browser takes effect on the very next sleep rather than requiring a
           restart.
         - An explicit number is a caller override. It is used exactly as
@@ -430,7 +493,9 @@ class TowerBot:
         than sleeping it out (which a plain time.sleep() would do - PEP 475
         resumes it after a signal handler returns instead of aborting it).
         """
-        startup_interval = self.controls.interval if interval is None else interval
+        startup_interval = (
+            self.controls.snapshot().strategy.interval if interval is None else interval
+        )
         logger.info(
             "Bot started - scanning every %.1fs. Ctrl+C to stop.", startup_interval
         )
@@ -438,12 +503,27 @@ class TowerBot:
             # Checked before run_once(): if the limit is already reached at
             # entry, the loop must return without scanning at all, not after
             # one more pass.
-            if self.run_cap_reached(max_runs):
-                logger.info("Reached --max-runs=%d, stopping.", max_runs)
+            #
+            # One snapshot feeds both the check and the message. The cap is
+            # logged RESOLVED rather than as the parameter, because in the
+            # web path the parameter is None: BotRunner._run() calls
+            # run_forever() with no arguments and the cap comes from the
+            # strategy. "%d" % None raises inside logging, so the operator
+            # would get a "--- Logging error ---" traceback at exactly the
+            # moment the line exists to explain - the dashboard parking with
+            # a stopped bot.
+            capped = self.controls.snapshot().strategy
+            if self.run_cap_reached(max_runs, capped):
+                logger.info(
+                    "Reached the run cap of %d, stopping.",
+                    max_runs if max_runs is not None else capped.max_runs,
+                )
                 break
             # Re-read every iteration (when interval is None) rather than
             # once at the top of the loop - see the docstring above.
-            current_interval = self.controls.interval if interval is None else interval
+            current_interval = (
+                self.controls.snapshot().strategy.interval if interval is None else interval
+            )
             try:
                 self.run_once(max_runs=max_runs)
             except EmulatorError as exc:
@@ -480,8 +560,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--host", default=config.DEVICE_HOST, help="emulator ADB host")
     parser.add_argument("--port", type=int, default=config.DEVICE_PORT, help="emulator ADB port")
     parser.add_argument(
-        "--interval", type=float, default=config.SCAN_INTERVAL_SECONDS,
-        help="seconds between scans",
+        "--interval", type=float, default=None,
+        help=(
+            "seconds between scans - overrides the active strategy AND is "
+            "saved into it"
+        ),
     )
     parser.add_argument(
         "--once", action="store_true",
@@ -499,19 +582,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--tui", action="store_true", help="live terminal panel instead of log lines"
     )
     parser.add_argument(
-        "--auto-navigate", action="store_true",
-        help="tap RETRY / BATTLE to loop runs unattended (default: off)",
+        # BooleanOptionalAction, so --no-auto-navigate exists too. With a
+        # plain store_true the flag was a one-way switch: passing it saved
+        # True into the strategy (see apply_cli_overrides), and nothing on
+        # the command line could ever put it back - the only way off was the
+        # dashboard. `default=None` still distinguishes "not passed" from
+        # "passed False", which is what keeps an absent flag from
+        # overwriting the saved profile.
+        "--auto-navigate", action=argparse.BooleanOptionalAction, default=None,
+        help="tap RETRY / BATTLE to loop runs unattended - overrides and saves",
     )
     parser.add_argument(
         "--max-runs", type=int, default=None,
-        help="stop after this many runs (default: unlimited)",
+        help="stop after this many runs - overrides and saves",
     )
     parser.add_argument(
-        "--affordability", choices=("digits", "brightness"), default="digits",
+        "--affordability", choices=("digits", "brightness"), default=None,
         help=(
-            "how to decide an upgrade is buyable: read the numbers (default, "
-            "exact) or compare brightness (the older heuristic). digits falls "
-            "back to brightness on its own when no atlas is built"
+            "how to decide an upgrade is buyable: read the numbers (exact) "
+            "or compare brightness (the older heuristic) - overrides and "
+            "saves. digits falls back to brightness on its own when no "
+            "atlas is built"
         ),
     )
     parser.add_argument(
@@ -529,6 +620,17 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--no-store", dest="store", action="store_false", default=True,
         help="do not persist events to SQLite",
+    )
+    parser.add_argument(
+        "--strategy", default=None,
+        help="which saved strategy to load (default: the active one)",
+    )
+    parser.add_argument(
+        "--idle", action="store_true",
+        help=(
+            "with --web, serve the dashboard without starting the bot - "
+            "press Start in the browser"
+        ),
     )
     return parser.parse_args(argv)
 
@@ -565,31 +667,75 @@ def build_affordability(
     return DigitAffordability(digits.NumberReader(cache), BrightnessAffordability())
 
 
-def build_checks_and_controls(
-    args: argparse.Namespace, atlas_root: Path | None = None
-) -> tuple[dict[str, AffordabilityCheck | None], Controls]:
-    """Build every affordability strategy once, and seed Controls from what
-    actually got built rather than from `args.affordability` alone.
+def build_checks(
+    atlas_root: Path | None = None,
+) -> dict[str, AffordabilityCheck | None]:
+    """Build every affordability strategy once. Safe to call on every start.
 
-    Both strategies built once, at startup. `digits` degrades to brightness
-    when no atlas exists, and the identity check below is how we notice - so
-    the dashboard can refuse a switch to digits with a reason rather than
-    quietly handing back brightness.
+    `digits` degrades to brightness when no atlas exists, and a None entry
+    here is how the rest of the app notices - see `_reconcile_affordability`
+    for the one place that has to act on it.
 
     `atlas_root` exists so this can be exercised without a device: it is
     threaded straight through to `build_affordability`.
+
+    Deliberately does not touch `Controls`. This returns a
+    bot-affecting-only dict; `Controls` is built once, at process startup,
+    and lives for as long as the server does - conflating the two here would
+    make it possible to hand out a fresh `Controls` while the HTTP routes
+    kept patching the old one, with the running bot never seeing the
+    dashboard's edits.
+
+    `BotRunner` does NOT call this: it is handed the dict in its constructor
+    and reuses it for every bot it ever starts, because checks are
+    per-process, not per-bot (rebuilding the glyph atlas on every Start would
+    make the button slow for no gain). "Safe to call on every start" above is
+    about this function being free of hidden state, not an invitation to.
     """
     brightness = BrightnessAffordability()
     digits_check = build_affordability("digits", atlas_root=atlas_root)
-    checks: dict[str, AffordabilityCheck | None] = {
+    return {
         "brightness": brightness,
         "digits": digits_check if isinstance(digits_check, DigitAffordability) else None,
     }
-    controls = Controls(
-        interval=args.interval,
-        auto_navigate=args.auto_navigate,
-        strategy=args.affordability if checks.get(args.affordability) else "brightness",
-    )
+
+
+def _reconcile_affordability(
+    loaded: Strategy, checks: dict[str, AffordabilityCheck | None]
+) -> Strategy:
+    """Downgrade `loaded.affordability` if the atlas this machine has cannot
+    serve it.
+
+    Must run exactly once, at the point the long-lived `Controls` is built -
+    not on every start(), or a restart could silently re-seed a method the
+    operator had already been downgraded away from. The CLI flags that
+    override strategy fields are applied by the caller (see plan 3's
+    --strategy handling), not here: this function's job is only to reconcile
+    the requested policy with the checks that actually built.
+    """
+    affordability = loaded.affordability
+    if checks.get(affordability) is None:
+        affordability = "brightness"
+    return dataclasses.replace(loaded, affordability=affordability)
+
+
+def build_checks_and_controls(
+    loaded: Strategy, atlas_root: Path | None = None
+) -> tuple[dict[str, AffordabilityCheck | None], Controls]:
+    """Thin wrapper over build_checks() + _reconcile_affordability(), kept
+    for main()'s one-time startup call. Seeds Controls from what actually got
+    built rather than from `loaded.affordability` alone - the identity check
+    inside _reconcile_affordability is how the dashboard can refuse a switch
+    to digits with a reason rather than quietly handing back brightness.
+
+    Not for BotRunner: it must never build a Controls of its own (see
+    build_checks()'s docstring) or a checks dict of its own (checks are
+    per-process, not per-bot - the CPU cost of rebuilding the digit atlas on
+    every Start would be silly, and the whole point of the split above is
+    that restarting a bot must not re-run this).
+    """
+    checks = build_checks(atlas_root=atlas_root)
+    controls = Controls(strategy=_reconcile_affordability(loaded, checks))
     return checks, controls
 
 
@@ -641,9 +787,10 @@ def warn_if_web_host_exposed(host: str) -> None:
     config.WEB_HOST's docstring carries the real warning, but nobody reads a
     default's docstring on the way to overriding it with --web-host. The
     dashboard serves live screenshots and full event history with no auth,
-    and - now that the control plane is wired in - lets a caller pause,
-    reconfigure or stop the bot too, so binding anything but loopback
-    deserves pushback at the point someone is actually about to do it.
+    and - now that the control plane is wired in - lets a caller start and
+    stop the bot, rewrite what it buys, and create or delete strategy files
+    on disk, so binding anything but loopback deserves pushback at the point
+    someone is actually about to do it.
     """
     try:
         loopback = ipaddress.ip_address(host).is_loopback
@@ -654,9 +801,10 @@ def warn_if_web_host_exposed(host: str) -> None:
     if not loopback:
         logger.warning(
             "--web-host %s is not loopback - the dashboard's live "
-            "screenshots, event history, and control over the bot (pause, "
-            "reconfigure, stop) will be reachable by anyone on this "
-            "network, and there is no authentication.",
+            "screenshots, event history, and control over the bot (start, "
+            "stop, rewrite what it buys, create or delete strategy files on "
+            "disk) will be reachable by anyone on this network, and there is "
+            "no authentication.",
             host,
         )
 
@@ -705,151 +853,146 @@ def prepare_store(
         conn.close()
 
 
+def apply_cli_overrides(
+    store: StrategyStore, loaded: Strategy, args: argparse.Namespace
+) -> Strategy:
+    """Fold explicitly-passed flags into the loaded strategy, and save.
+
+    Persisting is deliberate. The alternative - override without saving -
+    reintroduces exactly the file-versus-live drift the strategy design pays
+    to avoid, and does it where it is hardest to notice: the dashboard would
+    show a value the file does not hold, with nothing on screen saying why.
+    Persisting is occasionally surprising; drift is quietly wrong, and the
+    log line below is what makes the surprise discoverable.
+
+    Every one of these defaults to None in parse_args precisely so "not
+    passed" and "passed the default value" are different here.
+    """
+    overrides = {
+        "interval": args.interval,
+        "auto_navigate": args.auto_navigate,
+        "max_runs": args.max_runs,
+        "affordability": args.affordability,
+    }
+    supplied = {key: value for key, value in overrides.items() if value is not None}
+    if not supplied:
+        return loaded
+
+    updated = dataclasses.replace(loaded, **supplied)
+    store.save(updated)
+    logger.info(
+        "Applied and saved CLI override(s) into strategy %r: %s",
+        updated.name,
+        ", ".join(f"{key}={value}" for key, value in sorted(supplied.items())),
+    )
+    return updated
+
+
 def serve_web(
-    bot: TowerBot,
+    runner: BotRunner,
     app: FastAPI,
     *,
     host: str,
     port: int,
-    max_runs: int | None,
-    stop: threading.Event | None = None,
+    shutdown: threading.Event,
+    start_immediately: bool = True,
 ) -> None:
-    """Run the server on this thread and the scan loop beside it.
+    """Run the server on this thread, and a bot beside it on the runner's.
 
-    No `interval` parameter: the dashboard owns the pace once --web is on, so
-    the scan loop is started with `run_forever(interval=None)` and reads
-    `bot.controls.interval` for itself on every iteration. Passing an
-    interval here would be a second source of truth for the same value.
+    Restructured from owning a worker thread to owning a BotRunner. The
+    reasoning that shaped the old version all survives - it just moved:
 
-    This way round on purpose. uvicorn installs its own SIGINT/SIGTERM
-    handlers and can only do that from the main thread, so it gets the main
-    thread and the scan loop gets a worker. They genuinely run in parallel
-    despite the GIL: cv2.matchTemplate releases it for the duration of the
-    match, which is where a scan spends nearly all of its time.
+    uvicorn installs its own SIGINT/SIGTERM handlers and can only do that
+    from the main thread, so it still gets the main thread. The scan loop
+    still runs on a worker, and they still genuinely run in parallel despite
+    the GIL, because cv2.matchTemplate releases it for the duration of a
+    match.
 
-    uvicorn.run() hides its Server object, so there is nothing to tell it to
-    stop once --max-runs is reached and the worker simply ends - the server
-    would then serve a stopped bot forever. Owning the Server instead gives
-    the worker a way to bring the server down too, whichever way the loop
-    exits.
+    `shutdown` is what `stop` used to be, narrowed: it means the PROCESS is
+    going down, never merely the bot. It is still watched rather than only
+    set, because the shutdown route has no handle on the Server; still set by
+    _Server.handle_exit BEFORE graceful shutdown begins, so the SSE and MJPEG
+    generators can end themselves inside its normal short path rather than
+    waiting out the backstop; and still set in this function's finally, so a
+    stream started after everything else ended is caught.
 
-    `stop` also has to be watched, not just set: the stop route (see
-    web/app.py's stop_bot()) has no handle on the worker thread or the
-    Server - the shared Event is the only thing it can reach from a request
-    handler. Without something waiting on it, setting the flag there did
-    nothing but kill SSE streams (see event_stream() below), while the scan
-    loop and the server both ran on regardless - the dashboard looked stopped
-    and was not. The watcher thread below is that missing waiter, and it is
-    what keeps this the single shutdown path the docstring above describes:
-    every way to stop - Ctrl+C, --max-runs, and now the browser - ends up
-    setting the same `stop` and `should_exit`, rather than the browser route
-    needing its own bespoke teardown.
+    What changed: a bot ending no longer ends the server. `--max-runs` now
+    parks the dashboard with a stopped bot rather than exiting, which is the
+    whole point - there is a Start button to press.
 
-    `stop` is the fix for a second, worse hang: with an SSE tab open, the
-    in-flight `/api/events/stream` response never disconnects on its own, so
-    uvicorn's graceful shutdown - which only closes a connection once its
-    response finishes - waits on it forever while the scan loop, having only
-    `server.should_exit`, keeps right on playing. Setting `stop` lets the SSE
-    generator (see event_stream()) end itself so the response completes and
-    the connection closes normally. It is set in both places the scan loop
-    can end (the worker's `finally`, same as `should_exit`) and in this
-    function's own `finally`, so a stream started after the worker already
-    exited is still caught. `timeout_graceful_shutdown` below is the backstop
-    for everything `stop` does not cover - a route this bot never had that
-    ignores the flag, say - two seconds being long enough to drain a real
-    response and short enough that a wedge is still a blip, not a hang.
+    No join here anymore, bounded or otherwise: `BotRunner.stop()` already
+    does its own bounded join with a fixed timeout, so a second one here
+    would just be redundant - and, worse, sized off a bot's `Controls` that
+    under `--idle` before the first Start may not reflect anything the
+    runner is actually running.
     """
     import uvicorn
 
-    if stop is None:
-        stop = threading.Event()
-
     class _Server(uvicorn.Server):
-        """Set `stop` the instant uvicorn decides to exit, not after.
-
-        uvicorn installs its own SIGINT/SIGTERM handler and, on the main
-        thread, runs graceful shutdown to completion inside it before
-        server.run() ever returns. `stop` was previously only set in this
-        function's own `finally` below - which does not run until
-        server.run() returns - so with a stream held open (an SSE tab, or
-        now the device view), the generators never saw the flag during
-        graceful shutdown at all: it waited out the full
-        timeout_graceful_shutdown backstop, force-cancelling the response,
-        every single time. Overriding handle_exit() sets `stop` before
-        calling through to uvicorn's own handling, so event_stream() and
-        frame_stream() can end themselves - and the response complete -
-        while graceful shutdown is still in its normal (short) path, rather
-        than needing the backstop to end it.
-        """
-
         def handle_exit(self, sig: int, frame: FrameType | None) -> None:
-            stop.set()
+            shutdown.set()
             super().handle_exit(sig, frame)
 
     config_ = uvicorn.Config(
         app, host=host, port=port, log_level="warning",
-        # Backstop, not the fix: without `stop` this defaults to None, which
-        # is "wait forever" (uvicorn/config.py) - the exact hang finding 1
-        # describes. With `stop` (and _Server.handle_exit setting it before
-        # graceful shutdown begins) this should never fire in practice.
+        # uvicorn's default here is None, which means "wait forever" for
+        # in-flight responses - and an SSE feed or an MJPEG stream is
+        # in-flight for as long as the tab is open. This is a BACKSTOP, not
+        # the fix: the fix is `shutdown` being set before graceful shutdown
+        # begins (see handle_exit above), so both generators end themselves
+        # in the normal path. The 2s is what keeps a stream that somehow
+        # missed the flag from hanging Ctrl+C indefinitely.
         timeout_graceful_shutdown=2,
     )
     server = _Server(config_)
 
-    def _run_loop() -> None:
-        try:
-            bot.run_forever(max_runs=max_runs)
-        finally:
-            # Whether the loop returned because it hit --max-runs or because
-            # it raised, the server has nothing left to serve for - and any
-            # open SSE stream has to be told too, or it never notices.
-            server.should_exit = True
-            stop.set()
-
-    def _watch_stop() -> None:
-        # The only waiter on `stop`. See the docstring above: the stop route
-        # can set the flag but has no other way to reach the loop or the
-        # server, so this thread is what actually turns "stop was requested"
-        # into "the bot stopped". Harmless on every other exit path (Ctrl+C,
-        # --max-runs) - `stop` is already set there by the time this wakes
-        # up, so it just repeats a no-op stop() and should_exit assignment.
-        stop.wait()
-        bot.stop()
+    def _watch_shutdown() -> None:
+        # The only waiter on `shutdown`. The route can set the flag but has
+        # no other way to reach the runner or the Server.
+        shutdown.wait()
+        runner.stop()
         server.should_exit = True
 
-    threading.Thread(target=_watch_stop, name="stop-watch", daemon=True).start()
+    threading.Thread(target=_watch_shutdown, name="shutdown-watch", daemon=True).start()
 
-    worker = threading.Thread(target=_run_loop, name="scan-loop", daemon=True)
-    worker.start()
+    if start_immediately:
+        try:
+            runner.start()
+        except RunnerError as exc:
+            # Without --idle the user asked for a bot, so a device that is
+            # not there is worth saying loudly - but not worth refusing to
+            # serve over: the dashboard can show the error and offer Start.
+            logger.error("%s - the dashboard is up; press Start to retry", exc)
+
     try:
         server.run()
     finally:
-        # server.run() returns on Ctrl+C (uvicorn's own handler) or when the
-        # loop above set should_exit; the loop must be told either way, or
-        # the process hangs around scanning with nothing watching. Setting
-        # `stop` here too covers Ctrl+C, which the worker's own finally never
-        # sees since the scan loop itself did not end.
-        bot.stop()
-        stop.set()
-        # bot.stop() interrupts the between-scan wait immediately regardless
-        # of the current interval (see run_forever's docstring), so this
-        # join is only a backstop for a scan already in flight - not a
-        # deadline sized to the interval itself.
-        #
-        # Bounded on purpose: the browser can set the interval as high as
-        # MAX_INTERVAL, and a shutdown must not inherit that as its deadline.
-        worker.join(timeout=min(bot.controls.interval, 5.0) + 2.0)
+        shutdown.set()
+        runner.stop()
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     configure_logging(args.tui)
 
-    try:
-        device = connect_device(host=args.host, port=args.port)
-    except EmulatorError as exc:
-        logger.error("%s", exc)
-        return 1
+    # A dashboard (--web without --once, since --once always wins) connects
+    # lazily instead: the device becomes the runner's device_factory below,
+    # so a dead emulator surfaces as a 503 from /api/bot/start rather than
+    # `main()` refusing to serve at all. Every other path - --once,
+    # plain logging, --tui - has no dashboard to report a failure into, so
+    # it still connects eagerly and fails fast the way it always has.
+    # --debug-scores is one of those: it captures a frame and exits before
+    # anything ever serves, with or without --web, so it always needs a
+    # device up front - deferring it here would only trade a clean
+    # "no emulator" error for capture_screen(None) blowing up below.
+    serving = args.web and not args.once and not args.debug_scores
+    device = None
+    if not serving:
+        try:
+            device = connect_device(host=args.host, port=args.port)
+        except EmulatorError as exc:
+            logger.error("%s", exc)
+            return 1
 
     if args.debug_scores:
         frame = capture_screen(device)
@@ -869,10 +1012,10 @@ def main(argv: list[str] | None = None) -> int:
         sinks.append(StateSink(state))
     sse = SseSink() if args.web else None
     frames = FrameBuffer() if args.web else None
-    # Set once the scan loop and/or the server ends, whichever comes first -
-    # see serve_web() and event_stream() for why a held-open dashboard tab
-    # needs telling separately from uvicorn's own should_exit.
-    stop = threading.Event()
+    # The PROCESS going down, not the bot - see runner.BotRunner for that
+    # half. serve_web() and event_stream() watch this separately from
+    # uvicorn's own should_exit so a held-open dashboard tab is told too.
+    shutdown = threading.Event()
 
     for sink in sinks:
         bus.subscribe(sink)
@@ -887,7 +1030,11 @@ def main(argv: list[str] | None = None) -> int:
         # if it ran any later (task 8, minor 6). `not args.once` alongside
         # that: --once wins over --web, so printing unconditionally would
         # advertise a dashboard that never starts (M1).
-        print(f"Dashboard on http://{args.web_host}:{args.web_port}")
+        where = f"http://{args.web_host}:{args.web_port}"
+        if args.idle:
+            print(f"Dashboard on {where} - no bot running, press Start")
+        else:
+            print(f"Dashboard on {where}")
 
     # Everything from start() onwards is inside the try: anything raising
     # between starting the consumer threads and the loop would otherwise
@@ -897,34 +1044,43 @@ def main(argv: list[str] | None = None) -> int:
         for sink in sinks:
             sink.start()
 
-        try:
-            frame = capture_screen(device)
-        except Exception as exc:  # noqa: BLE001 - a bad guard frame must not abort startup
-            logger.warning("Could not capture a frame to verify resolution: %s", exc)
-        else:
-            height, width = frame.shape[:2]
-            if (width, height) != config.EXPECTED_RESOLUTION:
-                logger.warning(
-                    "Emulator is %dx%d but templates were captured at %dx%d. "
-                    "Template matching is not scale-invariant - re-capture them.",
-                    width, height, *config.EXPECTED_RESOLUTION,
-                )
+        if device is not None:
+            # Nothing to verify yet under a lazy device: the runner connects
+            # (or doesn't) once start() actually runs, well after this point.
+            try:
+                frame = capture_screen(device)
+            except Exception as exc:  # noqa: BLE001 - a bad guard frame must not abort startup
+                logger.warning("Could not capture a frame to verify resolution: %s", exc)
+            else:
+                height, width = frame.shape[:2]
+                if (width, height) != config.EXPECTED_RESOLUTION:
+                    logger.warning(
+                        "Emulator is %dx%d but templates were captured at %dx%d. "
+                        "Template matching is not scale-invariant - re-capture them.",
+                        width, height, *config.EXPECTED_RESOLUTION,
+                    )
 
-        checks, controls = build_checks_and_controls(args)
-        bot = TowerBot(
-            device=device,
-            templates=vision.TemplateCache(config.TEMPLATE_DIR),
-            bus=bus,
-            # checks[controls.strategy] is never None here: build_checks_and_controls()
-            # already seeded controls.strategy to a name whose check built
-            # (falling back to "brightness" itself when it did not), so a
-            # "checks[...] or checks['brightness']" fallback would be dead code.
-            affordability_check=checks[controls.strategy],
-            controls=controls,
-            checks=checks,
-            first_run_id=last_run + 1,
-            frames=frames,
-        )
+        store = StrategyStore()
+        try:
+            loaded = store.load(args.strategy) if args.strategy else store.ensure_seeded()
+        except ControlError as exc:
+            # Every profile on disk failed to parse - almost always one
+            # hand-edited file with a trailing comma. Same treatment as a
+            # missing emulator: say which directory to look in and exit,
+            # rather than dumping a traceback the owner has to decode.
+            logger.error(
+                "%s - fix or delete the offending file in %s", exc, store.directory
+            )
+            return 1
+        loaded = apply_cli_overrides(store, loaded, args)
+
+        checks, controls = build_checks_and_controls(loaded)
+        # checks[controls.snapshot().strategy.affordability] is never None
+        # here: build_checks_and_controls() already seeded controls' strategy
+        # to an affordability name whose check built (falling back to
+        # "brightness" itself when it did not), so a "checks[...] or
+        # checks['brightness']" fallback would be dead code.
+        loaded_affordability = controls.snapshot().strategy.affordability
 
         if args.once:
             # A single scan never settles the debounced tracker (it needs
@@ -932,6 +1088,16 @@ def main(argv: list[str] | None = None) -> int:
             # lone run_once() would always report UNKNOWN even when the
             # game is clearly on GAME_OVER at 0.998. Scan enough times to
             # settle so --once actually names the real screen.
+            bot = TowerBot(
+                device=device,
+                templates=vision.TemplateCache(config.TEMPLATE_DIR),
+                bus=bus,
+                affordability_check=checks[loaded_affordability],
+                controls=controls,
+                checks=checks,
+                first_run_id=last_run + 1,
+                frames=frames,
+            )
             install_signal_handlers(bot)
             for _ in range(config.SCREEN_CONFIRMATIONS):
                 bot.run_once()
@@ -940,26 +1106,53 @@ def main(argv: list[str] | None = None) -> int:
 
             from web.app import create_app
 
+            runner = BotRunner(
+                bus=bus,
+                controls=controls,
+                state=state,
+                templates=vision.TemplateCache(config.TEMPLATE_DIR),
+                device_factory=lambda: connect_device(host=args.host, port=args.port),
+                checks=checks,
+                frames=frames,
+                first_run_id=last_run + 1,
+            )
+
             app = create_app(
                 state=state, sse=sse, bus=bus,
                 db_path=db_path if args.store else None,
-                stop=stop,
+                shutdown=shutdown,
                 controls=controls,
                 checks=checks,
                 frames=frames,
+                runner=runner,
+                store=store,
             )
             # No signal handlers of ours here: uvicorn installs its own and
             # would overwrite them anyway.
             serve_web(
-                bot, app, host=args.web_host, port=args.web_port,
-                max_runs=args.max_runs,
-                stop=stop,
+                runner, app, host=args.web_host, port=args.web_port,
+                shutdown=shutdown, start_immediately=not args.idle,
             )
         else:
+            bot = TowerBot(
+                device=device,
+                templates=vision.TemplateCache(config.TEMPLATE_DIR),
+                bus=bus,
+                affordability_check=checks[loaded_affordability],
+                controls=controls,
+                checks=checks,
+                first_run_id=last_run + 1,
+                frames=frames,
+            )
             install_signal_handlers(bot)
-            # No explicit interval: bot.controls was already seeded from
-            # args.interval above, and that stays the one source of truth for
-            # it even without --web.
+            # No explicit interval, so run_forever re-reads
+            # bot.controls.snapshot().strategy.interval every iteration -
+            # the loaded strategy is the one source of truth for the pace
+            # even without --web. --max-runs is passed explicitly too: it
+            # wins over the strategy's own max_runs when set (see
+            # run_cap_reached's docstring), and apply_cli_overrides has
+            # already folded and saved it into the strategy either way, so
+            # the two never actually disagree.
             bot.run_forever(max_runs=args.max_runs)
     finally:
         for sink in sinks:

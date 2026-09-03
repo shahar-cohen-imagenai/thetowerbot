@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import dataclasses
 import logging
+import signal
+import threading
+import time
 from pathlib import Path
 from unittest.mock import MagicMock
 
@@ -9,17 +13,30 @@ import pytest
 import digits
 import tower_bot
 from affordability import BrightnessAffordability, DigitAffordability
+from strategy import Strategy
 from tests.test_digits import build_synthetic_atlas
 from tower_bot import parse_args
 
 
 def test_auto_navigate_defaults_off() -> None:
-    """A bot that launches battles the moment it starts is surprising."""
-    assert parse_args([]).auto_navigate is False
+    """A bot that launches battles the moment it starts is surprising - but
+    that default now lives in Strategy, not the CLI flag. Unset here means
+    "let the loaded strategy decide" (see apply_cli_overrides), and
+    Strategy.from_config().auto_navigate is what is actually False."""
+    assert parse_args([]).auto_navigate is None
+    assert Strategy.from_config().auto_navigate is False
 
 
 def test_auto_navigate_can_be_enabled() -> None:
     assert parse_args(["--auto-navigate"]).auto_navigate is True
+
+
+def test_auto_navigate_can_be_turned_back_off() -> None:
+    """--auto-navigate persists into the strategy (see apply_cli_overrides),
+    so without a counterpart it was a one-way switch: on from the command
+    line, off only from the dashboard. False and None must stay distinct -
+    False is "turn it off and save that", None is still "don't touch it"."""
+    assert parse_args(["--no-auto-navigate"]).auto_navigate is False
 
 
 def test_tui_defaults_off() -> None:
@@ -166,6 +183,51 @@ def test_debug_scores_prints_a_table_and_exits_without_scanning(
         assert name in out
 
 
+def test_web_debug_scores_still_connects_eagerly_and_exits_cleanly(
+    monkeypatch, capsys
+) -> None:
+    """Regression: --debug-scores captures a frame and exits before anything
+    ever serves, with or without --web - so it must always get an eagerly
+    connected device, not the web path's lazy device_factory. Before this
+    fix, `serving = args.web and not args.once` left `device = None` for
+    `--web --debug-scores`, and capture_screen(None) blew up with a raw
+    AttributeError instead of degrading into the same one-shot diagnostic
+    plain --debug-scores gives.
+
+    Deliberately does NOT stub tower_bot.capture_screen the way the plain
+    --debug-scores test above does: that stub ignores its `device` argument
+    entirely, so it would happily "succeed" even if `device` were None and
+    mask exactly the regression this test exists to catch. Instead this
+    stubs only connect_device, and lets the real capture_screen() run
+    against a fake AdbDevice - the same fake-screenshot pattern
+    tests/test_device.py uses - so a None device would fail for real, the
+    way it did before the fix.
+    """
+    import config
+    import tower_bot
+    from PIL import Image as PILImage
+
+    fixtures = Path(__file__).parent / "fixtures"
+    fake_device = MagicMock()
+    fake_device.screenshot.return_value = PILImage.open(fixtures / "main_menu.png")
+
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: fake_device)
+
+    def _boom(*args, **kwargs):
+        raise AssertionError("TowerBot must not be constructed in --debug-scores mode")
+
+    monkeypatch.setattr(tower_bot, "TowerBot", _boom)
+
+    exit_code = tower_bot.main(["--web", "--debug-scores"])
+
+    assert exit_code == 0
+    out = capsys.readouterr().out
+    for action in config.ACTIONS:
+        assert action.template in out
+    for name in config.SCREEN_ANCHORS:
+        assert name in out
+
+
 def test_resolution_guard_warns_without_crashing_when_capture_fails(
     monkeypatch, caplog
 ) -> None:
@@ -196,7 +258,7 @@ def test_auto_navigate_does_not_start_a_run_past_the_cap(monkeypatch) -> None:
         device=MagicMock(),
         templates=vision.TemplateCache(Path(__file__).parent.parent / "templates"),
         bus=events.EventBus(),
-        controls=Controls(auto_navigate=True),
+        controls=Controls(strategy=dataclasses.replace(Strategy.from_config(), auto_navigate=True)),
     )
     bot._screen = cv2.imread(str(fixtures / "game_over.png"), cv2.IMREAD_COLOR)
     monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
@@ -244,7 +306,11 @@ def test_tui_keeps_stdlib_logging_off_the_terminal() -> None:
 
 
 def test_affordability_defaults_to_digits() -> None:
-    assert parse_args([]).affordability == "digits"
+    """As with auto_navigate above: unset on the CLI now means "let the
+    strategy decide", and Strategy.from_config() is where "digits" actually
+    lives as the default."""
+    assert parse_args([]).affordability is None
+    assert Strategy.from_config().affordability == "digits"
 
 
 def test_affordability_can_be_forced_to_brightness() -> None:
@@ -446,6 +512,38 @@ def test_web_alone_still_prints_the_dashboard_url(monkeypatch, capsys, tmp_path)
     assert "Dashboard on http://127.0.0.1:8765" in capsys.readouterr().out
 
 
+def test_idle_through_main_never_starts_the_bot(monkeypatch, capsys, tmp_path) -> None:
+    """--idle's headline behaviour, glued together through main() rather than
+    tested piecemeal: parse_args's --idle and serve_web's
+    start_immediately=False are each unit-tested on their own, but nothing
+    before this proved main() actually wires
+    start_immediately=not args.idle through. Asserts on the strongest signal
+    available without standing up a real uvicorn: connect_device (the
+    runner's device_factory) must never be called, because runner.start()
+    must never run under --idle."""
+    import tower_bot
+
+    connect_calls: list[tuple[str, int]] = []
+
+    def _connect(host: str, port: int):
+        connect_calls.append((host, port))
+        return MagicMock()
+
+    monkeypatch.setattr(tower_bot, "connect_device", _connect)
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    exit_code = tower_bot.main(
+        ["--web", "--idle", "--db", str(tmp_path / "bot.db")]
+    )
+
+    assert exit_code == 0
+    # The whole point: serve_web must never call runner.start() under
+    # --idle, so the lazy device_factory (connect_device) is never invoked.
+    assert connect_calls == []
+    assert "no bot running, press Start" in capsys.readouterr().out
+
+
 class _FakeServer:
     """Stands in for uvicorn.Server so the test never binds a real port."""
 
@@ -454,122 +552,216 @@ class _FakeServer:
     def __init__(self, config) -> None:
         self.config = config
         self.should_exit = False
+        # serve_web's own _Server subclasses whatever uvicorn.Server is, so
+        # with this patched in it subclasses THIS - and its handle_exit
+        # calls super().handle_exit(). Without a stand-in here that call is
+        # an AttributeError and the Ctrl+C path cannot be tested at all.
+        self.exits: list[int] = []
         _FakeServer.instances.append(self)
 
     def run(self) -> None:
         return
 
+    def handle_exit(self, sig, frame) -> None:
+        self.exits.append(sig)
 
-def test_serve_web_runs_the_scan_loop_on_a_worker_not_the_main_thread(
-    monkeypatch,
-) -> None:
-    """uvicorn owns the main thread; the loop must run on a worker thread,
-    finish, and leave nothing behind once serve_web returns."""
-    import threading
-    from types import SimpleNamespace
 
-    class FakeBot:
-        def __init__(self) -> None:
-            self.scanned = threading.Event()
-            self.stopped = False
-            self.ran_on: threading.Thread | None = None
-            self.called_with: tuple[float | None, int | None] | None = None
-            # serve_web reads this for the worker join timeout now that it no
-            # longer takes an interval of its own.
-            self.controls = SimpleNamespace(interval=0.01)
+class FakeRunner:
+    """Stands in for BotRunner: enough to prove serve_web calls start()/stop()
+    at the right moments without a real device or scan loop."""
 
-        def run_forever(self, interval: float | None = None, max_runs: int | None = None) -> None:
-            self.called_with = (interval, max_runs)
-            self.ran_on = threading.current_thread()
-            self.scanned.set()
+    def __init__(self, *, fail_start: "RunnerError | None" = None) -> None:
+        self.started = 0
+        self.stopped = 0
+        self.fail_start = fail_start
 
-        def stop(self) -> None:
-            self.stopped = True
+    def start(self) -> dict:
+        self.started += 1
+        if self.fail_start is not None:
+            raise self.fail_start
+        return {"running": True, "since": 1.0, "error": None}
 
+    def stop(self) -> dict:
+        self.stopped += 1
+        return {"running": False, "since": None, "error": None}
+
+
+def test_serve_web_starts_the_runner_by_default(monkeypatch) -> None:
+    """--web without --idle must still mean "serve and scan" - the
+    compatibility guarantee, exercised at the serve_web level."""
     _FakeServer.instances.clear()
     monkeypatch.setattr("uvicorn.Server", _FakeServer)
 
-    bot = FakeBot()
-    tower_bot.serve_web(
-        bot, object(), host="127.0.0.1", port=8123, max_runs=None
-    )
+    runner = FakeRunner()
+    shutdown = threading.Event()
+    tower_bot.serve_web(runner, object(), host="127.0.0.1", port=8123, shutdown=shutdown)
 
-    assert bot.scanned.wait(timeout=2)
-    assert bot.stopped is True
-    assert bot.ran_on is not None
-    assert bot.ran_on is not threading.main_thread()
-    assert not any(t.name == "scan-loop" for t in threading.enumerate())
-    # Pins the contract harder than the old required-positional signature
-    # did: catches a *reintroduced* interval, not just a missing argument.
-    assert bot.called_with == (None, None)
+    assert runner.started == 1
+    # The fake server's run() returns immediately, so serve_web's own
+    # finally is what stops the runner and sets `shutdown` here.
+    assert runner.stopped >= 1
+    assert shutdown.is_set() is True
 
     server = _FakeServer.instances[-1]
     assert (server.config.host, server.config.port) == ("127.0.0.1", 8123)
 
 
-def test_serve_web_stops_the_server_once_the_scan_loop_ends(monkeypatch) -> None:
-    """Finding: uvicorn.run() hides its Server, so nothing used to tell it to
-    stop once --max-runs was reached - the process hung forever serving a
-    dashboard attached to a dead bot. Owning the Server must fix that: the
-    worker sets should_exit when run_forever returns, whether that is because
-    the cap was reached or because the loop raised.
+def test_serve_web_does_not_start_the_runner_under_idle(monkeypatch) -> None:
+    """--idle's whole point: serve the dashboard, but wait for a browser to
+    press Start rather than starting a bot on the way up."""
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
 
-    Also covers finding 1's other half: an SSE stream's is_disconnected()
-    never fires on its own, so the worker has to flip a `stop` flag too, not
-    just should_exit, or a held-open dashboard tab keeps the server (and the
-    scan loop behind it, as far as the user can tell) alive forever."""
-    import threading as _threading
-    from types import SimpleNamespace
+    runner = FakeRunner()
+    shutdown = threading.Event()
+    tower_bot.serve_web(
+        runner, object(), host="127.0.0.1", port=8123, shutdown=shutdown,
+        start_immediately=False,
+    )
 
-    class FakeBot:
-        def __init__(self) -> None:
-            self.stopped = False
-            self.called_with: tuple[float | None, int | None] | None = None
-            # serve_web reads this for the worker join timeout now that it no
-            # longer takes an interval of its own.
-            self.controls = SimpleNamespace(interval=0.01)
+    assert runner.started == 0
 
-        def run_forever(self, interval: float | None = None, max_runs: int | None = None) -> None:
-            self.called_with = (interval, max_runs)
-            return  # simulates --max-runs being reached immediately
 
-        def stop(self) -> None:
-            self.stopped = True
+def test_serve_web_survives_a_runner_start_failure(monkeypatch, caplog) -> None:
+    """The Step 8 pass condition: a dead emulator must not take the
+    dashboard down with it. serve_web must log the RunnerError and keep
+    serving rather than letting it propagate out of server.run()."""
+    from runner import RunnerError
 
     _FakeServer.instances.clear()
     monkeypatch.setattr("uvicorn.Server", _FakeServer)
 
-    bot = FakeBot()
-    stop = _threading.Event()
-    # Must return promptly rather than hang - that is the whole bug.
+    runner = FakeRunner(fail_start=RunnerError("no device", 503))
+    shutdown = threading.Event()
+    with caplog.at_level(logging.ERROR, logger="tower_bot"):
+        tower_bot.serve_web(runner, object(), host="127.0.0.1", port=8123, shutdown=shutdown)
+
+    assert runner.started == 1
+    errors = [r.getMessage() for r in caplog.records if r.levelno == logging.ERROR]
+    assert any("no device" in message for message in errors)
+
+
+def test_serve_web_watches_shutdown_and_stops_the_runner(monkeypatch) -> None:
+    """The route (see web/app.py's shutdown_all()) can only set the flag -
+    serve_web's watcher thread is what turns that into runner.stop() and
+    server.should_exit. Uses a server whose run() blocks on should_exit, so
+    the watcher - not serve_web's own post-run() finally - is what is
+    actually under test."""
+
+    class _BlockingServer(_FakeServer):
+        def run(self) -> None:
+            while not self.should_exit:
+                time.sleep(0.01)
+
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _BlockingServer)
+
+    runner = FakeRunner()
+    shutdown = threading.Event()
+    thread = threading.Thread(
+        target=tower_bot.serve_web,
+        kwargs=dict(runner=runner, app=object(), host="127.0.0.1", port=8123, shutdown=shutdown),
+        daemon=True,
+    )
+    thread.start()
+    for _ in range(200):
+        if runner.started:
+            break
+        time.sleep(0.01)
+    else:
+        raise AssertionError("serve_web never started the runner")
+
+    shutdown.set()
+    thread.join(timeout=5)
+
+    assert not thread.is_alive()
+    assert _FakeServer.instances[-1].should_exit is True
+    assert runner.stopped >= 1
+
+
+def test_ctrl_c_sets_the_shutdown_flag_before_uvicorn_stops(monkeypatch) -> None:
+    """The Ctrl+C path, which nothing exercised.
+
+    uvicorn's own handle_exit begins a graceful shutdown that waits for
+    in-flight responses, and an SSE feed or an MJPEG stream is in-flight for
+    as long as a tab is open. Both generators end themselves only once
+    `shutdown` is set, so setting it BEFORE delegating is what lets them
+    finish inside the normal path instead of waiting out the
+    timeout_graceful_shutdown backstop. The ordering IS the behaviour, so
+    that is what this asserts - not merely that both things happened.
+    """
+    order: list[object] = []
+
+    class _RecordingEvent(threading.Event):
+        def set(self) -> None:
+            order.append("shutdown")
+            super().set()
+
+    _FakeServer.instances.clear()
+    monkeypatch.setattr("uvicorn.Server", _FakeServer)
+
+    shutdown = _RecordingEvent()
     tower_bot.serve_web(
-        bot, object(), host="127.0.0.1", port=8123, max_runs=1,
-        stop=stop,
+        FakeRunner(), object(), host="127.0.0.1", port=8123, shutdown=shutdown
     )
 
-    assert _FakeServer.instances[-1].should_exit is True
-    assert bot.stopped is True
-    # Pins the contract harder than the old required-positional signature
-    # did: catches a *reintroduced* interval, not just a missing argument.
-    assert bot.called_with == (None, 1)
-    assert stop.is_set() is True
+    # serve_web's own finally already set the flag on the way out. This is
+    # about handle_exit alone, so start it from a clean slate - and point the
+    # server's own record at the same list, so the two halves are ordered
+    # against each other rather than merely both present.
+    server = _FakeServer.instances[-1]
+    shutdown.clear()
+    order.clear()
+    server.exits = order
+
+    server.handle_exit(signal.SIGINT, None)
+
+    assert shutdown.is_set()
+    assert order == ["shutdown", signal.SIGINT]
 
 
-def test_controls_start_from_the_command_line() -> None:
-    """The flags you launched with must not be silently overridden.
+def test_controls_carry_whatever_strategy_they_are_handed() -> None:
+    """Controls' dataclass defaults are a fallback; the Strategy it is
+    constructed with is what snapshot() reports.
 
-    Controls' dataclass defaults are a fallback; main() seeds them from argv.
+    Named for what it does: it builds the Strategy itself by hand rather than
+    through apply_cli_overrides, so it covers none of the CLI seeding path -
+    see test_apply_cli_overrides_persists_only_what_was_passed for that.
+    parse_args is still called here to pin the values it hands back.
     """
     from control import Controls
     from tower_bot import parse_args
 
     args = parse_args(["--interval", "3.0", "--auto-navigate", "--affordability", "brightness"])
-    controls = Controls(
-        interval=args.interval, auto_navigate=args.auto_navigate, strategy=args.affordability
+    strategy = dataclasses.replace(
+        Strategy.from_config(),
+        interval=args.interval,
+        auto_navigate=args.auto_navigate,
+        affordability=args.affordability,
     )
-    assert controls.snapshot()["interval"] == 3.0
-    assert controls.snapshot()["auto_navigate"] is True
-    assert controls.snapshot()["strategy"] == "brightness"
+    controls = Controls(strategy=strategy)
+    live = controls.snapshot()
+    assert live.strategy.interval == 3.0
+    assert live.strategy.auto_navigate is True
+    assert live.strategy.affordability == "brightness"
+
+
+def test_a_directory_of_unloadable_strategies_exits_with_a_message(
+    monkeypatch, tmp_path: Path, caplog
+) -> None:
+    """A hand-edited profile with a trailing comma must not end in a
+    traceback - the same treatment connect_device's EmulatorError gets."""
+    import config
+
+    (tmp_path / "default.json").write_text("{ not json")
+    monkeypatch.setattr(config, "STRATEGY_DIR", tmp_path)
+    monkeypatch.setattr(tower_bot, "connect_device", lambda host, port: MagicMock())
+
+    with caplog.at_level(logging.ERROR, logger="tower_bot"):
+        assert tower_bot.main(["--once", "--no-store"]) == 1
+
+    errors = [r.getMessage() for r in caplog.records if r.levelno == logging.ERROR]
+    assert errors and str(tmp_path) in errors[-1]
 
 
 def test_build_checks_and_controls_downgrades_when_atlas_is_absent(
@@ -578,16 +770,17 @@ def test_build_checks_and_controls_downgrades_when_atlas_is_absent(
     """The behaviour this whole task exists to protect: requesting digits
     with no atlas built must not let the dashboard claim "digits" while the
     bot actually runs brightness."""
-    args = parse_args(["--affordability", "digits"])
+    strategy = dataclasses.replace(Strategy.from_config(), affordability="digits")
 
-    checks, controls = tower_bot.build_checks_and_controls(args, atlas_root=tmp_path)
+    checks, controls = tower_bot.build_checks_and_controls(strategy, atlas_root=tmp_path)
 
     assert checks["digits"] is None
     assert isinstance(checks["brightness"], BrightnessAffordability)
-    assert controls.strategy == "brightness"
+    affordability = controls.snapshot().strategy.affordability
+    assert affordability == "brightness"
     # The invariant a future refactor has to keep true: whatever strategy
     # Controls names, checks must have a real entry for it - never None.
-    assert checks[controls.strategy] is not None
+    assert checks[affordability] is not None
 
 
 def test_build_checks_and_controls_uses_digits_when_atlas_is_present(
@@ -595,10 +788,135 @@ def test_build_checks_and_controls_uses_digits_when_atlas_is_present(
 ) -> None:
     for size_class in digits.SIZE_CLASSES:
         build_synthetic_atlas(tmp_path / size_class)
-    args = parse_args(["--affordability", "digits"])
+    strategy = dataclasses.replace(Strategy.from_config(), affordability="digits")
 
-    checks, controls = tower_bot.build_checks_and_controls(args, atlas_root=tmp_path)
+    checks, controls = tower_bot.build_checks_and_controls(strategy, atlas_root=tmp_path)
 
     assert isinstance(checks["digits"], DigitAffordability)
-    assert controls.strategy == "digits"
-    assert checks[controls.strategy] is not None
+    affordability = controls.snapshot().strategy.affordability
+    assert affordability == "digits"
+    assert checks[affordability] is not None
+
+
+def test_idle_and_strategy_flags_parse() -> None:
+    from tower_bot import parse_args
+
+    args = parse_args(["--web", "--idle", "--strategy", "crit"])
+    assert args.idle is True
+    assert args.strategy == "crit"
+
+
+def test_idle_defaults_off_so_web_still_means_serve_and_scan() -> None:
+    """The compatibility guarantee. If this fails, every existing invocation
+    changed behaviour."""
+    from tower_bot import parse_args
+
+    assert parse_args(["--web"]).idle is False
+
+
+def test_overlapping_flags_default_to_none_so_unset_is_distinguishable() -> None:
+    """A flag that was not passed must not look like a flag set to the
+    argparse default - otherwise it would overwrite the loaded strategy with
+    a value nobody asked for."""
+    from tower_bot import parse_args
+
+    args = parse_args([])
+    assert args.interval is None
+    assert args.max_runs is None
+    assert args.affordability is None
+    assert args.auto_navigate is None
+
+
+def test_apply_cli_overrides_persists_only_what_was_passed(tmp_path, monkeypatch) -> None:
+    import config
+    from strategy import Strategy, StrategyStore
+    from tower_bot import apply_cli_overrides, parse_args
+
+    templates = tmp_path / "templates"
+    templates.mkdir()
+    for action in config.ACTIONS:
+        (templates / action.template).write_bytes(b"")
+    monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
+
+    store = StrategyStore(tmp_path / "strategies")
+    store.ensure_seeded()
+
+    result = apply_cli_overrides(store, store.load("default"), parse_args(["--interval", "9"]))
+    assert result.interval == 9.0
+    # Persisted, not merely applied: one truth, always. See the spec's
+    # section 10 for why this beats override-without-persist.
+    assert store.load("default").interval == 9.0
+    # And nothing else moved.
+    assert store.load("default").auto_navigate is False
+
+
+def test_apply_cli_overrides_writes_nothing_when_no_flag_was_passed(
+    tmp_path, monkeypatch
+) -> None:
+    import config
+    from strategy import StrategyStore
+    from tower_bot import apply_cli_overrides, parse_args
+
+    templates = tmp_path / "templates"
+    templates.mkdir()
+    for action in config.ACTIONS:
+        (templates / action.template).write_bytes(b"")
+    monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
+
+    store = StrategyStore(tmp_path / "strategies")
+    loaded = store.ensure_seeded()
+    before = store.path_for("default").read_text()
+
+    assert apply_cli_overrides(store, loaded, parse_args([])) == loaded
+    assert store.path_for("default").read_text() == before
+
+
+def test_a_default_constructed_store_cannot_reach_the_real_strategies_dir(
+    fenced_strategy_dir, tmp_path, monkeypatch
+) -> None:
+    """The regression test for the anomaly a full-suite run once produced:
+    the repo's committed strategies/default.json turning up modified
+    (interval rewritten from 2.0 to 5.0) with no test asserting it should
+    be.
+
+    tower_bot.main() builds `StrategyStore()` with no directory, which
+    resolves to config.STRATEGY_DIR - the repo's real, tracked strategies/
+    - and apply_cli_overrides() PERSISTS by design (see its own docstring).
+    So any test that ever drives main() with an overlapping flag
+    (--interval, --auto-navigate, --max-runs, --affordability) would write
+    straight into the committed profile. This proves the fix:
+    tests/conftest.py's session-scoped, autouse fenced_strategy_dir fixture
+    repoints config.STRATEGY_DIR at a throwaway directory for the whole
+    suite, so a default-constructed StrategyStore can no longer reach the
+    real one no matter what a test - present or future - passes to main().
+
+    Delete that fixture from conftest.py and this test fails: `store.directory`
+    resolves to `tests.conftest.REAL_STRATEGY_DIR` instead of the fixture's
+    temp path, and the write below lands in the tracked file this test
+    exists to protect.
+    """
+    import json
+
+    import config
+    from strategy import StrategyStore
+    from tests.conftest import REAL_STRATEGY_DIR
+    from tower_bot import apply_cli_overrides, parse_args
+
+    templates = tmp_path / "templates"
+    templates.mkdir()
+    for action in config.ACTIONS:
+        (templates / action.template).write_bytes(b"")
+    monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
+
+    store = StrategyStore()  # no directory - exactly what main() builds
+    assert store.directory == fenced_strategy_dir
+    assert store.directory != REAL_STRATEGY_DIR
+
+    loaded = store.ensure_seeded()
+    apply_cli_overrides(store, loaded, parse_args(["--interval", "9"]))
+
+    # The write landed in the fence...
+    assert store.load("default").interval == 9.0
+    # ...never in the repo's tracked file.
+    real_default = json.loads((REAL_STRATEGY_DIR / "default.json").read_text())
+    assert real_default["interval"] != 9.0

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import time
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -251,17 +252,44 @@ def test_a_per_action_brightness_ratio_of_zero_disables_the_check() -> None:
 def test_a_per_action_brightness_ratio_reaches_the_scan_loop(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """End to end: raising one action's ratio above what the lit frame
-    measures must skip that action and only that action."""
-    import config
+    """End to end: dimming one action's own region below the ratio its row
+    demands must skip that action and only that action.
+
+    The loop now walks the strategy's rows, not config.ACTIONS, so the
+    strategy - not the module constant - is what has to carry the ratio.
+    Darkening the fixture in place (rather than the old trick of setting an
+    impossible ratio like 99.0) is necessary too: ActionRule clamps
+    brightness_ratio to [0, 1], unlike config.Action, which enforced
+    nothing - and this fixture, being the exact frame every template was
+    captured from, measures 1.0 for every region, so no in-range ratio could
+    ever force a skip on its own. TM_CCOEFF_NORMED is blind to brightness
+    (see vision.brightness_ratio's own docstring), so darkening the region
+    leaves the match score untouched and only the brightness gate notices.
+    """
+    from control import Controls
+    from strategy import ActionRule, Strategy
 
     bot, rec, dev = settled_bot("in_run_lit", monkeypatch)
     bot._last_click.clear()
-    monkeypatch.setattr(config, "ACTIONS", (
-        config.Action(name="Damage", template="upgrade_damage.png",
-                      threshold=0.9, brightness_ratio=0.75),
-        config.Action(name="Critical Chance", template="upgrade_critical_chance.png",
-                      threshold=0.9, brightness_ratio=99.0),
+
+    cache = vision.TemplateCache(TEMPLATES)
+    template = cache.get("upgrade_critical_chance.png")
+    match = vision.locate_template(bot._screen, template, 0.9)
+    assert match is not None
+    left, top = match.top_left
+    height, width = template.shape[:2]
+    bot._screen = bot._screen.copy()
+    region = bot._screen[top : top + height, left : left + width]
+    region[:] = (region.astype(float) * 0.3).astype(region.dtype)
+
+    bot.controls = Controls(strategy=Strategy(
+        name="t",
+        actions=(
+            ActionRule(name="Damage", template="upgrade_damage.png",
+                       threshold=0.9, brightness_ratio=0.75),
+            ActionRule(name="Critical Chance", template="upgrade_critical_chance.png",
+                       threshold=0.9, brightness_ratio=0.75),
+        ),
     ))
 
     bot.run_once()
@@ -457,9 +485,223 @@ def test_resuming_taps_again(bot_in_run) -> None:
 
 
 def test_disabled_actions_are_not_tapped(bot_in_run) -> None:
+    """Disabling is now a per-row `enabled` flag on the strategy, not a
+    separate `enabled_actions` allow-list - apply() must patch the whole
+    `actions` list, since Strategy.merged() replaces it wholesale rather
+    than merging row by row."""
     bot, seen = bot_in_run
-    bot.controls.apply({"enabled_actions": []})
+    disabled = [
+        {
+            "name": rule.name,
+            "template": rule.template,
+            "enabled": False,
+            "threshold": rule.threshold,
+            "brightness_ratio": rule.brightness_ratio,
+        }
+        for rule in bot.controls.snapshot().strategy.actions
+    ]
+    bot.controls.apply({"actions": disabled})
 
     bot.run_once()
 
     assert not [event for event in seen if event.type == "Tapped"]
+
+
+def test_the_loop_taps_in_strategy_order_not_config_order(
+    bot_in_run, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Order IS priority. Reversing the rows must reverse the evaluation.
+
+    This is the behaviour change the whole plan exists for: before, the loop
+    walked config.ACTIONS and used the strategy only as an on/off filter.
+    """
+    from control import Controls
+    from strategy import ActionRule, Strategy
+
+    bot, _ = bot_in_run
+    tried: list[str] = []
+    bot.controls = Controls(strategy=Strategy(
+        name="t",
+        actions=(
+            ActionRule(name="Critical Chance", template="upgrade_critical_chance.png"),
+            ActionRule(name="Damage", template="upgrade_damage.png"),
+        ),
+    ))
+
+    def record(action, boxes=None, cooldown=None):
+        tried.append(action.name)
+        return False
+
+    monkeypatch.setattr(bot, "find_and_click_image", record)
+    bot.run_once()
+    assert tried == ["Critical Chance", "Damage"]
+
+
+def test_a_disabled_row_is_never_tried(
+    bot_in_run, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from control import Controls
+    from strategy import ActionRule, Strategy
+
+    bot, _ = bot_in_run
+    tried: list[str] = []
+    bot.controls = Controls(strategy=Strategy(
+        name="t",
+        actions=(
+            ActionRule(name="Damage", template="upgrade_damage.png", enabled=False),
+            ActionRule(name="Critical Chance", template="upgrade_critical_chance.png"),
+        ),
+    ))
+    monkeypatch.setattr(
+        bot, "find_and_click_image",
+        lambda action, boxes=None, cooldown=None: tried.append(action.name),
+    )
+    bot.run_once()
+    assert tried == ["Critical Chance"]
+
+
+def test_the_per_row_threshold_reaches_the_matcher(
+    bot_in_run, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A threshold edited on the strategy page must change what the vision
+    layer is asked for - otherwise the control does nothing and says nothing.
+    """
+    from control import Controls
+    from strategy import ActionRule, Strategy
+
+    bot, _ = bot_in_run
+    seen_thresholds: list[float] = []
+    bot.controls = Controls(strategy=Strategy(
+        name="t",
+        actions=(ActionRule(
+            name="Damage", template="upgrade_damage.png", threshold=0.42
+        ),),
+    ))
+    monkeypatch.setattr(
+        bot, "find_and_click_image",
+        lambda action, boxes=None, cooldown=None: seen_thresholds.append(action.threshold),
+    )
+    bot.run_once()
+    assert seen_thresholds == [0.42]
+
+
+def test_click_cooldown_comes_from_the_strategy(
+    bot_in_run, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A per-strategy click_cooldown must reach find_and_click_image.
+
+    Asserted in the permissive direction on purpose. A strategy with a LONG
+    cooldown proves nothing here: config.CLICK_COOLDOWN_SECONDS is 1.0 and
+    two passes run milliseconds apart, so the config default alone would
+    refuse the second tap and the assertion could not tell the strategy's
+    value from any non-zero one. A cooldown of 0.0 is the opposite: the
+    second pass taps again only if the strategy's own 0.0 reached the
+    matcher, and fails under the default. click_cooldown is no longer a
+    constructor argument at all - it comes from here or nowhere.
+    """
+    from control import Controls
+    from strategy import ActionRule, Strategy
+
+    bot, seen = bot_in_run
+    bot.controls = Controls(strategy=Strategy(
+        name="t",
+        actions=(ActionRule(name="Damage", template="upgrade_damage.png"),),
+        click_cooldown=0.0,
+    ))
+    monkeypatch.setattr("tower_bot.tap", lambda *a, **k: None)
+
+    bot.run_once()
+    assert len([e for e in seen if isinstance(e, events.Tapped)]) == 1
+
+    bot.run_once()
+    assert len([e for e in seen if isinstance(e, events.Tapped)]) == 2
+
+
+def test_a_pass_reuses_its_own_snapshot_for_every_matched_row(
+    bot_in_run, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The one-snapshot-per-pass invariant covers click_cooldown too, not
+    just the top-of-loop reads.
+
+    find_and_click_image() is called once per matched rule inside the
+    action loop, with no `break` after a tap - so if it fell back to
+    re-reading self.controls.snapshot() instead of using the value run_once
+    already threads down, a PATCH landing mid-scan (run_forever and
+    serve_web run on different threads) could judge a later row's cooldown
+    against a click_cooldown from a different instant than the strategy
+    that selected and ordered the rows.
+
+    Proven by making every snapshot() call after the pass's own first one
+    return a maximally restrictive click_cooldown: both rows can only tap if
+    the loop passed down the *first* snapshot's permissive value rather
+    than asking again per row.
+    """
+    from control import Controls
+    from strategy import ActionRule, Strategy, MAX_COOLDOWN
+
+    bot, seen = bot_in_run
+    bot.controls = Controls(strategy=Strategy(
+        name="t",
+        actions=(
+            ActionRule(name="Attack Speed", template="upgrade_attack_speed.png"),
+            ActionRule(name="Critical Chance", template="upgrade_critical_chance.png"),
+        ),
+        click_cooldown=1.0,
+    ))
+
+    # Both "last tapped" 2s ago: affordable under the strategy's 1.0s
+    # cooldown, still cooling down under the poisoned MAX_COOLDOWN below
+    # (Strategy.__post_init__ caps click_cooldown there, so that - not an
+    # arbitrarily large number - is the most restrictive legal value).
+    now = time.monotonic()
+    bot._last_click["upgrade_attack_speed.png"] = now - 2.0
+    bot._last_click["upgrade_critical_chance.png"] = now - 2.0
+
+    real_snapshot = bot.controls.snapshot
+    calls = {"n": 0}
+
+    def poisoned_snapshot():
+        calls["n"] += 1
+        live = real_snapshot()
+        if calls["n"] == 1:
+            # run_once()'s own top-of-pass read - the value every row must
+            # actually be judged against.
+            return live
+        # Any snapshot taken after that one, inside the loop, must never be
+        # consulted - if it is, this restrictive cooldown blocks the row
+        # that asked for it.
+        return dataclasses.replace(
+            live,
+            strategy=dataclasses.replace(live.strategy, click_cooldown=MAX_COOLDOWN),
+        )
+
+    monkeypatch.setattr(bot.controls, "snapshot", poisoned_snapshot)
+
+    bot.run_once()
+
+    tapped = {e.action for e in seen if isinstance(e, events.Tapped)}
+    assert tapped == {"Attack Speed", "Critical Chance"}
+    # Exactly one snapshot for the whole pass - find_and_click_image's own
+    # None-fallback (its only other caller is a direct test) never fires
+    # when run_once is the one calling it.
+    assert calls["n"] == 1
+
+
+def test_max_runs_falls_back_to_the_strategy(bot_in_run) -> None:
+    """The parameter wins when set; the strategy supplies it otherwise.
+
+    The two can never both be meaningfully set in the web path, because the
+    CLI persists its flag into the strategy rather than carrying it alongside.
+    """
+    from control import Controls
+    from strategy import ActionRule, Strategy
+
+    bot, _ = bot_in_run
+    bot.controls = Controls(strategy=Strategy(
+        name="t",
+        actions=(ActionRule(name="Damage", template="upgrade_damage.png"),),
+        max_runs=3,
+    ))
+    bot.runs.completed = 3
+    assert bot.run_cap_reached(None) is True
+    assert bot.run_cap_reached(10) is False

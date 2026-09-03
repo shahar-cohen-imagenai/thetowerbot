@@ -59,28 +59,48 @@ all of them at once.
 
 ```bash
 uv run tower_bot.py                      # scan every 2s until Ctrl+C
-uv run tower_bot.py --auto-navigate      # and loop runs unattended
 uv run tower_bot.py --tui                # live terminal panel
 uv run tower_bot.py --web                # browser dashboard on :8765
+uv run tower_bot.py --web --idle         # dashboard with no bot - press Start
 uv run tower_bot.py --debug-scores       # one-shot diagnostic, taps nothing
 ```
 
 | Flag | Default | What it does |
 |---|---|---|
 | `--host` / `--port` | `127.0.0.1:5555` | emulator ADB endpoint |
-| `--interval N` | `2.0` | seconds between scans |
+| `--interval N` | active strategy | seconds between scans — overrides the active strategy and is saved into it |
 | `--once` | off | scan just long enough for the screen tracker to settle, then exit |
 | `--debug-scores` | off | capture one frame, print every action's and anchor's match score plus brightness ratio, exit without tapping |
 | `--tui` | off | live `rich` panel instead of log lines |
-| `--auto-navigate` | off | tap RETRY / BATTLE to loop runs unattended |
-| `--max-runs N` | unlimited | stop after N runs |
-| `--affordability` | `digits` | `digits` (read the numbers) or `brightness` (the older heuristic) |
+| `--auto-navigate` | active strategy | tap RETRY / BATTLE to loop runs unattended — overrides and saves |
+| `--max-runs N` | active strategy | stop after N runs — overrides and saves |
+| `--affordability` | active strategy | `digits` or `brightness` — overrides and saves |
 | `--web` | off | serve the dashboard while the bot runs |
+| `--idle` | off | with `--web`, serve the dashboard without starting the bot — press Start in the browser |
+| `--strategy NAME` | the active one | which saved strategy profile to load |
 | `--web-host` / `--web-port` | `127.0.0.1:8765` | where the dashboard binds — read the warning below before changing the host |
 | `--db PATH` | `tower_bot.db` | SQLite file for the event log |
 | `--no-store` | store | run with no database at all |
 
 `--tui` and `--web` can be on at once.
+
+`--interval`, `--auto-navigate`, `--max-runs` and `--affordability` all
+overlap with the active strategy profile (`strategies/*.json`, editable from
+the dashboard). Passing one of them on the CLI overrides the loaded profile
+**and persists the change into it**, with a log line saying so — the
+alternative, overriding without saving, would leave the dashboard showing a
+value the file does not hold. Leave a flag off and the loaded strategy
+supplies it unchanged.
+
+### Strategy profiles
+
+`strategies/` holds one committed, hand-editable JSON file per profile —
+`strategies/default.json`, `strategies/crit.json`, and so on — plus a plain
+text `strategies/.active` naming which one the bot loads by default.
+`--strategy NAME` loads a specific profile for a single run without changing
+`.active`. The dashboard's `/api/strategies/*` routes can list, read, write,
+activate and delete profiles the same way, through the same `StrategyStore`
+and the same validation a CLI flag would get.
 
 ## Screens, gating, and runs
 
@@ -131,9 +151,9 @@ seeded the same way, and both are read *before* the retention prune so an
 aged-out number is never reissued. Under `--no-store` both restart at 1,
 because there is nothing to collide with.
 
-### `--auto-navigate`
+### Auto-navigation
 
-Off by default. The bot still watches, gates, tracks runs and snapshots unknown
+Off by default (`auto_navigate` in the active strategy). The bot still watches, gates, tracks runs and snapshots unknown
 screens — it just never taps between screens, so it sits on the death modal
 until you act.
 
@@ -230,7 +250,8 @@ large enough numbers, and label them by hand off the contact sheet.
 
 ### Brightness, the older heuristic
 
-`--affordability brightness` selects it outright. Otherwise it is the fallback:
+Setting the strategy's `affordability` to `brightness` selects it outright.
+Otherwise it is the fallback:
 `digits` uses it for any single read it could not complete, and
 `build_affordability` drops to it for the whole session if *any* size class is
 missing from the atlas.
@@ -267,8 +288,9 @@ current screen, uptime, scan count, a tap tally per action, a skip tally per
 reason, the last error, and the twelve most recent events. Logging is silenced
 while it runs, because rich owns the terminal.
 
-**`--web`** serves a dashboard at `http://127.0.0.1:8765`, five pages behind a
-sidebar:
+**`--web`** serves a dashboard at `http://127.0.0.1:8765`, six pages behind a
+sidebar. `--web --idle` serves the dashboard without starting a bot — press
+**Start** in the browser.
 
 - **Live** — the current run, the live device screen with its match overlay,
   a wave sparkline, a filterable live event feed, a run-history table, and
@@ -281,6 +303,12 @@ sidebar:
   over time, taps by action, and events by screen.
 - **Errors** — `BotError` tracebacks alongside the unknown-screen snapshots,
   in one place.
+- **Strategy** — the whole decision policy: which upgrades to buy and in
+  what order, per-row match and brightness thresholds, loop timing, and run
+  policy. Named profiles live in `strategies/*.json`, switchable live and
+  editable by hand. Two fields — navigation cooldown and screen
+  confirmations — configure objects built once per bot, so they are labelled
+  *applies on next Start*.
 - **Control** — see below.
 
 The live device screen is `GET /api/frame`, an MJPEG stream
@@ -291,24 +319,29 @@ over SSE and reconnects on its own — a laptop that slept resumes from
 `Last-Event-ID` rather than starting blank, as long as it was gone for less
 than the 500-event ring.
 
-The **control** page lets a connected browser pause the bot (still scanning,
-not tapping), change the scan interval, auto-navigate, and the affordability
-strategy, choose which actions are enabled, and stop the bot and the
-dashboard together. Every change goes through the same `Controls.apply()`
-validation a CLI flag would get, and every tab converges on the current
-settings live, over the same SSE feed.
+The **control** page is session concerns only: **Start**, **Stop bot**
+(ends the bot, keeps the dashboard serving), **Shut down** (ends the bot and
+the dashboard together, with a confirmation since there is no button to
+bring it back), and **Pause** (still scanning, not tapping). It also shows a
+read-only summary of the active strategy with a link to the **Strategy**
+page, which is where the policy itself — what to buy, thresholds, timing —
+is edited. Every tab converges on the current pause state live, over the
+same SSE feed.
 
 > **The dashboard has no authentication.** It serves a continuous MJPEG
 > video stream of the device (`/api/frame`), not just JSON history and
 > screenshots, plus this machine's entire event history, and its control
-> page lets anyone who can reach the port pause the bot, change what it
-> buys, or stop it outright — which is why it binds loopback. `--web-host`
+> page lets anyone who can reach the port pause the bot, start or stop it,
+> shut down the whole dashboard process, rewrite what it buys, and create
+> or delete strategy files — which is why it binds loopback. `--web-host`
 > will let you bind something else, and the bot logs a warning when you do,
 > but it will not stop you. Do not put it on a network without real auth in
 > front of it.
 
-Ctrl+C stops both the bot and the dashboard, as does reaching `--max-runs` or
-clicking **Stop** on the control page.
+Ctrl+C and `POST /api/shutdown` stop both the bot and the dashboard.
+Reaching `--max-runs`, or stopping the bot from the dashboard, stops only the
+bot — the dashboard keeps serving, with a **Start** button ready to run
+another one.
 
 ## Where the data goes
 
