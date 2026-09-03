@@ -136,6 +136,15 @@ def test_a_policy_with_no_enabled_rows_and_no_cards_starts_nothing(session) -> N
     assert session.begin(policy, run_count=1) is False
 
 
+def test_begin_opens_cards_directly_when_only_cards_are_enabled(session) -> None:
+    """The untested `else` of begin()'s step assignment: no workshop rows to
+    visit, so the visit should go straight to the Cards page rather than
+    stopping at Workshop for nothing."""
+    policy = a_policy(workshop=(), cards=CardPolicy(enabled=True))
+    assert session.begin(policy, run_count=1) is True
+    assert session._step is shopping_mod.Step.OPEN_CARDS
+
+
 # -- reading the header ----------------------------------------------------
 def test_the_header_reads_coins_and_gems_off_a_workshop_frame() -> None:
     reader = digits.NumberReader()
@@ -244,6 +253,31 @@ def test_an_unreadable_balance_stops_the_visit_rather_than_guessing(
     assert device.taps == []
 
 
+def test_a_row_with_the_wrong_layout_reads_no_price_and_is_skipped_as_unreadable(
+    session,
+) -> None:
+    """The workshop row's own unreadable-PRICE branch, distinct from an
+    unreadable balance: coins read fine (real header, not faked), but the
+    row's own price read comes back None. A rule with the wrong layout is
+    the real-world way this happens without faking anything - see the
+    task-8-report.md note that ShoppingRule.layout is never inferred from
+    its template, so a hand-edited strategy can declare the wrong one and
+    read garbage pixels for the price.
+    """
+    device = FakeDevice()
+    policy = a_policy(workshop=(
+        # "Unlock Cash Bonuses" is a tile; layout="row" is wrong on purpose.
+        ShoppingRule(name="Unlock Cash Bonuses",
+                     template="workshop/unlock_cash_bonuses.png",
+                     category="UTILITY", layout="row"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_workshop_utility"), device, policy)
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert any(s.reason == "unreadable" and s.detail == "price" for s in skips)
+    assert device.taps == []
+
+
 # -- category order --------------------------------------------------------
 def test_tabs_are_visited_in_the_order_the_rows_imply(session) -> None:
     policy = a_policy()
@@ -253,14 +287,72 @@ def test_tabs_are_visited_in_the_order_the_rows_imply(session) -> None:
 
 # -- bailing out -----------------------------------------------------------
 def test_the_tap_budget_ends_the_visit(session) -> None:
+    """Exactly 2 (the tab-switch attempts that spend the budget) plus 1 (the
+    recovery tap on the way out, which is deliberately NOT bound by the same
+    cap - see task-8-overrides.md fix round 2, Critical 1). A loose `<= 2`
+    bound would also pass if the code made zero taps, which hides a
+    too-few-taps bug more serious than a too-many-taps one - tightened per
+    that same review round.
+    """
     device = FakeDevice()
     policy = a_policy(armed=True, max_taps_per_visit=2)
     session.begin(policy, run_count=1)
     for _ in range(20):
         session.advance(frame("menu_workshop_attack"), device, policy)
-    assert len(device.taps) <= 2
+    assert len(device.taps) == 3
     ended = session._bus.of_type("ShoppingEnded")
     assert ended and ended[-1].aborted
+
+
+def test_a_budget_exhausted_abort_still_attempts_the_return_tap(session) -> None:
+    """Round-2 fix (Critical 1): without this, a budget-exhaustion abort -
+    the most common abort there is, since the tap budget is the primary
+    safety valve - left the bot stranded IDLE on a menu page forever: the
+    scan loop no-ops on IDLE, and navigate.Navigator cannot rescue it either
+    (it only acts on GAME_OVER and MAIN_MENU, and a menu page classifies
+    UNKNOWN to the screen tracker by design).
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, max_taps_per_visit=1)
+    session.begin(policy, run_count=1)
+
+    session.advance(frame("menu_workshop_attack"), device, policy)
+    assert len(device.taps) == 1, "the single tap the budget allows"
+
+    session.advance(frame("menu_workshop_attack"), device, policy)
+    assert len(device.taps) == 2, "the recovery tap, one over the cap of 1"
+    ended = session._bus.of_type("ShoppingEnded")
+    assert ended and ended[-1].aborted
+    assert session.active is False
+
+
+def test_a_double_failure_during_abort_recovery_does_not_crash_the_scan_loop(
+    session, monkeypatch
+) -> None:
+    """Round-2 fix (Critical 2): advance()'s except handler calls _abort,
+    which re-runs vision.locate_template against the SAME screen that may
+    have just caused the original exception (see _exit_to_battle). If that
+    lookup also raises, the second exception used to propagate straight out
+    of advance() - breaking the module docstring's own promise that a
+    shopping step never crashes the scan loop.
+    """
+    device = FakeDevice()
+    policy = a_policy()
+    session.begin(policy, run_count=1)
+
+    def _raise_classify(screen, cache, threshold=None):
+        raise RuntimeError("boom: classify")
+
+    def _raise_locate(screen, template, threshold):
+        raise RuntimeError("boom: locate")
+
+    monkeypatch.setattr(shopping_mod.pages, "classify_page", _raise_classify)
+    monkeypatch.setattr(shopping_mod.vision, "locate_template", _raise_locate)
+
+    session.advance(frame("menu_main"), device, policy)  # must not raise
+
+    assert session.active is False
+    assert device.taps == []
 
 
 def test_an_unexpected_page_twice_running_ends_the_visit(session) -> None:
@@ -322,6 +414,91 @@ def test_cards_are_not_bought_when_the_policy_is_off(session) -> None:
     session.begin(policy, run_count=1)
     session._step = shopping_mod.Step.BUY_CARDS
     session.advance(frame("menu_cards"), device, policy)
+    assert device.taps == []
+
+
+def test_a_dismiss_popup_is_tapped_before_reading_the_cards_page(
+    session, monkeypatch
+) -> None:
+    """OPEN_CARDS's popup-dismiss branch, over config.NAV_DISMISS.
+
+    No committed fixture happens to show a first-visit popup mid-flight
+    (measured directly: the highest any NAV_DISMISS template scores against
+    any committed fixture is 0.624, nowhere near the 0.8 threshold), so the
+    popup MATCH is faked here - the same way fake_header fakes a balance no
+    fixture happens to show - while the real state machine and the real tap
+    path are exercised on a real frame.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(enabled=True))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.OPEN_CARDS
+
+    real_locate = shopping_mod.vision.locate_template
+    dismiss_template = session._templates.get(config.NAV_DISMISS[0])
+
+    def _locate(screen, template, threshold):
+        if template is dismiss_template:
+            return vision.Match(center=(500, 600), score=1.0, top_left=(400, 550))
+        return real_locate(screen, template, threshold)
+
+    monkeypatch.setattr(shopping_mod.vision, "locate_template", _locate)
+
+    session.advance(frame("menu_cards"), device, policy)
+    assert device.taps == [(500, 600)]
+    assert session._step is shopping_mod.Step.OPEN_CARDS, (
+        "a dismiss tap is not arrival - the next scan re-checks the page"
+    )
+
+
+def test_a_missing_card_button_is_skipped_as_no_match(session) -> None:
+    """Cards' no_match branch: the configured batch's button template is
+    simply not on screen (a real frame with no card buttons at all, rather
+    than a faked miss)."""
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(enabled=True))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    session.advance(frame("menu_workshop_attack"), device, policy)
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert any(s.reason == "no_match" for s in skips)
+    assert device.taps == []
+
+
+def test_a_card_batch_costing_more_than_the_balance_is_skipped_as_unaffordable(
+    session, fake_header
+) -> None:
+    """Cards' plain unaffordable branch, distinct from the gem-floor
+    ("capped") case: the batch costs more than the whole balance, not just
+    more than the balance minus the floor."""
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(enabled=True, gem_floor=0))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 10  # x1 costs 20
+    session.advance(frame("menu_cards"), device, policy)
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert any(s.reason == "unaffordable" for s in skips)
+    assert device.taps == []
+
+
+def test_unreadable_gems_stop_the_visit_rather_than_guessing(session, fake_header) -> None:
+    """Cards' own unreadable-balance branch - the gem analogue of
+    test_an_unreadable_balance_stops_the_visit_rather_than_guessing.
+
+    Unarmed (as that test is): an abort still attempts the recovery tap
+    (round-2 fix, Critical 1), and with armed=True that tap would actually
+    reach the fake device - this test is about the abort firing, not about
+    the recovery tap, so it stays unarmed like its coin counterpart.
+    """
+    device = FakeDevice()
+    policy = a_policy(cards=CardPolicy(enabled=True))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = None
+    session.advance(frame("menu_cards"), device, policy)
+    ended = session._bus.of_type("ShoppingEnded")
+    assert ended and ended[-1].aborted
     assert device.taps == []
 
 

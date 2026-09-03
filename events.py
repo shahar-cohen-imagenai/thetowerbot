@@ -114,15 +114,26 @@ class ShoppingStarted(Event):
 class Purchased(Event):
     """One thing bought, or - when dry_run - one thing that would have been.
 
-    `price` and `coins_before` are None rather than 0 when they could not be
-    read. Zero is a free upgrade; None is "we did not know", and collapsing
-    the two would make an unreadable price look like a bargain in the log.
+    `price`, `coins_before` and `gems_before` are None rather than 0 when
+    they could not be read. Zero is a free upgrade; None is "we did not
+    know", and collapsing the two would make an unreadable price look like a
+    bargain in the log.
+
+    `coins_before` and `gems_before` are separate fields, not one balance
+    reused for whichever currency this purchase spent: a card purchase
+    spends gems, and a `Purchased(category="CARDS")` row whose `coins_before`
+    silently held the gem balance would be exactly the kind of dishonesty
+    this event exists to prevent. A workshop row purchase spends coins and
+    reports `coins_before`; a card purchase spends gems and reports
+    `gems_before`; the other field stays None for that purchase rather than
+    being reused for the wrong currency.
     """
 
     item: str
     category: str
     price: int | None = None
     coins_before: int | None = None
+    gems_before: int | None = None
     dry_run: bool = True
 
 

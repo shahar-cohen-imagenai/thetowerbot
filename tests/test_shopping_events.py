@@ -39,6 +39,30 @@ def test_a_purchase_with_an_unreadable_price_is_still_expressible() -> None:
     assert event.price is None
 
 
+def test_a_card_purchase_reports_gems_not_coins() -> None:
+    """Round-2 fix (task-8-overrides.md fix round 2, Important 4): a card
+    purchase spends gems, not coins - coins_before must not be reused to
+    carry the gem balance, and gems_before must not be left at its default
+    just because a workshop row never needed it.
+    """
+    event = events.Purchased(
+        item="x1", category="CARDS", price=20, gems_before=400, dry_run=True
+    )
+    assert event.gems_before == 400
+    assert event.coins_before is None
+
+
+def test_a_workshop_purchase_reports_coins_not_gems() -> None:
+    """The other half of the same rule: a row purchase spends coins, and
+    gems_before must stay None rather than being reused for the wrong
+    currency."""
+    event = events.Purchased(
+        item="Damage", category="ATTACK", price=30, coins_before=1770, dry_run=True
+    )
+    assert event.coins_before == 1770
+    assert event.gems_before is None
+
+
 def test_shopping_ended_records_an_abort_with_its_reason() -> None:
     event = events.ShoppingEnded(
         visit=3, bought=2, spent=60, aborted=True, reason="tap budget exhausted"
@@ -58,6 +82,9 @@ def test_every_new_event_stores_without_a_migration() -> None:
         events.ShoppingStarted(visit=1, coins=1770, gems=40, dry_run=True),
         events.Purchased(
             item="Damage", category="ATTACK", price=30, coins_before=1770, dry_run=True
+        ),
+        events.Purchased(
+            item="x1", category="CARDS", price=20, gems_before=400, dry_run=True
         ),
         events.PurchaseSkipped(item="Damage", reason="unaffordable"),
         events.ShoppingEnded(visit=1, bought=1, spent=30),

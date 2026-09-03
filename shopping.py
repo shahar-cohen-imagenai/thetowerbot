@@ -87,6 +87,20 @@ from strategy import Shopping
 
 logger = logging.getLogger("tower_bot.shopping")
 
+# The floor for the arrival check in _open_tab (see ShoppingSession._open_tab).
+# tests/test_shopping_templates.py::test_rows_are_absent_from_the_other_tabs
+# proves a row scores BELOW 0.9 on every tab it does not live on - it proves
+# nothing at a lower threshold. ShoppingRule.threshold is a per-row knob for a
+# different question (how sure BUY_ROWS must be before spending on this row)
+# and is only validated as 0 < t <= 1, so a hand-edited strategy - or a future
+# editor UI - could set it below 0.9. Arrival detection borrows the measured
+# absence guarantee, so it must never be loosened by that per-row tuning:
+# a spurious "arrival" on the wrong tab would not cause a wrong purchase
+# (BUY_ROWS re-verifies the specific row against its own threshold), but it
+# would mark a row exhausted without ever having been attempted on its real
+# tab, quietly defeating "highest-priority row wins" for the rest of the visit.
+ARRIVAL_ABSENCE_THRESHOLD: float = 0.9
+
 
 class Step(Enum):
     IDLE = auto()
@@ -244,7 +258,22 @@ class ShoppingSession:
             # crash the scan loop; give the coins back to the user's control
             # instead by ending the visit and saying why.
             logger.exception("shopping step raised; ending the visit")
-            self._abort(device, shopping, screen, f"error: {exc}")
+            try:
+                self._abort(device, shopping, screen, f"error: {exc}")
+            except Exception:  # noqa: BLE001 - the recovery path touches the
+                # SAME screen that may have just caused the first exception
+                # (_exit_to_battle re-runs vision.locate_template against
+                # it), so it can fail too. This module's one promise is that
+                # advance() never raises; a bad frame is not licensed to
+                # break that promise twice. No ShoppingEnded may have been
+                # published if _abort failed before reaching it, so force
+                # idle directly rather than leaving the visit stuck retrying
+                # the same crash forever.
+                logger.exception(
+                    "shopping recovery also raised; forcing idle without a return tap"
+                )
+                self._step = Step.IDLE
+                self._categories = []
 
     def _register_progress(self) -> None:
         """Something real happened this call - a tap, an arrival, or a buy
@@ -289,6 +318,14 @@ class ShoppingSession:
             if step is Step.BUY_ROWS:
                 # A buy step always does something - tap, skip, or a
                 # category handoff - so reaching it is progress in itself.
+                # This resets the streak OPTIMISTICALLY, before _buy_rows
+                # has actually run, rather than only on a confirmed tap or
+                # publish. That is safe only because _buy_rows is itself
+                # unconditionally self-terminating (every branch taps,
+                # publishes, or hands off to the next step) - if a future
+                # edit ever adds an early `return` that does none of those,
+                # this reset would silently defeat the wedge protection for
+                # that branch. Keep that invariant in mind before adding one.
                 self._register_progress()
                 self._buy_rows(reading, screen, device, shopping)
                 return
@@ -297,6 +334,8 @@ class ShoppingSession:
                     continue
                 return
             if step is Step.BUY_CARDS:
+                # See the BUY_ROWS branch above - same optimistic-reset /
+                # self-terminating coupling applies to _buy_cards.
                 self._register_progress()
                 self._buy_cards(reading, screen, device, shopping)
                 return
@@ -312,6 +351,12 @@ class ShoppingSession:
         return Step.OPEN_CARDS if shopping.cards.enabled else Step.RETURN
 
     def _open_workshop(self, reading, screen: Image, device: Any, shopping: Shopping) -> bool:
+        # Defensive only: begin() sets _step to OPEN_WORKSHOP exclusively
+        # when categories is non-empty, and nothing else ever routes back
+        # here, so this branch is not known to be reachable today. Kept
+        # rather than asserted against, so a future caller that DOES reach
+        # this step with nothing queued degrades gracefully instead of
+        # raising.
         if not self._categories:
             self._step = self._next_after_categories(shopping)
             self._register_progress()
@@ -331,6 +376,10 @@ class ShoppingSession:
         return False
 
     def _open_tab(self, reading, screen: Image, device: Any, shopping: Shopping) -> bool:
+        # Defensive only, same as OPEN_WORKSHOP's identical guard above:
+        # _step becomes OPEN_TAB only via a cascade or a BUY_ROWS handoff
+        # that both already confirmed _categories is non-empty. Not known
+        # to be reachable today.
         if not self._categories:
             self._step = self._next_after_categories(shopping)
             self._register_progress()
@@ -349,8 +398,10 @@ class ShoppingSession:
             self._register_progress()
             return True
         if any(
-            vision.locate_template(screen, self._templates.get(r.template), r.threshold)
-            is not None
+            vision.locate_template(
+                screen, self._templates.get(r.template),
+                max(r.threshold, ARRIVAL_ABSENCE_THRESHOLD),
+            ) is not None
             for r in rows
         ):
             # Arrival is judged by what we actually came here for, not by
@@ -422,6 +473,10 @@ class ShoppingSession:
         the price just paid: the game is the source of truth, and a running
         subtraction that drifts would spend money the bot does not have.
         """
+        # Defensive only: _step becomes BUY_ROWS only from OPEN_TAB, which
+        # only reaches either of its two BUY_ROWS transitions after already
+        # confirming _categories is non-empty. Not known to be reachable
+        # today.
         if not self._categories:
             self._step = self._next_after_categories(shopping)
             return
@@ -525,7 +580,11 @@ class ShoppingSession:
         self._bought += 1
         self._spent += price
         self._bus.publish(events.Purchased(
-            item=item, category="CARDS", price=price, coins_before=gems,
+            # A card purchase spends gems, not coins - gems_before is the
+            # honest field for it. coins_before stays at its default None
+            # here rather than being reused for the wrong currency (see
+            # events.Purchased's own docstring).
+            item=item, category="CARDS", price=price, gems_before=gems,
             dry_run=not shopping.armed,
         ))
 
@@ -561,12 +620,22 @@ class ShoppingSession:
     def _exit_to_battle(self, device: Any, shopping: Shopping, screen: Image) -> None:
         """Best-effort return tap used by every abort path.
 
-        Goes through the same budget the rest of the visit does - an abort
-        is not licensed to spend one more tap than the cap it exists to
-        enforce, so this is silently skipped if the budget is already spent.
+        Deliberately NOT gated by the tap budget (round-2 fix: the first
+        cut of this method WAS gated, which meant a budget-exhaustion abort
+        - the most common abort there is, since the budget is the primary
+        safety valve - could never make this tap. The result was worse than
+        untidy: with _step forced to IDLE, advance() no-ops forever;
+        navigate.Navigator cannot rescue it either, since it only acts on
+        GAME_OVER and MAIN_MENU and a menu page classifies UNKNOWN to the
+        screen tracker by design. The bot would sit on the Workshop or
+        Cards page indefinitely, tapping nothing, while unknown-screen
+        snapshotting quietly filled up with pictures of it.
+
+        The cap exists to stop an errand from tapping indefinitely, not to
+        strand the bot somewhere it cannot leave once the cap trips. This is
+        the one tap explicitly licensed past the ceiling - one tap over a
+        40-tap budget is not the risk the ceiling guards against.
         """
-        if self._taps >= shopping.max_taps_per_visit:
-            return
         match = vision.locate_template(
             screen, self._templates.get(config.NAV_TARGETS["BATTLE_TAB"]), self._threshold
         )
