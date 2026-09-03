@@ -28,7 +28,7 @@ from tower_bot import TowerBot  # noqa: E402 - after the sys.path fix-up above
 # Captured at import time, before the autouse fixture below (or anything
 # else) can ever repoint config.STRATEGY_DIR. Exactly one test needs the
 # real, committed directory rather than the session's fenced stand-in - see
-# test_strategy_store.py::test_the_committed_default_matches_config_actions.
+# test_strategy_store.py::test_the_committed_default_matches_config.
 REAL_STRATEGY_DIR = config.STRATEGY_DIR
 
 

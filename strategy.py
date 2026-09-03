@@ -304,6 +304,34 @@ class ShoppingRule:
             raise ControlError("threshold", "threshold must be above 0 and at most 1")
         _in_range("brightness_ratio", self.brightness_ratio, 0.0, 1.0)
 
+        # config.WORKSHOP_ROWS records the layout that was actually MEASURED
+        # against a real capture when that row's template was cut - layout
+        # decides which price region gets read, and it is inferred nowhere
+        # else. This lives here, at construction, rather than in
+        # Strategy.validated() alongside the template-existence check: that
+        # check needs disk I/O (full.is_file()) and so must be deferred to a
+        # place that takes a template_dir, but this one is a pure in-memory
+        # lookup against config.WORKSHOP_ROWS, and Strategy.from_dict()
+        # builds every row through ShoppingRule(**entry) - so putting the
+        # check here closes the gap for every path a row can be built from,
+        # not just the ones that happen to call .validated() afterwards
+        # (store.load() and the "no CLI flags passed" startup path do not).
+        #
+        # A name WORKSHOP_ROWS does not know is still fine: a hand-cut
+        # template not yet (or never) measured into config.py is a supported
+        # path. What must never be fine is a row that CONTRADICTS a measured
+        # fact - that reads a real price region at the wrong offset and
+        # reports a wrong number instead of a refused one, which is the one
+        # failure mode this whole feature exists to avoid.
+        known = config.WORKSHOP_ROWS.get(self.name)
+        if known is not None and known[1] != self.layout:
+            _, known_layout = known
+            raise ControlError(
+                "layout",
+                f"{self.name}: layout must be {known_layout!r} "
+                f"(config.WORKSHOP_ROWS), not {self.layout!r}",
+            )
+
     def as_action(self) -> config.Action:
         """The shape find_and_click_image() and affordable() already take.
 
@@ -714,32 +742,10 @@ class Strategy:
                     "template", f"{name}: no template file {template!r} in {root}"
                 )
 
-        def _check_layout(rule: ShoppingRule) -> None:
-            # config.WORKSHOP_ROWS records the layout that was actually
-            # MEASURED against a real capture when that row's template was
-            # cut - layout decides which price region gets read, and it is
-            # inferred nowhere else. A row naming a template WORKSHOP_ROWS
-            # does not know is still fine: hand-cut templates (not yet
-            # measured into config.py, or never going to be) are a
-            # supported path. What must never be fine is a row that
-            # CONTRADICTS a measured fact - that reads a real price region
-            # at the wrong offset and reports a wrong number instead of a
-            # refused one, which is the one failure mode this whole feature
-            # exists to avoid.
-            known = config.WORKSHOP_ROWS.get(rule.name)
-            if known is not None and known[1] != rule.layout:
-                _, known_layout = known
-                raise ControlError(
-                    "layout",
-                    f"{rule.name}: layout must be {known_layout!r} "
-                    f"(config.WORKSHOP_ROWS), not {rule.layout!r}",
-                )
-
         for rule in self.actions:
             _check_template(rule.name, rule.template)
         for rule in self.shopping.workshop:
             _check_template(rule.name, rule.template)
-            _check_layout(rule)
         return self
 
 

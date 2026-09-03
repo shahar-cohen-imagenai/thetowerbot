@@ -93,14 +93,17 @@ def test_layout_defaults_to_row() -> None:
 
 
 def test_layout_round_trips_through_to_dict() -> None:
-    shopping = Shopping(workshop=(a_rule(layout="tile"),))
+    # A name outside WORKSHOP_ROWS, so setting layout="tile" here is not a
+    # contradiction of any measured fact - see the layout tests further down
+    # for the case where it would be.
+    shopping = Shopping(workshop=(a_rule(name="Brand New Row", layout="tile"),))
     assert Shopping.from_dict(shopping.to_dict()).workshop[0].layout == "tile"
 
 
 # -- category order is derived, not hardcoded ------------------------------
 def test_categories_come_out_in_first_appearance_order() -> None:
     shopping = Shopping(workshop=(
-        a_rule(name="Unlock Cash Bonuses", category="UTILITY"),
+        a_rule(name="Unlock Cash Bonuses", category="UTILITY", layout="tile"),
         a_rule(name="Health", category="DEFENSE"),
         a_rule(name="Damage", category="ATTACK"),
         a_rule(name="Health Regen", category="DEFENSE"),
@@ -222,29 +225,53 @@ def test_a_disabled_shopping_row_is_still_checked() -> None:
 
 
 # -- layout must match WORKSHOP_ROWS when the name is known -----------------
+# This check runs in ShoppingRule.__post_init__, not Strategy.validated():
+# it is a pure in-memory lookup against config.WORKSHOP_ROWS (unlike the
+# template-existence check, which needs a template_dir and disk I/O), and
+# construction is the one place every row is guaranteed to pass through -
+# including Strategy.from_dict(), which never calls .validated() on the
+# store.load()/no-CLI-flags startup path. Fixed in round 1 of Task 10 review:
+# the .validated()-only version left that path unguarded.
 def test_a_row_naming_a_known_template_may_not_contradict_its_layout() -> None:
     """`layout` decides which price region gets read, and it is inferred
     nowhere - a row that disagrees with the measured fact in
     config.WORKSHOP_ROWS would read the wrong pixels and report a wrong
     price rather than a refused one. "Health" is measured as "row"."""
-    base = Strategy.from_config()
-    contradicting = dataclasses.replace(
-        base,
-        shopping=dataclasses.replace(
-            base.shopping,
-            workshop=(a_rule(name="Health", template="workshop/row_health.png",
-                              category="DEFENSE", layout="tile"),),
-        ),
-    )
     with pytest.raises(ControlError) as exc:
-        contradicting.validated()
+        a_rule(name="Health", template="workshop/row_health.png",
+               category="DEFENSE", layout="tile")
     assert exc.value.field == "layout"
 
 
-def test_an_unknown_row_name_with_a_hand_cut_template_still_validates(tmp_path) -> None:
+def test_a_contradicting_layout_is_refused_when_parsed_from_a_document() -> None:
+    """The path this check exists to close: store.load() and the
+    no-CLI-flags startup route a strategy document through
+    Strategy.from_dict() and straight into the live bot, with no
+    .validated() call in between. from_dict() builds every row through
+    ShoppingRule(**entry), so the check must fire there too, not only for a
+    row built by hand in a test."""
+    raw = Strategy.from_config().to_dict()
+    raw["shopping"]["workshop"] = [{
+        "name": "Health", "template": "workshop/row_health.png",
+        "category": "DEFENSE", "layout": "tile",
+    }]
+    with pytest.raises(ControlError) as exc:
+        Strategy.from_dict(raw)
+    assert exc.value.field == "layout"
+
+
+def test_an_unknown_row_name_with_a_hand_cut_template_still_constructs() -> None:
     """A name WORKSHOP_ROWS has never heard of is a supported path - a
     hand-cut template a user or a future editor UI added on their own -
     and must not be refused just for being unknown."""
+    rule = a_rule(name="Brand New Row", template="row_new_thing.png", layout="tile")
+    assert rule.layout == "tile"
+
+
+def test_an_unknown_row_name_with_a_hand_cut_template_still_validates(tmp_path) -> None:
+    """The template-existence half of the same story: validated() still
+    accepts a name WORKSHOP_ROWS does not know, as long as the file is
+    really there."""
     (tmp_path / "action.png").write_bytes(b"")
     (tmp_path / "row_new_thing.png").write_bytes(b"")
     fresh = Strategy(
@@ -310,8 +337,8 @@ def test_every_shipped_row_name_is_known_to_workshop_rows() -> None:
 
 
 def test_every_shipped_row_layout_matches_workshop_rows() -> None:
-    """The row-level layout check in validated() should never fire on the
-    shipped default - from_config() looks the layout up from the same
-    source that check compares against."""
+    """The row-level layout check in ShoppingRule.__post_init__ should never
+    fire on the shipped default - from_config() looks the layout up from the
+    same source that check compares against."""
     for rule in Strategy.from_config().shopping.workshop:
         assert rule.layout == config.WORKSHOP_ROWS[rule.name][1]

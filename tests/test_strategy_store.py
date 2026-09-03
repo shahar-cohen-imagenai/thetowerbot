@@ -212,13 +212,17 @@ def test_names_omits_a_file_the_loader_would_refuse(store) -> None:
     assert store.names() == ["mine"]
 
 
-def test_the_committed_default_matches_config_actions() -> None:
-    """The committed profile and config.ACTIONS must not drift.
+def test_the_committed_default_matches_config() -> None:
+    """The committed profile and config.py's defaults must not drift - both
+    config.ACTIONS and config.SHOPPING_ROWS (Task 10), since this compares
+    whole Strategy objects and Strategy.from_config() builds both from
+    config.py.
 
     ensure_seeded() only writes default.json when strategies/ is empty, and
-    it never is in a real clone - so config.ACTIONS is never consulted there.
-    Without this test, adding an upgrade to config.ACTIONS would reach no
-    clone, new or old, and nothing would say so.
+    it never is in a real clone - so config.py's defaults are never
+    consulted there. Without this test, adding an upgrade to config.ACTIONS
+    or reordering config.SHOPPING_ROWS would reach no clone, new or old, and
+    nothing would say so.
 
     Deliberately reads tests/conftest.py's REAL_STRATEGY_DIR rather than
     config.STRATEGY_DIR: the session-scoped fenced_strategy_dir fixture in

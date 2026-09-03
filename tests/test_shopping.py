@@ -263,14 +263,22 @@ def test_a_row_with_the_wrong_layout_reads_no_price_and_is_skipped_as_unreadable
     task-8-report.md note that ShoppingRule.layout is never inferred from
     its template, so a hand-edited strategy can declare the wrong one and
     read garbage pixels for the price.
+
+    ShoppingRule.__post_init__ now refuses "row" for this name outright
+    (Task 10 review, round 1: config.WORKSHOP_ROWS says "Unlock Cash
+    Bonuses" is "tile"), so the wrong value can no longer be handed to the
+    normal constructor - it is built correctly, then forced past that check
+    with object.__setattr__, the same way test_strategy.py forces a
+    non-string template past ActionRule's own type check. The session's own
+    defence against a bad layout is still worth testing even though
+    construction now catches the realistic route to one.
     """
     device = FakeDevice()
-    policy = a_policy(workshop=(
-        # "Unlock Cash Bonuses" is a tile; layout="row" is wrong on purpose.
-        ShoppingRule(name="Unlock Cash Bonuses",
-                     template="workshop/unlock_cash_bonuses.png",
-                     category="UTILITY", layout="row"),
-    ))
+    bad_layout = ShoppingRule(name="Unlock Cash Bonuses",
+                               template="workshop/unlock_cash_bonuses.png",
+                               category="UTILITY", layout="tile")
+    object.__setattr__(bad_layout, "layout", "row")
+    policy = a_policy(workshop=(bad_layout,))
     session.begin(policy, run_count=1)
     session.advance(frame("menu_workshop_utility"), device, policy)
     skips = session._bus.of_type("PurchaseSkipped")
