@@ -128,6 +128,18 @@ GLYPH_LABELS: dict[str, str] = {name: char for char, name in GLYPH_FILENAMES.ite
 SIZE_CLASSES: tuple[str, ...] = ("wallet", "price", "modal")
 
 
+def threshold_for(size_class: str) -> int:
+    """The binarisation threshold for one size class.
+
+    A lookup with a default rather than a required entry: adding a size class
+    should not mean remembering to add a threshold, and every class but the
+    header wants the shared one.
+    """
+    return config.DIGIT_BINARY_THRESHOLDS.get(
+        size_class, config.DIGIT_BINARY_THRESHOLD
+    )
+
+
 class Atlas:
     """Labelled glyph images for one size class."""
 
@@ -294,7 +306,7 @@ class NumberReader:
         if patch is None:
             return None
 
-        glyphs = split_glyphs(binarize(patch))
+        glyphs = split_glyphs(binarize(patch, threshold_for(size_class)))
         if not glyphs:
             return None
 

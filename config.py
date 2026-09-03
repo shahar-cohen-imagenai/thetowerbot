@@ -117,6 +117,16 @@ ATLAS_DIR: Path = TEMPLATE_DIR / "atlas"
 
 # Grey level above which a pixel counts as glyph rather than background.
 DIGIT_BINARY_THRESHOLD: int = 140
+
+# Per-size-class overrides. The in-run and modal numbers are light glyphs on
+# a dark panel, which is what the 140 default is for. The menu header is the
+# other way round - white text on a light purple bar - and at 140 the bar
+# survives binarisation and bridges adjacent glyphs: "1.77K" segments as
+# 1 . 77 K, and a merged span matches no atlas entry, so the whole read
+# fails. Measured on menu_workshop_attack.png: 170-240 all segment correctly,
+# so 200 sits in the middle of the plateau rather than on its edge.
+DIGIT_BINARY_THRESHOLDS: dict[str, int] = {"header": 200}
+
 # A glyph must match an atlas entry at least this well to be accepted.
 GLYPH_MATCH_THRESHOLD: float = 0.7
 # Narrowest run of lit columns still treated as a glyph. The decimal point is
