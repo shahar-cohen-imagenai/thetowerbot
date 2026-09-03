@@ -98,40 +98,70 @@ def test_both_card_buttons_are_found(cache) -> None:
             is not None, f"card button {name} not found"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "menu_cards.png does not actually render x10 dimmer than x1: measured "
-        "hue/saturation/value are equal within noise for the border, the "
-        "label, the price digits and the gem icon (see the comment beside "
-        "config.DEFAULT_BRIGHTNESS_RATIO) - only the digits differ. Since "
-        "vision.brightness_ratio compares a matched region against the exact "
-        "template it was cropped from, self-matching either button against "
-        "this one fixture is mathematically guaranteed to score 1.0 "
-        "regardless of which pixels are cropped - there is no crop that can "
-        "surface a difference that was never rendered. This needs a fixture "
-        "where a card button is genuinely painted in its unaffordable style "
-        "(or digit-reading, which does not depend on brightness at all)."
-    ),
-)
-def test_the_unaffordable_card_button_is_visibly_dimmer(cache) -> None:
-    """The greyed-out 'cannot afford' state the README admits was never
-    captured. On this fixture 40 gems buys x1 (20 gems) and not x10 (200), so
-    both states sit on ONE frame - and TM_CCOEFF_NORMED is blind to the
-    difference, which is exactly why the brightness check exists.
+def test_the_unaffordable_card_button_is_desaturated_not_dimmed(cache) -> None:
+    """The greyed-out "cannot afford" state the README admits was never
+    captured - now measured, and it is not a dimming at all.
 
-    Record the two measured ratios in a comment beside
-    config.DEFAULT_BRIGHTNESS_RATIO, and correct that 0.75 default if this
-    measurement says it is wrong.
+    On menu_cards.png (40 gems: x1 costs 20 and is affordable, x10 costs 200
+    and is not), CARD_PRICE_REGION sliced from each matched button measures:
+
+        button   mean grey   saturation (lit pixels only)
+        x1       52.5        46.2
+        x10      65.1        37.7
+
+    The unaffordable button (x10) is BRIGHTER, not dimmer, and less
+    saturated - the game signals "cannot afford" by desaturating the price
+    and gem icon toward grey, not by darkening anything. Consequence: a
+    vision.brightness_ratio gate calibrated on x1 (the affordable style) as
+    its reference template scores x10 at roughly 1.24 - comfortably ABOVE
+    1.0, let alone config.DEFAULT_BRIGHTNESS_RATIO (0.75). It would have
+    PASSED this unaffordable button as affordable, in the wrong direction
+    from a false rejection. Brightness cannot do this job for cards; only
+    digit-reading (Task 5b) can.
     """
     screen = frame("menu_cards")
-    ratios = {}
-    for name in ("x1", "x10"):
-        template = cache.get(config.CARD_BUTTONS[name])
-        match = vision.locate_template(screen, template, 0.9)
-        assert match is not None
-        ratios[name] = vision.brightness_ratio(screen, match, template)
-    assert ratios["x10"] < ratios["x1"], f"no separation measured: {ratios}"
+    x1_match = vision.locate_template(screen, cache.get(config.CARD_BUTTONS["x1"]), 0.9)
+    x10_match = vision.locate_template(screen, cache.get(config.CARD_BUTTONS["x10"]), 0.9)
+    assert x1_match is not None and x10_match is not None
+
+    region = config.CARD_PRICE_REGION
+
+    def price_area(match: vision.Match):
+        x, y = match.top_left
+        return screen[y + region.dy : y + region.dy + region.h, x + region.dx : x + region.dx + region.w]
+
+    def mean_saturation(area) -> float:
+        gray = cv2.cvtColor(area, cv2.COLOR_BGR2GRAY)
+        hsv = cv2.cvtColor(area, cv2.COLOR_BGR2HSV)
+        lit = gray > 40  # exclude near-black background: HSV saturation is
+        # numerically meaningless (noise-dominated) when value is near zero.
+        return float(hsv[:, :, 1][lit].mean())
+
+    x1_area, x10_area = price_area(x1_match), price_area(x10_match)
+    x1_grey, x10_grey = vision.mean_brightness(x1_area), vision.mean_brightness(x10_area)
+    x1_sat, x10_sat = mean_saturation(x1_area), mean_saturation(x10_area)
+
+    assert x10_grey >= x1_grey, (
+        f"expected the unaffordable button to be at least as bright as the "
+        f"affordable one, not dimmer: x1={x1_grey:.1f} x10={x10_grey:.1f}"
+    )
+    assert x10_sat < x1_sat, (
+        f"expected the unaffordable button to be measurably less saturated: "
+        f"x1={x1_sat:.1f} x10={x10_sat:.1f}"
+    )
+
+    # The consequence, using the real production function: calibrate a
+    # brightness gate on x1's price area as the "affordable" reference
+    # template, then check what it would have measured at x10's position.
+    x, y = x10_match.top_left
+    x10_top_left = (x + region.dx, y + region.dy)
+    as_if_gated = vision.Match(center=x10_top_left, score=1.0, top_left=x10_top_left)
+    ratio = vision.brightness_ratio(screen, as_if_gated, x1_area)
+    assert ratio >= config.DEFAULT_BRIGHTNESS_RATIO, (
+        f"a brightness gate calibrated on the affordable style should have "
+        f"let the unaffordable button through (it cannot tell them apart) - "
+        f"measured ratio {ratio:.2f}"
+    )
 
 
 def test_every_configured_template_exists_on_disk(cache) -> None:

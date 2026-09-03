@@ -28,22 +28,24 @@ TEMPLATE_DIR: Path = Path(__file__).parent / "templates"
 DEFAULT_THRESHOLD: float = 0.8
 
 # cv2.TM_CCOEFF_NORMED normalises out mean and variance, so it is blind to
-# brightness: a greyed-out "can't afford it yet" button still scores ~1.0.
-# Guard against that by also requiring the matched region to be about as bright
-# as the template, which was cropped while the button was affordable.
-# The value is a ratio of mean grey level; 0.0 disables the check.
+# brightness: a semi-transparent popup dimming the whole page still scores
+# ~1.0 against a template cropped before the popup appeared. Guard against
+# THAT by also requiring the matched region to be about as bright as the
+# template. The value is a ratio of mean grey level; 0.0 disables the check.
 #
-# Measured on menu_cards.png (x1 affordable, x10 not, at 40 gems): 1.00 for
-# BOTH buttons - border, "x1"/"x10" label, price digits and gem icon are
-# pixel-for-pixel the same style at every threshold checked (hue, saturation,
-# value all match within noise). This fixture's "unaffordable" card button is
-# not actually rendered dimmer; only the digits differ. That makes the ratio
-# self-referential no matter which region of the button is cropped as the
-# template - see tests/test_shopping_templates.py's
-# test_the_unaffordable_card_button_is_visibly_dimmer, marked xfail with this
-# same finding. The 0.75 default is unchanged because this measurement gives
-# no evidence either way for cards; digit-reading (Task 5b) is required for
-# card affordability regardless.
+# This guards overlays, not prices. It is verified only for a dimming
+# overlay covering the whole screen (modal fade: 1.00 lit, 0.28 dimmed - see
+# vision.brightness_ratio's docstring and test_vision.py). It does NOT detect
+# a per-button "cannot afford" style: measured on menu_cards.png (x1
+# affordable at 40 gems, x10 not), the unaffordable button is DESATURATED
+# (border saturation 45.5 vs 57.0 affordable) rather than dimmed - its mean
+# grey level is actually HIGHER (59.7 vs 51.7 affordable), the wrong
+# direction for this ratio to catch. See
+# test_the_unaffordable_card_button_is_desaturated_not_dimmed in
+# tests/test_shopping_templates.py for the measurement. The 0.75 default
+# stays as-is: it still does its real job (rejecting a dimmed overlay on
+# shopping rows), and digit-reading (Task 5b) is required for card and
+# workshop affordability regardless.
 DEFAULT_BRIGHTNESS_RATIO: float = 0.75
 
 
@@ -286,6 +288,13 @@ WORKSHOP_TABS: dict[str, str] = {
 # template that was never cut against a real frame matches nothing or matches
 # everything, and there is no third option. They get added when the unlock
 # reveals them and the crop comes from a live capture.
+#
+# Both the "row" templates (upgrade tiles) and the "tile" templates (unlock
+# tiles, despite the name matching the layout they use) are cut from their
+# tile's top-left CORNER, never tight to the label text - see the "row"/"tile"
+# comment on PRICE_REGIONS below for why each one specifically needs that. Do
+# not re-cut the unlock templates tight to "Unlock X Upgrades": that was tried
+# and produces a price offset that only reads one of the three tiles correctly.
 WORKSHOP_ROWS: dict[str, tuple[str, str]] = {  # name -> (template, layout)
     "Unlock Cash Bonuses": ("workshop/unlock_cash_bonuses.png", "tile"),
     "Unlock Defense Upgrades": ("workshop/unlock_defense_upgrades.png", "tile"),

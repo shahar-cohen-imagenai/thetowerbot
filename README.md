@@ -273,23 +273,32 @@ The two are distinguishable in the event log on purpose. A skip reason of
 `dimmed` means we could not tell and fell back.
 
 `cv2.TM_CCOEFF_NORMED` normalises away mean and variance, so it is **blind to
-brightness**: a greyed-out "can't afford it yet" button still scores `1.000`
-against a template cropped when the button was lit. So each match is also
-checked against the template's own grey level and skipped when the region is
-too dark. Tune it per button with the `Action`'s `brightness_ratio` field
-(default `DEFAULT_BRIGHTNESS_RATIO`, `0.75`); `0.0` disables the check for that
-action. `--debug-scores` prints the measured ratio next to the score, so the way
-to pick a value is to read the ratio in both states and set the threshold
-between them.
+brightness by design**: a semi-transparent popup dimming the whole page still
+scores `1.000` against a template cropped before the popup appeared. So each
+match is also checked against the template's own grey level and skipped when
+the region is too dark. Tune it per button with the `Action`'s
+`brightness_ratio` field (default `DEFAULT_BRIGHTNESS_RATIO`, `0.75`); `0.0`
+disables the check for that action.
 
-> **The `0.75` default is only half-calibrated.** Measured on the live device: a
-> lit in-run button reads `1.00` and a modal-dimmed one reads `0.28`, so the
-> modal case is verified with a wide margin. The greyed-out *unaffordable* state
-> has never been captured, so brightness has never actually been measured doing
-> the job it is named for. This is tolerable only because `digits` replaced it
-> as the default. If you fall back to brightness deliberately, calibrate it
-> first: spend your wallet down until an upgrade greys out, run
-> `--debug-scores`, and check the greyed value really is well below `0.75`.
+> **This guards against a dimming overlay, not a "can't afford it" style.**
+> Measured on the live device: a lit in-run button reads `1.00` and a
+> modal-dimmed one reads `0.28`, comfortably either side of `0.75` - that
+> case works and is verified with a wide margin.
+>
+> It does **not** work for a greyed-out unaffordable button, and this has
+> now actually been measured rather than assumed: on the Cards page, the
+> unaffordable `x10` button is *brighter* than the affordable `x1` one
+> (mean grey 65.1 vs 52.5), not dimmer - the game signals "cannot afford" by
+> **desaturating** the price and icon toward grey, a change `brightness_ratio`
+> cannot see at all, in either direction. A gate calibrated on the affordable
+> style would have let the unaffordable button straight through. See
+> `test_the_unaffordable_card_button_is_desaturated_not_dimmed` in
+> `tests/test_shopping_templates.py` for the measurement. Do not try to
+> calibrate `brightness_ratio` against an unaffordable state by spending a
+> wallet down and reading `--debug-scores` - that advice assumed a dimming
+> that is not how this particular state is actually rendered. Reading the
+> numbers (`digits`) is the only affordability check that works for both
+> workshop upgrades and cards.
 
 ## Watching it work
 
