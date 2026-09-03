@@ -143,12 +143,19 @@ class ShoppingSession:
         reader: NumberReader,
         shopping: Shopping | None = None,
         threshold: float = 0.8,
+        disabled_reason: str | None = None,
     ) -> None:
         self._templates = templates
         self._bus = bus
         self._reader = reader
         self._shopping = shopping
         self._threshold = threshold
+        # Set once, by tower_bot.build_shopping(), when this machine's header
+        # atlas cannot support reading a balance. A non-empty reason makes
+        # begin() decline forever rather than starting a visit that could
+        # never approve a purchase - see the module docstring's paragraph on
+        # why an unreadable balance must stop the visit, not guess.
+        self.disabled_reason = disabled_reason
 
         self._step: Step = Step.IDLE
         self._visit = 0
@@ -188,7 +195,14 @@ class ShoppingSession:
         when the cadence says this run is not a visiting run. Returns a bool
         rather than raising because "not this run" is the normal case, not
         an error.
+
+        Also declines - permanently - when `disabled_reason` is set: this
+        machine's header atlas cannot read a balance, and a visit that could
+        never approve a purchase is a minute of tab-tapping for nothing. See
+        tower_bot.build_shopping().
         """
+        if self.disabled_reason:
+            return False
         if not shopping.enabled:
             return False
 

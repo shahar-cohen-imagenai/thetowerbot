@@ -72,6 +72,7 @@ class BotRunner:
         frames: FrameBuffer | None = None,
         first_run_id: int = 1,
         bot_factory: Callable[..., Any] = _default_bot_factory,
+        shopping: Any | None = None,
     ) -> None:
         self._bus = bus
         self._controls = controls
@@ -81,6 +82,12 @@ class BotRunner:
         self._checks = checks
         self._frames = frames
         self._bot_factory = bot_factory
+        # Built once per process by tower_bot.build_shopping(), the same way
+        # `checks` is - see that function's docstring. Reused for every bot
+        # this runner ever starts rather than rebuilt per Start, because
+        # rebuilding the header glyph atlas on every Start would make the
+        # button slow for no gain.
+        self._shopping = shopping
 
         self._lock = threading.Lock()
         self._bot: Any | None = None
@@ -157,6 +164,7 @@ class BotRunner:
                 bus=self._bus,
                 controls=self._controls,
                 checks=self._checks,
+                shopping=self._shopping,
                 frames=self._frames,
                 first_run_id=self._next_run_id,
                 screen_confirmations=strategy.screen_confirmations,
