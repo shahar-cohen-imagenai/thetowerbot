@@ -42,11 +42,33 @@ one opaque entry in the event feed after the fact. Positioning steps
 pure "already there" transitions within a single call - that costs nothing
 and would otherwise waste whole scan cycles on bookkeeping - but the moment
 one of them taps, publishes, or fails to find its target, that call is done.
-Positioning steps that cannot find their target simply try again next scan,
-the same way navigate.Navigator does; only BUY_ROWS and BUY_CARDS - the
-steps that can actually spend - are held to publishing something every time
-they act. The unexpected-page streak and the tap budget are what bound a
-visit that never finds its way, in both cases.
+
+A positioning step that cannot find its target is NOT allowed to retry
+silently forever the way navigate.Navigator does: Navigator sits on a screen
+the bot is happy to stay on and taps opportunistically, but a positioning
+step here is one leg of an errand that is supposed to be making progress. A
+miss counts toward the same _off_page_streak an unrecognized page does - one
+miss may be an animation frame still settling, but two in a row means a
+mis-cut or renamed nav template, and the visit ends with
+`ShoppingEnded(aborted=True, reason=...)` naming the template that could not
+be found, rather than spinning until an operator notices a visit that
+appears to be running and is not. Every step still resets that streak the
+moment it makes real progress - a tap, an arrival, or a BUY_ROWS/BUY_CARDS
+decision - so a bot healthily bouncing between recognised pages never trips
+it.
+
+The tab-arrival check deliberately does NOT use "the tab button's own
+template stopped matching" - the intuitive reading of config.WORKSHOP_TABS's
+"cut unselected" comment, and the first thing anyone re-deriving this will
+reach for. Measured directly against the committed fixtures (see
+tests/test_shopping_templates.py's
+test_a_tab_template_also_matches_its_own_selected_page): each tab's own
+"unselected" crop still scores 0.93-0.96 on the very page where that tab IS
+selected - comfortably above both 0.8 and 0.9. TM_CCOEFF_NORMED normalises
+away the brightness difference between the two states, so a tab template's
+absence is never a usable "we have arrived" signal. Arrival is judged by
+whether the target category's own ROW templates are visible instead - page
+content, not tab-button absence.
 """
 
 from __future__ import annotations
@@ -130,6 +152,10 @@ class ShoppingSession:
         # forever just because a static frame never visibly changes.
         self._exhausted: set[str] = set()
         self._last_run_count: int | None = None
+        # Consecutive scans with no progress: either the page did not
+        # classify at all, or a positioning step's target template could
+        # not be found. Reset to 0 the instant anything makes progress; see
+        # _register_progress and _miss.
         self._off_page_streak = 0
 
     @property
@@ -208,13 +234,37 @@ class ShoppingSession:
                 if self._off_page_streak >= 2:
                     self._abort(device, shopping, screen, "unexpected page")
                 return
-            self._off_page_streak = 0
+            # Deliberately NOT reset here just because the page classified:
+            # _register_progress (called from inside the handlers) is what
+            # clears the streak, so a positioning step's own target-miss
+            # (recognised page, wrong or absent button) still accumulates
+            # across calls instead of being wiped before it can reach 2.
             self._dispatch(reading, screen, device, shopping)
         except Exception as exc:  # noqa: BLE001 - a shopping step must never
             # crash the scan loop; give the coins back to the user's control
             # instead by ending the visit and saying why.
             logger.exception("shopping step raised; ending the visit")
             self._abort(device, shopping, screen, f"error: {exc}")
+
+    def _register_progress(self) -> None:
+        """Something real happened this call - a tap, an arrival, or a buy
+        decision. Clears the no-progress streak so it only ever measures
+        CONSECUTIVE stalls, not a lifetime total."""
+        self._off_page_streak = 0
+
+    def _miss(self, device: Any, shopping: Shopping, screen: Image, target: str) -> bool:
+        """A positioning step could not find `target` this scan.
+
+        Counts toward the same streak an unrecognized page does. One miss is
+        an animation still settling; two in a row means the template is
+        mis-cut or the game moved the button, and the visit ends rather than
+        spinning silently - see the module docstring. Always returns False
+        so callers can `return self._miss(...)`.
+        """
+        self._off_page_streak += 1
+        if self._off_page_streak >= 2:
+            self._abort(device, shopping, screen, f"{target} not found twice in a row")
+        return False
 
     def _dispatch(self, reading, screen: Image, device: Any, shopping: Shopping) -> None:
         """Cascade through pure positioning transitions, stop at real work.
@@ -237,6 +287,9 @@ class ShoppingSession:
                     continue
                 return
             if step is Step.BUY_ROWS:
+                # A buy step always does something - tap, skip, or a
+                # category handoff - so reaching it is progress in itself.
+                self._register_progress()
                 self._buy_rows(reading, screen, device, shopping)
                 return
             if step is Step.OPEN_CARDS:
@@ -244,6 +297,7 @@ class ShoppingSession:
                     continue
                 return
             if step is Step.BUY_CARDS:
+                self._register_progress()
                 self._buy_cards(reading, screen, device, shopping)
                 return
             if step is Step.RETURN:
@@ -260,31 +314,39 @@ class ShoppingSession:
     def _open_workshop(self, reading, screen: Image, device: Any, shopping: Shopping) -> bool:
         if not self._categories:
             self._step = self._next_after_categories(shopping)
+            self._register_progress()
             return True
         if reading.page == "WORKSHOP":
             self._step = Step.OPEN_TAB
+            self._register_progress()
             return True
         match = vision.locate_template(
             screen, self._templates.get(config.NAV_TARGETS["WORKSHOP"]), self._threshold
         )
         if match is None:
-            return False  # not there yet - try again next scan
+            return self._miss(device, shopping, screen, "WORKSHOP nav button")
         x, y = match.center
+        self._register_progress()
         self._try_tap(x, y, device, shopping, screen)
         return False
 
     def _open_tab(self, reading, screen: Image, device: Any, shopping: Shopping) -> bool:
         if not self._categories:
             self._step = self._next_after_categories(shopping)
+            self._register_progress()
             return True
         if reading.page != "WORKSHOP":
-            return False  # navigation is still in flight - try again next scan
+            # Navigation should already have landed us on WORKSHOP by the
+            # time OPEN_TAB runs (see OPEN_WORKSHOP) - if it has not, that is
+            # not a transient "still loading" state, it is a wedge.
+            return self._miss(device, shopping, screen, "workshop page")
 
         category = self._categories[0]
         rows = [r for r in shopping.rows_for(category) if r.name not in self._exhausted]
         if not rows:
             # Nothing left to look for on this tab - BUY_ROWS will pop it.
             self._step = Step.BUY_ROWS
+            self._register_progress()
             return True
         if any(
             vision.locate_template(screen, self._templates.get(r.template), r.threshold)
@@ -292,44 +354,48 @@ class ShoppingSession:
             for r in rows
         ):
             # Arrival is judged by what we actually came here for, not by
-            # the tab button's own look: config.WORKSHOP_TABS crops the tab
-            # UNSELECTED, but measured against the real fixtures every tab
-            # still scores above threshold on its OWN selected page too (the
-            # selected/unselected art is not different enough at this
-            # threshold to tell apart) - so "tab button not found" is not a
-            # reliable arrival signal. Seeing one of this category's own
-            # rows on screen is.
+            # the tab button's own look - see the module docstring for the
+            # measurement: every tab template still matches its own
+            # selected page well above threshold, so its absence cannot
+            # signal arrival. Seeing one of this category's own rows can.
             self._step = Step.BUY_ROWS
+            self._register_progress()
             return True
 
         tab_template = config.WORKSHOP_TABS[category]
         match = vision.locate_template(screen, self._templates.get(tab_template), self._threshold)
         if match is None:
-            return False
+            return self._miss(device, shopping, screen, f"{category} tab button")
         x, y = match.center
+        self._register_progress()
         self._try_tap(x, y, device, shopping, screen)
         return False
 
     def _open_cards(self, reading, screen: Image, device: Any, shopping: Shopping) -> bool:
         # First-visit popups (see config.NAV_DISMISS) sit between the Cards
         # tab and the page itself. Tried in order, same as navigate.py would.
+        # Their absence is normal (most visits see no popup at all), so it
+        # does not count as a miss.
         for dismiss_path in config.NAV_DISMISS:
             match = vision.locate_template(
                 screen, self._templates.get(dismiss_path), self._threshold
             )
             if match is not None:
                 x, y = match.center
+                self._register_progress()
                 self._try_tap(x, y, device, shopping, screen)
                 return False
         if reading.page == "CARDS":
             self._step = Step.BUY_CARDS
+            self._register_progress()
             return True
         match = vision.locate_template(
             screen, self._templates.get(config.NAV_TARGETS["CARDS"]), self._threshold
         )
         if match is None:
-            return False
+            return self._miss(device, shopping, screen, "CARDS nav button")
         x, y = match.center
+        self._register_progress()
         self._try_tap(x, y, device, shopping, screen)
         return False
 
@@ -341,8 +407,9 @@ class ShoppingSession:
             screen, self._templates.get(config.NAV_TARGETS["BATTLE_TAB"]), self._threshold
         )
         if match is None:
-            return False
+            return self._miss(device, shopping, screen, "BATTLE_TAB nav button")
         x, y = match.center
+        self._register_progress()
         self._try_tap(x, y, device, shopping, screen)
         return False
 

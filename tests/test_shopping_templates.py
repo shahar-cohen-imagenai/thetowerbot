@@ -91,6 +91,34 @@ def test_each_tab_is_found_on_the_pages_where_it_is_unselected(tab, cache) -> No
         ) is not None, f"{tab} tab not found on {fixture}"
 
 
+@pytest.mark.parametrize("fixture,tab", SELECTED_TAB.items())
+def test_a_tab_template_also_matches_its_own_selected_page(fixture, tab, cache) -> None:
+    """The intuitive - and WRONG - arrival check: "the tab template is cut
+    unselected, so if it stops matching we must already be on it."
+
+    Measured directly: it does not stop matching. TM_CCOEFF_NORMED
+    normalises away the brightness difference between selected and
+    unselected art, so each tab's own "unselected" crop still scores well
+    above threshold on the very page where that tab IS selected:
+
+        ATTACK   on menu_workshop_attack   -> 0.954
+        DEFENSE  on menu_workshop_defense  -> 0.934
+        UTILITY  on menu_workshop_utility  -> 0.955
+
+    All comfortably above both 0.8 and the stricter 0.9. A tab template's
+    absence is therefore not a usable "we have arrived" signal - shopping.py
+    judges arrival by whether the target category's own ROW templates are
+    visible instead (see ShoppingSession._open_tab), which the tests above
+    already prove are absent from every tab but their own.
+    """
+    score, _ = vision.best_score(frame(fixture), cache.get(config.WORKSHOP_TABS[tab]))
+    assert score >= 0.9, (
+        f"{tab} scored {score:.3f} on its own selected page ({fixture}) - "
+        "expected it to still match well above threshold, proving tab "
+        "template absence cannot signal arrival"
+    )
+
+
 def test_both_card_buttons_are_found(cache) -> None:
     screen = frame("menu_cards")
     for name in ("x1", "x10"):

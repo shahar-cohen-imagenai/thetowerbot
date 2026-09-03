@@ -276,6 +276,34 @@ def test_an_unexpected_page_twice_running_ends_the_visit(session) -> None:
     assert session.active is False
 
 
+def test_a_missing_nav_target_ends_the_visit_after_two_misses(session) -> None:
+    """Round-1 fix (task-8-overrides.md concern 3): a positioning step that
+    cannot find its target must not spin silently forever with the tap
+    budget untouched and the event feed empty - it is a leg of an errand
+    supposed to be making progress, not an opportunistic Navigator tap.
+
+    menu_missions has no bottom tab bar at all, so NAV_TARGETS["BATTLE_TAB"]
+    never matches there (measured: 0.31, nowhere near the 0.8 threshold) -
+    exactly the "wrong crop, or the game moved the button" scenario this
+    guards against.
+    """
+    device = FakeDevice()
+    policy = a_policy()
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.RETURN
+
+    session.advance(frame("menu_missions"), device, policy)
+    assert session.active is True, "one miss is not enough to give up"
+    assert device.taps == []
+
+    session.advance(frame("menu_missions"), device, policy)
+    ended = session._bus.of_type("ShoppingEnded")
+    assert ended and ended[-1].aborted
+    assert "BATTLE_TAB" in ended[-1].reason
+    assert session.active is False
+    assert device.taps == []
+
+
 def test_a_finished_visit_returns_to_idle(session) -> None:
     device = FakeDevice()
     policy = a_policy(cards=CardPolicy(enabled=False))
