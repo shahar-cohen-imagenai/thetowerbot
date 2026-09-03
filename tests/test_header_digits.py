@@ -94,3 +94,76 @@ def test_header_is_offered_to_the_atlas_tools_but_not_to_affordability() -> None
     SIZE_CLASSES entry is unbuilt. The header must not be able to do that."""
     assert "header" in digits.ALL_SIZE_CLASSES
     assert "header" not in digits.SIZE_CLASSES
+
+
+# NumberReader.read is all-or-nothing: one glyph the atlas cannot match fails
+# the WHOLE read and returns None, never a partial or guessed number (see
+# digits.NumberReader.read's docstring). That is what makes an incomplete
+# atlas SAFE rather than merely inconvenient - a balance the bot could not
+# fully read comes back as None, and nothing downstream can approve a
+# purchase against a balance it never actually read. The two tests below
+# hold the atlas to exactly what the committed fixtures can prove, and
+# separately document - without silently passing - what a live session
+# still needs to add before the atlas covers real play.
+
+# Every glyph the five committed fixtures' coin/gem counters show between
+# them: WORKSHOP's "1.77K" and "40", CARDS's "78" and "40", MAIN_MENU's "78"
+# and "0". No fixture balance has passed through 2, 3, 5, 6, 9, or reached
+# the millions/billions suffixes.
+FIXTURE_GLYPHS = {"0", "1", "4", "7", "8", ".", "K"}
+
+
+def test_header_atlas_has_every_glyph_the_fixtures_contain() -> None:
+    """The real completeness gate for this plan: every other test in it reads
+    a committed fixture, and these seven glyphs are everything those
+    fixtures show, so they are sufficient for the tests that exist today."""
+    atlas = digits.AtlasCache().get("header")
+    assert atlas is not None, "run tools/harvest_header_glyphs.py"
+    assert atlas.labels == FIXTURE_GLYPHS
+
+
+@pytest.mark.skip(
+    reason=(
+        "header atlas is missing 2 3 5 6 9 M B - no committed fixture's "
+        "balance has passed through those digits or reached millions/"
+        "billions. Harvest them from a live play session with "
+        "`uv run build_atlas.py --size-class header --frames 20`, label "
+        "them, then delete this skip marker."
+    )
+)
+def test_header_atlas_is_not_yet_complete_for_live_play() -> None:
+    """Once a play session supplies the missing glyphs, the header atlas
+    should carry the full set the live game can render - not just what the
+    fixtures happen to show."""
+    atlas = digits.AtlasCache().get("header")
+    assert atlas is not None
+    required = set("0123456789") | {".", "K", "M", "B"}
+    missing = required - atlas.labels
+    assert not missing, f"header atlas is missing {sorted(missing)}"
+
+
+# page, expected coins, expected gems - see the task brief for how each
+# value was hand-verified against its fixture.
+HEADER_READ_CASES: dict[str, tuple[str, int, int]] = {
+    "menu_workshop_attack": ("WORKSHOP", 1770, 40),
+    "menu_workshop_defense": ("WORKSHOP", 1770, 40),
+    "menu_workshop_utility": ("WORKSHOP", 1770, 40),
+    "menu_cards": ("CARDS", 78, 40),
+    "menu_main": ("MAIN_MENU", 78, 0),
+}
+
+
+@pytest.mark.parametrize("fixture,case", HEADER_READ_CASES.items())
+def test_header_reads_a_suffixed_balance(fixture: str, case: tuple[str, int, int]) -> None:
+    """The README's known gap, closed. 1.77K is the coin balance on the three
+    workshop fixtures; cards and main menu prove the same atlas also reads a
+    plain, unsuffixed balance correctly."""
+    page, expected_coins, expected_gems = case
+    img = cv2.imread(str(FIXTURES / f"{fixture}.png"), cv2.IMREAD_COLOR)
+    cache = vision.TemplateCache(config.TEMPLATE_DIR)
+    _, top_left = vision.best_score(img, cache.get(config.PAGE_ANCHORS[page]))
+
+    reader = digits.NumberReader()
+    coins_region, gems_region = config.HEADER_REGIONS[page]
+    assert reader.read(img, coins_region, top_left, "header") == expected_coins
+    assert reader.read(img, gems_region, top_left, "header") == expected_gems

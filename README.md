@@ -240,13 +240,25 @@ matches, writing a contact sheet of everything it was unsure about. Rename
 those by hand — the caption letters and the coin icon score low precisely
 because no reference class contains them.
 
-### Known gap: no suffix glyphs
+### Known gap: no suffix glyphs in the wallet or price atlas
 
-`K`, `M`, `B`, `.` and `,` are **not in any atlas on disk**. The parser handles
-suffixes correctly, but the glyph matcher never gets that far, so a wallet or
-price rendered as `$1.5K` fails to read and that action silently falls back to
-brightness for the scan. Harvest those glyphs during a session that reaches
-large enough numbers, and label them by hand off the contact sheet.
+The `header` class carries suffix and punctuation glyphs (`.` and `K`, so
+far) - the menu header renders the coin balance as `1.77K`, and a purchase
+can only be approved against a balance the bot actually read, so that class
+could not ship without them. The `wallet` and `price` classes still have
+**no suffix glyphs at all**: the parser handles suffixes correctly, but the
+glyph matcher never gets that far, so a wallet rendered as `$1.5K` still
+fails to read and that scan falls back to brightness. Harvest those two
+classes' suffix glyphs during a session that reaches large enough numbers,
+and label them by hand off the contact sheet.
+
+The header atlas itself is also not yet complete for live play: it is
+missing `2 3 5 6 9 M B`, because none of the fixtures it was built from have
+a balance that passed through those digits or reached the millions/billions
+range. `uv run build_atlas.py --size-class header` during a real play
+session closes that gap; `tests/test_header_digits.py` documents exactly
+which glyphs are still missing via a skipped test that starts passing once
+they are harvested.
 
 ### Brightness, the older heuristic
 
