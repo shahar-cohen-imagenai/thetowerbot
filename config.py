@@ -346,8 +346,21 @@ LAYOUTS: tuple[str, ...] = ("row", "tile")
 # Uniqueness among the three unlock tiles (they share a border style) comes
 # from including the label text in the wider corner crop, not from cropping
 # tight to it - verified below 0.82 cross-match, well under the 0.9 threshold.
+#
+# "row"'s width was re-measured in Task 5b: at 250 the crop's right edge lands
+# inside the upgrade tile's own border, a pixel-identical sliver (columns
+# 237-243 of the crop, on every one of the six row prices in the committed
+# fixtures) that segments as a fourth "glyph" no atlas entry can safely
+# represent - it binarises to a solid block with zero variance, which breaks
+# cv2's normalised correlation (it scores 1.0 against literally everything,
+# not just its own label). The digits and coin end by column 213, so 225 sits
+# in the middle of the 213-237 gap, matching this file's stat of picking the
+# middle of a measured plateau rather than its edge (see
+# DIGIT_BINARY_THRESHOLDS). Trimming the right edge cannot clip a longer
+# price either: the number grows LEFTWARD against the icon (see above), so
+# nothing meaningful ever lived in the trimmed space.
 PRICE_REGIONS: dict[str, Region] = {
-    "row": Region(dx=260, dy=130, w=250, h=55),
+    "row": Region(dx=260, dy=130, w=225, h=55),
     "tile": Region(dx=440, dy=95, w=150, h=70),
 }
 

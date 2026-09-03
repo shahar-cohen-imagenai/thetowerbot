@@ -94,6 +94,12 @@ def split_glyphs(binary: Image, min_width: int = config.GLYPH_MIN_WIDTH) -> list
     return glyphs
 
 
+# Stand-in character for the cards page's gem icon. It will never appear in a
+# real number, so it can safely double as a dict key the same way "\u00a9"
+# already does for the coin - see GLYPH_FILENAMES for why punctuation and
+# icons need a name rather than a literal filename.
+GEM = "\u25c7"  # white diamond
+
 # A filesystem cannot hold a file called ".png", and "," is awkward in a
 # shell, so punctuation glyphs are stored under a name and mapped back here.
 GLYPH_FILENAMES: dict[str, str] = {
@@ -114,13 +120,19 @@ GLYPH_FILENAMES: dict[str, str] = {
     "i": "cap_i",
     "r": "cap_r",
     "\u00a9": "coin",
+    # The cards page's gem icon - same reasoning as the coin: the region
+    # deliberately includes it (the price is right-aligned against it), so
+    # the atlas has to be able to see and discard it.
+    GEM: "gem",
 }
 
 # Glyphs that may legally surround the number without invalidating the read.
 # "T" is deliberately in here AND in SUFFIXES: Tier's initial and the trillions
 # suffix are the same glyph. Which one it is comes from POSITION, not from the
-# character - see parse_number.
-CAPTION_GLYPHS: frozenset[str] = frozenset("WaveTier") | {"\u00a9"}
+# character - see parse_number. The coin and gem are here for the same reason:
+# each region deliberately includes its currency icon, so the parser has to be
+# allowed to see and discard it.
+CAPTION_GLYPHS: frozenset[str] = frozenset("WaveTier") | {"\u00a9", GEM}
 GLYPH_LABELS: dict[str, str] = {name: char for char, name in GLYPH_FILENAMES.items()}
 
 # The three text sizes the UI renders numbers at. matchTemplate is not
@@ -130,9 +142,9 @@ SIZE_CLASSES: tuple[str, ...] = ("wallet", "price", "modal")
 # Every class the harvesting tools will offer. Deliberately NOT the same
 # tuple as SIZE_CLASSES: tower_bot.build_affordability treats a missing
 # SIZE_CLASSES atlas as "this machine cannot do digits at all" and downgrades
-# the entire bot to brightness. The header only gates menu shopping, so an
-# unbuilt header atlas must disable shopping and nothing else.
-ALL_SIZE_CLASSES: tuple[str, ...] = SIZE_CLASSES + ("header",)
+# the entire bot to brightness. The header and menu classes only gate menu
+# shopping, so an unbuilt one of those must disable shopping and nothing else.
+ALL_SIZE_CLASSES: tuple[str, ...] = SIZE_CLASSES + ("header", "menu")
 
 
 def threshold_for(size_class: str) -> int:

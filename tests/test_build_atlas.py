@@ -96,8 +96,18 @@ def test_every_size_class_can_be_harvested() -> None:
     tooling-facing tuple. SIZE_CLASSES is the narrower affordability gate -
     header is deliberately excluded from it so an unbuilt header atlas only
     disables shopping, not the whole bot - and that exclusion should not
-    leak into this assertion."""
-    assert set(build_atlas.SOURCES) == set(digits.ALL_SIZE_CLASSES)
+    leak into this assertion.
+
+    `menu` is deliberately excluded from BOTH sides of this comparison. Every
+    `Source` here is anchored either to a screen-level ScreenReading.state or
+    to a caption template matched full-frame - neither fits the menu prices,
+    which are anchored to a per-row/per-button template on the WORKSHOP and
+    CARDS pages, and those pages read as UNKNOWN to screens.classify() by
+    design (see PAGE_ANCHORS's comment). Bending Source's model to fit would
+    contort this module for a screen state it deliberately does not know
+    about; tools/harvest_menu_glyphs.py reads the committed fixtures directly
+    instead, the same way tools/harvest_header_glyphs.py already does."""
+    assert set(build_atlas.SOURCES) == set(digits.ALL_SIZE_CLASSES) - {"menu"}
 
 
 def test_price_is_anchored_on_each_upgrade_label() -> None:
