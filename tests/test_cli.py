@@ -830,12 +830,12 @@ def test_overlapping_flags_default_to_none_so_unset_is_distinguishable() -> None
 def test_apply_cli_overrides_persists_only_what_was_passed(tmp_path, monkeypatch) -> None:
     import config
     from strategy import Strategy, StrategyStore
+    from tests.conftest import seed_template_dir
     from tower_bot import apply_cli_overrides, parse_args
 
     templates = tmp_path / "templates"
     templates.mkdir()
-    for action in config.ACTIONS:
-        (templates / action.template).write_bytes(b"")
+    seed_template_dir(templates)
     monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
 
     store = StrategyStore(tmp_path / "strategies")
@@ -855,12 +855,12 @@ def test_apply_cli_overrides_writes_nothing_when_no_flag_was_passed(
 ) -> None:
     import config
     from strategy import StrategyStore
+    from tests.conftest import seed_template_dir
     from tower_bot import apply_cli_overrides, parse_args
 
     templates = tmp_path / "templates"
     templates.mkdir()
-    for action in config.ACTIONS:
-        (templates / action.template).write_bytes(b"")
+    seed_template_dir(templates)
     monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
 
     store = StrategyStore(tmp_path / "strategies")
@@ -899,13 +899,12 @@ def test_a_default_constructed_store_cannot_reach_the_real_strategies_dir(
 
     import config
     from strategy import StrategyStore
-    from tests.conftest import REAL_STRATEGY_DIR
+    from tests.conftest import REAL_STRATEGY_DIR, seed_template_dir
     from tower_bot import apply_cli_overrides, parse_args
 
     templates = tmp_path / "templates"
     templates.mkdir()
-    for action in config.ACTIONS:
-        (templates / action.template).write_bytes(b"")
+    seed_template_dir(templates)
     monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
 
     store = StrategyStore()  # no directory - exactly what main() builds

@@ -548,8 +548,12 @@ class Strategy:
     def from_config(cls, name: str = "default") -> Strategy:
         """The shipped defaults, as a Strategy.
 
-        Keeps config.ACTIONS meaningful: it stays the origin of the defaults -
-        what a fresh clone starts from - without staying the source of truth.
+        Keeps config.ACTIONS and config.SHOPPING_ROWS meaningful: they stay
+        the origin of the defaults - what a fresh clone starts from -
+        without staying the source of truth. SHOPPING_ROWS carries only
+        (name, category, enabled); template and layout are looked up in
+        config.WORKSHOP_ROWS, which is what was actually measured when each
+        crop was cut, rather than repeated here as a second place to drift.
         """
         return cls(
             name=name,
@@ -561,6 +565,18 @@ class Strategy:
                     brightness_ratio=action.brightness_ratio,
                 )
                 for action in config.ACTIONS
+            ),
+            shopping=Shopping(
+                workshop=tuple(
+                    ShoppingRule(
+                        name=row_name,
+                        template=config.WORKSHOP_ROWS[row_name][0],
+                        category=category,
+                        layout=config.WORKSHOP_ROWS[row_name][1],
+                        enabled=enabled,
+                    )
+                    for row_name, category, enabled in config.SHOPPING_ROWS
+                )
             ),
         )
 
@@ -698,10 +714,32 @@ class Strategy:
                     "template", f"{name}: no template file {template!r} in {root}"
                 )
 
+        def _check_layout(rule: ShoppingRule) -> None:
+            # config.WORKSHOP_ROWS records the layout that was actually
+            # MEASURED against a real capture when that row's template was
+            # cut - layout decides which price region gets read, and it is
+            # inferred nowhere else. A row naming a template WORKSHOP_ROWS
+            # does not know is still fine: hand-cut templates (not yet
+            # measured into config.py, or never going to be) are a
+            # supported path. What must never be fine is a row that
+            # CONTRADICTS a measured fact - that reads a real price region
+            # at the wrong offset and reports a wrong number instead of a
+            # refused one, which is the one failure mode this whole feature
+            # exists to avoid.
+            known = config.WORKSHOP_ROWS.get(rule.name)
+            if known is not None and known[1] != rule.layout:
+                _, known_layout = known
+                raise ControlError(
+                    "layout",
+                    f"{rule.name}: layout must be {known_layout!r} "
+                    f"(config.WORKSHOP_ROWS), not {rule.layout!r}",
+                )
+
         for rule in self.actions:
             _check_template(rule.name, rule.template)
         for rule in self.shopping.workshop:
             _check_template(rule.name, rule.template)
+            _check_layout(rule)
         return self
 
 

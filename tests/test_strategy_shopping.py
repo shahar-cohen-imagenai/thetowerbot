@@ -12,7 +12,7 @@ import pytest
 
 import config
 import strategy as strategy_mod
-from strategy import CardPolicy, ControlError, Shopping, ShoppingRule, Strategy
+from strategy import ActionRule, CardPolicy, ControlError, Shopping, ShoppingRule, Strategy
 
 
 def a_rule(**over):
@@ -219,3 +219,99 @@ def test_a_disabled_shopping_row_is_still_checked() -> None:
     )
     with pytest.raises(ControlError):
         broken.validated()
+
+
+# -- layout must match WORKSHOP_ROWS when the name is known -----------------
+def test_a_row_naming_a_known_template_may_not_contradict_its_layout() -> None:
+    """`layout` decides which price region gets read, and it is inferred
+    nowhere - a row that disagrees with the measured fact in
+    config.WORKSHOP_ROWS would read the wrong pixels and report a wrong
+    price rather than a refused one. "Health" is measured as "row"."""
+    base = Strategy.from_config()
+    contradicting = dataclasses.replace(
+        base,
+        shopping=dataclasses.replace(
+            base.shopping,
+            workshop=(a_rule(name="Health", template="workshop/row_health.png",
+                              category="DEFENSE", layout="tile"),),
+        ),
+    )
+    with pytest.raises(ControlError) as exc:
+        contradicting.validated()
+    assert exc.value.field == "layout"
+
+
+def test_an_unknown_row_name_with_a_hand_cut_template_still_validates(tmp_path) -> None:
+    """A name WORKSHOP_ROWS has never heard of is a supported path - a
+    hand-cut template a user or a future editor UI added on their own -
+    and must not be refused just for being unknown."""
+    (tmp_path / "action.png").write_bytes(b"")
+    (tmp_path / "row_new_thing.png").write_bytes(b"")
+    fresh = Strategy(
+        name="test",
+        actions=(ActionRule(name="Damage", template="action.png"),),
+        shopping=Shopping(workshop=(
+            a_rule(name="Brand New Row", template="row_new_thing.png", layout="tile"),
+        )),
+    )
+    assert fresh.validated(template_dir=tmp_path) is fresh
+
+
+# -- the shipped default (Task 10) ------------------------------------------
+def test_the_shipped_default_ships_disarmed() -> None:
+    """Nobody should be able to clone this repo and have it spend coins."""
+    default = Strategy.from_config()
+    assert default.shopping.armed is False
+
+
+def test_the_shipped_default_leads_with_the_unlock_tiles() -> None:
+    """On a fresh account every upgrade the community names first is behind
+    one of these, and all three together cost 165 coins."""
+    rows = [r.name for r in Strategy.from_config().shopping.workshop if r.enabled]
+    assert rows[:3] == [
+        "Unlock Cash Bonuses", "Unlock Defense Upgrades", "Unlock Range Upgrades"
+    ]
+
+
+def test_the_crit_rows_ship_switched_off() -> None:
+    """Present so there is a row to switch on; off because the community is
+    unanimous that crit costs more and scales slower early."""
+    by_name = {r.name: r for r in Strategy.from_config().shopping.workshop}
+    assert by_name["Critical Chance"].enabled is False
+    assert by_name["Critical Factor"].enabled is False
+
+
+def test_the_shipped_default_never_spends_gems() -> None:
+    assert Strategy.from_config().shopping.cards.enabled is False
+
+
+def test_every_shipped_row_has_a_template_on_disk() -> None:
+    Strategy.from_config().validated()
+
+
+def test_the_shipped_order_matches_the_guide_page() -> None:
+    """The Guide page tells the user the bot buys the three unlock tiles
+    first because every upgrade the community names first is behind them.
+    If this order changes without the Guide changing, the dashboard starts
+    lying to the person reading it."""
+    rows = [r.name for r in Strategy.from_config().shopping.workshop]
+    assert rows[:3] == [
+        "Unlock Cash Bonuses", "Unlock Defense Upgrades", "Unlock Range Upgrades"
+    ]
+    assert rows.index("Health") < rows.index("Damage"), "defence before attack"
+
+
+def test_every_shipped_row_name_is_known_to_workshop_rows() -> None:
+    """A typo in config.SHOPPING_ROWS would otherwise surface as a KeyError
+    at bot startup (from_config()'s WORKSHOP_ROWS lookup) rather than here,
+    at test time."""
+    for row_name, _category, _enabled in config.SHOPPING_ROWS:
+        assert row_name in config.WORKSHOP_ROWS
+
+
+def test_every_shipped_row_layout_matches_workshop_rows() -> None:
+    """The row-level layout check in validated() should never fire on the
+    shipped default - from_config() looks the layout up from the same
+    source that check compares against."""
+    for rule in Strategy.from_config().shopping.workshop:
+        assert rule.layout == config.WORKSHOP_ROWS[rule.name][1]

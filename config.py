@@ -307,6 +307,34 @@ WORKSHOP_ROWS: dict[str, tuple[str, str]] = {  # name -> (template, layout)
     "Critical Factor": ("workshop/row_critical_factor.png", "row"),
 }
 
+# Shipped buy order. Taken from the community consensus (see the dashboard's
+# Guide page) and cut down to rows this account can actually SEE: everything
+# the guides name first - Cash/Wave, Coins/Wave, Def Abs, Def%, Thorns,
+# Coins/Kill - is behind one of the three unlock tiles, which is why they
+# lead. Together they cost 165 coins. Defence (Health, Health Regen) comes
+# before attack for the same reason the guides give it: tier 1 is a "turtle
+# build" - make the tower unhittable before making it hit harder.
+#
+# The crit rows ship disabled. They are here so there is a row to switch on,
+# which is the same reason `enabled` exists at all - the community is
+# unanimous that crit costs more and scales slower than everything above it
+# this early.
+#
+# (name, category, enabled) triples only - the template and layout come from
+# WORKSHOP_ROWS, which was measured when the crops were cut. Repeating them
+# here would be a second place to keep correct, and the two could drift.
+SHOPPING_ROWS: tuple[tuple[str, str, bool], ...] = (
+    ("Unlock Cash Bonuses", "UTILITY", True),
+    ("Unlock Defense Upgrades", "DEFENSE", True),
+    ("Unlock Range Upgrades", "ATTACK", True),
+    ("Health", "DEFENSE", True),
+    ("Health Regen", "DEFENSE", True),
+    ("Damage", "ATTACK", True),
+    ("Attack Speed", "ATTACK", True),
+    ("Critical Chance", "ATTACK", False),
+    ("Critical Factor", "ATTACK", False),
+)
+
 # Buy buttons on the Cards page. Cropped to the "x1"/"x10" quantity label and
 # border only - not the price or gem icon, which live in CARD_PRICE_REGION.
 # Same reasoning as WORKSHOP_ROWS: a template baked from a number that will

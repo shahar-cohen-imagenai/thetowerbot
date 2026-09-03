@@ -36,5 +36,100 @@
   "auto_navigate": false,
   "max_runs": null,
   "navigation_cooldown": 3.0,
-  "screen_confirmations": 2
+  "screen_confirmations": 2,
+  "shopping": {
+    "enabled": false,
+    "armed": false,
+    "visit_every_n_runs": 1,
+    "max_taps_per_visit": 40,
+    "workshop": [
+      {
+        "name": "Unlock Cash Bonuses",
+        "template": "workshop/unlock_cash_bonuses.png",
+        "category": "UTILITY",
+        "layout": "tile",
+        "enabled": true,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      },
+      {
+        "name": "Unlock Defense Upgrades",
+        "template": "workshop/unlock_defense_upgrades.png",
+        "category": "DEFENSE",
+        "layout": "tile",
+        "enabled": true,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      },
+      {
+        "name": "Unlock Range Upgrades",
+        "template": "workshop/unlock_range_upgrades.png",
+        "category": "ATTACK",
+        "layout": "tile",
+        "enabled": true,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      },
+      {
+        "name": "Health",
+        "template": "workshop/row_health.png",
+        "category": "DEFENSE",
+        "layout": "row",
+        "enabled": true,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      },
+      {
+        "name": "Health Regen",
+        "template": "workshop/row_health_regen.png",
+        "category": "DEFENSE",
+        "layout": "row",
+        "enabled": true,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      },
+      {
+        "name": "Damage",
+        "template": "workshop/row_damage.png",
+        "category": "ATTACK",
+        "layout": "row",
+        "enabled": true,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      },
+      {
+        "name": "Attack Speed",
+        "template": "workshop/row_attack_speed.png",
+        "category": "ATTACK",
+        "layout": "row",
+        "enabled": true,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      },
+      {
+        "name": "Critical Chance",
+        "template": "workshop/row_critical_chance.png",
+        "category": "ATTACK",
+        "layout": "row",
+        "enabled": false,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      },
+      {
+        "name": "Critical Factor",
+        "template": "workshop/row_critical_factor.png",
+        "category": "ATTACK",
+        "layout": "row",
+        "enabled": false,
+        "threshold": 0.9,
+        "brightness_ratio": 0.75
+      }
+    ],
+    "cards": {
+      "enabled": false,
+      "gem_floor": 40,
+      "max_per_visit": 2,
+      "batch": "x1"
+    }
+  }
 }

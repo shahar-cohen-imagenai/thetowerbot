@@ -32,6 +32,27 @@ from tower_bot import TowerBot  # noqa: E402 - after the sys.path fix-up above
 REAL_STRATEGY_DIR = config.STRATEGY_DIR
 
 
+def seed_template_dir(templates_dir: Path) -> None:
+    """Create empty stand-ins for every template Strategy.from_config()'s
+    default now references, so a test that points config.TEMPLATE_DIR at
+    `templates_dir` and then calls save()/ensure_seeded() (which run
+    validated()) does not fail on a template that has nothing to do with
+    what the test is actually checking.
+
+    Covers both config.ACTIONS (the in-run rows) and config.WORKSHOP_ROWS
+    (the shopping rows, Task 10) - from_config() builds a Strategy out of
+    both, so validated() checks both, regardless of a workshop row's
+    `enabled` flag (a disabled row is still checked - see validated()'s own
+    docstring for why).
+    """
+    for action in config.ACTIONS:
+        (templates_dir / action.template).write_bytes(b"")
+    for template, _layout in config.WORKSHOP_ROWS.values():
+        path = templates_dir / template
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"")
+
+
 @pytest.fixture(scope="session", autouse=True)
 def fenced_strategy_dir(tmp_path_factory: pytest.TempPathFactory):
     """Point every default-constructed StrategyStore at a throwaway

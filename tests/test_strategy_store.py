@@ -13,7 +13,7 @@ import pytest
 
 import config
 from strategy import ControlError, Strategy, StrategyStore, validate_name
-from tests.conftest import REAL_STRATEGY_DIR
+from tests.conftest import REAL_STRATEGY_DIR, seed_template_dir
 
 
 @pytest.fixture
@@ -21,14 +21,13 @@ def store(tmp_path, monkeypatch) -> StrategyStore:
     """A store over tmp_path, whose templates all exist.
 
     save() runs validated(), so the fixture points TEMPLATE_DIR at a
-    directory holding the files config.ACTIONS names - otherwise every save
-    in this file would fail for a reason that has nothing to do with the
-    store.
+    directory holding the files config.ACTIONS and config.WORKSHOP_ROWS name
+    - otherwise every save in this file would fail for a reason that has
+    nothing to do with the store.
     """
     templates = tmp_path / "templates"
     templates.mkdir()
-    for action in config.ACTIONS:
-        (templates / action.template).write_bytes(b"")
+    seed_template_dir(templates)
     monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
     return StrategyStore(tmp_path / "strategies")
 

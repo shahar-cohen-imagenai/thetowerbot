@@ -15,6 +15,7 @@ from events import EventBus
 from sinks.sse import SseSink
 from sinks.state import BotState
 from strategy import Strategy, StrategyStore
+from tests.conftest import seed_template_dir
 from web.app import create_app
 
 
@@ -22,8 +23,7 @@ from web.app import create_app
 def wired(tmp_path, monkeypatch):
     templates = tmp_path / "templates"
     templates.mkdir()
-    for action in config.ACTIONS:
-        (templates / action.template).write_bytes(b"")
+    seed_template_dir(templates)
     monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
 
     store = StrategyStore(tmp_path / "strategies")
