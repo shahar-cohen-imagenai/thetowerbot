@@ -89,8 +89,15 @@ def anchors_for(source: build_atlas.Source, fixture: str) -> list[tuple[int, int
 
 def test_every_size_class_can_be_harvested() -> None:
     """A size class with no source cannot be filled in at all, and the atlas
-    gap that leaves is silent: numbers using a missing digit just read None."""
-    assert set(build_atlas.SOURCES) == set(digits.SIZE_CLASSES)
+    gap that leaves is silent: numbers using a missing digit just read None.
+
+    Compared against ALL_SIZE_CLASSES, not SIZE_CLASSES: this test is about
+    the harvesting TOOLS offering every class a source, which is the wider,
+    tooling-facing tuple. SIZE_CLASSES is the narrower affordability gate -
+    header is deliberately excluded from it so an unbuilt header atlas only
+    disables shopping, not the whole bot - and that exclusion should not
+    leak into this assertion."""
+    assert set(build_atlas.SOURCES) == set(digits.ALL_SIZE_CLASSES)
 
 
 def test_price_is_anchored_on_each_upgrade_label() -> None:
