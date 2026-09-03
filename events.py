@@ -80,6 +80,69 @@ class Navigated(Event):
 
 
 @dataclass(frozen=True, kw_only=True)
+class PageChanged(Event):
+    """Which MENU page is showing. Separate from ScreenChanged, which tracks
+    the run lifecycle - see pages.py for why the two never merge.
+
+    Fields named `prev_page` and `curr_page` rather than `prev` and `curr`.
+    This is not cosmetic: sinks/store.py has a special case that maps
+    `ScreenChanged.curr` to the `screen` column (the run-lifecycle screen).
+    A `PageChanged` with a field called `curr` would hit that same branch,
+    writing menu pages (WORKSHOP, CARDS) into the `screen` column. The
+    database schema groups events by `screen` for the Stats dashboard's
+    "events by screen" chart, and menu pages mixed in would silently change
+    what a chart the user already relies on means. With the fields renamed,
+    they fall through to the JSON `detail` blob and the `screen` column keeps
+    meaning exactly one thing: the run-lifecycle screen. Renaming is the
+    smaller and more durable fix than special-casing store.to_row.
+    """
+
+    prev_page: str
+    curr_page: str
+    confidence: float
+
+
+@dataclass(frozen=True, kw_only=True)
+class ShoppingStarted(Event):
+    visit: int
+    coins: int | None = None
+    gems: int | None = None
+    dry_run: bool = True
+
+
+@dataclass(frozen=True, kw_only=True)
+class Purchased(Event):
+    """One thing bought, or - when dry_run - one thing that would have been.
+
+    `price` and `coins_before` are None rather than 0 when they could not be
+    read. Zero is a free upgrade; None is "we did not know", and collapsing
+    the two would make an unreadable price look like a bargain in the log.
+    """
+
+    item: str
+    category: str
+    price: int | None = None
+    coins_before: int | None = None
+    dry_run: bool = True
+
+
+@dataclass(frozen=True, kw_only=True)
+class PurchaseSkipped(Event):
+    item: str
+    reason: str  # unaffordable | unreadable | no_match | disabled | capped
+    detail: str = ""
+
+
+@dataclass(frozen=True, kw_only=True)
+class ShoppingEnded(Event):
+    visit: int
+    bought: int
+    spent: int
+    aborted: bool = False
+    reason: str = ""
+
+
+@dataclass(frozen=True, kw_only=True)
 class UnknownScreen(Event):
     snapshot_path: str
     best_anchor: str
