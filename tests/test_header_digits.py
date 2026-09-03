@@ -51,3 +51,46 @@ def test_header_threshold_sits_inside_the_measured_plateau() -> None:
     """170-240 all segment correctly; the default is the middle of that, not
     an edge, so a slightly different capture does not fall off it."""
     assert 170 <= digits.threshold_for("header") <= 240
+
+
+import vision
+
+PAGE_FIXTURES = {
+    "MAIN_MENU": "menu_main",
+    "WORKSHOP": "menu_workshop_attack",
+    "CARDS": "menu_cards",
+}
+# What each fixture's header actually shows, counted by hand off the capture.
+EXPECTED_GLYPHS = {
+    "MAIN_MENU": (2, 1),   # "78" coins, "0" gems
+    "WORKSHOP": (5, 2),    # "1.77K" coins, "40" gems
+    "CARDS": (2, 2),       # "78" coins, "40" gems
+}
+
+
+@pytest.mark.parametrize("page,fixture", PAGE_FIXTURES.items())
+def test_header_regions_land_on_the_numbers(page: str, fixture: str) -> None:
+    """Anchored to each page's own anchor, not to absolute pixels - the three
+    pages put their anchor in three different places."""
+    img = cv2.imread(str(FIXTURES / f"{fixture}.png"), cv2.IMREAD_COLOR)
+    cache = vision.TemplateCache(config.TEMPLATE_DIR)
+    _, top_left = vision.best_score(img, cache.get(config.PAGE_ANCHORS[page]))
+
+    coins_region, gems_region = config.HEADER_REGIONS[page]
+    threshold = digits.threshold_for("header")
+    expected_coins, expected_gems = EXPECTED_GLYPHS[page]
+
+    for region, expected in ((coins_region, expected_coins), (gems_region, expected_gems)):
+        patch = digits.crop(img, region, top_left)
+        assert patch is not None, f"{page}: header region fell outside the frame"
+        spans = digits.glyph_spans(digits.binarize(patch, threshold))
+        assert len(spans) == expected, (
+            f"{page}: expected {expected} glyphs, segmented {len(spans)}"
+        )
+
+
+def test_header_is_offered_to_the_atlas_tools_but_not_to_affordability() -> None:
+    """build_affordability downgrades the WHOLE bot to brightness if any
+    SIZE_CLASSES entry is unbuilt. The header must not be able to do that."""
+    assert "header" in digits.ALL_SIZE_CLASSES
+    assert "header" not in digits.SIZE_CLASSES

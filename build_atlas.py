@@ -118,6 +118,13 @@ SOURCES: dict[str, tuple[Source, ...]] = {
             caption_anchor(config.MODAL_COINS_CAPTION),
         ),
     ),
+    # The header bar. Sampled from MAIN_MENU because that is the only menu
+    # page screens.classify() knows - the workshop and cards pages read as
+    # UNKNOWN to it by design - and the bar is pixel-identical on all three.
+    "header": (
+        Source("MAIN_MENU", config.HEADER_REGIONS["MAIN_MENU"][0]),
+        Source("MAIN_MENU", config.HEADER_REGIONS["MAIN_MENU"][1]),
+    ),
 }
 
 

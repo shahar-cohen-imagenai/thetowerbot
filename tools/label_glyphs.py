@@ -182,7 +182,7 @@ def apply(proposals: list[Proposal], directory: Path, replace: bool) -> list[str
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--size-class", choices=digits.SIZE_CLASSES, required=True)
+    parser.add_argument("--size-class", choices=digits.ALL_SIZE_CLASSES, required=True)
     parser.add_argument(
         "--reference", default="wallet",
         help="the complete size class to label against (default: wallet)",

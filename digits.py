@@ -127,6 +127,13 @@ GLYPH_LABELS: dict[str, str] = {name: char for char, name in GLYPH_FILENAMES.ite
 # scale-invariant, so each needs its own atlas.
 SIZE_CLASSES: tuple[str, ...] = ("wallet", "price", "modal")
 
+# Every class the harvesting tools will offer. Deliberately NOT the same
+# tuple as SIZE_CLASSES: tower_bot.build_affordability treats a missing
+# SIZE_CLASSES atlas as "this machine cannot do digits at all" and downgrades
+# the entire bot to brightness. The header only gates menu shopping, so an
+# unbuilt header atlas must disable shopping and nothing else.
+ALL_SIZE_CLASSES: tuple[str, ...] = SIZE_CLASSES + ("header",)
+
 
 def threshold_for(size_class: str) -> int:
     """The binarisation threshold for one size class.

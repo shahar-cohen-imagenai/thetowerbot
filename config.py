@@ -236,6 +236,30 @@ PAGE_ANCHORS: dict[str, str] = {
     "MISSIONS": "screens/missions.png",
 }
 
+# The coin and gem counters in the menu header bar. Identical pixels on every
+# menu page, but each page's ANCHOR sits somewhere different, so the offset
+# is per page rather than one shared pair. Measured on the committed
+# fixtures: MAIN_MENU anchors at (336, 360), WORKSHOP at (32, 244), CARDS at
+# (32, 248), against a header at absolute (85, 152) and (430, 152).
+#
+# The boxes are wider than today's values need. The coin counter grows from
+# "78" through "1.77K" to "1.23M" without moving its left edge, so the room
+# has to be on the right, and a clipped glyph fails the whole read.
+HEADER_REGIONS: dict[str, tuple[Region, Region]] = {
+    "MAIN_MENU": (
+        Region(dx=-251, dy=-208, w=170, h=68),
+        Region(dx=94, dy=-208, w=190, h=68),
+    ),
+    "WORKSHOP": (
+        Region(dx=53, dy=-92, w=170, h=68),
+        Region(dx=398, dy=-92, w=190, h=68),
+    ),
+    "CARDS": (
+        Region(dx=53, dy=-96, w=170, h=68),
+        Region(dx=398, dy=-96, w=190, h=68),
+    ),
+}
+
 # --- Live feed ------------------------------------------------------------
 # How much history the SSE ring holds. A reconnecting browser replays from
 # here using Last-Event-ID, so this is also how long a laptop can sleep
