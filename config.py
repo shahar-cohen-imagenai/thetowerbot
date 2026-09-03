@@ -32,6 +32,18 @@ DEFAULT_THRESHOLD: float = 0.8
 # Guard against that by also requiring the matched region to be about as bright
 # as the template, which was cropped while the button was affordable.
 # The value is a ratio of mean grey level; 0.0 disables the check.
+#
+# Measured on menu_cards.png (x1 affordable, x10 not, at 40 gems): 1.00 for
+# BOTH buttons - border, "x1"/"x10" label, price digits and gem icon are
+# pixel-for-pixel the same style at every threshold checked (hue, saturation,
+# value all match within noise). This fixture's "unaffordable" card button is
+# not actually rendered dimmer; only the digits differ. That makes the ratio
+# self-referential no matter which region of the button is cropped as the
+# template - see tests/test_shopping_templates.py's
+# test_the_unaffordable_card_button_is_visibly_dimmer, marked xfail with this
+# same finding. The 0.75 default is unchanged because this measurement gives
+# no evidence either way for cards; digit-reading (Task 5b) is required for
+# card affordability regardless.
 DEFAULT_BRIGHTNESS_RATIO: float = 0.75
 
 
@@ -259,6 +271,81 @@ HEADER_REGIONS: dict[str, tuple[Region, Region]] = {
         Region(dx=398, dy=-96, w=190, h=68),
     ),
 }
+
+# --- Menu shopping ---------------------------------------------------------
+# The workshop's category tabs. Cut UNSELECTED: a selected tab is brighter,
+# and a template cropped lit matches only its own selected state.
+WORKSHOP_TABS: dict[str, str] = {
+    "ATTACK": "workshop/tab_attack.png",
+    "DEFENSE": "workshop/tab_defense.png",
+    "UTILITY": "workshop/tab_utility.png",
+}
+
+# Every buyable thing this account can currently SEE, and which of the two
+# layouts it uses. Rows behind an unlock tile are absent on purpose: a
+# template that was never cut against a real frame matches nothing or matches
+# everything, and there is no third option. They get added when the unlock
+# reveals them and the crop comes from a live capture.
+WORKSHOP_ROWS: dict[str, tuple[str, str]] = {  # name -> (template, layout)
+    "Unlock Cash Bonuses": ("workshop/unlock_cash_bonuses.png", "tile"),
+    "Unlock Defense Upgrades": ("workshop/unlock_defense_upgrades.png", "tile"),
+    "Unlock Range Upgrades": ("workshop/unlock_range_upgrades.png", "tile"),
+    "Health": ("workshop/row_health.png", "row"),
+    "Health Regen": ("workshop/row_health_regen.png", "row"),
+    "Damage": ("workshop/row_damage.png", "row"),
+    "Attack Speed": ("workshop/row_attack_speed.png", "row"),
+    "Critical Chance": ("workshop/row_critical_chance.png", "row"),
+    "Critical Factor": ("workshop/row_critical_factor.png", "row"),
+}
+
+# Buy buttons on the Cards page. Cropped to the "x1"/"x10" quantity label and
+# border only - not the price or gem icon, which live in CARD_PRICE_REGION.
+# Same reasoning as WORKSHOP_ROWS: a template baked from a number that will
+# change would stop matching the moment it changes.
+CARD_BUTTONS: dict[str, str] = {
+    "x1": "cards/buy_x1.png",
+    "x10": "cards/buy_x10.png",
+}
+
+LAYOUTS: tuple[str, ...] = ("row", "tile")
+
+# Where a price sits relative to its own matched template. Two entries because
+# the workshop has two layouts and they put the number in different places: an
+# upgrade row is a half-width tile with the price right of the label, an
+# unlock tile is full-width with the price centred below it. One offset cannot
+# reach both, and a single averaged offset would miss both.
+#
+# The currency icon is INSIDE these regions deliberately. The number is
+# right-aligned against the icon and grows leftward, so trimming the icon off
+# the right would clip a longer price from the left. The reader is taught to
+# ignore the icon instead - see the `menu` size class (Task 5b).
+#
+# "row" is measured from the ROW TEMPLATE'S OWN top-left, which is the tile's
+# corner (see WORKSHOP_ROWS templates) - constant across all four upgrade
+# rows regardless of whether the label is one line ("Damage") or two
+# ("Attack Speed"), because the anchor is the corner, not the text.
+#
+# "tile" is measured from the UNLOCK TEMPLATE'S OWN top-left, which is ALSO
+# the tile's corner, not a tight crop of the label. A tight-to-label crop was
+# tried first and rejected: the three unlock labels are different lengths
+# ("Unlock Cash Bonuses" vs "Unlock Defense Upgrades"), the label is CENTRED
+# on the tile, and the price sits centred under the TILE, not under the
+# label's own left edge - so a tight label crop's top-left slides left or
+# right by up to 50px depending on the name, and one dx cannot follow it.
+# Anchoring on the tile corner (a fixed x=30 offset from the page edge, same
+# for all three) removes that dependency, exactly as it did for rows.
+# Uniqueness among the three unlock tiles (they share a border style) comes
+# from including the label text in the wider corner crop, not from cropping
+# tight to it - verified below 0.82 cross-match, well under the 0.9 threshold.
+PRICE_REGIONS: dict[str, Region] = {
+    "row": Region(dx=260, dy=130, w=250, h=55),
+    "tile": Region(dx=440, dy=95, w=150, h=70),
+}
+
+# From the matched buy button's own top-left (see CARD_BUTTONS). Same
+# reasoning as PRICE_REGIONS: the icon is included on purpose, and there is
+# room to the left for the price to grow into.
+CARD_PRICE_REGION: Region = Region(dx=110, dy=29, w=210, h=55)
 
 # --- Live feed ------------------------------------------------------------
 # How much history the SSE ring holds. A reconnecting browser replays from
