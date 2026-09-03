@@ -26,7 +26,7 @@ def scene(text: str) -> tuple[np.ndarray, config.Region]:
 
 def test_dumps_one_file_per_glyph(tmp_path: Path) -> None:
     screen, region = scene("407")
-    written = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path)
+    written = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path, "wallet")
 
     assert len(written) == 3
     assert all(p.exists() for p in written)
@@ -37,7 +37,7 @@ def test_dumps_one_file_per_glyph(tmp_path: Path) -> None:
 
 def test_dumped_glyphs_are_readable_greyscale(tmp_path: Path) -> None:
     screen, region = scene("5")
-    written = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path)
+    written = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path, "wallet")
     img = cv2.imread(str(written[0]), cv2.IMREAD_GRAYSCALE)
     assert img is not None and img.size > 0
 
@@ -45,11 +45,31 @@ def test_dumped_glyphs_are_readable_greyscale(tmp_path: Path) -> None:
 def test_does_not_overwrite_existing_numbering(tmp_path: Path) -> None:
     """Called twice over a session, the second batch must not clobber the first."""
     screen, region = scene("12")
-    build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path)
-    second = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path)
+    build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path, "wallet")
+    second = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path, "wallet")
 
     assert len(list(tmp_path.glob("glyph_*.png"))) == 4
     assert second[0].name == "glyph_002.png"
+
+
+def test_header_source_binarises_at_the_header_threshold(tmp_path: Path) -> None:
+    """dump_glyphs must resolve ITS OWN threshold from the size class it was
+    given, not fall back to the bare (dark-panel) default. The header bar is
+    light, not dark: at config.DIGIT_BINARY_THRESHOLD the panel survives
+    binarisation and bridges adjacent glyphs, so "1.77K" segments as
+    1 . 77 K (4 files) instead of 1 . 7 7 K (5 files) - a merged span that
+    can never be labelled. This is a behavioural check, not a check of the
+    threshold constant: it fails again if dump_glyphs ever goes back to a
+    bare digits.binarize(patch) call, whatever the constant's value is.
+    """
+    screen = frame("menu_workshop_attack.png")
+    cache = vision.TemplateCache(config.TEMPLATE_DIR)
+    _, top_left = vision.best_score(screen, cache.get(config.PAGE_ANCHORS["WORKSHOP"]))
+    coins_region, _ = config.HEADER_REGIONS["WORKSHOP"]
+
+    written = build_atlas.dump_glyphs(screen, coins_region, top_left, tmp_path, "header")
+
+    assert len(written) == 5, "1.77K must split into 1 . 7 7 K, not merge the two 7s"
 
 
 # --- Where glyphs are harvested from ---------------------------------------

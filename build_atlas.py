@@ -129,12 +129,22 @@ SOURCES: dict[str, tuple[Source, ...]] = {
 
 
 def dump_glyphs(
-    screen: Image, region: config.Region, anchor: tuple[int, int], out_dir: Path
+    screen: Image,
+    region: config.Region,
+    anchor: tuple[int, int],
+    out_dir: Path,
+    size_class: str,
 ) -> list[Path]:
     """Write one PNG per glyph found in `region`. Returns the paths written.
 
     Numbering continues from whatever is already in `out_dir`, so repeated
     calls across a session accumulate instead of overwriting.
+
+    Binarises at `size_class`'s own threshold via digits.threshold_for,
+    never the bare default - the header bar is light rather than dark, and
+    at the shared default the panel survives binarisation and bridges
+    adjacent glyphs ("1.77K" segments as 1 . 77 K instead of 1 . 7 7 K),
+    which is exactly the bug NumberReader.read avoids the same way.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     start = len(list(out_dir.glob("glyph_*.png")))
@@ -143,8 +153,9 @@ def dump_glyphs(
     if patch is None:
         return []
 
+    binary = digits.binarize(patch, digits.threshold_for(size_class))
     written: list[Path] = []
-    for offset, glyph in enumerate(digits.split_glyphs(digits.binarize(patch))):
+    for offset, glyph in enumerate(digits.split_glyphs(binary)):
         path = out_dir / f"glyph_{start + offset:03d}.png"
         cv2.imwrite(str(path), glyph)
         written.append(path)
@@ -188,7 +199,9 @@ def main(argv: list[str] | None = None) -> int:
         written = 0
         for source in applicable:
             for anchor in source.anchors(screen, reading, cache):
-                written += len(dump_glyphs(screen, source.region, anchor, out_dir))
+                written += len(
+                    dump_glyphs(screen, source.region, anchor, out_dir, args.size_class)
+                )
         total += written
         print(f"frame {frame}: +{written} glyphs ({total} total)")
         time.sleep(args.interval)
