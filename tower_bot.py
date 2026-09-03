@@ -484,7 +484,20 @@ class TowerBot:
         # Checked after navigation, and begin() checked after advance() below:
         # a visit that just ended this same scan must not restart within it,
         # and must not race the tap navigation just skipped above.
-        if visiting:
+        if visiting and settings.paused:
+            # Freeze, don't unwind. advance() is the one tap path that spends
+            # currency, so pause has to suppress it too, not just the start
+            # of a visit - "still scanning, not tapping" has to hold
+            # mid-errand. Ending the visit instead would want a return-to-
+            # Battle tap of its own, which is exactly what pause forbids;
+            # `visiting` stays True below (shopping.active is untouched), so
+            # navigation and unknown-snapshot suppression both stay in
+            # force too - the bot is still sitting on a menu page either
+            # way. The paused Skipped event published above already makes
+            # this visible on the feed. The visit simply resumes, from
+            # wherever it left off, on the next unpaused scan.
+            pass
+        elif visiting:
             self.shopping.advance(self.screen, self.device, settings.strategy.shopping)
         elif (
             state is screens.ScreenState.MAIN_MENU
