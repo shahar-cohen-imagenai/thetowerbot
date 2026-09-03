@@ -350,15 +350,18 @@ LAYOUTS: tuple[str, ...] = ("row", "tile")
 # "row"'s width was re-measured in Task 5b: at 250 the crop's right edge lands
 # inside the upgrade tile's own border, a pixel-identical sliver (columns
 # 237-243 of the crop, on every one of the six row prices in the committed
-# fixtures) that segments as a fourth "glyph" no atlas entry can safely
-# represent - it binarises to a solid block with zero variance, which breaks
-# cv2's normalised correlation (it scores 1.0 against literally everything,
-# not just its own label). The digits and coin end by column 213, so 225 sits
-# in the middle of the 213-237 gap, matching this file's stat of picking the
-# middle of a measured plateau rather than its edge (see
-# DIGIT_BINARY_THRESHOLDS). Trimming the right edge cannot clip a longer
-# price either: the number grows LEFTWARD against the icon (see above), so
-# nothing meaningful ever lived in the trimmed space.
+# fixtures) that segments as a fourth "glyph". That sliver matches nothing -
+# it scores 0.0 against every real atlas entry, nowhere near
+# GLYPH_MATCH_THRESHOLD - so Atlas.match returns None for it, and because a
+# read is all-or-nothing (see digits.NumberReader.read) one unmatched glyph
+# fails the WHOLE price, not just that glyph. The failure is safe (a refused
+# read, never a wrong number) but total, so the fix has to be geometric:
+# the real content (digits + coin) ends at column 213 and the border starts
+# at column 237, so 225 sits in the middle of that gap - the same convention
+# this file uses elsewhere for picking the middle of a measured plateau
+# rather than its edge (see DIGIT_BINARY_THRESHOLDS). Trimming the right edge
+# cannot clip a longer price either: the number grows LEFTWARD against the
+# icon (see above), so nothing meaningful ever lived in the trimmed space.
 PRICE_REGIONS: dict[str, Region] = {
     "row": Region(dx=260, dy=130, w=225, h=55),
     "tile": Region(dx=440, dy=95, w=150, h=70),

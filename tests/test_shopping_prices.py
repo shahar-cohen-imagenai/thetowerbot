@@ -68,6 +68,47 @@ def test_every_workshop_price_reads_exactly(
     assert price == expected, f"{fixture} {row_name}: expected {expected}, got {price}"
 
 
+def test_row_region_excludes_the_tile_border(cache) -> None:
+    """Pins the PRICE_REGIONS["row"] width trim (250 -> 225).
+
+    At the original width the crop's right edge caught a few pixels of the
+    upgrade tile's own border - a fixed sliver that segments as a fourth
+    "glyph" alongside the two digits and the coin. That sliver matches no
+    real atlas entry (it scores 0.0 against every one of them, nowhere near
+    GLYPH_MATCH_THRESHOLD), so Atlas.match returns None for it and the whole
+    price fails under the all-or-nothing rule - a safe failure, but a total
+    one. Exactly 3 spans (2 digits + the coin) is the signal that the border
+    is excluded; a regression back toward width 250 would show up here as 4.
+    """
+    screen = frame("menu_workshop_attack")
+    template_path, _ = config.WORKSHOP_ROWS["Damage"]
+    match = vision.locate_template(screen, cache.get(template_path), 0.9)
+    assert match is not None
+
+    patch = digits.crop(screen, config.PRICE_REGIONS["row"], match.top_left)
+    spans = digits.glyph_spans(digits.binarize(patch, digits.threshold_for("menu")))
+    assert len(spans) == 3, f"expected 2 digits + coin, segmented {len(spans)}"
+
+
+def test_widening_the_row_region_reintroduces_the_border_and_fails_the_read(cache, reader) -> None:
+    """The regression this trim guards against, demonstrated directly: widen
+    PRICE_REGIONS["row"] back toward its original 250 and the border sliver
+    comes back into the crop, segments as an unmatched fourth glyph, and
+    fails the whole read - even though the two real digits and the coin are
+    still sitting at the exact same pixels they were at the narrower width.
+    """
+    screen = frame("menu_workshop_attack")
+    template_path, _ = config.WORKSHOP_ROWS["Damage"]
+    match = vision.locate_template(screen, cache.get(template_path), 0.9)
+    assert match is not None
+
+    narrow = config.PRICE_REGIONS["row"]
+    widened = config.Region(dx=narrow.dx, dy=narrow.dy, w=250, h=narrow.h)
+
+    assert reader.read(screen, narrow, match.top_left, "menu") == 30
+    assert reader.read(screen, widened, match.top_left, "menu") is None
+
+
 CARD_PRICE_CASES: tuple[tuple[str, int], ...] = (
     ("x1", 20),
     ("x10", 200),
