@@ -6,8 +6,10 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { StatusBadge } from "@/components/StatusBadge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { fetchErrors, fetchStrategies } from "@/lib/api";
+import { useConnected } from "@/lib/useEventStream";
 import { cn } from "@/lib/utils";
 
 type Item = { href: string; label: string; icon: typeof Activity };
@@ -37,6 +39,10 @@ const GUIDE: Item = { href: "/guide/", label: "Guide", icon: BookOpen };
 
 export function Sidebar() {
   const pathname = usePathname();
+  // Read from the shared stream rather than opening one here: this component
+  // is on every page, including the two that already subscribe via
+  // useControlSync.
+  const connected = useConnected();
   const [errorCount, setErrorCount] = useState<number | null>(null);
   const [active, setActive] = useState<string | null>(null);
 
@@ -104,12 +110,20 @@ export function Sidebar() {
 
       <div className="contents md:mt-auto md:block">
         {link(GUIDE)}
-        <div className="mt-2 hidden md:block">
+        <div className="mt-3 hidden items-center gap-2 md:flex">
+          <StatusBadge state={connected ? "live" : "warn"}>
+            {connected ? "live" : "no bot"}
+          </StatusBadge>
           <ThemeToggle />
         </div>
       </div>
 
-      <div className="ml-auto self-center md:hidden">
+      {/* On the mobile strip the badge rides beside the theme toggle - the
+          rail is horizontal there and has no footer to sit in. */}
+      <div className="ml-auto flex items-center gap-2 self-center md:hidden">
+        <StatusBadge state={connected ? "live" : "warn"}>
+          {connected ? "live" : "no bot"}
+        </StatusBadge>
         <ThemeToggle />
       </div>
     </nav>

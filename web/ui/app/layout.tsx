@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Sidebar } from "@/components/Sidebar";
+import { EventStreamProvider } from "@/lib/useEventStream";
 import "./globals.css";
 
 // Self-hosted at build time, so the exported site has no runtime dependency on
@@ -38,10 +39,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: APPLY_THEME }} />
       </head>
       <body className="bg-background text-foreground antialiased">
-        <div className="flex min-h-dvh flex-col md:flex-row">
-          <Sidebar />
-          <main className="min-w-0 flex-1 p-4">{children}</main>
-        </div>
+        {/* One SSE connection for the whole tab. It has to wrap the rail as
+            well as the page, because the rail reports whether the bot is
+            reachable from every page, not just the Live one. */}
+        <EventStreamProvider>
+          <div className="flex min-h-dvh flex-col md:flex-row">
+            <Sidebar />
+            <main className="min-w-0 flex-1 p-4">{children}</main>
+          </div>
+        </EventStreamProvider>
       </body>
     </html>
   );
