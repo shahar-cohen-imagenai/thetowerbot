@@ -142,6 +142,13 @@ DIGIT_BINARY_THRESHOLD: int = 140
 # 1 . 77 K, and a merged span matches no atlas entry, so the whole read
 # fails. Measured on menu_workshop_attack.png: 170-240 all segment correctly,
 # so 200 sits in the middle of the plateau rather than on its edge.
+#
+# `menu` - the size class every workshop and card price is read at (see
+# shopping.py's _buy_rows and _buy_cards) - has no entry here, and that is a
+# checked fact, not an oversight: prices sit on a dark panel like the in-run
+# and modal classes, and the unmodified 140 default segments them correctly
+# on every committed menu fixture. No override needed unless a future
+# capture shows otherwise.
 DIGIT_BINARY_THRESHOLDS: dict[str, int] = {"header": 200}
 
 # A glyph must match an atlas entry at least this well to be accepted.

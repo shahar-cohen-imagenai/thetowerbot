@@ -284,7 +284,7 @@ aborted=…, reason=…)`, and every purchase attempt along the way publishes
 its own `Purchased` or `PurchaseSkipped` event — so a visit is as legible in
 the event feed as any other run, not one entry that shows up after the fact.
 
-> **Two things here are still unverified on a live device.**
+> **Three things here are still unverified on a live device.**
 >
 > The header glyph atlas is incomplete. `templates/atlas/header/` holds
 > `0 1 4 7 8 . K` — every glyph the committed fixtures happened to contain.
@@ -295,6 +295,20 @@ the event feed as any other run, not one entry that shows up after the fact.
 > session rather than one that might approve a purchase against a balance
 > it half-read. This fails safe on purpose: an unreadable balance can
 > approve no purchase, ever.
+>
+> The `menu` glyph atlas — the size class every price is read at, in both
+> `_buy_rows` and `_buy_cards` — is incomplete the same way. `templates/atlas/
+> menu/` holds `0 2 3 4 5 7 coin gem`, missing `1 6 8 9`: a glyph can only be
+> harvested once a price actually containing it has appeared on screen, and
+> nothing so far has forced one. Unlike the header atlas this is not gated at
+> `build_shopping()` time - prices escalate with every purchase, so a session
+> could buy once or twice against today's readable prices and then start
+> refusing every purchase the moment one crosses 1, 6, 8 or 9. It fails safe
+> the same way an unreadable balance does: `_reader.read()` returns None,
+> shopping.py publishes `PurchaseSkipped(reason="unreadable")`, and the row
+> is exhausted for the visit - a refused read, never a wrong price. See
+> "Known gap" below - closing this one needs a harvesting source added to
+> `build_atlas.py` first, not just a play session.
 >
 > The workshop buy point has never been tapped on a live device. A row
 > purchase taps the centre of the row's own matched template (`match.center`
@@ -402,6 +416,25 @@ range. `uv run build_atlas.py --size-class header` during a real play
 session closes that gap; `tests/test_header_digits.py` documents exactly
 which glyphs are still missing via a skipped test that starts passing once
 they are harvested.
+
+The `menu` atlas - the size class `shopping.py` reads every workshop and
+card price at (`_buy_rows` and `_buy_cards` both pass `"menu"` to
+`NumberReader.read`) - has the same kind of gap: it is missing `1 6 8 9`,
+because none of the committed fixtures happen to show a price containing
+them. Unlike the header atlas, there is no dedicated startup gate for this
+one - `build_shopping()` only checks the header - so the failure shows up
+per-purchase instead: a price containing one of those four digits reads as
+None, and shopping.py refuses it the same way it refuses any other
+unreadable price (`PurchaseSkipped(reason="unreadable")`, the row marked
+exhausted for the visit) rather than reading a neighbouring glyph and
+reporting a wrong number. Today's fixture prices - 30, 40, 50, 75 - happen
+to avoid all four digits, which is why this has not surfaced in a fixture
+run; prices escalate with every purchase on a live account, so a real
+session would eventually hit one. Closing it needs more than a play session,
+though: `build_atlas.py`'s `SOURCES` table (above) has no `"menu"` entry at
+all, so `--size-class menu` is not a valid choice yet - a `Source` pointing
+at a workshop or cards row's price region would need adding there first,
+the same way `price` points at an in-run upgrade's.
 
 ### Brightness, the older heuristic
 
