@@ -461,6 +461,36 @@ def test_prepare_store_logs_nothing_when_there_is_nothing_to_close(tmp_path, cap
     assert "Closed" not in caplog.text
 
 
+def test_prepare_store_backfills_the_ledger_before_pruning(tmp_path) -> None:
+    """Ordering is the whole point. An event already past the retention
+    window is deleted by the prune, so if backfill ran second the permanent
+    history would be born already missing everything older than 30 days."""
+    import db
+
+    path = tmp_path / "bot.db"
+    conn = db.connect(path)
+    conn.execute(
+        """INSERT INTO events (seq, run_id, ts, type, screen, action, reason,
+                               score, price, wallet, detail)
+           VALUES (1, NULL, 0.0, 'Purchased', NULL, NULL, NULL, NULL, 75, NULL,
+                   '{"item": "Health", "category": "DEFENSE",
+                     "coins_before": 1770, "gems_before": null,
+                     "dry_run": false}')"""
+    )
+    conn.commit()
+    conn.close()
+
+    tower_bot.prepare_store(path, retention_days=30)
+
+    with db.reader(path) as reader:
+        # The event itself aged out...
+        assert reader.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 0
+        # ...but the ledger kept it, which is why the ledger exists.
+        page = db.ledger_page(reader)
+        assert len(page) == 1
+        assert page[0]["kind"] == "WORKSHOP_BUY"
+
+
 @pytest.mark.parametrize(
     "host, should_warn",
     [
