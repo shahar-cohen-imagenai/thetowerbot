@@ -64,6 +64,35 @@ describe("ShoppingEditor", () => {
     expect(row.querySelector('input[value="tile"]')).toBeNull();
   });
 
+  it("has no brightness control on a row - shopping.py has no brightness path", () => {
+    render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
+    expect(screen.queryByLabelText(/brightness/i)).toBeNull();
+  });
+
+  it("says why nothing will happen when this machine cannot read a balance", () => {
+    render(
+      <ShoppingEditor
+        shopping={policy}
+        onChange={vi.fn()}
+        disabledReason="header atlas is missing 2, 3, 5, 6, 9"
+      />,
+    );
+    expect(screen.getByText(/header atlas is missing 2, 3, 5, 6, 9/)).toBeInTheDocument();
+  });
+
+  it("says nothing about being disabled when the machine is fine", () => {
+    render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
+    expect(screen.queryByText(/cannot run on this machine/i)).toBeNull();
+  });
+
+  it("marks the arm confirmation as an assertive alert dialog and focuses Cancel", () => {
+    render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
+    fireEvent.click(screen.getByRole("switch", { name: /arm/i }));
+    const dialog = screen.getByRole("alertdialog");
+    expect(dialog).toHaveAttribute("aria-live", "assertive");
+    expect(screen.getByRole("button", { name: /cancel/i })).toHaveFocus();
+  });
+
   it("warns that the gem floor guards a currency with no refund", () => {
     render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
     expect(screen.getByLabelText(/gem floor/i)).toBeInTheDocument();

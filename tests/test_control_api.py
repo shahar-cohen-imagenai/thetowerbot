@@ -58,6 +58,34 @@ def test_available_affordability_is_advertised_under_its_new_name(wired) -> None
     assert body["affordability_available"] == ["brightness"]
 
 
+def test_shopping_disabled_reason_is_absent_when_no_session_is_wired(wired) -> None:
+    """--once, --tui, and every test predating this finding build create_app
+    with no `shopping=` at all - that must read as "fully usable", not crash
+    the route."""
+    client, _, _, _ = wired
+    body = client.get("/api/control").json()
+    assert body["shopping_disabled_reason"] is None
+
+
+def test_shopping_disabled_reason_is_advertised_when_the_session_carries_one() -> None:
+    """The whole point of the finding this closes: a machine whose header
+    atlas cannot support a balance read must say why shopping does nothing,
+    not stay silent forever - see ShoppingSession.disabled_reason and
+    tower_bot.build_shopping()."""
+    class FakeShopping:
+        disabled_reason = "header atlas is missing 2, 3, 5, 6, 9"
+
+    app = create_app(
+        state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
+        unknown_dir=config.UNKNOWN_DIR, shutdown=threading.Event(),
+        controls=Controls(strategy=Strategy.from_config()),
+        checks={"brightness": object(), "digits": None},
+        shopping=FakeShopping(),
+    )
+    body = TestClient(app).get("/api/control").json()
+    assert body["shopping_disabled_reason"] == "header atlas is missing 2, 3, 5, 6, 9"
+
+
 def test_patch_publishes_a_control_changed_event(wired) -> None:
     client, _, seen, _ = wired
     client.patch("/api/control", json={"interval": 5.0})

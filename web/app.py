@@ -204,6 +204,7 @@ def create_app(
     frames: FrameBuffer | None = None,
     runner: BotRunner | None = None,
     store: StrategyStore | None = None,
+    shopping: Any | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -344,6 +345,14 @@ def create_app(
                 name for name, check in _available_checks().items()
                 if check is not None
             )
+            # Same reasoning as affordability_available above, for shopping:
+            # a machine whose header atlas is incomplete has a ShoppingSession
+            # that declines every visit forever (see build_shopping()), and
+            # without this the dashboard has no way to say why enabling and
+            # arming the feature produces total silence. None when shopping
+            # is fully usable, or when this process never wired one at all
+            # (--once, --tui, or a test that built create_app without it).
+            payload["shopping_disabled_reason"] = getattr(shopping, "disabled_reason", None)
             return payload
 
         @app.get("/api/control")

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { type ComponentRef, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,15 +40,31 @@ export function ShoppingEditor({
   shopping,
   onChange,
   disabled = false,
+  disabledReason = null,
 }: {
   shopping: Shopping;
   onChange: (next: Shopping) => void;
   disabled?: boolean;
+  /** Non-null when this machine's header glyph atlas cannot support a
+   * balance read - ShoppingSession.begin() then declines every visit
+   * forever, regardless of what is configured here. Surfaced so enabling
+   * and arming the feature says why nothing happens instead of doing
+   * nothing silently - see /api/control's shopping_disabled_reason. */
+  disabledReason?: string | null;
 }) {
   // Local, not lifted into `shopping`: this is UI-only intent to arm, not a
   // policy value. It must never survive a remount (a Revert, a tab switch)
   // half-confirmed.
   const [confirmingArm, setConfirmingArm] = useState(false);
+  // The arm confirmation is the one control on this page that spends
+  // currency a player cannot get back. Focusing Cancel when it opens - the
+  // safe default, not the destructive button - is what gives a screen
+  // reader user any signal at all that the arm switch just did something;
+  // without it, the panel simply appears with no announcement of intent.
+  const cancelRef = useRef<ComponentRef<typeof Button>>(null);
+  useEffect(() => {
+    if (confirmingArm) cancelRef.current?.focus();
+  }, [confirmingArm]);
 
   const set = <K extends keyof Shopping>(key: K, v: Shopping[K]) =>
     onChange({ ...shopping, [key]: v });
@@ -97,6 +113,13 @@ export function ShoppingEditor({
             />
           </label>
         </div>
+
+        {disabledReason ? (
+          <p className="rounded-md border border-dashed p-2 text-xs text-muted-foreground">
+            Shopping cannot run on this machine yet: {disabledReason}. Enabling or arming it
+            below will not do anything until this is fixed.
+          </p>
+        ) : null}
 
         <div className="flex flex-col gap-2 rounded-md border p-2 text-sm">
           <label className="flex items-center justify-between gap-2">
@@ -189,13 +212,27 @@ export function ShoppingEditor({
         </div>
 
         {confirmingArm ? (
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-destructive bg-destructive/10 p-2 text-sm">
+          // Not a full modal - that would be over-engineering for this
+          // page's idiom, where every other confirmation (Delete, Discard
+          // unsaved changes) is a plain inline panel or window.confirm. But
+          // this is the one control that spends currency nobody gets back,
+          // so it earns alertdialog + assertive plus the focus move below:
+          // together they are what tells a screen-reader user the arm
+          // switch did anything at all, rather than the panel just
+          // silently appearing.
+          <div
+            role="alertdialog"
+            aria-live="assertive"
+            aria-label="Confirm arming shopping"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-destructive bg-destructive/10 p-2 text-sm"
+          >
             <span>
               Arming spends real coins and gems on the bot&apos;s next shopping visit. This
               cannot be undone.
             </span>
             <div className="flex gap-2">
               <Button
+                ref={cancelRef}
                 type="button" variant="outline" size="sm" disabled={disabled}
                 onClick={() => setConfirmingArm(false)}
               >
@@ -266,20 +303,14 @@ export function ShoppingEditor({
                     className="w-20 text-right"
                   />
                 </label>
-                <label className="flex items-center gap-1 text-xs text-muted-foreground">
-                  brightness
-                  <Input
-                    type="number" min={0} max={1} step={0.05}
-                    aria-label={`${row.name} brightness`}
-                    key={row.brightness_ratio}
-                    defaultValue={row.brightness_ratio}
-                    disabled={disabled}
-                    onBlur={(e) =>
-                      setRow(index, { brightness_ratio: Number(e.target.value) })
-                    }
-                    className="w-20 text-right"
-                  />
-                </label>
+                {/* No brightness control here on purpose: shopping.py has no
+                    brightness path for menu prices at all (the game
+                    desaturates rather than dims an unaffordable button on
+                    these pages - see the Guide and shopping.py's module
+                    docstring), so an editable field here would let someone
+                    tune a knob that is never read. brightness_ratio stays on
+                    ShoppingRule for schema symmetry with ActionRule, not
+                    because this page can do anything with it. */}
                 <button
                   type="button" aria-label="Move up"
                   disabled={disabled || index === 0}

@@ -1240,6 +1240,7 @@ def main(argv: list[str] | None = None) -> int:
                 frames=frames,
                 runner=runner,
                 store=store,
+                shopping=shopping_session,
             )
             # No signal handlers of ours here: uvicorn installs its own and
             # would overwrite them anyway.

@@ -163,6 +163,12 @@ export interface ControlPayload {
   paused: boolean;
   strategy: Strategy;
   affordability_available: string[];
+  /** Non-null when this machine's header glyph atlas cannot support a
+   * balance read, which makes ShoppingSession.begin() decline every visit
+   * forever regardless of the policy - see build_shopping(). Lets the
+   * Strategy page say why enabling and arming shopping produces total
+   * silence, instead of doing nothing with no explanation. */
+  shopping_disabled_reason: string | null;
 }
 
 export interface RunStat {
