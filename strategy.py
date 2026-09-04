@@ -51,11 +51,29 @@ PATCHABLE_FIELDS = (
     "max_runs",
     "navigation_cooldown",
     "screen_confirmations",
+    "tap_jitter_px",
+    "timing_jitter",
+    "tap_delay",
 )
 
 # Longest a cooldown may be. Zero is legal - it means "no cooldown" - but a
 # minute between two taps on one button is not a strategy, it is a typo.
 MAX_COOLDOWN = 60.0
+
+# Widest tap jitter radius, derived rather than chosen. The buy point sits
+# at the centre of the price strip (config.buy_point), and that strip is the
+# smallest thing the bot ever taps - every other tap target is a template
+# centre on a crop at least 100px on its shortest side. A radius past half
+# the strip's height can put the tap outside the button, where it buys
+# nothing while the bot still publishes a Tapped event: a silent failure,
+# not a visible one. Deriving the ceiling from PRICE_REGION means
+# re-measuring it for a new resolution moves this with it.
+MAX_TAP_JITTER_PX = config.PRICE_REGION.h / 2
+# Beyond ±50% the configured interval stops describing the actual pace.
+MAX_TIMING_JITTER = 0.5
+# A two-second pause before each tap is already pathological; more than that
+# is a hang, not a strategy.
+MAX_TAP_DELAY = 2.0
 
 # The debounce depth. 0 would defeat the screen tracker entirely; double
 # figures would make a transition take most of a minute at a 2s interval.
@@ -106,6 +124,9 @@ _STRATEGY_TYPES: dict[str, tuple[type, ...]] = {
     "interval": (int, float),
     "click_cooldown": (int, float),
     "navigation_cooldown": (int, float),
+    "tap_jitter_px": (int, float),
+    "timing_jitter": (int, float),
+    "tap_delay": (int, float),
     "screen_confirmations": (int,),
     "auto_navigate": (bool,),
     "max_runs": (int,),
@@ -570,6 +591,12 @@ class Strategy:
     # answer, so the dashboard labels them "applies on next Start".
     navigation_cooldown: float = config.NAVIGATION_COOLDOWN_SECONDS
     screen_confirmations: int = config.SCREEN_CONFIRMATIONS
+    # Read fresh every scan, unlike the two above: nothing holds state
+    # across scans on their behalf, so an edit in the browser lands on the
+    # very next tap without a restart.
+    tap_jitter_px: float = config.TAP_JITTER_PX
+    timing_jitter: float = config.TIMING_JITTER
+    tap_delay: float = config.TAP_DELAY_SECONDS
     # Between-runs spending. Defaults to a policy that buys nothing, so a
     # strategy file written before this existed loads and behaves the same.
     shopping: Shopping = Shopping()
@@ -596,6 +623,9 @@ class Strategy:
         _in_range("interval", self.interval, MIN_INTERVAL, MAX_INTERVAL)
         _in_range("click_cooldown", self.click_cooldown, 0.0, MAX_COOLDOWN)
         _in_range("navigation_cooldown", self.navigation_cooldown, 0.0, MAX_COOLDOWN)
+        _in_range("tap_jitter_px", self.tap_jitter_px, 0.0, MAX_TAP_JITTER_PX)
+        _in_range("timing_jitter", self.timing_jitter, 0.0, MAX_TIMING_JITTER)
+        _in_range("tap_delay", self.tap_delay, 0.0, MAX_TAP_DELAY)
         _in_range(
             "screen_confirmations",
             self.screen_confirmations,
@@ -662,6 +692,9 @@ class Strategy:
             "max_runs": self.max_runs,
             "navigation_cooldown": self.navigation_cooldown,
             "screen_confirmations": self.screen_confirmations,
+            "tap_jitter_px": self.tap_jitter_px,
+            "timing_jitter": self.timing_jitter,
+            "tap_delay": self.tap_delay,
             "shopping": self.shopping.to_dict(),
         }
 

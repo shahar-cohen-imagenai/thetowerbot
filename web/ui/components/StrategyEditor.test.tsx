@@ -16,6 +16,9 @@ const strategy: Strategy = {
   max_runs: null,
   navigation_cooldown: 3,
   screen_confirmations: 2,
+  tap_jitter_px: 8,
+  timing_jitter: 0.15,
+  tap_delay: 0.12,
   shopping: {
     enabled: false,
     armed: false,
@@ -149,5 +152,52 @@ describe("StrategyEditor", () => {
     rerender(<StrategyEditor value={{ ...withRuns, max_runs: 12 }} onChange={vi.fn()} />);
 
     expect(getInput().value).toBe("12");
+  });
+  it("renders the three jitter fields with their current values", () => {
+    render(<StrategyEditor value={strategy} onChange={vi.fn()} />);
+    expect((screen.getByLabelText("Tap jitter (px)") as HTMLInputElement).value).toBe("8");
+    expect((screen.getByLabelText("Timing jitter (fraction)") as HTMLInputElement).value).toBe("0.15");
+    expect((screen.getByLabelText("Tap delay (s)") as HTMLInputElement).value).toBe("0.12");
+  });
+
+  it("committing a jitter field reports only that field", () => {
+    const onChange = vi.fn();
+    render(<StrategyEditor value={strategy} onChange={onChange} />);
+    const input = screen.getByLabelText("Tap jitter (px)");
+
+    fireEvent.change(input, { target: { value: "4" } });
+    fireEvent.blur(input);
+
+    expect(onChange.mock.calls[0][0].tap_jitter_px).toBe(4);
+    expect(onChange.mock.calls[0][0].timing_jitter).toBe(0.15);
+  });
+
+  it("zero is an accepted jitter value, because zero means off", () => {
+    const onChange = vi.fn();
+    render(<StrategyEditor value={strategy} onChange={onChange} />);
+    const input = screen.getByLabelText("Tap jitter (px)");
+
+    fireEvent.change(input, { target: { value: "0" } });
+    fireEvent.blur(input);
+
+    expect(onChange.mock.calls[0][0].tap_jitter_px).toBe(0);
+  });
+
+  it("caps tap jitter at the radius the buy square can absorb", () => {
+    // strategy.MAX_TAP_JITTER_PX is PRICE_REGION.h / 2 = 19. The input's max
+    // must agree with the server's ceiling, or the dashboard offers a value
+    // the PATCH will reject with a 422.
+    render(<StrategyEditor value={strategy} onChange={vi.fn()} />);
+    expect(screen.getByLabelText("Tap jitter (px)").getAttribute("max")).toBe("19");
+  });
+
+  it("repaints a jitter field when the prop changes", () => {
+    const { rerender } = render(<StrategyEditor value={strategy} onChange={vi.fn()} />);
+    const getInput = () => screen.getByLabelText("Tap delay (s)") as HTMLInputElement;
+    expect(getInput().value).toBe("0.12");
+
+    rerender(<StrategyEditor value={{ ...strategy, tap_delay: 0.4 }} onChange={vi.fn()} />);
+
+    expect(getInput().value).toBe("0.4");
   });
 });

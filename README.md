@@ -173,9 +173,47 @@ screens — it just never taps between screens, so it sits on the death modal
 until you act.
 
 Turned on, it taps exactly two buttons: `RETRY` on `GAME_OVER` and `BATTLE` on
-`MAIN_MENU`, each at the matched template's centre, no closer together than
-`NAVIGATION_COOLDOWN_SECONDS` (`3.0`s). `--max-runs N` stops after N runs and
-suppresses the RETRY that would have started run N+1.
+`MAIN_MENU`, each near the matched template's centre (see "Jitter" below), no
+closer together than `NAVIGATION_COOLDOWN_SECONDS` (`3.0`s). `--max-runs N`
+stops after N runs and suppresses the RETRY that would have started run N+1.
+
+### Jitter
+
+Every tap is an `input tap` over ADB: a synthetic event with no travel path
+and no dwell, aimed at a pixel derived by a fixed offset from a template
+match. Left alone that means the bot taps the *identical* pixel on every
+purchase of a given upgrade, for its whole life, and scans on a metronome.
+`jitter.py` is the single place variance is added, and all three knobs live
+in the active strategy's **Jitter** section, editable live.
+
+| Field | Default | What it does |
+| --- | --- | --- |
+| `tap_jitter_px` | `8.0` | Radius, in pixels, around the computed tap point. Gaussian (σ = radius/3, clamped), because a human's taps bunch near a button's middle rather than spreading evenly to its edges. |
+| `timing_jitter` | `0.15` | Fraction applied to the scan interval (± symmetric) and to both cooldowns (+ only). |
+| `tap_delay` | `0.12` | Mean pause between finding a match and sending its tap — without it the tap leaves in the same breath as the scan that decided it. |
+
+`0.0` switches any of them off individually, which is how the old fully
+deterministic behaviour stays reachable without a code change.
+
+Two asymmetries are deliberate, and both are about not breaking something
+that already works:
+
+- **The cooldowns only ever stretch.** `click_cooldown` gives a slow UI time
+  to respond and `navigation_cooldown` waits out a transition — they are
+  functional minimums, not targets. Jittering them *down* would re-admit the
+  double-tap they exist to prevent, so jitter can only lengthen them. The
+  scan interval, by contrast, is a target and varies both ways: a loop that
+  only ever waited *longer* than its nominal interval is still a pattern.
+- **`tap_jitter_px` is capped at `19`**, which is `PRICE_REGION.h / 2` rather
+  than a chosen number. The buy point sits at the centre of the price strip,
+  the smallest thing the bot ever taps; a radius past half its height could
+  land outside the button, where the tap buys nothing while the bot still
+  reports a successful purchase. Re-measure `PRICE_REGION` for a new
+  resolution and the ceiling moves with it.
+
+The jittered point — not the un-jittered one — is what the device view's
+crosshair draws and what `Tapped` events carry, so the overlay never lies
+about where a tap actually landed.
 
 ### Shopping between runs
 
@@ -522,7 +560,8 @@ press **Start** in the browser.
   in one place.
 - **Strategy** — the whole decision policy: which upgrades to buy and in
   what order, per-row match and brightness thresholds, loop timing, and run
-  policy, plus a **Shopping** section for the between-runs buy list — see
+  policy, plus a **Jitter** section (see "Jitter" above) and a **Shopping**
+  section for the between-runs buy list — see
   "Shopping between runs" above. Named profiles live in `strategies/*.json`,
   switchable live and editable by hand. Two fields — navigation cooldown and
   screen confirmations — configure objects built once per bot, so they are
@@ -607,6 +646,11 @@ Use `--debug-scores` to see the best match score for every template and pick a
 threshold just below the score of a real match (the default is `0.8`).
 `CLICK_COOLDOWN_SECONDS` (`1.0`) keeps a slow UI animation from producing a
 burst of taps on a button that was already pressed.
+
+`TAP_JITTER_PX` (`8.0`), `TIMING_JITTER` (`0.15`) and `TAP_DELAY_SECONDS`
+(`0.12`) are the shipped jitter defaults — what a fresh clone starts from.
+Tune them per profile on the Strategy page rather than here; see "Jitter"
+above for what each one does and why the cooldowns only stretch.
 
 ## Dependencies
 

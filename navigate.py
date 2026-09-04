@@ -13,9 +13,11 @@ from adbutils import AdbDevice
 
 import config
 import events
+import jitter
 import vision
 from device import Image, tap
 from screens import ScreenState
+from strategy import Strategy
 
 logger = logging.getLogger("tower_bot.navigate")
 
@@ -35,14 +37,38 @@ class Navigator:
         self._last = float("-inf")
 
     def maybe_navigate(
-        self, screen: Image, state: ScreenState, device: AdbDevice, now: float | None = None
+        self,
+        screen: Image,
+        state: ScreenState,
+        device: AdbDevice,
+        now: float | None = None,
+        tuning: Strategy | None = None,
     ) -> str | None:
+        """Tap this screen's nav button, if there is one and it is due.
+
+        `tuning` carries the live jitter policy, taken from the same
+        snapshot run_once used for the rest of the pass. Passing it is what
+        turns jitter on: with `None` this behaves exactly as it did before
+        jitter existed, which is what keeps direct callers - and the tests
+        that predate this - working unchanged. Navigator is deliberately
+        not given a Controls of its own to read; it is handed a policy or it
+        uses none.
+        """
         entry = config.NAV_BUTTONS.get(state.value)
         if entry is None:
             return None
 
         moment = time.monotonic() if now is None else now
-        if moment - self._last < self._cooldown:
+        # stretch(), not spread(): this cooldown waits out a screen
+        # transition, so jitter may only lengthen it. Shortening it is how
+        # the second tap lands mid-animation - the double-navigation the
+        # cooldown exists to prevent.
+        due = (
+            self._cooldown
+            if tuning is None
+            else jitter.stretch(self._cooldown, tuning.timing_jitter)
+        )
+        if moment - self._last < due:
             return None
 
         target, template_path = entry
@@ -53,6 +79,9 @@ class Navigator:
             return None
 
         x, y = match.center
+        if tuning is not None:
+            x, y = jitter.point(x, y, tuning.tap_jitter_px)
+            jitter.pause(tuning.tap_delay, tuning.timing_jitter)
         tap(device, x, y)
         self._last = moment
         self._bus.publish(events.Navigated(target=target))

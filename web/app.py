@@ -188,6 +188,9 @@ class ControlPatch(BaseModel):
     max_runs: int | None = None
     navigation_cooldown: float | None = None
     screen_confirmations: int | None = None
+    tap_jitter_px: float | None = None
+    timing_jitter: float | None = None
+    tap_delay: float | None = None
     actions: list[dict[str, Any]] | None = None
 
 

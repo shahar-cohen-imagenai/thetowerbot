@@ -175,6 +175,29 @@ export function StrategyEditor({
       </Card>
 
       <Card className="gap-3 p-3">
+        <h2 className="text-xs uppercase tracking-wide text-muted-foreground">Jitter</h2>
+        <p className="text-xs text-muted-foreground">
+          Every tap is an ADB <code>input tap</code>: no travel, no dwell, and the
+          same pixel every time. These scatter it. Zero switches each one off.
+        </p>
+        <NumberField
+          label="Tap jitter (px)" value={value.tap_jitter_px} disabled={disabled}
+          min={0} max={19} step={0.5}
+          onCommit={(n) => set("tap_jitter_px", n)}
+        />
+        <NumberField
+          label="Timing jitter (fraction)" value={value.timing_jitter}
+          disabled={disabled} min={0} max={0.5} step={0.05}
+          onCommit={(n) => set("timing_jitter", n)}
+        />
+        <NumberField
+          label="Tap delay (s)" value={value.tap_delay} disabled={disabled}
+          min={0} max={2} step={0.05}
+          onCommit={(n) => set("tap_delay", n)}
+        />
+      </Card>
+
+      <Card className="gap-3 p-3">
         <h2 className="text-xs uppercase tracking-wide text-muted-foreground">
           Run policy
         </h2>
