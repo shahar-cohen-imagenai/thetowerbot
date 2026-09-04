@@ -31,6 +31,18 @@ def a_row(seq: int, **overrides: object) -> dict[str, object]:
     return row
 
 
+def a_line(**overrides: object) -> dict[str, object]:
+    line: dict[str, object] = {
+        "seq": 1, "ts": 1000.0, "kind": "WORKSHOP_BUY", "item": "Damage",
+        "category": "ATTACK", "currency": "coins", "delta": -120,
+        "price": 120, "balance_after": 1650, "observed": 1770,
+        "dry_run": 0, "run_id": None, "visit": 3, "reason": None,
+        "detail": None,
+    }
+    line.update(overrides)
+    return line
+
+
 def test_an_inserted_event_reads_back_with_its_detail_decoded(tmp_path: Path) -> None:
     conn = make_db(tmp_path)
     db.start_run(conn, 1, started_at=999.0)
@@ -147,3 +159,56 @@ def test_a_reader_connection_cannot_write(tmp_path: Path) -> None:
     with db.reader(path) as conn:
         with pytest.raises(sqlite3.OperationalError):
             conn.execute("DELETE FROM events")
+
+
+def test_a_ledger_page_comes_back_newest_first(tmp_path: Path) -> None:
+    conn = make_db(tmp_path)
+    for seq in (1, 2, 3):
+        db.insert_ledger(conn, a_line(seq=seq, ts=1000.0 + seq))
+
+    page = db.ledger_page(conn)
+
+    assert [line["seq"] for line in page] == [3, 2, 1]
+
+
+def test_rehearsals_are_excluded_unless_asked_for(tmp_path: Path) -> None:
+    """A dry-run line has delta 0 by construction, so showing it by default
+    would put rows in a running-balance table that cannot move the balance."""
+    conn = make_db(tmp_path)
+    db.insert_ledger(conn, a_line(seq=1, dry_run=0))
+    db.insert_ledger(conn, a_line(seq=2, dry_run=1, delta=0))
+
+    assert [line["seq"] for line in db.ledger_page(conn)] == [1]
+    assert [line["seq"] for line in db.ledger_page(conn, include_rehearsals=True)] == [2, 1]
+    assert db.count_rehearsals(conn) == 1
+
+
+def test_the_last_balance_per_currency_ignores_lines_that_never_had_one(
+    tmp_path: Path,
+) -> None:
+    """An unreadable price leaves balance_after NULL. That is a hole in the
+    chain, not a balance of zero, and seeding a writer from it would invent
+    a huge bogus UNEXPLAINED on the next real reading."""
+    conn = make_db(tmp_path)
+    db.insert_ledger(conn, a_line(seq=1, currency="coins", balance_after=1650))
+    db.insert_ledger(conn, a_line(seq=2, currency="coins", balance_after=None))
+    db.insert_ledger(conn, a_line(seq=3, currency="gems", balance_after=40))
+
+    assert db.last_balances(conn) == {"coins": 1650, "gems": 40}
+
+
+def test_an_empty_ledger_reports_both_balances_as_unknown(tmp_path: Path) -> None:
+    assert db.last_balances(make_db(tmp_path)) == {"coins": None, "gems": None}
+
+
+def test_ledger_rows_survive_the_event_prune(tmp_path: Path) -> None:
+    """The whole reason the ledger is its own table: events age out at 30
+    days and an account history that forgets last month is not a history."""
+    conn = make_db(tmp_path)
+    db.insert_event(conn, a_row(1, ts=0.0))
+    db.insert_ledger(conn, a_line(seq=1, ts=0.0))
+
+    removed = db.prune_events(conn, retention_days=30, now=100 * 86400)
+
+    assert removed == 1
+    assert len(db.ledger_page(conn)) == 1

@@ -52,6 +52,37 @@ CREATE TABLE IF NOT EXISTS events (
 
 CREATE INDEX IF NOT EXISTS events_run_idx ON events(run_id, seq);
 CREATE INDEX IF NOT EXISTS events_ts_idx  ON events(ts);
+
+-- Never pruned, unlike `events`. This is the account's permanent history:
+-- what it spent, on what, and what the balances were. `events` answers
+-- "what was the bot doing" for 30 days; this answers "what happened to
+-- this account" forever.
+CREATE TABLE IF NOT EXISTS ledger (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    seq           INTEGER,
+    ts            REAL NOT NULL,
+    kind          TEXT NOT NULL,
+    item          TEXT,
+    category      TEXT,
+    currency      TEXT,
+    delta         INTEGER,
+    price         INTEGER,
+    balance_after INTEGER,
+    observed      INTEGER,
+    dry_run       INTEGER NOT NULL DEFAULT 0,
+    run_id        INTEGER,
+    visit         INTEGER,
+    reason        TEXT,
+    detail        TEXT
+);
+
+-- Partial, because derived UNEXPLAINED lines have no source event and so
+-- no seq. It stops an event redelivered across a restart from being
+-- counted twice; it deliberately cannot dedupe derived lines, which is why
+-- ledger.backfill() guards on the table being empty instead.
+CREATE UNIQUE INDEX IF NOT EXISTS ledger_seq_idx  ON ledger(seq) WHERE seq IS NOT NULL;
+CREATE INDEX IF NOT EXISTS ledger_ts_idx   ON ledger(ts);
+CREATE INDEX IF NOT EXISTS ledger_kind_idx ON ledger(kind);
 """
 
 
@@ -253,6 +284,88 @@ def error_log(conn: sqlite3.Connection, limit: int = 100) -> list[dict[str, Any]
             ORDER BY seq DESC
             LIMIT ?""",
         (limit,),
+    ).fetchall()
+    return [_decode(row) for row in rows]
+
+
+def insert_ledger(conn: sqlite3.Connection, row: dict[str, Any]) -> None:
+    """Append one ledger line.
+
+    OR IGNORE, not OR REPLACE: a line already written for this seq is the
+    same line, and replacing it would rewrite a balance_after that later
+    lines were already computed against.
+    """
+    conn.execute(
+        """INSERT OR IGNORE INTO ledger
+               (seq, ts, kind, item, category, currency, delta, price,
+                balance_after, observed, dry_run, run_id, visit, reason,
+                detail)
+           VALUES (:seq, :ts, :kind, :item, :category, :currency, :delta,
+                   :price, :balance_after, :observed, :dry_run, :run_id,
+                   :visit, :reason, :detail)""",
+        row,
+    )
+    conn.commit()
+
+
+def last_balances(conn: sqlite3.Connection) -> dict[str, int | None]:
+    """The most recent known balance for each currency, or None.
+
+    Skips lines whose balance_after is NULL. That is a hole left by an
+    unreadable price, not a balance of zero, and seeding from it would
+    invent an enormous UNEXPLAINED line on the next real reading.
+    """
+    balances: dict[str, int | None] = {"coins": None, "gems": None}
+    for currency in balances:
+        row = conn.execute(
+            """SELECT balance_after FROM ledger
+                WHERE currency = ? AND balance_after IS NOT NULL
+                ORDER BY id DESC LIMIT 1""",
+            (currency,),
+        ).fetchone()
+        if row is not None:
+            balances[currency] = int(row[0])
+    return balances
+
+
+def count_rehearsals(conn: sqlite3.Connection) -> int:
+    """How many dry-run lines the ledger holds, for the page's toggle."""
+    return int(conn.execute("SELECT COUNT(*) FROM ledger WHERE dry_run = 1").fetchone()[0])
+
+
+def ledger_page(
+    conn: sqlite3.Connection,
+    *,
+    limit: int = 50,
+    before: int | None = None,
+    kind: str | None = None,
+    currency: str | None = None,
+    include_rehearsals: bool = False,
+) -> list[dict[str, Any]]:
+    """One page of ledger lines, newest first.
+
+    Ordered and paged by `id`, not `ts`: a derived UNEXPLAINED line shares
+    the ts of the event that revealed it, so ts alone cannot order the two,
+    and the insertion order is the true one.
+    """
+    clauses: list[str] = []
+    params: list[Any] = []
+    if before is not None:
+        clauses.append("id < ?")
+        params.append(before)
+    if kind is not None:
+        clauses.append("kind = ?")
+        params.append(kind)
+    if currency is not None:
+        clauses.append("currency = ?")
+        params.append(currency)
+    if not include_rehearsals:
+        clauses.append("dry_run = 0")
+    where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+    params.append(limit)
+
+    rows = conn.execute(
+        f"SELECT * FROM ledger {where} ORDER BY id DESC LIMIT ?", params
     ).fetchall()
     return [_decode(row) for row in rows]
 
