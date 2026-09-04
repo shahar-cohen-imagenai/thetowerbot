@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProfileBar } from "@/components/ProfileBar";
+import { ShoppingEditor } from "@/components/ShoppingEditor";
 import { StrategyEditor } from "@/components/StrategyEditor";
 import {
   activateStrategy, deleteStrategy, fetchControl, fetchStrategies,
@@ -172,6 +173,12 @@ export default function StrategyPage() {
       />
 
       <StrategyEditor value={draft} onChange={setDraft} available={available} disabled={busy} />
+
+      <ShoppingEditor
+        shopping={draft.shopping}
+        onChange={(shopping) => setDraft({ ...draft, shopping })}
+        disabled={busy}
+      />
     </div>
   );
 }

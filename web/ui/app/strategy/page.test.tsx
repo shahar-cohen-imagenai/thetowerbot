@@ -14,6 +14,14 @@ const strategy = {
   max_runs: null,
   navigation_cooldown: 3,
   screen_confirmations: 2,
+  shopping: {
+    enabled: false,
+    armed: false,
+    visit_every_n_runs: 1,
+    max_taps_per_visit: 40,
+    workshop: [],
+    cards: { enabled: false, gem_floor: 40, max_per_visit: 2, batch: "x1" },
+  },
 };
 
 const api = vi.hoisted(() => ({
