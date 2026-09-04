@@ -255,6 +255,19 @@ _SHOPPING_RULE_TYPES: dict[str, tuple[type, ...]] = {
     "name": (str,), "template": (str,), "category": (str,), "layout": (str,),
     "enabled": (bool,), "threshold": (int, float), "brightness_ratio": (int, float),
 }
+
+# The reverse of config.WORKSHOP_ROWS: template -> the layout it was
+# measured with. ShoppingRule.__post_init__'s own WORKSHOP_ROWS lookup keys
+# on NAME, so a row named something WORKSHOP_ROWS has never heard of slips
+# past it even when its TEMPLATE is a known one - e.g. a renamed copy of an
+# existing row, or a typo in the name. That still reads a real price region
+# at the wrong offset and reports a wrong price instead of a refused one,
+# which is the one failure mode this whole feature exists to avoid. Built
+# once, from the same table, rather than hand-duplicated - the two can never
+# drift out of sync with each other.
+_TEMPLATE_TO_LAYOUT: dict[str, str] = {
+    template: layout for template, layout in config.WORKSHOP_ROWS.values()
+}
 _CARD_TYPES: dict[str, tuple[type, ...]] = {
     "enabled": (bool,), "gem_floor": (int,),
     "max_per_visit": (int,), "batch": (str,),
@@ -329,6 +342,26 @@ class ShoppingRule:
             raise ControlError(
                 "layout",
                 f"{self.name}: layout must be {known_layout!r} "
+                f"(config.WORKSHOP_ROWS), not {self.layout!r}",
+            )
+
+        # The name-keyed check above only fires when the NAME is recognised.
+        # A row can dodge it by pairing a KNOWN template with an unrecognised
+        # name - {"name": "Damage2", "template": "workshop/row_damage.png",
+        # "layout": "tile"} names nothing WORKSHOP_ROWS has heard of, but
+        # still reads the price at the wrong offset the moment it is used.
+        # Not reachable from this feature's own UI (rows cannot be added and
+        # layout is read-only there), but reachable from a hand-edited
+        # strategies/*.json or a raw PATCH - both of which this feature
+        # validates everywhere else. A template genuinely unknown to
+        # WORKSHOP_ROWS is still permitted through this check: a hand-cut
+        # template not yet measured into it is a supported path, same as the
+        # name-keyed check above.
+        known_layout_for_template = _TEMPLATE_TO_LAYOUT.get(self.template)
+        if known_layout_for_template is not None and known_layout_for_template != self.layout:
+            raise ControlError(
+                "layout",
+                f"{self.template}: layout must be {known_layout_for_template!r} "
                 f"(config.WORKSHOP_ROWS), not {self.layout!r}",
             )
 

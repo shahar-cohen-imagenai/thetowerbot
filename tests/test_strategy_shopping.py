@@ -68,8 +68,9 @@ def test_row_names_must_be_unique() -> None:
 def test_a_row_threshold_of_zero_is_refused() -> None:
     """Zero matches anything, so the bot would tap wherever the template
     happened to correlate best - on a page where a tap spends coins."""
-    with pytest.raises(ControlError):
+    with pytest.raises(ControlError) as exc:
         a_rule(threshold=0.0)
+    assert exc.value.field == "threshold"
 
 
 def test_a_row_converts_to_the_shape_the_matcher_takes() -> None:
@@ -93,20 +94,29 @@ def test_layout_defaults_to_row() -> None:
 
 
 def test_layout_round_trips_through_to_dict() -> None:
-    # A name outside WORKSHOP_ROWS, so setting layout="tile" here is not a
-    # contradiction of any measured fact - see the layout tests further down
-    # for the case where it would be.
-    shopping = Shopping(workshop=(a_rule(name="Brand New Row", layout="tile"),))
+    # A name AND a template outside WORKSHOP_ROWS, so setting layout="tile"
+    # here is not a contradiction of any measured fact - see the layout
+    # tests further down for the case where it would be. a_rule's default
+    # template ("workshop/row_damage.png") is itself a known one measured as
+    # "row", so it cannot be reused here without tripping that check.
+    shopping = Shopping(workshop=(
+        a_rule(name="Brand New Row", template="workshop/brand_new_row.png", layout="tile"),
+    ))
     assert Shopping.from_dict(shopping.to_dict()).workshop[0].layout == "tile"
 
 
 # -- category order is derived, not hardcoded ------------------------------
 def test_categories_come_out_in_first_appearance_order() -> None:
     shopping = Shopping(workshop=(
-        a_rule(name="Unlock Cash Bonuses", category="UTILITY", layout="tile"),
-        a_rule(name="Health", category="DEFENSE"),
+        # The real template, not a_rule's default: "Unlock Cash Bonuses" is
+        # measured as "tile" in config.WORKSHOP_ROWS under its own template,
+        # and a_rule's default template is a different, known "row" one.
+        a_rule(name="Unlock Cash Bonuses", template="workshop/unlock_cash_bonuses.png",
+               category="UTILITY", layout="tile"),
+        a_rule(name="Health", template="workshop/row_health.png", category="DEFENSE"),
         a_rule(name="Damage", category="ATTACK"),
-        a_rule(name="Health Regen", category="DEFENSE"),
+        a_rule(name="Health Regen", template="workshop/row_health_regen.png",
+               category="DEFENSE"),
     ))
     assert shopping.categories_in_priority_order() == ("UTILITY", "DEFENSE", "ATTACK")
 
@@ -157,8 +167,9 @@ def test_the_batch_size_must_be_one_the_game_offers() -> None:
 
 
 def test_a_visit_must_buy_at_least_one_card_when_it_buys_any() -> None:
-    with pytest.raises(ControlError):
+    with pytest.raises(ControlError) as exc:
         CardPolicy(max_per_visit=0)
+    assert exc.value.field == "max_per_visit"
 
 
 # -- limits ----------------------------------------------------------------
@@ -169,8 +180,9 @@ def test_a_visit_needs_a_tap_budget() -> None:
 
 
 def test_visit_cadence_is_at_least_every_run() -> None:
-    with pytest.raises(ControlError):
+    with pytest.raises(ControlError) as exc:
         Shopping(visit_every_n_runs=0)
+    assert exc.value.field == "visit_every_n_runs"
 
 
 # -- patching --------------------------------------------------------------
@@ -257,6 +269,17 @@ def test_a_contradicting_layout_is_refused_when_parsed_from_a_document() -> None
     }]
     with pytest.raises(ControlError) as exc:
         Strategy.from_dict(raw)
+    assert exc.value.field == "layout"
+
+
+def test_a_known_template_may_not_contradict_its_layout_under_an_unknown_name() -> None:
+    """The gap the name-keyed check above cannot close on its own: a row can
+    dodge it by pairing a KNOWN template with a name WORKSHOP_ROWS has never
+    heard of - a typo, or a renamed copy of an existing row. "Damage" is
+    measured as "row" (config.WORKSHOP_ROWS), so "tile" here must still be
+    refused even though "Damage2" itself is not a recognised name."""
+    with pytest.raises(ControlError) as exc:
+        a_rule(name="Damage2", template="workshop/row_damage.png", layout="tile")
     assert exc.value.field == "layout"
 
 
