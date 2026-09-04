@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { DeviceView } from "@/components/DeviceView";
+import { AutopilotStatus } from "@/components/AutopilotStatus";
 import { EventFeed } from "@/components/EventFeed";
 import { MiniBarList } from "@/components/MiniBarList";
 import { RunTable } from "@/components/RunTable";
@@ -71,6 +72,7 @@ export default function LivePage() {
         </Card>
 
         <div className="flex flex-col gap-4">
+          <AutopilotStatus />
           {/* Both halves come from /api/status. `skips` is keyed by reason and
               had never been rendered anywhere - it is the field that answers
               "the bot is running but nothing is happening, why?". */}

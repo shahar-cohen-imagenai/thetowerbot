@@ -6,6 +6,7 @@ import LivePage from "./page";
 // consts) because vi.mock factories are hoisted above module-level
 // declarations.
 vi.mock("@/lib/api", () => ({
+  fetchAutopilot: vi.fn(() => Promise.resolve(null)),
   fetchStatus: vi.fn(() => Promise.resolve({
     screen: "MENU", uptime: 10, scans: 1, taps: {}, skips: {}, runs_completed: 1,
     run: null, wallet: null, last_error: null, tail: [], dropped: 0,

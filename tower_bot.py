@@ -51,6 +51,8 @@ from affordability import (
     BrightnessAffordability,
     DigitAffordability,
 )
+from autopilot import AutopilotState, BattleAutopilot
+from perception import read_cash
 from control import Controls, Live
 from device import EmulatorError, Image, capture_screen, connect_device, tap
 from frames import FrameBuffer
@@ -87,6 +89,7 @@ class TowerBot:
         frames: FrameBuffer | None = None,
         screen_confirmations: int = config.SCREEN_CONFIRMATIONS,
         navigation_cooldown: float = config.NAVIGATION_COOLDOWN_SECONDS,
+        autopilot_state: AutopilotState | None = None,
     ) -> None:
         self.device = device
         self.templates = templates
@@ -108,6 +111,8 @@ class TowerBot:
             disabled_reason="no shopping session was configured for this bot",
         )
         self.wallet: int | None = None
+        self.autopilot = BattleAutopilot(autopilot_state, bus)
+        self.shopping.observations = self.autopilot.state
         # Read once, here, rather than per scan: both configure an object
         # that carries state across scans (the tracker's part-confirmed
         # reading, the navigator's last-navigation timestamp), and changing
@@ -377,7 +382,7 @@ class TowerBot:
         settings: Live,
         anchor: tuple[int, int] | None,
         commands: tuple[str, ...],
-    ) -> None:
+    ) -> bool:
         """Drive the in-battle speed widget: browser commands, then policy.
 
         Both paths are refused off the battle screen and while paused. The
@@ -400,7 +405,7 @@ class TowerBot:
         a user who wants a manual speed to stick clears the target.
         """
         if anchor is None or settings.paused:
-            return
+            return False
 
         for command in commands:
             self.speed.tap(
@@ -411,16 +416,16 @@ class TowerBot:
                 source="web",
             )
         if commands:
-            return
+            return True
 
-        self.speed.settle(
+        return self.speed.settle(
             self.screen,
             self.device,
             self.templates,
             target=settings.strategy.target_speed,
             anchor=anchor,
             tuning=settings.strategy,
-        )
+        ) is not None
 
     def run_once(self, max_runs: int | None = None) -> bool:
         """One scan pass over the configured actions. True if anything clicked.
@@ -453,6 +458,8 @@ class TowerBot:
             )
             run_event = self.runs.transition(self.tracker.state, time.monotonic())
             if run_event is not None:
+                if isinstance(run_event, events.RunStarted):
+                    run_event = dataclasses.replace(run_event, purpose=settings.strategy.autopilot.purpose)
                 if (
                     isinstance(run_event, events.RunEnded)
                     and self.tracker.state is screens.ScreenState.GAME_OVER
@@ -460,6 +467,7 @@ class TowerBot:
                 ):
                     run_event = self._read_modal_stats(run_event, reading.top_left)
                 self.bus.publish(run_event)
+                self.autopilot.suspend("Run boundary", clear_battle=True)
 
         state = self.tracker.state
 
@@ -487,6 +495,8 @@ class TowerBot:
             self.wallet = self.reader.read(
                 self.screen, config.WALLET_REGION, in_run_anchor, "wallet"
             )
+            if self.wallet is None and (settings.strategy.autopilot.enabled or self.autopilot.has_work):
+                self.wallet = read_cash(self.screen, in_run_anchor)
         if isinstance(self.affordability, DigitAffordability):
             self.affordability.wallet = self.wallet
 
@@ -496,7 +506,7 @@ class TowerBot:
         # entered a run - which can be minutes later, long after the user
         # who pressed the button stopped watching for it.
         commands = self.controls.drain()
-        self._manage_speed(settings, in_run_anchor, commands)
+        speed_changed = self._manage_speed(settings, in_run_anchor, commands)
 
         # A visit owns the frame while it runs. Three things below key off
         # this rather than off the screen state, because the pages a visit
@@ -534,6 +544,7 @@ class TowerBot:
         # matching add_box() never having been called in those cases before.
         boxes: list[dict[str, Any]] = []
         if settings.paused:
+            self.autopilot.suspend("Paused from the control room")
             # Still scanning, still reporting - just not acting. One skip per
             # scan, not one per action, matching the screen gate below.
             self.bus.publish(
@@ -544,14 +555,21 @@ class TowerBot:
             # priority. Before, this walked config.ACTIONS and used the
             # settings only as an on/off filter, so neither reordering nor
             # a per-row threshold could reach the matcher.
-            for rule in settings.strategy.actions:
-                if not rule.enabled:
-                    continue
-                if self.find_and_click_image(
-                    rule.as_action(), boxes, tuning=settings.strategy
-                ):
-                    clicked = True
+            if settings.strategy.autopilot.enabled or self.autopilot.has_work:
+                if in_run_anchor is not None and not speed_changed and not commands:
+                    clicked = self.autopilot.step(self.screen, self.device, settings.strategy.autopilot,
+                                                   cash=self.wallet, cooldown=settings.strategy.click_cooldown)
+            else:
+                self.autopilot.suspend("Autopilot is off; legacy purchases are active")
+                for rule in settings.strategy.actions:
+                    if not rule.enabled:
+                        continue
+                    if self.find_and_click_image(
+                        rule.as_action(), boxes, tuning=settings.strategy
+                    ):
+                        clicked = True
         else:
+            self.autopilot.suspend(f"Waiting for battle ({state.value})")
             self.bus.publish(
                 events.Skipped(
                     action="*",
@@ -563,11 +581,21 @@ class TowerBot:
         if self.frames is not None:
             self.frames.set_boxes(boxes)
 
+        # Reserve this frame for a due Workshop visit before navigation can
+        # start the next battle. Newly begun visits advance on the next frame.
+        if (
+            not visiting and state is screens.ScreenState.MAIN_MENU
+            and reading.state is screens.ScreenState.MAIN_MENU
+            and not settings.paused
+            and not self.run_cap_reached(max_runs, settings.strategy)
+        ):
+            self.shopping.begin(settings.strategy.shopping, self.runs.completed)
+
         if (
             settings.strategy.auto_navigate
             and not settings.paused
             and not self.run_cap_reached(max_runs, settings.strategy)
-            and not visiting
+            and not visiting and not self.shopping.active
         ):
             # Navigator taps BATTLE on MAIN_MENU on a cooldown - left alone
             # it would start a run in the middle of a shopping errand.
@@ -602,15 +630,6 @@ class TowerBot:
                 settings.strategy.shopping,
                 tuning=settings.strategy,
             )
-        elif (
-            state is screens.ScreenState.MAIN_MENU
-            and not settings.paused
-            and not self.run_cap_reached(max_runs, settings.strategy)
-        ):
-            # A visit begins from MAIN_MENU only, and never while paused or
-            # capped - "still scanning, not tapping" has to cover this one
-            # tap path too, since it is the one that spends currency.
-            self.shopping.begin(settings.strategy.shopping, self.runs.completed)
 
         self.bus.publish(
             events.ScanCompleted(

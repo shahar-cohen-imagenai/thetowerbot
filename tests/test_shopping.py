@@ -20,6 +20,7 @@ import tiles
 import events
 import shopping as shopping_mod
 import vision
+from perception import Observation, ObservedUpgrade
 from strategy import CardPolicy, Shopping, ShoppingRule
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -44,6 +45,10 @@ class FakeDevice:
 
     def __init__(self) -> None:
         self.taps: list[tuple[int, int]] = []
+        self.swipes: list[tuple] = []
+
+    def swipe(self, *args: float) -> None:
+        self.swipes.append(args)
 
 
 @pytest.fixture(autouse=True)
@@ -97,6 +102,8 @@ def a_policy(**over) -> Shopping:
     base = dict(
         enabled=True,
         armed=False,
+        coin_budget=10_000,
+        allow_unlocks=True,
         workshop=(
             ShoppingRule(name="Unlock Cash Bonuses", category="UTILITY"),
             ShoppingRule(name="Health", category="DEFENSE"),
@@ -311,6 +318,8 @@ def test_a_row_is_bought_without_its_template_file(session, fake_header) -> None
     session.begin(policy, run_count=1)
     session.advance(frame("menu_main"), device, policy)
     session.advance(frame("menu_workshop_attack"), device, policy)
+    assert not session._bus.of_type("Purchased"), "a tap is not yet a purchase"
+    session.advance(frame("menu_workshop_attack_escalated"), device, policy)
 
     bought = session._bus.of_type("Purchased")
     assert bought and bought[0].item == "Damage"
@@ -411,10 +420,11 @@ def test_a_row_whose_price_cannot_be_read_is_skipped_rather_than_guessed(
     a guessed purchase.
     """
     device = FakeDevice()
-    priceless = tiles.Row(name="Unlock Cash Bonuses", price=None,
-                          tap=(540, 600), rect=tiles.Rect(30, 500, 1020, 196),
-                          confidence=0.99)
-    monkeypatch.setattr(shopping_mod.tiles, "read_rows", lambda screen: (priceless,))
+    priceless = ObservedUpgrade("unlock_cash_bonuses", "Unlock Cash Bonuses", "UTILITY",
+                                "workshop", None, None, "unreadable", 1,
+                                tiles.Rect(30, 500, 1020, 196), None)
+    monkeypatch.setattr(shopping_mod, "observe_frame", lambda *_:
+                        Observation("UTILITY", (priceless,), {}, None, 1, 270))
     policy = a_policy(workshop=(
         ShoppingRule(name="Unlock Cash Bonuses",
                      category="UTILITY"),
@@ -710,6 +720,8 @@ def test_a_row_purchase_taps_the_price_panel_not_the_label(
     session.advance(frame("menu_main"), device, policy)
     session.advance(frame("menu_workshop_attack"), device, policy)
 
+    assert session._pending is not None, "the buy tap was never attempted"
+    session.advance(frame("menu_workshop_attack_escalated"), device, policy)
     assert session._bus.of_type("Purchased"), "the row was never bought"
     # taps[0] is the nav tap that opened the Workshop; the purchase is last.
     # (434, 633) is the centre of the price box OCR read on this frame - the
@@ -739,10 +751,11 @@ def test_a_price_the_glyph_atlas_cannot_read_is_bought_at_the_ocr_price(
     session.advance(frame("menu_main"), device, policy)
     session.advance(frame("menu_workshop_attack_escalated"), device, policy)
 
-    bought = session._bus.of_type("Purchased")
-    assert bought, "the row was refused - see PurchaseSkipped"
-    assert bought[0].item == "Attack Speed"
-    assert bought[0].price == 56
+    assert not session._bus.of_type("Purchased"), "a tap must await acknowledgement"
+    pending = session._pending
+    assert pending is not None, "the row was refused - see PurchaseSkipped"
+    assert pending.row.name == "Attack Speed"
+    assert pending.row.price == 56
     # The price strip inside the buy panel, read off this very frame.
     assert device.taps[-1] == (952, 634)
 
@@ -770,6 +783,7 @@ def test_a_blinded_screen_does_not_write_the_row_off(session, fake_header) -> No
     session.begin(policy, run_count=1)
     session.advance(frame("menu_main"), device, policy)
     session.advance(frame("menu_workshop_attack"), device, policy)   # buys Damage
+    session.advance(frame("menu_workshop_attack_escalated"), device, policy)
     session.advance(frame("menu_workshop_info_panel"), device, policy)
 
     assert "Attack Speed" not in session._exhausted, (
@@ -793,6 +807,7 @@ def test_a_blinded_screen_is_tapped_clear(session, fake_header) -> None:
     session.begin(policy, run_count=1)
     session.advance(frame("menu_main"), device, policy)
     session.advance(frame("menu_workshop_attack"), device, policy)
+    session.advance(frame("menu_workshop_attack_escalated"), device, policy)
     session.advance(frame("menu_workshop_info_panel"), device, policy)
 
     assert device.taps[-1] == config.PANEL_DISMISS_POINT
@@ -809,6 +824,7 @@ def test_a_screen_that_stays_blind_ends_the_visit(session, fake_header) -> None:
     session.begin(policy, run_count=1)
     session.advance(frame("menu_main"), device, policy)
     session.advance(frame("menu_workshop_attack"), device, policy)
+    session.advance(frame("menu_workshop_attack_escalated"), device, policy)
     session.advance(frame("menu_workshop_info_panel"), device, policy)
     session.advance(frame("menu_workshop_info_panel"), device, policy)
 
@@ -861,7 +877,8 @@ def test_arrival_is_judged_by_the_page_heading_not_a_row_template(
     ))
     session.begin(policy, run_count=1)
     session.advance(frame("menu_main"), device, policy)
-    session.advance(frame("menu_workshop_utility_restocked"), device, policy)
+    for _ in range(3):
+        session.advance(frame("menu_workshop_utility_restocked"), device, policy)
 
     skips = session._bus.of_type("PurchaseSkipped")
     assert any(s.reason == "no_match" for s in skips), (
@@ -894,7 +911,8 @@ def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
     ))
     session.begin(policy, run_count=1)
     session.advance(frame("menu_main"), device, policy)
-    session.advance(frame("menu_workshop_utility_restocked"), device, policy)
+    for _ in range(3):
+        session.advance(frame("menu_workshop_utility_restocked"), device, policy)
 
     unmatched = session._bus.of_type("RowUnmatched")
     assert unmatched, "nothing said why the row was never bought"

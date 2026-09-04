@@ -45,10 +45,12 @@ export function ShoppingEditor({
   onChange,
   disabled = false,
   disabledReason = null,
+  hideWorkshopRows = false,
 }: {
   shopping: Shopping;
   onChange: (next: Shopping) => void;
   disabled?: boolean;
+  hideWorkshopRows?: boolean;
   /** Non-null when this machine's header glyph atlas cannot support a
    * balance read - ShoppingSession.begin() then declines every visit
    * forever, regardless of what is configured here. Surfaced so enabling
@@ -225,6 +227,9 @@ export function ShoppingEditor({
         ) : null}
 
         <div className="flex flex-col gap-2 rounded-md border p-2.5">
+          <NumberField label="Coin reserve" value={shopping.coin_reserve ?? 0} disabled={disabled} min={0} step={1} onCommit={(n) => set("coin_reserve", n)} note="Keep this many coins after Workshop purchases." />
+          <NumberField label="Coin budget per visit" value={shopping.coin_budget ?? 0} disabled={disabled} min={0} step={1} onCommit={(n) => set("coin_budget", n)} note="Zero means no Workshop spending, even when armed." />
+          <label className="flex items-center justify-between text-sm">Allow Workshop unlocks<Switch label="Allow Workshop unlocks" checked={shopping.allow_unlocks ?? false} disabled={disabled} onCheckedChange={(next) => set("allow_unlocks", next)} /></label>
           <NumberField
             label="Visit frequency" ariaLabel="Visit every N runs"
             note={VISIT_FREQUENCY_NOTE}
@@ -241,6 +246,7 @@ export function ShoppingEditor({
           />
         </div>
 
+        {hideWorkshopRows ? <p className="text-xs text-muted-foreground">Choose Workshop in Purchases above to edit all upgrades, targets and priorities.</p> : <>
         <div className="flex items-baseline justify-between">
           <p className="text-xs text-muted-foreground">
             Visited tab by tab in this order, top to bottom within a tab — the order is the buy
@@ -299,6 +305,7 @@ export function ShoppingEditor({
             );
           })}
         </div>
+        </>}
       </SectionCard>
 
       <SectionCard id="cards" title="Cards" contentClassName="flex flex-col gap-3">

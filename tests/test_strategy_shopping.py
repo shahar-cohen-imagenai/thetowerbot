@@ -62,13 +62,11 @@ def test_row_names_must_be_unique() -> None:
     assert exc.value.field == "workshop"
 
 
-def test_a_shopping_row_is_just_a_name_a_category_and_a_switch() -> None:
-    """Spec §6: a row loses everything that existed to serve template
-    matching. What remains is the triple config.SHOPPING_ROWS already holds,
-    and for the reason that file already gives - a second place to keep
-    correct, and the two could drift."""
+def test_a_shopping_row_has_semantic_controls_without_template_matching_fields() -> None:
+    """OCR addresses a row by name/category; target only caps purchases."""
     rule = ShoppingRule(name="Damage", category="ATTACK")
     assert rule.enabled is True
+    assert rule.target is None
     assert not hasattr(rule, "template")
     assert not hasattr(rule, "threshold")
     assert not hasattr(rule, "brightness_ratio")

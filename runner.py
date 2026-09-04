@@ -28,6 +28,7 @@ from typing import Any, Callable
 
 import events
 import vision
+from autopilot import AutopilotState
 from control import Controls
 from device import EmulatorError
 from frames import FrameBuffer
@@ -88,6 +89,7 @@ class BotRunner:
         # rebuilding the header glyph atlas on every Start would make the
         # button slow for no gain.
         self._shopping = shopping
+        self.autopilot_state = AutopilotState()
 
         self._lock = threading.Lock()
         self._bot: Any | None = None
@@ -110,6 +112,17 @@ class BotRunner:
                 "since": self._since if running else None,
                 "error": self._error,
             }
+
+    def request_autopilot(self, command: dict[str, Any]) -> None:
+        with self._lock:
+            if not self._running_locked() or self._bot is None:
+                raise RunnerError("Start the bot before sending commands", 409)
+            if self._controls.snapshot().paused or self._bot.screen_state.value != "IN_RUN":
+                raise RunnerError("Manual upgrades require an unpaused battle", 409)
+            try:
+                self._bot.autopilot.submit(command)
+            except ValueError as exc:
+                raise RunnerError(str(exc), 409) from None
 
     # -- lifecycle ---------------------------------------------------------
     def start(self) -> dict[str, Any]:
@@ -156,6 +169,8 @@ class BotRunner:
             # the sink here would put a cross-thread handshake on the Start
             # path to tidy up a scan count.
             self._state.reset()
+            self.autopilot_state.clear_battle()
+            self.autopilot_state.decision("idle", "Waiting for a fresh battle observation")
 
             # A visit left mid-errand by the previous bot (Stop pressed
             # mid-visit, or run_forever ending because max_runs was lowered
@@ -185,6 +200,7 @@ class BotRunner:
                 first_run_id=self._next_run_id,
                 screen_confirmations=strategy.screen_confirmations,
                 navigation_cooldown=strategy.navigation_cooldown,
+                autopilot_state=self.autopilot_state,
             )
 
             self._bot = bot

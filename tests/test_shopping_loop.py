@@ -56,6 +56,14 @@ def test_navigation_resumes_once_the_visit_ends(bot_on_main_menu) -> None:
     assert "BATTLE" in navigated(bot.bus)
 
 
+def test_due_visit_starts_before_battle_navigation(bot_on_main_menu) -> None:
+    bot = bot_on_main_menu(a_policy())
+    bot.runs.completed = 1
+    bot.run_once()
+    assert bot.shopping.active
+    assert navigated(bot.bus) == []
+
+
 def test_unknown_snapshots_are_suppressed_while_a_visit_is_live(bot_on_workshop) -> None:
     """A workshop page reads UNKNOWN to the screen tracker by design. Without
     this, every visit fills unknown/ with pictures of the workshop and evicts

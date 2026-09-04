@@ -7,10 +7,13 @@ export interface EventBase {
   ts: number;
 }
 
+export type RunPurpose = "farm" | "milestone";
+
 export type BotEvent =
   | (EventBase & { type: "ScreenChanged"; prev: string; curr: string; confidence: number; scores: Record<string, number> })
   | (EventBase & { type: "ScanCompleted"; screen: string; duration_ms: number; wallet: number | null })
   | (EventBase & { type: "Tapped"; action: string; x: number; y: number; score: number; price: number | null; wallet: number | null })
+  | (EventBase & { type: "BattlePurchased"; item: string; upgrade_id: string; price: number | null; value: number | null })
   | (EventBase & { type: "Skipped"; action: string; reason: string; detail: string })
   | (EventBase & {
       type: "SpeedAdjusted";
@@ -21,7 +24,7 @@ export type BotEvent =
       reading: number | null;
       target: number | null;
     })
-  | (EventBase & { type: "RunStarted"; run_id: number })
+  | (EventBase & { type: "RunStarted"; run_id: number; purpose?: RunPurpose })
   | (EventBase & { type: "RunEnded"; run_id: number; duration: number; wave: number | null; coins: number | null; tier: number | null; abandoned: boolean })
   | (EventBase & { type: "Navigated"; target: string })
   | (EventBase & { type: "UnknownScreen"; snapshot_path: string; best_anchor: string; best_score: number })
@@ -103,6 +106,7 @@ export interface StatusPayload {
 
 /** A row from the `runs` table. */
 export interface RunRow {
+  purpose?: RunPurpose;
   id: number;
   started_at: number;
   ended_at: number | null;
@@ -134,6 +138,7 @@ export interface ShoppingRule {
    * the page. Nothing else addresses a row. */
   category: "ATTACK" | "DEFENSE" | "UTILITY";
   enabled: boolean;
+  target?: number | null;
 }
 
 export interface CardPolicy {
@@ -152,11 +157,45 @@ export interface Shopping {
   max_taps_per_visit: number;
   workshop: ShoppingRule[];
   cards: CardPolicy;
+  coin_reserve?: number;
+  coin_budget?: number;
+  allow_unlocks?: boolean;
 }
+
+export type UpgradeCategory = "ATTACK" | "DEFENSE" | "UTILITY";
+export interface Upgrade { id: string; name: string; category: UpgradeCategory; aliases: string[]; unlock: boolean }
+export interface UpgradeRule { upgrade_id: string; enabled: boolean; target?: number | null }
+export interface AutopilotPolicy {
+  enabled: boolean;
+  preset: string;
+  rules: UpgradeRule[];
+  economy_until_wave: number;
+  survival_buffer: number;
+  cash_reserve: number;
+  max_scrolls: number;
+  purpose?: RunPurpose;
+}
+export interface AutopilotPreset { name: string; rules: UpgradeRule[] }
+export interface UpgradeObservation {
+  upgrade_id: string; context: string; category: UpgradeCategory; name: string;
+  value: number | null; price: number | null; status: string; observed_at: number;
+}
+export interface AutopilotSnapshot {
+  can_control?: boolean;
+  phase: string; reason: string; next_upgrade_id: string | null; category: string | null;
+  observations: UpgradeObservation[];
+  combat: Record<string, number | null>;
+  updated_at: number | null;
+  verified_purchases: number;
+  last_purchase: { upgrade_id?: string; name?: string; price?: number; [key: string]: unknown } | null;
+  tier_comparison?: { tiers: { tier: number; runs: number; coins_per_hour: number; median_wave: number }[]; recommended_tier: number | null; reason: string } | null;
+}
+export interface AutopilotCommand { action: "category" | "buy" | "scan"; category?: UpgradeCategory; upgrade_id?: string }
 
 /** Mirrors strategy.py's Strategy.to_dict(). */
 export interface Strategy {
   name: string;
+  autopilot?: AutopilotPolicy;
   actions: ActionRule[];
   affordability: string;
   interval: number;

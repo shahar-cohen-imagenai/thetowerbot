@@ -1,81 +1,24 @@
-"""Walk the Workshop and Cards pages between runs, and decide what to buy.
+"""Read Workshop upgrades and walk the game's between-run shopping pages.
 
-Unlike navigate.py - which boasts that nothing there spends a permanent
-resource - this module's entire job is to spend one: coins and gems that the
-game does not hand back. Every safety property that matters here has to be
-earned back explicitly, because nothing about "the bot taps templates" is
-inherently safe once a tap can cost currency.
+Armed Workshop purchases require a live OCR price and balance, a positive
+per-visit coin budget, the configured reserve and permission for unlock tiles.
+A tap creates a pending purchase: another frame must show the changed value,
+price or unlock transition before a Purchased event reports success. An
+inconclusive acknowledgement ends the visit without another purchase attempt.
 
-`shopping.armed` is the only thing standing between a miscalibrated template
-and the user's coins. `_tap()` is therefore the ONLY place `device.tap` is
-called anywhere in this module, and it returns before ever reaching the
-device when `not shopping.armed`. Every purchase - real or rehearsed - still
-publishes `Purchased(dry_run=not shopping.armed)`, so a dry run and a real
-run produce identical logs apart from that one flag. That is what makes the
-rehearsal worth anything: it is not a different code path, it is the same
-code path with the last step removed.
-
-There is no brightness fallback anywhere in this module. Measured on the
-real device (see config.CARD_PRICE_REGION and tests/test_shopping_templates.py),
-the game marks an unaffordable button by DESATURATING it, not dimming it -
-on the cards page the unaffordable button is actually the BRIGHTER of the
-two. A brightness gate calibrated on the affordable style would wave the
-unaffordable one straight through, in exactly the wrong direction. Digit
-reading is therefore the only gate an affordability decision may use, and
-because digits.NumberReader.read is all-or-nothing, a coin or gem balance
-that cannot be fully read comes back as None - never a guess, never a
-brightness-based guess, and never a stale number left over from a previous
-step. A None balance stops the visit rather than approving anything against
-it; see BUY_ROWS and BUY_CARDS below. On a live device this will happen
-often, precisely because the header atlas only knows the glyphs the
-committed fixtures happen to contain (0 1 4 7 8 . K) - a coin balance that
-uses 2, 3, 5, 6, 9 or a bigger suffix reads as None today. That is the
-designed failure mode, not a bug: an unreadable balance approves nothing.
-
-One step per scan: advance() does at most one capture's worth of work - at
-most one tap - and every path through it either makes progress (a state
-transition), publishes a skip or purchase, or ends the visit. The bot's scan
-loop calls run_once every 2 seconds; a blocking errand here would stall
-Pause, freeze the frame stream, and turn a minute-long shopping visit into
-one opaque entry in the event feed after the fact. Positioning steps
-(OPEN_WORKSHOP, OPEN_TAB, OPEN_CARDS, RETURN) may cascade through several
-pure "already there" transitions within a single call - that costs nothing
-and would otherwise waste whole scan cycles on bookkeeping - but the moment
-one of them taps, publishes, or fails to find its target, that call is done.
-
-A positioning step that cannot find its target is NOT allowed to retry
-silently forever the way navigate.Navigator does: Navigator sits on a screen
-the bot is happy to stay on and taps opportunistically, but a positioning
-step here is one leg of an errand that is supposed to be making progress. A
-miss counts toward the same _off_page_streak an unrecognized page does - one
-miss may be an animation frame still settling, but two in a row means a
-mis-cut or renamed nav template, and the visit ends with
-`ShoppingEnded(aborted=True, reason=...)` naming the template that could not
-be found, rather than spinning until an operator notices a visit that
-appears to be running and is not. Every step still resets that streak the
-moment it makes real progress - a tap, an arrival, or a BUY_ROWS/BUY_CARDS
-decision - so a bot healthily bouncing between recognised pages never trips
-it.
-
-The tab-arrival check deliberately does NOT use "the tab button's own
-template stopped matching" - the intuitive reading of config.WORKSHOP_TABS's
-"cut unselected" comment, and the first thing anyone re-deriving this will
-reach for. Measured directly against the committed fixtures (see
-tests/test_shopping_templates.py's
-test_a_tab_template_also_matches_its_own_selected_page): each tab's own
-"unselected" crop still scores 0.93-0.96 on the very page where that tab IS
-selected - comfortably above both 0.8 and 0.9. TM_CCOEFF_NORMED normalises
-away the brightness difference between the two states, so a tab template's
-absence is never a usable "we have arrived" signal. Arrival is judged by
-whether the target category's own ROW templates are visible instead - page
-content, not tab-button absence.
+Rows are addressed by semantic name and category. Missing rows trigger bounded
+scrolling, never an inference that the upgrade is locked. Every navigation,
+buy or swipe uses one frame and counts against the visit's operation budget;
+aborting allows one recovery tap back to Battle. Unarmed rehearsals perform
+no device actions and identify their hypothetical purchases with dry_run.
 """
 
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass, replace
 from enum import Enum, auto
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import config
 import events
@@ -83,26 +26,17 @@ import jitter
 import ocr
 import pages
 import tiles
+import upgrades
 import vision
 from device import Image, tap
 from digits import NumberReader
+from perception import Observation, ObservedUpgrade, contains, observe_frame, price_number
 from strategy import Shopping, Strategy
 
-logger = logging.getLogger("tower_bot.shopping")
+if TYPE_CHECKING:
+    from autopilot import AutopilotState
 
-# The floor for the arrival check in _open_tab (see ShoppingSession._open_tab).
-# tests/test_shopping_templates.py::test_rows_are_absent_from_the_other_tabs
-# proves a row scores BELOW 0.9 on every tab it does not live on - it proves
-# nothing at a lower threshold. ShoppingRule.threshold is a per-row knob for a
-# different question (how sure BUY_ROWS must be before spending on this row)
-# and is only validated as 0 < t <= 1, so a hand-edited strategy - or a future
-# editor UI - could set it below 0.9. Arrival detection borrows the measured
-# absence guarantee, so it must never be loosened by that per-row tuning:
-# a spurious "arrival" on the wrong tab would not cause a wrong purchase
-# (BUY_ROWS re-verifies the specific row against its own threshold), but it
-# would mark a row exhausted without ever having been attempted on its real
-# tab, quietly defeating "highest-priority row wins" for the rest of the visit.
-ARRIVAL_ABSENCE_THRESHOLD: float = 0.9
+logger = logging.getLogger("tower_bot.shopping")
 
 # Labels that mean "I have read this" and nothing else. Deliberately not
 # CONFIRM, YES, BUY or CLAIM: those answer a question, and a bot that cannot
@@ -142,9 +76,17 @@ def header_numbers(
     coins_region, gems_region = regions
     boxes = ocr.read(screen)
     return (
-        ocr.number_in(boxes, _absolute(coins_region, top_left)),
-        ocr.number_in(boxes, _absolute(gems_region, top_left)),
+        _balance_in(boxes, _absolute(coins_region, top_left)),
+        _balance_in(boxes, _absolute(gems_region, top_left)),
     )
+
+
+def _balance_in(boxes: tuple[ocr.TextBox, ...], region: config.Rect) -> int | None:
+    """A single high-confidence balance in its known header region."""
+    values = [value for box in boxes
+              if box.confidence >= .9 and contains(region, box.rect)
+              and (value := price_number(box.text)) is not None]
+    return values[0] if len(values) == 1 else None
 
 
 def _absolute(region: config.Region, top_left: tuple[int, int]) -> config.Rect:
@@ -170,17 +112,41 @@ def _letters(text: str) -> str:
     return "".join(ch for ch in text.upper() if ch.isalpha())
 
 
-def _row_named(name: str, rows: tuple[tiles.Row, ...]) -> tiles.Row | None:
+def _row_named(name: str, rows: tuple[ObservedUpgrade, ...],
+               category: str | None = None) -> ObservedUpgrade | None:
     """The OCR row addressed by `name`, or None if it is not on screen.
 
     Matched on the normalised name, so spacing and case in a strategy file
     do not have to reproduce what the font renders.
     """
     wanted = tiles.normalise(name)
+    entry = upgrades.resolve(name, category)
     for row in rows:
-        if tiles.normalise(row.name) == wanted:
+        if tiles.normalise(row.name) == wanted or (entry and row.upgrade_id == entry.id):
             return row
     return None
+
+
+def _target_reached(upgrade_id: str, value: float, target: float) -> bool:
+    if upgrades.by_id(upgrade_id) is not None:
+        return upgrades.target_reached(upgrade_id, value, target)
+    return value >= target
+
+
+@dataclass
+class PendingPurchase:
+    row: ObservedUpgrade
+    coins: int
+    visible_ids: frozenset[str]
+    frames: int = 0
+
+
+@dataclass
+class RowSearch:
+    name: str
+    down: bool = False
+    scrolls: int = 0
+    fingerprint: tuple[str, ...] | None = None
 
 
 class ShoppingSession:
@@ -208,11 +174,8 @@ class ShoppingSession:
         # and None means "no jitter" - _exit_to_battle can tap via _abort on
         # a path that never reached advance().
         self._tuning: Strategy | None = None
-        # Set once, by tower_bot.build_shopping(), when this machine's header
-        # atlas cannot support reading a balance. A non-empty reason makes
-        # begin() decline forever rather than starting a visit that could
-        # never approve a purchase - see the module docstring's paragraph on
-        # why an unreadable balance must stop the visit, not guess.
+        # Set once by build_shopping when the OCR engine cannot be loaded.
+        # An unavailable reader must never start a visit that could spend.
         self.disabled_reason = disabled_reason
         # begin() publishes ShoppingUnavailable the first time it declines
         # for disabled_reason, and never again - a disabled session declines
@@ -227,11 +190,9 @@ class ShoppingSession:
         self._bought = 0
         self._spent = 0
         self._cards_bought = 0
-        # Rows that no longer match (a mis-cut template) or that were just
-        # bought, or found unaffordable, this visit. Not retried: a row that
-        # cannot be found loops until the tap budget runs out otherwise, and
-        # a row that was just bought should not be bought again every 2s
-        # forever just because a static frame never visibly changes.
+        # Every named rule is evaluated at most once per visit. A tap marks
+        # it attempted immediately; acknowledgement decides whether it was
+        # actually bought without issuing a duplicate purchase.
         self._exhausted: set[str] = set()
         self._last_run_count: int | None = None
         # The last page seen this visit, or None before the first frame.
@@ -250,6 +211,12 @@ class ShoppingSession:
         # _buy_rows. Separate from _off_page_streak because _dispatch resets
         # that one optimistically before every BUY_ROWS call.
         self._blind_streak = 0
+        self.observations: AutopilotState | None = None
+        self._pending: PendingPurchase | None = None
+        self._search: RowSearch | None = None
+        self._coin_spent = 0
+        # Permanent unlock evidence outlives an individual shopping visit.
+        self._completed_unlocks: set[str] = set()
 
     @property
     def active(self) -> bool:
@@ -268,10 +235,8 @@ class ShoppingSession:
         rather than raising because "not this run" is the normal case, not
         an error.
 
-        Also declines - permanently - when `disabled_reason` is set: this
-        machine's header atlas cannot read a balance, and a visit that could
-        never approve a purchase is a minute of tab-tapping for nothing. See
-        tower_bot.build_shopping(). The first such decline publishes
+        Also declines when `disabled_reason` is set because the OCR engine
+        could not be loaded. The first such decline publishes
         ShoppingUnavailable so the dashboard says why nothing is happening,
         rather than a feature that looks armed and does nothing forever -
         every decline after that stays silent, since the reason never
@@ -305,6 +270,9 @@ class ShoppingSession:
         self._taps = 0
         self._bought = 0
         self._spent = 0
+        self._coin_spent = 0
+        self._pending = None
+        self._search = None
         self._cards_bought = 0
         self._exhausted = set()
         self._off_page_streak = 0
@@ -326,6 +294,8 @@ class ShoppingSession:
         """
         self._step = Step.IDLE
         self._categories = []
+        self._pending = None
+        self._search = None
 
     # -- one step ------------------------------------------------------------
 
@@ -638,119 +608,170 @@ class ShoppingSession:
 
     # -- buying ----------------------------------------------------------------
 
-    def _buy_rows(self, reading, screen: Image, device: Any, shopping: Shopping) -> None:
-        """Evaluate the highest-priority not-yet-exhausted row on this tab.
-
-        Re-reads coins from the header every call, rather than subtracting
-        the price just paid: the game is the source of truth, and a running
-        subtraction that drifts would spend money the bot does not have.
-        """
-        # Defensive only: _step becomes BUY_ROWS only from OPEN_TAB, which
-        # only reaches either of its two BUY_ROWS transitions after already
-        # confirming _categories is non-empty. Not known to be reachable
-        # today.
+    def _buy_rows(self, reading: Any, screen: Image, device: Any, shopping: Shopping) -> None:
+        """Read, decide, then wait for another frame to acknowledge a purchase."""
         if not self._categories:
             self._step = self._next_after_categories(shopping)
             return
-
         category = self._categories[0]
-        rows = [r for r in shopping.rows_for(category) if r.name not in self._exhausted]
-        if not rows:
+        observation = observe_frame(screen, "workshop")
+        if self.observations is not None:
+            self.observations.observe(observation)
+        coins, _gems = header_numbers(screen, reading.page, reading.top_left)
+        if self._pending is not None:
+            self._confirm_purchase(observation, coins, device, shopping, screen)
+            return
+        rules = [r for r in shopping.rows_for(category) if r.name not in self._exhausted]
+        if not rules:
             self._categories.pop(0)
+            self._search = None
             self._step = Step.OPEN_TAB if self._categories else self._next_after_categories(shopping)
             return
-
-        # Gems are irrelevant to a workshop row (it spends coins) - see the
-        # matching comment in _buy_cards for why the unused half of the pair
-        # is discarded rather than stored.
-        coins, _gems = header_numbers(screen, reading.page, reading.top_left)
+        rule = rules[0]
+        entry = upgrades.resolve(rule.name, category)
+        rule_id = entry.id if entry is not None else "discovered:" + tiles.normalise(rule.name)
+        if rule_id in self._completed_unlocks:
+            self._exhausted.add(rule.name)
+            self._bus.publish(events.PurchaseSkipped(item=rule.name, reason="already_unlocked"))
+            return
         if coins is None:
             self._abort(device, shopping, screen, "unreadable balance")
             return
-
-        rule = rows[0]
-        # Addressed by NAME, off OCR - not by template match. A live session
-        # settled this: the menu atlas has never held 1, 6, 8 or 9, so the
-        # moment a price escalated past one of them the template reader
-        # returned None and the row was refused as "unreadable" for good,
-        # while OCR read it off the same pixels. Prices only ever escalate,
-        # so that failure is not a corner case, it is the destination.
-        #
-        visible = tiles.read_rows(screen)
+        visible = observation.rows
         if not visible:
-            # Blind, not empty. Something is covering the grid - an info
-            # panel opened by a stray tap on a label is the known cause, and
-            # the page still classifies as WORKSHOP throughout, so nothing
-            # upstream catches it. Reporting this as no_match would exhaust
-            # a row that is sitting right there: a live visit did exactly
-            # that to four of them. Tap the panel away and let the next scan
-            # try again; if the page is still unreadable then, this is not a
-            # panel and the visit ends rather than spinning.
             self._blind_streak += 1
             if self._blind_streak >= 2:
                 self._abort(device, shopping, screen, "nothing readable on the page")
                 return
             self._try_tap(*config.PANEL_DISMISS_POINT, device, shopping, screen)
-            self._bus.publish(events.PurchaseSkipped(
-                item=rule.name, reason="unreadable", detail="screen",
-            ))
+            self._bus.publish(events.PurchaseSkipped(item=rule.name, reason="unreadable", detail="screen"))
             return
         self._blind_streak = 0
-
-        seen = _row_named(rule.name, visible)
+        if observation.category != category:
+            self._abort(device, shopping, screen, f"{category} heading not confirmed")
+            return
+        seen = _row_named(rule.name, visible, category)
         if seen is None:
-            # Bought and gone, garbled by OCR, or below the fold on a tab
-            # that has outgrown one screenful. RowUnmatched carries what was
-            # actually read so those stay distinguishable in the feed - and
-            # it is the tripwire for the third case, which is the trigger
-            # for building scroll-and-map (spec §4).
-            self._bus.publish(events.RowUnmatched(
-                item=rule.name, read=tuple(row.name for row in visible),
-            ))
-            self._bus.publish(events.PurchaseSkipped(
-                item=rule.name, reason="no_match", coins_before=coins,
-            ))
+            self._find_row(rule.name, observation, device, shopping, screen, coins)
+            return
+        self._search = None
+        entry = upgrades.resolve(seen.name, category)
+        is_unlock = (entry is not None and entry.unlock) or tiles.normalise(seen.name).startswith("unlock")
+        reason = None
+        detail = ""
+        if is_unlock and not shopping.allow_unlocks:
+            reason, detail = "disabled", "unlock permission is off"
+        elif seen.status != "available" or seen.price is None or seen.tap is None:
+            reason, detail = "unreadable", "price" if seen.price is None else seen.status
+        elif rule.target is not None and seen.value is None:
+            reason, detail = "unreadable", "target requires a readable current value"
+        elif rule.target is not None and _target_reached(seen.upgrade_id, seen.value, rule.target):
+            reason, detail = "target_reached", f"current value {seen.value} meets target {rule.target}"
+        elif seen.price > coins:
+            reason = "unaffordable"
+        elif coins - seen.price < shopping.coin_reserve:
+            reason, detail = "reserve", "purchase would cross the coin reserve"
+        elif shopping.armed and (shopping.coin_budget == 0
+                                 or self._coin_spent + seen.price > shopping.coin_budget):
+            reason, detail = "budget", "purchase would exceed the Workshop visit budget"
+        if reason is not None:
+            self._bus.publish(events.PurchaseSkipped(item=rule.name, reason=reason,
+                                                    detail=detail, coins_before=coins))
             self._exhausted.add(rule.name)
             return
-
-        price = seen.price
-        if price is None:
-            self._bus.publish(
-                events.PurchaseSkipped(item=rule.name, reason="unreadable", detail="price",
-                    coins_before=coins,
-                )
-            )
-            self._exhausted.add(rule.name)
-            return
-
-        if price > coins:
-            self._bus.publish(
-                events.PurchaseSkipped(
-                    item=rule.name, reason="unaffordable", coins_before=coins
-                )
-            )
-            self._exhausted.add(rule.name)
-            return
-
-        # NOT the tile's own centre. The label is not a button - tapping it
-        # buys nothing at all, which a live armed visit demonstrated by
-        # publishing Purchased while coins, stat value and price all stayed
-        # exactly where they were. The buy button is the price panel itself,
-        # and seen.tap is derived from the very price box that was just read
-        # (tiles.rows_from sets tap from price_boxes[-1].rect), so the two
-        # cannot drift apart the way a separately-measured offset could.
-        # This is config.buy_point()'s reasoning exactly; a workshop tile
-        # shares the in-run tile's trap.
         if not self._try_tap(*seen.tap, device, shopping, screen):
             return
-
         self._exhausted.add(rule.name)
+        if shopping.armed:
+            self._pending = PendingPurchase(seen, coins, frozenset(r.upgrade_id for r in visible))
+            if self.observations is not None:
+                self.observations.decision("verifying", f"Confirming Workshop purchase: {seen.name}", seen.upgrade_id)
+        else:
+            self._record_purchase(seen, coins, dry_run=True)
+
+    def _record_purchase(self, row: ObservedUpgrade, coins: int, *, dry_run: bool,
+                         verified: ObservedUpgrade | None = None) -> None:
         self._bought += 1
-        self._spent += price
-        self._bus.publish(events.Purchased(
-            item=rule.name, category=category, price=price,
-            coins_before=coins, dry_run=not shopping.armed,
-        ))
+        self._spent += row.price
+        self._coin_spent += row.price
+        self._bus.publish(events.Purchased(item=row.name, category=row.category, price=row.price,
+                                           coins_before=coins, dry_run=dry_run))
+        if not dry_run and self.observations is not None:
+            self.observations.verified(verified or row)
+            self.observations.decision("workshop", f"Verified Workshop purchase: {row.name}")
+
+    def _confirm_purchase(self, observation: Observation, coins: int | None, device: Any,
+                          shopping: Shopping, screen: Image) -> None:
+        pending = self._pending
+        before = pending.row
+        after = next((r for r in observation.rows if r.upgrade_id == before.upgrade_id), None)
+        same_category = observation.category == before.category
+        changed = same_category and after is not None and (
+            after.status == "maxed"
+            or (after.price is not None and before.price is not None and after.price > before.price)
+            or (after.value is not None and before.value is not None
+                and after.value != before.value
+                and _target_reached(before.upgrade_id, after.value, before.value))
+        )
+        entry = upgrades.resolve(before.name, before.category)
+        is_unlock = (entry is not None and entry.unlock) or tiles.normalise(before.name).startswith("unlock")
+        # A missing tile alone can be an OCR miss. Require newly visible rows
+        # and the matching coin debit as evidence of an unlock transition.
+        unlocked = (same_category and is_unlock and after is None and coins is not None
+                    and coins <= pending.coins - before.price
+                    and any(r.upgrade_id not in pending.visible_ids for r in observation.rows))
+        if changed or unlocked:
+            confirmed = after if changed else replace(before, status="unlocked", price=None,
+                                                     observed_at=observation.observed_at)
+            if unlocked and self.observations is not None:
+                self.observations.observe(replace(observation, rows=(*observation.rows, confirmed)))
+            if unlocked:
+                self._completed_unlocks.add(before.upgrade_id)
+            self._record_purchase(before, pending.coins, dry_run=False, verified=confirmed)
+            self._pending = None
+            return
+        pending.frames += 1
+        if pending.frames >= 3:
+            self._bus.publish(events.PurchaseSkipped(item=before.name, reason="unconfirmed",
+                                                    detail="purchase did not produce a readable change"))
+            if self.observations is not None:
+                self.observations.decision("blocked", f"Workshop purchase of {before.name} was not confirmed")
+            self._abort(device, shopping, screen, "purchase acknowledgement was inconclusive")
+        elif self.observations is not None:
+            self.observations.decision("verifying", f"Waiting for {before.name} to change", before.upgrade_id)
+
+    def _find_row(self, name: str, observation: Observation, device: Any,
+                  shopping: Shopping, screen: Image, coins: int) -> None:
+        """Find a hidden row with a bounded top-to-bottom scan of this category."""
+        if self._search is None or self._search.name != name:
+            self._search = RowSearch(name)
+        search = self._search
+        fingerprint = tuple(r.upgrade_id for r in observation.rows)
+        limit = self._tuning.autopilot.max_scrolls if self._tuning is not None else 8
+        at_end = fingerprint == search.fingerprint or search.scrolls >= limit
+        if at_end and not search.down:
+            search.down, search.scrolls = True, 0
+        elif at_end or observation.heading_y is None or not shopping.armed:
+            self._bus.publish(events.RowUnmatched(item=name, read=tuple(r.name for r in observation.rows)))
+            self._bus.publish(events.PurchaseSkipped(item=name, reason="no_match", coins_before=coins))
+            self._exhausted.add(name)
+            entry = upgrades.resolve(name, observation.category)
+            if self.observations is not None:
+                if entry is not None:
+                    self.observations.unknown(entry, "workshop", observation.observed_at)
+                self.observations.decision("workshop", f"{name} was not found; availability is unknown")
+            self._search = None
+            return
+        if self._taps >= shopping.max_taps_per_visit:
+            self._abort(device, shopping, screen, "tap budget exhausted")
+            return
+        from autopilot import scroll_panel
+        self._taps += 1
+        scroll_panel(device, screen, observation.heading_y, down=search.down)
+        search.scrolls += 1
+        search.fingerprint = fingerprint
+        if self.observations is not None:
+            self.observations.decision("discovering", f"Scanning Workshop for {name}")
 
     def _buy_cards(self, reading, screen: Image, device: Any, shopping: Shopping) -> None:
         """Buy the configured batch, repeatedly, up to the per-visit cap.
@@ -911,3 +932,5 @@ class ShoppingSession:
         ))
         self._step = Step.IDLE
         self._categories = []
+        self._pending = None
+        self._search = None

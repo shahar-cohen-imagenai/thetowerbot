@@ -31,6 +31,9 @@ const api = vi.hoisted(() => ({
   activateStrategy: vi.fn(),
   deleteStrategy: vi.fn(),
   fetchControl: vi.fn(),
+  fetchUpgrades: vi.fn(() => Promise.resolve([])),
+  fetchAutopilotPresets: vi.fn(() => Promise.resolve([])),
+  fetchAutopilot: vi.fn(() => Promise.resolve(null)),
 }));
 vi.mock("@/lib/api", () => api);
 

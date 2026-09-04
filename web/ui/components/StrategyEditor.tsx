@@ -77,6 +77,8 @@ export function StrategyEditor({
   available,
   speedValues,
   disabled = false,
+  hidePurchases = false,
+  legacyPurchases = false,
 }: {
   value: Strategy;
   onChange: (next: Strategy) => void;
@@ -87,6 +89,8 @@ export function StrategyEditor({
    * the moment it did. */
   speedValues?: number[];
   disabled?: boolean;
+  hidePurchases?: boolean;
+  legacyPurchases?: boolean;
 }) {
   const set = <K extends keyof Strategy>(key: K, v: Strategy[K]) =>
     onChange({ ...value, [key]: v });
@@ -111,9 +115,9 @@ export function StrategyEditor({
 
   return (
     <div className="flex flex-col gap-4">
-      <SectionCard
-        id="purchases"
-        title="Purchases"
+      {!hidePurchases ? <SectionCard
+        id={legacyPurchases ? "legacy-purchases" : "purchases"}
+        title={legacyPurchases ? "Legacy battle purchases" : "Purchases"}
         action={
           <span className="font-mono text-xs text-muted-foreground">
             {enabledCount}/{value.actions.length} on
@@ -210,7 +214,7 @@ export function StrategyEditor({
             </label>
           ))}
         </div>
-      </SectionCard>
+      </SectionCard> : null}
 
       <SectionCard id="timing" title="Timing" contentClassName="flex flex-col gap-3">
         <NumberField

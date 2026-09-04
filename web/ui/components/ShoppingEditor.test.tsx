@@ -16,6 +16,13 @@ const policy: Shopping = {
 };
 
 describe("ShoppingEditor", () => {
+  it("defaults to no Workshop spending and edits the budget without arming", () => {
+    const onChange = vi.fn();
+    render(<ShoppingEditor shopping={policy} onChange={onChange} />);
+    expect(screen.getByLabelText("Coin budget per visit")).toHaveValue(0);
+    fireEvent.blur(screen.getByLabelText("Coin budget per visit"), { target: { value: "200" } });
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ coin_budget: 200, armed: false }));
+  });
   it("shows rows in priority order", () => {
     render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
     const rows = screen.getAllByTestId("shopping-row");

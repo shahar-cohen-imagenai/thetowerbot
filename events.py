@@ -53,6 +53,14 @@ class Tapped(Event):
 
 
 @dataclass(frozen=True, kw_only=True)
+class BattlePurchased(Event):
+    item: str
+    upgrade_id: str
+    price: int | None
+    value: float | None
+
+
+@dataclass(frozen=True, kw_only=True)
 class Skipped(Event):
     action: str
     reason: str  # paused | screen_gated | dimmed | unaffordable | cooldown
@@ -62,6 +70,7 @@ class Skipped(Event):
 @dataclass(frozen=True, kw_only=True)
 class RunStarted(Event):
     run_id: int
+    purpose: str = "farm"
 
 
 @dataclass(frozen=True, kw_only=True)

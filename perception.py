@@ -1,0 +1,158 @@
+"""Read upgrade tiles and the battle HUD from one immutable screenshot."""
+from __future__ import annotations
+
+import math
+import re
+import time
+from dataclasses import dataclass
+
+import cv2
+
+import config
+import ocr
+import tiles
+import upgrades
+from device import Image
+
+_NUMBER = re.compile(r"(?:x|\$)?\s*(\d+(?:\.\d+)?)\s*([KMBTqQ]?)\s*(?:%|/s|/sec|s|sec)?")
+_MULTIPLIERS = {"": 1, "K": 1e3, "M": 1e6, "B": 1e9, "T": 1e12, "q": 1e15, "Q": 1e18}
+
+
+def stat_number(text: str) -> float | None:
+    match = _NUMBER.fullmatch(text.strip())
+    if not match:
+        return None
+    result = float(match[1]) * _MULTIPLIERS[match[2]]
+    return result if math.isfinite(result) else None
+
+
+def price_number(text: str) -> int | None:
+    if any(c in text for c in ("%", "/", "x", "s")):
+        return None
+    value = stat_number(text)
+    return round(value) if value is not None else None
+
+
+def contains(rect: config.Rect, box: config.Rect) -> bool:
+    x, y = box.x + box.w / 2, box.y + box.h / 2
+    return rect.x <= x < rect.x + rect.w and rect.y <= y < rect.y + rect.h
+
+
+@dataclass(frozen=True)
+class ObservedUpgrade:
+    upgrade_id: str
+    name: str
+    category: str
+    context: str
+    value: float | None
+    price: int | None
+    status: str
+    observed_at: float
+    rect: config.Rect
+    tap: tuple[int, int] | None
+
+    def payload(self) -> dict:
+        return {k: getattr(self, k) for k in (
+            "upgrade_id", "name", "category", "context", "value", "price", "status", "observed_at"
+        )}
+
+
+@dataclass(frozen=True)
+class Observation:
+    category: str | None
+    rows: tuple[ObservedUpgrade, ...]
+    combat: dict[str, float]
+    cash: int | None
+    observed_at: float
+    heading_y: int | None = None
+
+
+def parse_frame(
+    screen: Image, boxes: tuple[ocr.TextBox, ...], context: str, *, now: float | None = None
+) -> Observation:
+    now = time.time() if now is None else now
+    boxes = tuple(b for b in boxes if b.confidence >= .9)
+    headings = [(c, b) for c in ("ATTACK", "DEFENSE", "UTILITY") for b in boxes
+                if tiles.normalise(b.text).replace("defence", "defense") == c.lower() + "upgrades"]
+    if len(headings) != 1:
+        return Observation(None, (), {}, None, now)
+    category, heading = headings[0]
+    found = tuple(r for r in tiles.find_tiles(screen) if r.y > heading.rect.y)
+    rows = []
+    for rect in found:
+        inside = sorted((b for b in boxes if contains(rect, b.rect)), key=lambda b: (b.rect.y, b.rect.x))
+        markers = {b.text.strip().upper() for b in inside}
+        labels = [b.text for b in inside if stat_number(b.text) is None
+                  and b.text.strip().upper() not in ("MAX", "MAXED", "LOCKED")
+                  and not any(c.isdigit() for c in b.text)]
+        raw_name = " ".join(labels)
+        if not raw_name:
+            continue
+        entry = upgrades.resolve(raw_name, category)
+        price_boxes = [b for b in inside if price_number(b.text) is not None
+                       and b.rect.y >= rect.y + rect.h * config.TILE_PRICE_TOP_FRACTION]
+        price_box = max(price_boxes, key=lambda b: b.rect.y, default=None)
+        price = price_number(price_box.text) if price_box else None
+        values = [stat_number(b.text) for b in inside
+                  if b.rect.x > rect.x + rect.w * .5
+                  and b.rect.y < rect.y + rect.h * config.TILE_PRICE_TOP_FRACTION
+                  and stat_number(b.text) is not None]
+        value = values[0] if len(values) == 1 and not (entry and entry.unlock) else None
+        status = "available" if price is not None else "unreadable"
+        if markers & {"MAX", "MAXED"}:
+            status, price = "maxed", None
+        elif "LOCKED" in markers:
+            status, price = "locked", None
+        rows.append(ObservedUpgrade(
+            entry.id if entry else "discovered:" + tiles.normalise(raw_name),
+            entry.name if entry else raw_name, category, context, value, price, status, now,
+            rect, (price_box.rect.x + price_box.rect.w // 2,
+                   price_box.rect.y + price_box.rect.h // 2) if price_box and price is not None else None,
+        ))
+    combat: dict[str, float] = {}
+    cash = None
+    if context == "battle":
+        # Constrain unlabeled numbers to their HUD, never the upgrade grid.
+        hud = [b for b in boxes if heading.rect.y - 260 < b.rect.y < heading.rect.y]
+        waves = [(b, re.fullmatch(r"Wave\s*(\d+)", b.text, re.I)) for b in hud]
+        waves = [(b, m) for b, m in waves if m]
+        if len(waves) == 1:
+            wave_box, wave_match = waves[0]
+            combat["wave"] = int(wave_match[1])
+            enemies = [b for b in hud if b.rect.x > wave_box.rect.x + wave_box.rect.w
+                       and wave_box.rect.y - 65 < b.rect.y < wave_box.rect.y + 65
+                       and stat_number(b.text) is not None]
+            enemies.sort(key=lambda b: b.rect.y)
+            if len(enemies) == 2 and enemies[0].rect.y < wave_box.rect.y:
+                combat["enemy_damage"] = stat_number(enemies[0].text)
+        health = [re.fullmatch(r"([\d.]+[KMBTqQ]?)\s*/\s*([\d.]+[KMBTqQ]?)", b.text)
+                  for b in hud if b.rect.x < screen.shape[1] / 2]
+        health = [m for m in health if m]
+        if len(health) == 1:
+            hp, cap = stat_number(health[0][1]), stat_number(health[0][2])
+            if hp is not None and cap is not None and 0 <= hp <= cap and cap > 0:
+                combat.update(health=hp, max_health=cap)
+        cash_boxes = [b for b in boxes if b.rect.y < screen.shape[0] * .2
+                      and b.rect.x < screen.shape[1] * .4 and b.text.strip().startswith("$")]
+        if len(cash_boxes) == 1:
+            cash = price_number(cash_boxes[0].text)
+    return Observation(category, tuple(rows), combat, cash, now, heading.rect.y)
+
+
+def observe_frame(screen: Image, context: str) -> Observation:
+    return parse_frame(screen, ocr.read(screen), context)
+
+
+def read_cash(screen: Image, anchor: tuple[int, int]) -> int | None:
+    """OCR the anchored wallet with margin so adjacent digits stay one word."""
+    region = config.WALLET_REGION
+    x, y = anchor[0] + region.dx, anchor[1] + region.dy
+    h, w = screen.shape[:2]
+    if x < 0 or y < 0 or x + region.w > w or y + region.h > h:
+        return None
+    crop = screen[y:y + region.h, x:x + region.w]
+    padded = cv2.copyMakeBorder(crop, 20, 20, 20, 20, cv2.BORDER_CONSTANT)
+    boxes = ocr.read(padded)
+    if len(boxes) != 1 or boxes[0].confidence < .9:
+        return None
+    return price_number(boxes[0].text)

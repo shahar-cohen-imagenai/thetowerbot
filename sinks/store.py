@@ -115,7 +115,7 @@ class StoreSink(QueueSink):
                 self._run_id = event.run_id
                 self._scans = 0
                 self._taps = 0
-                db.start_run(conn, event.run_id, event.ts)
+                db.start_run(conn, event.run_id, event.ts, purpose=event.purpose)
             case events.Tapped():
                 self._taps += 1
             case events.RunEnded():

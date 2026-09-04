@@ -11,14 +11,15 @@ there: it touches the filesystem, and a value object should not do I/O to
 know whether it is well formed. Template validation lives in the validated()
 method instead, so that a disk-I/O check runs only when explicitly requested.
 
-Imports config and the standard library, and nothing else. The scan loop
-depends on this module, so this module must not depend on the web layer.
+Imports config, the pure autopilot policy and the standard library. The scan
+loop depends on this module, so this module must not depend on the web layer.
 """
 
 from __future__ import annotations
 
 import dataclasses
 import json
+import math
 import os
 import re
 from collections.abc import Mapping
@@ -28,6 +29,7 @@ from typing import Any
 from uuid import uuid4
 
 import config
+from policy import AutopilotPolicy, PolicyError
 
 # A floor because a zero or negative interval is a busy loop against ADB, and
 # a ceiling because an hour between scans is indistinguishable from a hang.
@@ -42,7 +44,8 @@ AFFORDABILITY = ("digits", "brightness")
 # too - it is handled separately because replacing it means re-parsing a raw
 # row list, not copying a scalar. `shopping` is absent for the same reason:
 # entries here are copied raw into dataclasses.replace, which would put an
-# unparsed patch dict straight into a typed field.
+# unparsed patch dict straight into a typed field. `autopilot` follows the
+# same strict nested-parser path.
 PATCHABLE_FIELDS = (
     "affordability",
     "interval",
@@ -135,7 +138,7 @@ _STRATEGY_TYPES: dict[str, tuple[type, ...]] = {
 }
 
 # Fields whose declared type includes None, so None is not a type error.
-_OPTIONAL = frozenset({"max_runs", "target_speed"})
+_OPTIONAL = frozenset({"max_runs", "target_speed", "target"})
 
 
 def _has_type(value: Any, types: tuple[type, ...]) -> bool:
@@ -273,6 +276,7 @@ MAX_CARDS_PER_VISIT = 50
 
 _SHOPPING_RULE_TYPES: dict[str, tuple[type, ...]] = {
     "name": (str,), "category": (str,), "enabled": (bool,),
+    "target": (int, float),
 }
 
 _CARD_TYPES: dict[str, tuple[type, ...]] = {
@@ -282,6 +286,7 @@ _CARD_TYPES: dict[str, tuple[type, ...]] = {
 _SHOPPING_TYPES: dict[str, tuple[type, ...]] = {
     "enabled": (bool,), "armed": (bool,),
     "visit_every_n_runs": (int,), "max_taps_per_visit": (int,),
+    "coin_reserve": (int,), "coin_budget": (int,), "allow_unlocks": (bool,),
 }
 
 
@@ -302,6 +307,7 @@ class ShoppingRule:
     name: str
     category: str
     enabled: bool = True
+    target: float | None = None
 
     def __post_init__(self) -> None:
         _check_types(_own_values(self), _SHOPPING_RULE_TYPES)
@@ -309,6 +315,10 @@ class ShoppingRule:
             raise ControlError("name", "a shopping row needs a name")
         if self.category not in CATEGORIES:
             raise ControlError("category", f"category must be one of {CATEGORIES}")
+        if self.target is not None and (
+            not math.isfinite(self.target) or self.target < 0
+        ):
+            raise ControlError("target", "target must be finite and non-negative")
 
 
 @dataclass(frozen=True)
@@ -358,6 +368,9 @@ class Shopping:
     armed: bool = False
     visit_every_n_runs: int = 1
     max_taps_per_visit: int = 40
+    coin_reserve: int = 0
+    coin_budget: int = 0
+    allow_unlocks: bool = False
     workshop: tuple[ShoppingRule, ...] = ()
     cards: CardPolicy = CardPolicy()
 
@@ -369,6 +382,10 @@ class Shopping:
             raise ControlError("workshop", "shopping row names must be unique")
         _in_range("visit_every_n_runs", self.visit_every_n_runs, 1, 100)
         _in_range("max_taps_per_visit", self.max_taps_per_visit, 1, MAX_TAPS_PER_VISIT)
+        if self.coin_reserve < 0:
+            raise ControlError("coin_reserve", "coin_reserve may not be negative")
+        if self.coin_budget < 0:
+            raise ControlError("coin_budget", "coin_budget may not be negative")
 
     def rows_for(self, category: str) -> tuple[ShoppingRule, ...]:
         """Enabled rows on one tab, still in priority order."""
@@ -402,8 +419,16 @@ class Shopping:
             "armed": self.armed,
             "visit_every_n_runs": self.visit_every_n_runs,
             "max_taps_per_visit": self.max_taps_per_visit,
+            "coin_reserve": self.coin_reserve,
+            "coin_budget": self.coin_budget,
+            "allow_unlocks": self.allow_unlocks,
             "workshop": [
-                {"name": r.name, "category": r.category, "enabled": r.enabled}
+                {
+                    "name": r.name,
+                    "category": r.category,
+                    "enabled": r.enabled,
+                    "target": r.target,
+                }
                 for r in self.workshop
             ],
             "cards": self.cards.to_dict(),
@@ -471,6 +496,7 @@ def _parse_shopping_rows(raw: Any) -> tuple[ShoppingRule, ...]:
 # is defined after that dict, so a literal entry there would reference a name
 # that does not exist yet.
 _STRATEGY_TYPES["shopping"] = (Shopping,)
+_STRATEGY_TYPES["autopilot"] = (AutopilotPolicy,)
 
 
 @dataclass(frozen=True)
@@ -511,6 +537,9 @@ class Strategy:
     # Between-runs spending. Defaults to a policy that buys nothing, so a
     # strategy file written before this existed loads and behaves the same.
     shopping: Shopping = Shopping()
+    # OCR-guided in-run spending is opt-in. An old profile has no key and
+    # therefore receives this disabled value without changing legacy scans.
+    autopilot: AutopilotPolicy = AutopilotPolicy()
 
     def __post_init__(self) -> None:
         # Normalise before validating: from_dict will hand in a list, and the
@@ -613,6 +642,7 @@ class Strategy:
             "tap_delay": self.tap_delay,
             "target_speed": self.target_speed,
             "shopping": self.shopping.to_dict(),
+            "autopilot": self.autopilot.to_dict(),
         }
 
     @classmethod
@@ -635,10 +665,22 @@ class Strategy:
         shopping = (
             Shopping.from_dict(raw["shopping"]) if "shopping" in raw else Shopping()
         )
-
-        values = {k: raw[k] for k in raw if k not in ("actions", "shopping")}
         try:
-            return cls(actions=rules, shopping=shopping, **values)
+            autopilot = (
+                AutopilotPolicy.from_dict(raw["autopilot"])
+                if "autopilot" in raw
+                else AutopilotPolicy()
+            )
+        except PolicyError as exc:
+            raise ControlError(exc.field, str(exc)) from None
+
+        values = {
+            k: raw[k]
+            for k in raw
+            if k not in ("actions", "shopping", "autopilot")
+        }
+        try:
+            return cls(actions=rules, shopping=shopping, autopilot=autopilot, **values)
         except ControlError:
             raise
         except (TypeError, ValueError) as exc:
@@ -653,18 +695,18 @@ class Strategy:
 
         The validate-and-merge half of Controls.apply(): unlike from_dict(),
         which parses a whole document and rejects anything it does not
-        recognise, this ignores keys outside PATCHABLE_FIELDS, "actions" and
-        "shopping" rather than erroring on them - Controls.apply() feeds it
+        recognise, this ignores keys outside PATCHABLE_FIELDS, "actions",
+        "shopping" and "autopilot" rather than erroring on them -
+        Controls.apply() feeds it
         session state (like `paused`) that this type deliberately does not
         own, and that is not a typo to reject, just a field for someone else.
 
         What patch DOES touch is still validated whole: the candidate goes
         through the same constructor - and so the same __post_init__ - as
         every other Strategy, so a bad field never reaches self. Reuses
-        _parse_action_rows for "actions" and Shopping.from_dict() for
-        "shopping" rather than parsing either itself, so a raw action or
-        shopping dict means the same thing here as it does in from_dict() -
-        one parser each, not two that must be kept in step.
+        _parse_action_rows, Shopping.from_dict() and
+        AutopilotPolicy.from_dict() rather than parsing nested values itself,
+        so posted values mean the same thing here as in from_dict().
         """
         updates: dict[str, Any] = {
             key: patch[key] for key in PATCHABLE_FIELDS if key in patch
@@ -673,6 +715,11 @@ class Strategy:
             updates["actions"] = _parse_action_rows(patch["actions"])
         if "shopping" in patch:
             updates["shopping"] = Shopping.from_dict(patch["shopping"])
+        if "autopilot" in patch:
+            try:
+                updates["autopilot"] = AutopilotPolicy.from_dict(patch["autopilot"])
+            except PolicyError as exc:
+                raise ControlError(exc.field, str(exc)) from None
         if not updates:
             return self
         try:
