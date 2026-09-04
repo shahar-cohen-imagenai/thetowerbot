@@ -21,6 +21,10 @@ FIXTURES = Path(__file__).parent / "fixtures"
         ("1.77K", 1770),
         ("2M", 2_000_000),
         ("0", 0),
+        # Regression: float(digits) * multiplier is not always exact -
+        # 2.01 * 1000 lands at 2009.9999999999998, which int() truncates to
+        # 2009. round() is required to get the correct 2010.
+        ("2.01K", 2010),
     ],
 )
 def test_parses_a_number(text, expected):

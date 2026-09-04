@@ -62,26 +62,33 @@ def read(screen: Image | None) -> tuple[TextBox, ...]:
             return ()
 
     boxes: list[TextBox] = []
-    for box, text, confidence in result or ():
-        if confidence < config.OCR_CONFIDENCE_FLOOR:
-            logger.debug("dropped %r at confidence %.3f", text, confidence)
-            continue
-        xs = [int(point[0]) for point in box]
-        ys = [int(point[1]) for point in box]
-        boxes.append(
-            TextBox(
-                text=text.strip(),
-                confidence=float(confidence),
-                rect=Rect(min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)),
+    try:
+        for box, text, confidence in result or ():
+            if confidence < config.OCR_CONFIDENCE_FLOOR:
+                logger.debug("dropped %r at confidence %.3f", text, confidence)
+                continue
+            xs = [int(point[0]) for point in box]
+            ys = [int(point[1]) for point in box]
+            boxes.append(
+                TextBox(
+                    text=text.strip(),
+                    confidence=float(confidence),
+                    rect=Rect(min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)),
+                )
             )
-        )
+    except Exception:
+        # Same rule as the engine call above: a malformed result shape must
+        # degrade to "nothing read", never raise out of the scan loop - but
+        # a caught exception that leaves no trace is its own defect.
+        logger.exception("could not turn the OCR result into boxes")
+        return ()
     return tuple(boxes)
 
 
-# Anchored at both ends: a partial match on "0.00/sec" or "x1.20" would
-# report a stat value as a price. Refusing is always safe - the row is
-# skipped as unreadable - while a wrong number is not.
-_NUMBER = re.compile(r"^\$?(\d+(?:\.\d+)?)([KMB])?$")
+# fullmatch() is itself the anchor - a leading/trailing ^/$ in the pattern
+# would be a no-op. A partial match on "0.00/sec" or "x1.20" would report a
+# stat value as a price; refusing is always safe, while a wrong number is not.
+_NUMBER = re.compile(r"\$?(\d+(?:\.\d+)?)([KMB])?")
 _SUFFIXES = {"K": 1_000, "M": 1_000_000, "B": 1_000_000_000}
 
 
@@ -91,4 +98,9 @@ def parse_number(text: str) -> int | None:
     if match is None:
         return None
     digits, suffix = match.groups()
-    return int(float(digits) * _SUFFIXES.get(suffix or "", 1))
+    # round(), not int(): float(digits) * multiplier is not always exact
+    # ("2.01" * 1000 lands a hair under 2010), and int() truncates toward
+    # zero instead of correcting for it. This module's contract is to refuse
+    # rather than guess - a rounding-induced off-by-one is exactly the kind
+    # of silently wrong number that contract exists to prevent.
+    return round(float(digits) * _SUFFIXES.get(suffix or "", 1))
