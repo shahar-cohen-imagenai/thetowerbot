@@ -21,8 +21,9 @@ from __future__ import annotations
 import asyncio
 import json
 import threading
+import time
 from pathlib import Path
-from typing import Any, AsyncIterator, Awaitable, Callable, Mapping
+from typing import Any, AsyncIterator, Awaitable, Callable, Mapping, Literal
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
@@ -32,6 +33,10 @@ from pydantic import BaseModel
 import config
 import db
 import events
+import upgrades
+from autopilot import AutopilotState
+from policy import PRESETS, preset_rules
+from progression import compare_tiers
 from control import ControlError, Controls
 from events import EventBus
 from frames import FrameBuffer
@@ -194,6 +199,13 @@ class ControlPatch(BaseModel):
     tap_delay: float | None = None
     target_speed: float | None = None
     actions: list[dict[str, Any]] | None = None
+    autopilot: dict[str, Any] | None = None
+
+
+class AutopilotCommand(BaseModel):
+    action: Literal["buy", "category", "scan"]
+    category: Literal["ATTACK", "DEFENSE", "UTILITY"] | None = None
+    upgrade_id: str | None = None
 
 
 class CommandRequest(BaseModel):
@@ -237,6 +249,51 @@ def create_app(
         shutdown = threading.Event()
 
     app = FastAPI(title="The Tower bot")
+    autopilot_state = runner.autopilot_state if runner is not None else AutopilotState()
+
+    @app.get("/api/upgrades")
+    async def upgrade_catalog() -> list[dict[str, Any]]:
+        return upgrades.catalog_payload()
+
+    @app.get("/api/autopilot/presets")
+    async def autopilot_presets() -> list[dict[str, Any]]:
+        return [{"name": name, "rules": [r.to_dict() for r in preset_rules(name)]} for name in PRESETS]
+
+    def _comparison() -> dict[str, Any]:
+        if db_path is None:
+            return compare_tiers([])
+        with db.reader(db_path) as conn:
+            return compare_tiers(db.list_runs(conn, limit=100))
+
+    def _can_control() -> bool:
+        return bool(runner is not None and runner.status()["running"] and controls is not None
+                    and not controls.snapshot().paused and state.snapshot()["screen"] == "IN_RUN")
+
+    @app.get("/api/autopilot")
+    async def autopilot_status() -> dict[str, Any]:
+        return {**autopilot_state.snapshot(), "can_control": _can_control(),
+                "tier_comparison": await asyncio.to_thread(_comparison)}
+
+    @app.post("/api/autopilot/command")
+    async def autopilot_command(body: AutopilotCommand) -> dict[str, bool]:
+        if not _can_control():
+            raise HTTPException(409, "Manual controls require a running, unpaused battle")
+        command = body.model_dump(exclude_none=True)
+        if body.action == "category" and body.category is None:
+            raise HTTPException(422, "Choose a category")
+        if body.action == "buy":
+            entry = upgrades.by_id(body.upgrade_id or "")
+            if entry is None or entry.unlock:
+                raise HTTPException(422, "Choose a standard battle upgrade")
+            rows = autopilot_state.snapshot()["observations"]
+            row = next((r for r in rows if r["context"] == "battle" and r["upgrade_id"] == entry.id), None)
+            if row is None or row["status"] != "available" or time.time() - row["observed_at"] > 15:
+                raise HTTPException(409, "Scan this upgrade before buying; a fresh observation is required")
+        try:
+            runner.request_autopilot(command)
+        except RunnerError as exc:
+            raise HTTPException(exc.status_code, str(exc)) from None
+        return {"queued": True}
 
     @app.get("/api/status")
     def status() -> dict:

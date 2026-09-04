@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS runs (
     tier       INTEGER,
     abandoned  INTEGER NOT NULL DEFAULT 0,
     scan_count INTEGER NOT NULL DEFAULT 0,
-    tap_count  INTEGER NOT NULL DEFAULT 0
+    tap_count  INTEGER NOT NULL DEFAULT 0,
+    purpose    TEXT NOT NULL DEFAULT 'farm' CHECK(purpose IN ('farm', 'milestone'))
 );
 
 CREATE TABLE IF NOT EXISTS events (
@@ -94,6 +95,12 @@ def connect(path: Path | str) -> sqlite3.Connection:
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.executescript(SCHEMA)
+    columns = {row["name"] for row in conn.execute("PRAGMA table_info(runs)")}
+    if "purpose" not in columns:
+        conn.execute(
+            "ALTER TABLE runs ADD COLUMN purpose TEXT NOT NULL DEFAULT 'farm' "
+            "CHECK(purpose IN ('farm', 'milestone'))"
+        )
     conn.commit()
     return conn
 
@@ -135,11 +142,14 @@ def insert_event(conn: sqlite3.Connection, row: dict[str, Any]) -> None:
     conn.commit()
 
 
-def start_run(conn: sqlite3.Connection, run_id: int, started_at: float) -> None:
+def start_run(
+    conn: sqlite3.Connection, run_id: int, started_at: float, *, purpose: str = "farm"
+) -> None:
     conn.execute(
-        """INSERT INTO runs (id, started_at) VALUES (?, ?)
-           ON CONFLICT(id) DO UPDATE SET started_at = excluded.started_at""",
-        (run_id, started_at),
+        """INSERT INTO runs (id, started_at, purpose) VALUES (?, ?, ?)
+           ON CONFLICT(id) DO UPDATE SET started_at = excluded.started_at,
+                                        purpose = excluded.purpose""",
+        (run_id, started_at, purpose),
     )
     conn.commit()
 

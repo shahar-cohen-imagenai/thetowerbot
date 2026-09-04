@@ -683,6 +683,49 @@ over SSE and reconnects on its own — a laptop that slept resumes from
 `Last-Event-ID` rather than starting blank, as long as it was gone for less
 than the 500-event ring.
 
+### OCR autopilot
+
+In **Strategy → Purchases**, choose Battle or Workshop, then Attack, Defense
+or Utility. The catalog supplies upgrade names and aliases; OCR supplies your
+observed values, prices and availability. Unknown means unseen, not locked.
+You can plan unknown or locked upgrades in advance, but spending requires a
+fresh, readable upgrade and currency balance. Targets refer to displayed stat
+values, rather than purchase counts. Lower cooldown targets work in the opposite
+direction for Shockwave Frequency and Wall Rebuild.
+
+Choose Manual, Turtle or Health, adjust the ordered rules and targets, enable
+battle autopilot, and Save. Turtle protects buffered Defense Absolute after
+Defense %, builds early economy and advances Thorns breakpoints. Health moves
+from early economy to health, lifesteal, attack speed, knockback and orbs.
+These are editable guide presets; missing critical combat readings make them
+wait. The Live page explains the current decision and verified purchases.
+
+**Scan upgrades**, **Show category in game**, and **Buy once** are immediate
+commands while an unpaused bot is in battle. Navigation verifies the category
+on a later frame and searches with a finite scroll budget. Purchases wait for
+a subsequent value, price or maxed-state change before continuing. Pause and
+strategy edits retain outstanding purchase evidence to avoid duplicate taps.
+Legacy template purchases remain available when autopilot is disabled.
+
+Workshop spending requires shopping enabled and armed, a nonzero **coin budget
+per visit**, enough coins above the **coin reserve**, and an enabled row.
+Unlock tiles additionally require **Allow Workshop unlocks**. Cash Bonus and
+Coin Bonus unlocks are separate rows. Confirmed unlocks appear as Unlocked;
+unseen later unlocks can still be added by their exact OCR name. Shopping visits
+take priority over starting the next battle. Existing card controls are unchanged.
+
+The Live tier comparison uses completed farming runs and elapsed time; at least
+three runs on a tier are required for a recommendation. Milestone runs are
+tagged separately. Tier selection remains manual in game. Observations currently
+live in memory, expire for purchase decisions and reset at battle boundaries;
+profiles and completed run history persist.
+
+Battle category navigation currently supports the verified three-tab layout at
+1080×2400. Changed layouts or unreadable currency stop the action. Recorded-frame
+and fake-device tests cover the executor; live-device calibration is still needed
+for later unlocked panels. Labs, perks and automatic tier switching are outside
+this implementation.
+
 The **control** page is session concerns only: **Start**, **Stop bot**
 (ends the bot, keeps the dashboard serving), **Shut down** (ends the bot and
 the dashboard together, with a confirmation since there is no button to

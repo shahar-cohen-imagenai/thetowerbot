@@ -1,4 +1,8 @@
 import type {
+  AutopilotPreset,
+  AutopilotCommand,
+  AutopilotSnapshot,
+  Upgrade,
   BotStatus,
   ControlPayload,
   LedgerPayload,
@@ -45,6 +49,11 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 export const fetchStatus = () => getJson<StatusPayload>("/api/status");
+export const fetchUpgrades = () => getJson<Upgrade[]>("/api/upgrades");
+export const fetchAutopilot = () => getJson<AutopilotSnapshot>("/api/autopilot");
+export const fetchAutopilotPresets = () => getJson<AutopilotPreset[]>("/api/autopilot/presets");
+export const postAutopilotCommand = (command: AutopilotCommand) =>
+  send<{ queued: boolean }>("/api/autopilot/command", "POST", command);
 export const fetchRuns = (limit = 30) => getJson<RunRow[]>(`/api/runs?limit=${limit}`);
 export const fetchRunEvents = (id: number) => getJson<StoredEvent[]>(`/api/runs/${id}/events`);
 export const fetchUnknown = () => getJson<Snapshot[]>("/api/unknown");

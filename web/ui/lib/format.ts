@@ -26,6 +26,11 @@ export interface EventLine {
 
 export function splitEvent(event: BotEvent): EventLine {
   switch (event.type) {
+    case "BattlePurchased":
+      return {
+        kind: "BUY",
+        body: `Confirmed ${event.item} price=${money(event.price)}${event.value == null ? "" : ` value=${event.value}`}`,
+      };
     case "Tapped":
       return {
         kind: "TAP",
@@ -51,7 +56,7 @@ export function splitEvent(event: BotEvent): EventLine {
         body: `${event.screen} ${Math.round(event.duration_ms)}ms wallet=${money(event.wallet)}`,
       };
     case "RunStarted":
-      return { kind: "RUN", body: `#${event.run_id} started` };
+      return { kind: "RUN", body: `#${event.run_id} started${event.purpose ? ` (${event.purpose})` : ""}` };
     case "RunEnded":
       return {
         kind: "RUN",

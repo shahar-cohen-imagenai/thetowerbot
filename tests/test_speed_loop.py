@@ -45,6 +45,15 @@ def test_a_speed_up_command_taps_the_plus_arrow(in_run: TowerBot) -> None:
     )
 
 
+def test_speed_adjustment_defers_ocr_purchase_until_next_frame(in_run: TowerBot, monkeypatch: pytest.MonkeyPatch) -> None:
+    in_run.controls.apply({"autopilot": {"enabled": True}})
+    calls: list[bool] = []
+    monkeypatch.setattr(in_run.speed, "settle", lambda *args, **kwargs: "up")
+    monkeypatch.setattr(in_run.autopilot, "step", lambda *args, **kwargs: calls.append(True))
+    in_run.run_once()
+    assert calls == []
+
+
 def test_a_speed_down_command_taps_the_minus_arrow(in_run: TowerBot) -> None:
     in_run.controls.request("speed_down")
     in_run.run_once()

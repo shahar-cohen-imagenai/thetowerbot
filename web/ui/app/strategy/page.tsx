@@ -5,13 +5,17 @@ import { ProfileBar } from "@/components/ProfileBar";
 import { ShoppingEditor } from "@/components/ShoppingEditor";
 import { StrategyEditor } from "@/components/StrategyEditor";
 import { StrategyNav } from "@/components/StrategyNav";
+import { AutopilotEditor } from "@/components/AutopilotEditor";
+import { useAutopilot } from "@/lib/useAutopilot";
 import {
   activateStrategy, deleteStrategy, fetchControl, fetchStrategies,
   fetchStrategy, saveStrategy,
+  fetchUpgrades, fetchAutopilotPresets,
+  postAutopilotCommand,
 } from "@/lib/api";
 import { useControlSync } from "@/lib/useControlSync";
 import { errorText } from "@/lib/utils";
-import type { Strategy, StrategyList } from "@/lib/types";
+import type { AutopilotCommand, AutopilotPreset, Upgrade, Strategy, StrategyList } from "@/lib/types";
 
 // Mirrors strategy.py's NAME_PATTERN, because a profile name becomes a
 // filename. Checking it here turns "my copy" from a 422 round trip into a
@@ -21,6 +25,36 @@ const NAME_RULE =
   "A strategy name must be 1-64 characters of letters, digits, '-' or '_'.";
 
 export default function StrategyPage() {
+  const { snapshot } = useAutopilot();
+  const [catalog, setCatalog] = useState<Upgrade[]>([]);
+  const [presets, setPresets] = useState<AutopilotPreset[]>([]);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [commandPending, setCommandPending] = useState(false);
+  const [commandResult, setCommandResult] = useState<string | null>(null);
+  async function command(command: AutopilotCommand) {
+    setCommandPending(true);
+    setCommandResult(null);
+    try {
+      await postAutopilotCommand(command);
+      setCommandResult("Command queued. Watch Live for the verified outcome.");
+    } catch (error) {
+      setCommandResult(errorText(error));
+    } finally {
+      setCommandPending(false);
+    }
+  }
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      try {
+        const [upgrades, choices] = await Promise.all([fetchUpgrades(), fetchAutopilotPresets()]);
+        if (alive) { setCatalog(upgrades); setPresets(choices); }
+      } catch {
+        if (alive) setCatalogError("Upgrade catalog unavailable. Legacy controls remain available.");
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
   const [list, setList] = useState<StrategyList | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   // Two copies on purpose: `saved` is what the server last confirmed and
@@ -184,9 +218,12 @@ export default function StrategyPage() {
         }
       />
 
+      {commandResult ? <p role="status" className="text-sm">{commandResult}</p> : null}
+      <AutopilotEditor value={draft} onChange={setDraft} catalog={catalog} presets={presets} snapshot={snapshot} disabled={busy} error={catalogError} onCommand={(next) => void command(next)} commandPending={commandPending} />
+
       <StrategyEditor
         value={draft} onChange={setDraft} available={available}
-        speedValues={speedValues} disabled={busy}
+        speedValues={speedValues} disabled={busy} hidePurchases={draft.autopilot?.enabled} legacyPurchases
       />
 
       <ShoppingEditor
@@ -194,6 +231,7 @@ export default function StrategyPage() {
         onChange={(shopping) => setDraft({ ...draft, shopping })}
         disabled={busy}
         disabledReason={shoppingDisabledReason}
+        hideWorkshopRows={catalog.length > 0}
       />
       </div>
     </div>

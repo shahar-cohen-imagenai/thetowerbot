@@ -20,6 +20,21 @@ group("clock", () => {
 });
 
 group("describe", () => {
+  it("distinguishes a verified battle purchase from a tap with the confirmed item and cost", () => {
+    const line = describe({
+      type: "BattlePurchased", seq: 1, ts: 0, item: "Defense Absolute",
+      upgrade_id: "defense_absolute", price: 125, value: 42,
+    });
+    expect(line).toContain("Confirmed Defense Absolute");
+    expect(line).toContain("$125");
+    expect(line).toContain("value=42");
+  });
+
+  it("shows run purpose while keeping historical events without purpose readable", () => {
+    expect(describe({ type: "RunStarted", seq: 1, ts: 0, run_id: 7, purpose: "milestone" })).toContain("milestone");
+    expect(describe({ type: "RunStarted", seq: 2, ts: 0, run_id: 8 })).toContain("#8 started");
+  });
+
   it("renders a tap with its score and price", () => {
     const line = describe({
       type: "Tapped", seq: 1, ts: 0, action: "Damage",

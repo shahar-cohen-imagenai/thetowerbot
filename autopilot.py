@@ -1,0 +1,316 @@
+"""Serialized OCR battle navigation with observable, acknowledged purchases."""
+from __future__ import annotations
+
+import copy
+import threading
+import time
+from dataclasses import dataclass, replace
+from typing import Any
+
+import cv2
+
+import config
+import events
+import upgrades
+from device import Image, tap
+from perception import Observation, ObservedUpgrade, observe_frame
+from policy import AutopilotPolicy, UpgradeRule, choose
+
+
+class AutopilotState:
+    def __init__(self) -> None:
+        self._lock = threading.RLock()
+        self._rows: dict[tuple[str, str], dict] = {}
+        self._view: dict[str, Any] = dict(
+            phase="idle", reason="Autopilot is off", next_upgrade_id=None,
+            category=None, combat={}, updated_at=None, verified_purchases=0, last_purchase=None,
+        )
+
+    def observe(self, observation: Observation) -> None:
+        with self._lock:
+            for row in observation.rows:
+                self._rows[(row.context, row.upgrade_id)] = row.payload()
+            self._view.update(category=observation.category, updated_at=observation.observed_at)
+            if not observation.rows or any(r.context == "battle" for r in observation.rows):
+                self._view["combat"] = dict(observation.combat)
+
+    def rows(self, context: str, now: float) -> dict[str, dict]:
+        with self._lock:
+            result = {key[1]: dict(row) for key, row in self._rows.items() if key[0] == context}
+        for row in result.values():
+            if now - row["observed_at"] > 60:
+                row.update(status="unknown", value=None, price=None)
+        return result
+
+    def unknown(self, entry: upgrades.Upgrade, context: str, now: float) -> None:
+        with self._lock:
+            self._rows[(context, entry.id)] = dict(
+                upgrade_id=entry.id, name=entry.name, category=entry.category,
+                context=context, status="unknown", value=None, price=None, observed_at=now,
+            )
+
+    def decision(self, phase: str, reason: str, target: str | None = None) -> None:
+        with self._lock:
+            self._view.update(phase=phase, reason=reason, next_upgrade_id=target)
+
+    def verified(self, row: ObservedUpgrade) -> None:
+        with self._lock:
+            self._view["verified_purchases"] += 1
+            self._view["last_purchase"] = row.payload()
+
+    def clear_battle(self) -> None:
+        with self._lock:
+            self._rows = {k: v for k, v in self._rows.items() if k[0] != "battle"}
+            self._view.update(combat={}, category=None)
+
+    def snapshot(self) -> dict[str, Any]:
+        with self._lock:
+            return copy.deepcopy({**self._view, "observations": list(self._rows.values())})
+
+
+def battle_tab_point(screen: Image, category: str) -> tuple[int, int] | None:
+    """Three icon tabs, calibrated to the supported 1080x2400 layout.
+
+    Verify the three cell borders before using their centers. A fourth tab or
+    changed layout fails closed. Arrival is checked from OCR on the next frame.
+    """
+    h, w = screen.shape[:2]
+    if (w, h) != config.EXPECTED_RESOLUTION or category not in ("ATTACK", "DEFENSE", "UTILITY"):
+        return None
+    grey = cv2.cvtColor(screen[h-80:h-20], cv2.COLOR_BGR2GRAY)
+    for x in (0, w//3, 2*w//3, w-1):
+        strip = grey[:, max(0, x-14):min(w, x+15)]
+        if not (strip > 100).mean(axis=0).max() > .65:
+            return None
+    index = ("ATTACK", "DEFENSE", "UTILITY").index(category)
+    return (int(w * (index + .5) / 3), h - 50)
+
+
+def scroll_panel(device: Any, screen: Image, heading_y: int, *, down: bool) -> None:
+    h, w = screen.shape[:2]
+    # Swipe inside the label column, clear of the purchase buttons and tab bar.
+    top, bottom = heading_y + 90, h - 160
+    if bottom - top < 100:
+        return
+    start, end = (bottom, top) if down else (top, bottom)
+    device.swipe(w // 5, start, w // 5, end, .35)
+
+
+@dataclass
+class Search:
+    target: str
+    direction: str = "up"
+    scrolls: int = 0
+    fingerprint: tuple[str, ...] | None = None
+    tab_attempts: int = 0
+
+
+class BattleAutopilot:
+    def __init__(self, state: AutopilotState | None = None, bus: Any | None = None) -> None:
+        self.state = state or AutopilotState()
+        self.bus = bus
+        self.pending: tuple[ObservedUpgrade, float] | None = None
+        self.search: Search | None = None
+        self._policy: AutopilotPolicy | None = None
+        self._blocked: dict[str, float] = {}
+        self._last_action = float("-inf")
+        self._command_lock = threading.Lock()
+        self._queued: dict | None = None
+        self._manual: dict | None = None
+
+    @property
+    def has_work(self) -> bool:
+        with self._command_lock:
+            return bool(self._queued or self._manual or self.pending)
+
+    def submit(self, command: dict, *, now: float | None = None) -> None:
+        with self._command_lock:
+            if self._queued is not None:
+                raise ValueError("A manual command is already queued")
+            action = command.get("action")
+            if action not in ("buy", "category", "scan"):
+                raise ValueError("Unknown manual action")
+            if action == "buy":
+                entry = upgrades.by_id(command.get("upgrade_id", ""))
+                if entry is None or entry.unlock:
+                    raise ValueError("Choose a standard battle upgrade")
+            if action == "category" and command.get("category") not in ("ATTACK", "DEFENSE", "UTILITY"):
+                raise ValueError("Unknown category")
+            self._queued = {**command, "expires": (time.time() if now is None else now) +
+                            (180 if action == "scan" else 20)}
+
+    def suspend(self, reason: str, *, clear_battle: bool = False) -> None:
+        self.search = None
+        self._manual = None
+        with self._command_lock:
+            self._queued = None
+        self.state.decision("idle", reason)
+        if clear_battle:
+            self.pending = None
+            self.state.clear_battle()
+            self._blocked.clear()
+
+    def _emit(self, event: events.Event) -> None:
+        if self.bus is not None:
+            self.bus.publish(event)
+
+    def _seek(self, target: str, observation: Observation, screen: Image,
+              device: Any, policy: AutopilotPolicy) -> bool:
+        entry = upgrades.by_id(target)
+        if self.search is None or self.search.target != target:
+            self.search = Search(target)
+        search = self.search
+        if observation.category != entry.category:
+            if search.tab_attempts >= 2:
+                self._blocked[target] = observation.observed_at + 60
+                self.state.decision("blocked", "Could not confirm category; waiting before retry", target)
+                self.search = None
+                return False
+            point = battle_tab_point(screen, entry.category)
+            if point is None:
+                self.state.decision("blocked", "Category navigation layout is not recognized", target)
+                self._blocked[target] = observation.observed_at + 60
+                return False
+            tap(device, *point)
+            search.tab_attempts += 1
+            self.state.decision("navigating", f"Opening {entry.category.title()}", target)
+            return True
+        fingerprint = tuple(r.upgrade_id for r in observation.rows)
+        at_end = fingerprint == search.fingerprint or search.scrolls >= policy.max_scrolls
+        if at_end:
+            if search.direction == "up":
+                search.direction, search.scrolls = "down", 0
+            else:
+                if target not in {r.upgrade_id for r in observation.rows}:
+                    self.state.unknown(entry, "battle", observation.observed_at)
+                    self._blocked[target] = observation.observed_at + 60
+                self.search = None
+                self.state.decision("discovering", f"{entry.name} was not found; availability is unknown", target)
+                return False
+        search.fingerprint = fingerprint
+        if observation.heading_y is None or not observation.rows:
+            self.state.decision("blocked", "Upgrade panel is unreadable", target)
+            return False
+        scroll_panel(device, screen, observation.heading_y, down=search.direction == "down")
+        search.scrolls += 1
+        self.state.decision("discovering", f"Scanning {entry.category.title()} for {entry.name}", target)
+        return True
+
+    def step(self, screen: Image, device: Any, policy: AutopilotPolicy, *,
+             cash: int | None = None, observation: Observation | None = None,
+             cooldown: float = .75) -> bool:
+        observation = observation or observe_frame(screen, "battle")
+        now = observation.observed_at
+        with self._command_lock:
+            if self._manual is None and not self.pending and self._queued:
+                self._manual, self._queued = self._queued, None
+                self.search = None
+        if self._manual and self._manual["expires"] < now:
+            self._manual = None
+            self.search = None
+            self.state.decision("idle", "Manual command expired")
+            return False
+        if self._manual and self._manual["action"] == "buy":
+            policy = replace(policy, enabled=True, preset="manual",
+                             rules=(UpgradeRule(self._manual["upgrade_id"]),))
+        if not policy.enabled and not self._manual and not self.pending:
+            self.suspend("Autopilot is off")
+            return False
+        self.state.observe(observation)
+        if self._policy != policy:
+            self.search = None
+            self._policy = policy
+        visible = {r.upgrade_id: r for r in observation.rows}
+        if self.pending:
+            before, sent_at = self.pending
+            after = visible.get(before.upgrade_id)
+            if now <= sent_at:
+                return False
+            confirmed = after and (
+                after.status == "maxed" or
+                (after.price is not None and before.price is not None and after.price > before.price) or
+                (after.value is not None and before.value is not None and after.value != before.value)
+            )
+            if confirmed:
+                self.state.verified(after)
+                self._emit(events.BattlePurchased(item=after.name, upgrade_id=after.upgrade_id,
+                                                  price=before.price, value=after.value))
+                self.state.decision("verified", f"Verified {after.name} upgrade", after.upgrade_id)
+                self.pending = None
+                self._manual = None
+            elif now - sent_at >= 8:
+                self._blocked[before.upgrade_id] = now + 60
+                self.state.decision("blocked", f"{before.name} purchase was not confirmed", before.upgrade_id)
+                self.pending = None
+                self._manual = None
+            else:
+                self.state.decision("verifying", f"Checking {before.name} purchase", before.upgrade_id)
+            return False
+        if not observation.category or not observation.rows:
+            self.state.decision("blocked", "Waiting for a readable upgrade panel")
+            return False
+        if now - self._last_action < max(.75, cooldown):
+            return False
+        if self._manual and self._manual["action"] in ("category", "scan"):
+            command = self._manual
+            categories = command.setdefault("categories", ["ATTACK", "DEFENSE", "UTILITY"])
+            category = command.get("category") if command["action"] == "category" else categories[0]
+            if command["action"] == "category" and observation.category == category:
+                self._manual = None
+                self.state.decision("manual", f"Showing {category.title()}")
+                return False
+            target = next(e.id for e in upgrades.CATALOG if e.category == category and not e.unlock)
+            moved = self._seek(target, observation, screen, device, policy)
+            if moved:
+                self._last_action = now
+            elif self.search is None:
+                if command["action"] == "scan":
+                    categories.pop(0)
+                if command["action"] == "category" or not categories:
+                    self._manual = None
+                    self.state.decision("manual", "Scan complete; unseen upgrades remain unknown")
+            return moved
+        cached = self.state.rows("battle", now)
+        enabled = [r for r in policy.effective_rules() if r.enabled and self._blocked.get(r.upgrade_id, 0) <= now]
+        if not enabled:
+            self.state.decision("waiting", "No eligible rules; enable upgrades or wait for a fresh scan")
+            return False
+        combat = dict(observation.combat)
+        actual_cash = cash if cash is not None else observation.cash
+        if actual_cash is not None:
+            combat["cash"] = actual_cash
+        decision = choose(replace(policy, rules=tuple(enabled)), cached, combat)
+        # Discover the configured inventory even when a guide must wait for stats.
+        missing = next((r.upgrade_id for r in enabled if r.upgrade_id not in cached
+                        or cached[r.upgrade_id]["status"] == "unknown"), None)
+        if missing and missing not in visible and decision.phase != "survival":
+            moved = self._seek(missing, observation, screen, device, policy)
+            if moved:
+                self._last_action = now
+            return moved
+        target = decision.upgrade_id
+        self.state.decision(decision.phase, decision.reason, target)
+        if not target:
+            return False
+        if target not in visible:
+            moved = self._seek(target, observation, screen, device, policy)
+            if moved:
+                self._last_action = now
+            return moved
+        row = visible[target]
+        self.search = None
+        if row.status != "available" or row.price is None or row.tap is None:
+            return False
+        if actual_cash is None:
+            self.state.decision("blocked", "Waiting for a reliable cash reading", target)
+            return False
+        if row.price > actual_cash - policy.cash_reserve:
+            self.state.decision("saving", f"Saving cash for {row.name}; reserve protected", target)
+            return False
+        tap(device, *row.tap)
+        self.pending = (row, now)
+        self._last_action = now
+        self.state.decision("verifying", f"Checking {row.name} purchase", target)
+        self._emit(events.Tapped(action=row.name, x=row.tap[0], y=row.tap[1], score=1,
+                                 price=row.price, wallet=actual_cash))
+        return True

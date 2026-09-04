@@ -16,8 +16,8 @@ const SECTIONS: Section[] = [
   {
     id: "purchases",
     label: "Purchases",
-    count: (s) => `${s.actions.filter((a) => a.enabled).length}/${s.actions.length}`,
-    slice: (s) => [s.actions, s.affordability],
+    count: (s) => s.autopilot?.enabled ? `${s.autopilot.rules.filter((a) => a.enabled).length}/${s.autopilot.rules.length}` : `${s.actions.filter((a) => a.enabled).length}/${s.actions.length}`,
+    slice: (s) => [s.actions, s.affordability, s.autopilot],
   },
   {
     id: "timing",
