@@ -122,6 +122,10 @@ def rows_from(boxes: tuple[ocr.TextBox, ...], found: tuple[Rect, ...]) -> tuple[
         # and every value/readout/price box ('3', '1.00%', 'x1.20', '$10',
         # '0.00/sec', ...) holds at least one digit - a clean split with no
         # exceptions, and one rule for every tile rather than a per-row fix.
+        # Its failure mode, if a future page breaks that: every fragment in
+        # the tile holds a digit, label_boxes comes out empty, and the row
+        # is dropped below - hence the debug line there, so a row that
+        # vanishes leaves a trace.
         label_boxes = [
             box for box in inside
             if not any(char.isdigit() for char in box.text)
@@ -133,6 +137,10 @@ def rows_from(boxes: tuple[ocr.TextBox, ...], found: tuple[Rect, ...]) -> tuple[
         ]
 
         if not label_boxes:
+            logger.debug(
+                "tile %s has no digit-free label; dropping it. read: %s",
+                tile, [box.text for box in inside],
+            )
             continue
         # Top-to-bottom, then left-to-right: a wrapped label reads down.
         label_boxes.sort(key=lambda b: (b.rect.y, b.rect.x))

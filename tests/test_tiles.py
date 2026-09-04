@@ -127,6 +127,7 @@ def test_in_run_rows_read_their_dollar_prices():
     assert rows["Damage"].price == 10
     assert rows["Attack Speed"].price == 5
     assert rows["Critical Chance"].price == 4
+    assert rows["Critical Factor"].price == 10
 
 
 def test_the_tap_point_is_inside_the_tile():
