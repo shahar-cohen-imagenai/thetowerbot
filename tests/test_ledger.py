@@ -290,3 +290,44 @@ def test_an_event_outside_the_catalog_produces_no_lines(tmp_path: Path) -> None:
     write, _ = writer(tmp_path)
 
     assert write.lines_for(events.Tapped(action="Damage", x=1, y=2, score=0.9)) == []
+
+
+def test_backfill_replays_stored_events_into_lines(tmp_path: Path) -> None:
+    conn = db.connect(tmp_path / "bot.db")
+    db.insert_event(conn, {
+        "seq": 1, "run_id": None, "ts": 1.0, "type": "Purchased",
+        "screen": None, "action": None, "reason": None, "score": None,
+        "price": 75, "wallet": None,
+        "detail": '{"item": "Health", "category": "DEFENSE", '
+                  '"coins_before": 1770, "gems_before": null, "dry_run": false}',
+    })
+
+    written = ledger.backfill(conn)
+
+    assert written == 1
+    line = db.ledger_page(conn)[0]
+    assert (line["kind"], line["item"], line["delta"]) == ("WORKSHOP_BUY", "Health", -75)
+    assert line["balance_after"] == 1695
+
+
+def test_backfill_is_a_one_time_migration_not_a_repair(tmp_path: Path) -> None:
+    """Derived UNEXPLAINED lines have no seq, so the unique index cannot
+    dedupe them - a second unguarded replay would duplicate every one."""
+    conn = db.connect(tmp_path / "bot.db")
+    db.insert_event(conn, {
+        "seq": 1, "run_id": None, "ts": 1.0, "type": "Purchased",
+        "screen": None, "action": None, "reason": None, "score": None,
+        "price": 75, "wallet": None,
+        "detail": '{"item": "Health", "category": "DEFENSE", '
+                  '"coins_before": 1770, "gems_before": null, "dry_run": false}',
+    })
+
+    assert ledger.backfill(conn) == 1
+    assert ledger.backfill(conn) == 0
+    assert len(db.ledger_page(conn)) == 1
+
+
+def test_backfill_over_an_empty_events_table_writes_nothing(tmp_path: Path) -> None:
+    conn = db.connect(tmp_path / "bot.db")
+
+    assert ledger.backfill(conn) == 0

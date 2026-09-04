@@ -289,3 +289,78 @@ class LedgerWriter:
             self._known[currency] = balance if balance is not None else known
             self._stale[currency] = stale
         return out
+
+
+# The events the ledger cares about, by the `type` string stored in the
+# events table. Anything else is skipped without being rebuilt at all.
+_REPLAYABLE: dict[str, type[events.Event]] = {
+    "RunEnded": events.RunEnded,
+    "Purchased": events.Purchased,
+    "PurchaseSkipped": events.PurchaseSkipped,
+    "ShoppingStarted": events.ShoppingStarted,
+    "ShoppingEnded": events.ShoppingEnded,
+    "ShoppingUnavailable": events.ShoppingUnavailable,
+    "ControlChanged": events.ControlChanged,
+}
+
+
+def _rebuild(row: dict[str, Any]) -> events.Event | None:
+    """Reconstruct a stored row back into the event it came from.
+
+    Best-effort by design. A row written by an older build can be missing
+    fields this event now requires, and a ledger line is not worth crashing
+    a launch over - such a row is skipped and the history simply starts
+    later.
+    """
+    cls = _REPLAYABLE.get(row["type"])
+    if cls is None:
+        return None
+
+    fields = {f.name for f in dataclasses.fields(cls)}
+    kwargs: dict[str, Any] = {"seq": row["seq"], "ts": row["ts"]}
+    if "run_id" in fields and row.get("run_id") is not None:
+        kwargs["run_id"] = row["run_id"]
+    if "price" in fields and row.get("price") is not None:
+        kwargs["price"] = row["price"]
+    if "reason" in fields and row.get("reason") is not None:
+        kwargs["reason"] = row["reason"]
+    kwargs.update({k: v for k, v in (row.get("detail") or {}).items() if k in fields})
+
+    try:
+        return cls(**kwargs)
+    except TypeError:
+        return None
+
+
+def backfill(conn: sqlite3.Connection) -> int:
+    """Replay the events table into the ledger. Returns lines written.
+
+    A ONE-TIME migration, not a repair tool, and it says so by refusing to
+    run at all once the ledger holds anything. Derived UNEXPLAINED lines
+    have no seq, so the unique index that dedupes replayed source events
+    cannot dedupe them; a second unguarded replay would duplicate every one.
+
+    Called from prepare_store BEFORE the prune, so events that are already
+    past the retention window still make it into the permanent history.
+    """
+    if conn.execute("SELECT 1 FROM ledger LIMIT 1").fetchone() is not None:
+        return 0
+
+    rows = conn.execute("SELECT * FROM events ORDER BY seq").fetchall()
+    writer = LedgerWriter(conn)
+    written = 0
+    for raw in rows:
+        event = _rebuild(_decode_event(raw))
+        if event is None:
+            continue
+        for line in writer.lines_for(event):
+            db.insert_ledger(conn, line.as_row())
+            written += 1
+    return written
+
+
+def _decode_event(row: Any) -> dict[str, Any]:
+    data = dict(row)
+    raw = data.get("detail")
+    data["detail"] = json.loads(raw) if raw else {}
+    return data
