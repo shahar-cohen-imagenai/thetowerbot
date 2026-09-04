@@ -138,7 +138,7 @@ export default function GuidePage() {
               bought at all.
             </li>
             <li>
-              Switch to Cash Bonus and Coins per Kill around wave 100. Coins
+              Switch to Cash Bonus and Coins/Kill around wave 100. Coins
               per kill dominates the economy long term because far more
               multipliers stack onto it; coins per wave has fewer ways to grow
               and flattens out.
