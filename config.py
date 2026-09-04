@@ -499,3 +499,12 @@ TILE_MIN_W: int = 450
 TILE_MAX_W: int = 1050
 TILE_MIN_H: int = 178
 TILE_MAX_H: int = 230
+
+# --- OCR -------------------------------------------------------------------
+# Boxes below this are dropped inside ocr.py and never reach a consumer.
+# Measured on the committed fixtures: real content read at 0.968-1.000 and
+# the one observed phantom - an 'A' on empty screen - at 0.555. This sits in
+# the middle of that gap, the same pick-the-middle-of-the-plateau convention
+# DIGIT_BINARY_THRESHOLD uses. Calibrated on four images; revisit against
+# live data.
+OCR_CONFIDENCE_FLOOR: float = 0.85
