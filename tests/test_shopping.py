@@ -695,3 +695,130 @@ def test_a_price_the_glyph_atlas_cannot_read_is_bought_at_the_ocr_price(
     assert bought[0].price == 56
     # The price strip inside the buy panel, read off this very frame.
     assert device.taps[-1] == (952, 634)
+
+
+# -- a screen the reader cannot see -----------------------------------------
+def _two_attack_rows():
+    return (
+        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+                     category="ATTACK"),
+        ShoppingRule(name="Attack Speed",
+                     template="workshop/row_attack_speed.png",
+                     category="ATTACK"),
+    )
+
+
+def test_a_blinded_screen_does_not_write_the_row_off(session, fake_header) -> None:
+    """"I cannot see" is not "it is not here".
+
+    A live armed visit tapped a row's label, which opened an info panel over
+    the grid, and then skipped every remaining row as no_match - exhausting
+    four rows that were sitting right there, unbought, for the rest of the
+    visit. The row must survive an unreadable frame.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=_two_attack_rows())
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)   # buys Damage
+    session.advance(frame("menu_workshop_info_panel"), device, policy)
+
+    assert "Attack Speed" not in session._exhausted, (
+        "a row nobody could see was written off for the visit"
+    )
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert any(s.reason == "unreadable" and s.detail == "screen" for s in skips)
+    assert not any(s.reason == "no_match" for s in skips), (
+        "an unreadable screen was reported as the row being absent"
+    )
+
+
+def test_a_blinded_screen_is_tapped_clear(session, fake_header) -> None:
+    """The panel closes on a tap anywhere outside it. The dismiss point sits
+    on the page title, ABOVE the tile grid - measured there rather than in
+    the empty space below it, because that space fills up as rows unlock and
+    a tap that lands on a price box would buy something nobody asked for.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=_two_attack_rows())
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)
+    session.advance(frame("menu_workshop_info_panel"), device, policy)
+
+    assert device.taps[-1] == config.PANEL_DISMISS_POINT
+
+
+def test_a_screen_that_stays_blind_ends_the_visit(session, fake_header) -> None:
+    """The dismiss tap is one attempt, not a loop. If the page is still
+    unreadable on the next scan it is something this code does not
+    understand, and spinning on it silently is the failure mode
+    _off_page_streak exists to prevent everywhere else.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=_two_attack_rows())
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)
+    session.advance(frame("menu_workshop_info_panel"), device, policy)
+    session.advance(frame("menu_workshop_info_panel"), device, policy)
+
+    assert session._bus.of_type("ShoppingEnded"), "the visit spun instead of ending"
+    assert session.active is False
+
+
+def test_an_explainer_modal_is_acknowledged_rather_than_tapped_around(
+    session, fake_header
+) -> None:
+    """One-time explainer modals swallow every tap until their OK is pressed.
+
+    menu_workshop_explainer_modal.png is a live capture: unlocking a feature
+    queued an "ULTIMATE WEAPONS ... [OK]" dialog that was already up when the
+    Workshop opened. The page classifies as WORKSHOP, so positioning carried
+    on tapping a tab that could never arrive, and the visit spent its whole
+    budget without reading a single row. Nothing here reaches _buy_rows, so
+    the blind handling there cannot help - and a tap anywhere outside this
+    one does not close it, unlike the info panel.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=_two_attack_rows())
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_explainer_modal"), device, policy)
+
+    # The OK button, read off that very frame.
+    assert device.taps[-1] == (541, 1578)
+
+
+def test_arrival_is_judged_by_the_page_heading_not_a_row_template(
+    session, fake_header
+) -> None:
+    """A tab whose configured row has been bought must still be recognised.
+
+    Arrival used to be "can I locate one of this category's row templates?".
+    That answers "no" forever once the row is bought and gone from the page,
+    so the session taps the tab until its budget dies - a live visit spent a
+    whole visit doing exactly that on UTILITY after an earlier run bought
+    Unlock Cash Bonuses.
+
+    menu_workshop_utility_restocked.png is that page: the configured row's
+    template no longer matches anything, and three other rows are sitting
+    there. The heading says which tab this is, and OCR can read it.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Unlock Cash Bonuses",
+                     template="workshop/unlock_cash_bonuses.png",
+                     category="UTILITY", layout="tile"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_utility_restocked"), device, policy)
+
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert any(s.reason == "no_match" for s in skips), (
+        "never reached the rows - still waiting to arrive on a tab it is on"
+    )
+    assert "Unlock Cash Bonuses" in session._exhausted, (
+        "a row genuinely gone from the page must be given up on, once"
+    )

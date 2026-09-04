@@ -304,6 +304,22 @@ HEADER_REGIONS: dict[str, tuple[Region, Region]] = {
     ),
 }
 
+# Where to tap to close an upgrade's info panel.
+#
+# Tapping a row's LABEL opens a panel describing it ("Damage / Damage each
+# Projectile deals to enemies / Current Level 1 / Max Level 6000") over the
+# tile grid, dimming the page behind it. The page still classifies as
+# WORKSHOP, but find_tiles goes to zero and the bot is blind until it
+# closes. It closes on a tap anywhere outside itself.
+#
+# Measured on the page TITLE row, not in the empty space below the grid.
+# Both dismiss it, but the space below the grid is only empty until enough
+# rows unlock to fill it, and a dismiss tap that lands on a price box would
+# buy something nobody asked for. The title sits above the first tile on
+# every tab, whatever is unlocked. Verified live: tiles 0 -> 7, coins
+# unchanged.
+PANEL_DISMISS_POINT: tuple[int, int] = (180, 265)
+
 # --- Menu shopping ---------------------------------------------------------
 # The workshop's category tabs. Cut UNSELECTED: a selected tab is brighter,
 # and a template cropped lit matches only its own selected state.

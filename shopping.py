@@ -104,6 +104,11 @@ logger = logging.getLogger("tower_bot.shopping")
 # tab, quietly defeating "highest-priority row wins" for the rest of the visit.
 ARRIVAL_ABSENCE_THRESHOLD: float = 0.9
 
+# Labels that mean "I have read this" and nothing else. Deliberately not
+# CONFIRM, YES, BUY or CLAIM: those answer a question, and a bot that cannot
+# read the question must not answer it.
+_MODAL_ACKNOWLEDGEMENTS: frozenset[str] = frozenset({"OK"})
+
 
 class Step(Enum):
     IDLE = auto()
@@ -146,6 +151,23 @@ def _absolute(region: config.Region, top_left: tuple[int, int]) -> config.Rect:
     """A Region is anchor-relative by design (see config.Region); ocr works
     in frame coordinates. This is the one place the two meet."""
     return config.Rect(top_left[0] + region.dx, top_left[1] + region.dy, region.w, region.h)
+
+
+def _heading_names(screen: Image, category: str) -> bool:
+    """Does this page's heading say it is `category`'s tab?
+
+    Compared with everything but the letters stripped out: OCR renders the
+    heading as "ATTACKUPGRADES" on some frames and "ATTACK UPGRADES" on
+    others, and neither spelling should decide whether the bot can shop.
+    Matching the whole heading rather than searching for the category name
+    keeps a row called "Unlock Range Upgrades" from reading as one.
+    """
+    wanted = _letters(f"{category}UPGRADES")
+    return any(_letters(box.text) == wanted for box in ocr.read(screen))
+
+
+def _letters(text: str) -> str:
+    return "".join(ch for ch in text.upper() if ch.isalpha())
 
 
 def _row_named(name: str, rows: tuple[tiles.Row, ...]) -> tiles.Row | None:
@@ -270,6 +292,10 @@ class ShoppingSession:
         # not be found. Reset to 0 the instant anything makes progress; see
         # _register_progress and _miss.
         self._off_page_streak = 0
+        # Consecutive scans on which the reader saw nothing at all - see
+        # _buy_rows. Separate from _off_page_streak because _dispatch resets
+        # that one optimistically before every BUY_ROWS call.
+        self._blind_streak = 0
 
     @property
     def active(self) -> bool:
@@ -328,6 +354,7 @@ class ShoppingSession:
         self._cards_bought = 0
         self._exhausted = set()
         self._off_page_streak = 0
+        self._blind_streak = 0
         self._last_page = None
         self._last_run_count = run_count
         self._step = Step.OPEN_WORKSHOP if categories else Step.OPEN_CARDS
@@ -393,6 +420,8 @@ class ShoppingSession:
                 if self._off_page_streak >= 2:
                     self._abort(device, shopping, screen, "unexpected page")
                 return
+            if self._acknowledge_modal(screen, device, shopping):
+                return
             if reading.page != self._last_page:
                 # Skip the very first frame of a visit: `_last_page` starts
                 # None so there is nothing to have changed FROM, and
@@ -429,6 +458,40 @@ class ShoppingSession:
                 )
                 self._step = Step.IDLE
                 self._categories = []
+
+    def _acknowledge_modal(
+        self, screen: Image, device: Any, shopping: Shopping
+    ) -> bool:
+        """Tap a one-time explainer dialog's OK, if one is up. True if tapped.
+
+        These are queued by the game when a feature is unlocked and appear
+        the next time the page is opened - a live visit met "ULTIMATE
+        WEAPONS ... [OK]" the moment it reached the Workshop. A modal
+        swallows every tap outside itself, so positioning kept tapping a tab
+        that could never arrive and the visit spent its whole budget without
+        reading a row. It is not the info panel _buy_rows handles: that one
+        closes on any tap outside it, this one only on its own button.
+
+        Checked on every step of a visit rather than only where it bit,
+        because "a dialog is up" is not a property of any one step. That
+        costs one OCR pass per scan; _buy_rows already pays for one, and the
+        alternative is a shopping feature that stays dead until a human taps
+        OK.
+
+        Only an acknowledgement label counts. Anything offering a choice is
+        left alone - this must never be the thing that answers a question
+        the bot did not understand.
+        """
+        for box in ocr.read(screen):
+            if box.text.strip().upper() in _MODAL_ACKNOWLEDGEMENTS:
+                self._register_progress()
+                self._try_tap(
+                    box.rect.x + box.rect.w // 2,
+                    box.rect.y + box.rect.h // 2,
+                    device, shopping, screen,
+                )
+                return True
+        return False
 
     def _register_progress(self) -> None:
         """Something real happened this call - a tap, an arrival, or a buy
@@ -552,18 +615,18 @@ class ShoppingSession:
             self._step = Step.BUY_ROWS
             self._register_progress()
             return True
-        if any(
-            vision.locate_template(
-                screen, self._templates.get(r.template),
-                max(r.threshold, ARRIVAL_ABSENCE_THRESHOLD),
-            ) is not None
-            for r in rows
-        ):
-            # Arrival is judged by what we actually came here for, not by
-            # the tab button's own look - see the module docstring for the
-            # measurement: every tab template still matches its own
-            # selected page well above threshold, so its absence cannot
-            # signal arrival. Seeing one of this category's own rows can.
+        if _heading_names(screen, category):
+            # Arrival is judged by the page's own heading - "UTILITY
+            # UPGRADES" - which names the tab outright.
+            #
+            # Not by the tab button's look: every tab template still matches
+            # its own selected page well above threshold (measured 0.955 on
+            # the tab it is standing on), so its absence cannot signal
+            # arrival. And no longer by locating one of this category's row
+            # templates either: that answers "no" forever once the row is
+            # bought and gone, and a live visit spent its entire budget
+            # tapping the UTILITY tab it was already standing on for exactly
+            # that reason. The heading is there whatever is left to buy.
             self._step = Step.BUY_ROWS
             self._register_progress()
             return True
@@ -660,6 +723,26 @@ class ShoppingSession:
         # so that failure is not a corner case, it is the destination.
         #
         visible = tiles.read_rows(screen)
+        if not visible:
+            # Blind, not empty. Something is covering the grid - an info
+            # panel opened by a stray tap on a label is the known cause, and
+            # the page still classifies as WORKSHOP throughout, so nothing
+            # upstream catches it. Reporting this as no_match would exhaust
+            # a row that is sitting right there: a live visit did exactly
+            # that to four of them. Tap the panel away and let the next scan
+            # try again; if the page is still unreadable then, this is not a
+            # panel and the visit ends rather than spinning.
+            self._blind_streak += 1
+            if self._blind_streak >= 2:
+                self._abort(device, shopping, screen, "nothing readable on the page")
+                return
+            self._try_tap(*config.PANEL_DISMISS_POINT, device, shopping, screen)
+            self._bus.publish(events.PurchaseSkipped(
+                item=rule.name, reason="unreadable", detail="screen",
+            ))
+            return
+        self._blind_streak = 0
+
         seen = _row_named(rule.name, visible)
         # The template match is still taken, for the observation below only.
         # Nothing decides on it any more.

@@ -177,3 +177,16 @@ def test_the_tap_point_lands_on_the_price_not_the_tile_centre(stem, fixture):
         assert ocr.parse_number(on[0].text) == row.price, (
             f"{row.name}: tap landed on {on[0].text!r}, not the price"
         )
+
+
+def test_an_info_panel_hides_every_tile():
+    """menu_workshop_info_panel.png is a live capture taken after tapping a
+    row's LABEL, which opens an info panel over the grid and dims the page
+    behind it. The page still classifies as WORKSHOP, so nothing upstream
+    notices; find_tiles is what goes to zero.
+
+    This is why an empty read cannot mean "the row is not on this tab" - see
+    the matching test in test_shopping.py.
+    """
+    screen = cv2.imread(str(FIXTURES / "menu_workshop_info_panel.png"))
+    assert tiles.find_tiles(screen) == ()
