@@ -29,6 +29,13 @@ const HINTS: Record<string, string> = {
  * Override 3. */
 const GEM_FLOOR_NOTE = "Gems cannot be earned back quickly, unlike coins.";
 
+const VISIT_FREQUENCY_NOTE =
+  "How many runs pass between shopping visits; 1 means every run.";
+
+const TAP_BUDGET_NOTE =
+  "Bounds an errand that isn't making progress, so a mis-cut template can't spin " +
+  "forever - exhausting it aborts the visit.";
+
 export function ShoppingEditor({
   shopping,
   onChange,
@@ -80,13 +87,50 @@ export function ShoppingEditor({
         <div className="flex items-center justify-between">
           <h2 className="text-xs uppercase tracking-wide text-muted-foreground">Shopping</h2>
           <label className="flex items-center gap-2 text-sm">
-            Between-run visits
+            Shop between runs
             <input
               type="checkbox"
               aria-label="Shopping enabled"
               checked={shopping.enabled}
               disabled={disabled}
               onChange={(e) => set("enabled", e.target.checked)}
+            />
+          </label>
+        </div>
+
+        <div className="flex flex-col gap-2 rounded-md border p-2 text-sm">
+          <label className="flex items-center justify-between gap-2">
+            <span>
+              Visit frequency
+              <span className="block max-w-xs text-xs text-muted-foreground">
+                {VISIT_FREQUENCY_NOTE}
+              </span>
+            </span>
+            <Input
+              type="number" min={1} max={100} step={1}
+              aria-label="Visit every N runs"
+              key={shopping.visit_every_n_runs}
+              defaultValue={shopping.visit_every_n_runs}
+              disabled={disabled}
+              onBlur={(e) => set("visit_every_n_runs", Number(e.target.value))}
+              className="w-20 text-right"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-2">
+            <span>
+              Tap budget per visit
+              <span className="block max-w-xs text-xs text-muted-foreground">
+                {TAP_BUDGET_NOTE}
+              </span>
+            </span>
+            <Input
+              type="number" min={1} max={200} step={1}
+              aria-label="Max taps per visit"
+              key={shopping.max_taps_per_visit}
+              defaultValue={shopping.max_taps_per_visit}
+              disabled={disabled}
+              onBlur={(e) => set("max_taps_per_visit", Number(e.target.value))}
+              className="w-20 text-right"
             />
           </label>
         </div>
@@ -103,13 +147,24 @@ export function ShoppingEditor({
         >
           <div className="flex flex-col gap-1 text-sm">
             <span className="font-semibold">
-              {shopping.armed ? "Armed — spends real coins and gems" : "Unarmed — rehearsal"}
+              {!shopping.enabled
+                ? "Shopping is off"
+                : shopping.armed
+                  ? "Armed — spends real coins and gems"
+                  : "Unarmed — rehearsal"}
             </span>
             <span className="max-w-md text-xs text-muted-foreground">
-              {shopping.armed
-                ? "Every purchase below is actually tapped on the bot's next shopping visit."
-                : "The bot still navigates to the shop, reads the balances, decides what it " +
-                  "would buy, and reports every purchase it would make - it just taps nothing."}
+              {/* Must stay true to ShoppingSession.begin(), which declines
+                  outright when `enabled` is false - no visit happens at all,
+                  so the rehearsal/armed copy below would be a lie in that
+                  state. `armed` only changes what happens WITHIN a visit, so
+                  it only gets to speak once `enabled` says a visit occurs. */}
+              {!shopping.enabled
+                ? "No shopping visits happen at all until \"Shop between runs\" is turned on."
+                : shopping.armed
+                  ? "Every purchase below is actually tapped on the bot's next shopping visit."
+                  : "The bot still navigates to the shop, reads the balances, decides what it " +
+                    "would buy, and reports every purchase it would make - it just taps nothing."}
             </span>
           </div>
           <button
@@ -244,11 +299,6 @@ export function ShoppingEditor({
               </div>
               {hint ? (
                 <p data-testid={`hint-${row.name}`} className="text-xs text-muted-foreground">
-                  {/* Visually-hidden name prefix: the guide's hint text
-                      stands on its own next to the row, but a hint element
-                      read out of context (e.g. by a screen reader jumping
-                      straight to it) should still say which row it explains. */}
-                  <span className="sr-only">{row.name} — </span>
                   {hint}
                 </p>
               ) : null}

@@ -49,7 +49,11 @@ describe("ShoppingEditor", () => {
 
   it("carries a hint explaining why each row sits where it does", () => {
     render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
-    expect(screen.getByTestId("hint-Unlock Cash Bonuses")).toHaveTextContent(/unlock/i);
+    // Anchored in the hint's own text, not the row name: "Unlock Cash
+    // Bonuses" the row is named for what it does, but its hint ("Opens the
+    // whole Utility tab...") never says "unlock" - a test that claims to
+    // check hint content must fail if the hint content is wrong.
+    expect(screen.getByTestId("hint-Unlock Cash Bonuses")).toHaveTextContent(/Utility tab/i);
   });
 
   it("shows layout as read-only text, not an editable control", () => {
@@ -64,5 +68,36 @@ describe("ShoppingEditor", () => {
     render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
     expect(screen.getByLabelText(/gem floor/i)).toBeInTheDocument();
     expect(screen.getByText(/cannot be earned back quickly/i)).toBeInTheDocument();
+  });
+
+  it("round-trips a change to the visit frequency", () => {
+    const onChange = vi.fn();
+    render(<ShoppingEditor shopping={policy} onChange={onChange} />);
+    const field = screen.getByLabelText(/visit every n runs/i);
+    fireEvent.change(field, { target: { value: "3" } });
+    fireEvent.blur(field);
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ visit_every_n_runs: 3 }),
+    );
+  });
+
+  it("round-trips a change to the tap budget", () => {
+    const onChange = vi.fn();
+    render(<ShoppingEditor shopping={policy} onChange={onChange} />);
+    const field = screen.getByLabelText(/max taps per visit/i);
+    fireEvent.change(field, { target: { value: "80" } });
+    fireEvent.blur(field);
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ max_taps_per_visit: 80 }),
+    );
+  });
+
+  it("says no visits happen at all when shopping is off, not that it rehearses", () => {
+    render(<ShoppingEditor shopping={{ ...policy, enabled: false }} onChange={vi.fn()} />);
+    expect(screen.getByText(/no shopping visits happen at all/i)).toBeInTheDocument();
+    // ShoppingSession.begin() declines outright when `enabled` is false, so
+    // no visit occurs - the rehearsal copy (navigates, reads, decides,
+    // reports) would be a lie in this state and must not render.
+    expect(screen.queryByText(/navigates to the shop/i)).toBeNull();
   });
 });
