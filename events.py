@@ -80,6 +80,97 @@ class Navigated(Event):
 
 
 @dataclass(frozen=True, kw_only=True)
+class PageChanged(Event):
+    """Which MENU page is showing. Separate from ScreenChanged, which tracks
+    the run lifecycle - see pages.py for why the two never merge.
+
+    Fields named `prev_page` and `curr_page` rather than `prev` and `curr`.
+    This is not cosmetic: sinks/store.py has a special case that maps
+    `ScreenChanged.curr` to the `screen` column (the run-lifecycle screen).
+    A `PageChanged` with a field called `curr` would hit that same branch,
+    writing menu pages (WORKSHOP, CARDS) into the `screen` column. The
+    database schema groups events by `screen` for the Stats dashboard's
+    "events by screen" chart, and menu pages mixed in would silently change
+    what a chart the user already relies on means. With the fields renamed,
+    they fall through to the JSON `detail` blob and the `screen` column keeps
+    meaning exactly one thing: the run-lifecycle screen. Renaming is the
+    smaller and more durable fix than special-casing store.to_row.
+    """
+
+    prev_page: str
+    curr_page: str
+    confidence: float
+
+
+@dataclass(frozen=True, kw_only=True)
+class ShoppingStarted(Event):
+    """A visit begins. No `coins`/`gems` fields here on purpose: begin()
+    has not read a frame yet when this publishes, so any balance here would
+    always be None - a field that can only ever hold one value is not
+    reporting anything. The first real balance shows up on the first
+    Purchased or PurchaseSkipped of the visit instead."""
+
+    visit: int
+    dry_run: bool = True
+
+
+@dataclass(frozen=True, kw_only=True)
+class ShoppingUnavailable(Event):
+    """Published once, the first time ShoppingSession.begin() declines
+    because this machine's header atlas cannot support a balance read - not
+    on every scan that follows, which would flood the feed with the same
+    fact forever. See build_shopping() and ShoppingSession.begin()."""
+
+    reason: str
+
+
+@dataclass(frozen=True, kw_only=True)
+class Purchased(Event):
+    """One thing bought, or - when dry_run - one thing that would have been.
+
+    `price`, `coins_before` and `gems_before` are None rather than 0 when
+    they could not be read. Zero is a free upgrade; None is "we did not
+    know", and collapsing the two would make an unreadable price look like a
+    bargain in the log.
+
+    `coins_before` and `gems_before` are separate fields, not one balance
+    reused for whichever currency this purchase spent: a card purchase
+    spends gems, and a `Purchased(category="CARDS")` row whose `coins_before`
+    silently held the gem balance would be exactly the kind of dishonesty
+    this event exists to prevent. A workshop row purchase spends coins and
+    reports `coins_before`; a card purchase spends gems and reports
+    `gems_before`; the other field stays None for that purchase rather than
+    being reused for the wrong currency.
+    """
+
+    item: str
+    category: str
+    price: int | None = None
+    coins_before: int | None = None
+    gems_before: int | None = None
+    dry_run: bool = True
+
+
+@dataclass(frozen=True, kw_only=True)
+class PurchaseSkipped(Event):
+    item: str
+    # unaffordable | unreadable | no_match | capped - "disabled" is not in
+    # this list on purpose: a disabled row is filtered out of rows_for()
+    # before BUY_ROWS ever sees it, so that value is never emitted.
+    reason: str
+    detail: str = ""
+
+
+@dataclass(frozen=True, kw_only=True)
+class ShoppingEnded(Event):
+    visit: int
+    bought: int
+    spent: int
+    aborted: bool = False
+    reason: str = ""
+
+
+@dataclass(frozen=True, kw_only=True)
 class UnknownScreen(Event):
     snapshot_path: str
     best_anchor: str

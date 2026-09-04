@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ProfileBar } from "@/components/ProfileBar";
+import { ShoppingEditor } from "@/components/ShoppingEditor";
 import { StrategyEditor } from "@/components/StrategyEditor";
 import {
   activateStrategy, deleteStrategy, fetchControl, fetchStrategies,
@@ -27,6 +28,7 @@ export default function StrategyPage() {
   const [saved, setSaved] = useState<Strategy | null>(null);
   const [draft, setDraft] = useState<Strategy | null>(null);
   const [available, setAvailable] = useState<string[] | undefined>(undefined);
+  const [shoppingDisabledReason, setShoppingDisabledReason] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -63,9 +65,14 @@ export default function StrategyPage() {
     load().catch((e) => setError(errorText(e)));
     // Only for which affordability methods this machine can actually serve -
     // the atlas either built or it did not, and the strategy has no way to
-    // know.
+    // know. Same call carries shopping_disabled_reason for the same reason:
+    // whether shopping can ever approve a purchase is a machine capability
+    // fact, not something the strategy document itself can express.
     fetchControl()
-      .then((c) => setAvailable(c.affordability_available))
+      .then((c) => {
+        setAvailable(c.affordability_available);
+        setShoppingDisabledReason(c.shopping_disabled_reason);
+      })
       .catch(() => setAvailable(undefined));
   }, [load]);
 
@@ -172,6 +179,13 @@ export default function StrategyPage() {
       />
 
       <StrategyEditor value={draft} onChange={setDraft} available={available} disabled={busy} />
+
+      <ShoppingEditor
+        shopping={draft.shopping}
+        onChange={(shopping) => setDraft({ ...draft, shopping })}
+        disabled={busy}
+        disabledReason={shoppingDisabledReason}
+      />
     </div>
   );
 }

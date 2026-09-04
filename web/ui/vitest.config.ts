@@ -5,7 +5,11 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [react()],
   resolve: { alias: { "@": path.resolve(__dirname, ".") } },
-  test: { environment: "jsdom", globals: true },
+  // jest-dom matchers (toBeInTheDocument, toHaveTextContent, ...) are not
+  // built into vitest's expect - the Guide page's tests are the first to
+  // need them, so every test file gets them via setupFiles rather than each
+  // one importing the package itself.
+  test: { environment: "jsdom", globals: true, setupFiles: ["@testing-library/jest-dom/vitest"] },
   // next.config.ts sets trailingSlash: true so the static export resolves
   // (out/strategy/index.html, not strategy.html); the production build gets
   // that via webpack DefinePlugin, but vitest never runs next's build, so

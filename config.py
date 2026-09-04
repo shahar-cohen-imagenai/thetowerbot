@@ -28,10 +28,27 @@ TEMPLATE_DIR: Path = Path(__file__).parent / "templates"
 DEFAULT_THRESHOLD: float = 0.8
 
 # cv2.TM_CCOEFF_NORMED normalises out mean and variance, so it is blind to
-# brightness: a greyed-out "can't afford it yet" button still scores ~1.0.
-# Guard against that by also requiring the matched region to be about as bright
-# as the template, which was cropped while the button was affordable.
-# The value is a ratio of mean grey level; 0.0 disables the check.
+# brightness: a semi-transparent popup dimming the whole page still scores
+# ~1.0 against a template cropped before the popup appeared. Guard against
+# THAT by also requiring the matched region to be about as bright as the
+# template. The value is a ratio of mean grey level; 0.0 disables the check.
+#
+# This guards overlays, not prices. It is verified only for a dimming
+# overlay covering the whole screen (modal fade: 1.00 lit, 0.28 dimmed - see
+# vision.brightness_ratio's docstring and test_vision.py). It does NOT detect
+# a per-button "cannot afford" style: measured on menu_cards.png (x1
+# affordable at 40 gems, x10 not) over the button's OWN matched template -
+# CARD_BUTTONS, label and border only, not the price strip - the unaffordable
+# button is DESATURATED (border saturation 45.5 vs 57.0 affordable) rather
+# than dimmed - its mean grey level is actually HIGHER (59.7 vs 51.7
+# affordable), the wrong direction for this ratio to catch. See
+# test_the_unaffordable_card_button_is_desaturated_not_dimmed in
+# tests/test_shopping_templates.py for a second measurement of the same
+# finding over CARD_PRICE_REGION instead - different absolute numbers,
+# because it is a different region, but the same direction. The 0.75
+# default stays as-is: it still does its real job (rejecting a dimmed
+# overlay on shopping rows), and digit-reading (Task 5b) is required for
+# card and workshop affordability regardless.
 DEFAULT_BRIGHTNESS_RATIO: float = 0.75
 
 
@@ -117,6 +134,23 @@ ATLAS_DIR: Path = TEMPLATE_DIR / "atlas"
 
 # Grey level above which a pixel counts as glyph rather than background.
 DIGIT_BINARY_THRESHOLD: int = 140
+
+# Per-size-class overrides. The in-run and modal numbers are light glyphs on
+# a dark panel, which is what the 140 default is for. The menu header is the
+# other way round - white text on a light purple bar - and at 140 the bar
+# survives binarisation and bridges adjacent glyphs: "1.77K" segments as
+# 1 . 77 K, and a merged span matches no atlas entry, so the whole read
+# fails. Measured on menu_workshop_attack.png: 170-240 all segment correctly,
+# so 200 sits in the middle of the plateau rather than on its edge.
+#
+# `menu` - the size class every workshop and card price is read at (see
+# shopping.py's _buy_rows and _buy_cards) - has no entry here, and that is a
+# checked fact, not an oversight: prices sit on a dark panel like the in-run
+# and modal classes, and the unmodified 140 default segments them correctly
+# on every committed menu fixture. No override needed unless a future
+# capture shows otherwise.
+DIGIT_BINARY_THRESHOLDS: dict[str, int] = {"header": 200}
+
 # A glyph must match an atlas entry at least this well to be accepted.
 GLYPH_MATCH_THRESHOLD: float = 0.7
 # Narrowest run of lit columns still treated as a glyph. The decimal point is
@@ -225,6 +259,156 @@ PAGE_ANCHORS: dict[str, str] = {
     "CARDS": "screens/cards.png",
     "MISSIONS": "screens/missions.png",
 }
+
+# The coin and gem counters in the menu header bar. Identical pixels on every
+# menu page, but each page's ANCHOR sits somewhere different, so the offset
+# is per page rather than one shared pair. Measured on the committed
+# fixtures: MAIN_MENU anchors at (336, 360), WORKSHOP at (32, 244), CARDS at
+# (32, 248), against a header at absolute (85, 152) and (430, 152).
+#
+# The boxes are wider than today's values need. The coin counter grows from
+# "78" through "1.77K" to "1.23M" without moving its left edge, so the room
+# has to be on the right, and a clipped glyph fails the whole read.
+HEADER_REGIONS: dict[str, tuple[Region, Region]] = {
+    "MAIN_MENU": (
+        Region(dx=-251, dy=-208, w=170, h=68),
+        Region(dx=94, dy=-208, w=190, h=68),
+    ),
+    "WORKSHOP": (
+        Region(dx=53, dy=-92, w=170, h=68),
+        Region(dx=398, dy=-92, w=190, h=68),
+    ),
+    "CARDS": (
+        Region(dx=53, dy=-96, w=170, h=68),
+        Region(dx=398, dy=-96, w=190, h=68),
+    ),
+}
+
+# --- Menu shopping ---------------------------------------------------------
+# The workshop's category tabs. Cut UNSELECTED: a selected tab is brighter,
+# and a template cropped lit matches only its own selected state.
+WORKSHOP_TABS: dict[str, str] = {
+    "ATTACK": "workshop/tab_attack.png",
+    "DEFENSE": "workshop/tab_defense.png",
+    "UTILITY": "workshop/tab_utility.png",
+}
+
+# Every buyable thing this account can currently SEE, and which of the two
+# layouts it uses. Rows behind an unlock tile are absent on purpose: a
+# template that was never cut against a real frame matches nothing or matches
+# everything, and there is no third option. They get added when the unlock
+# reveals them and the crop comes from a live capture.
+#
+# Both the "row" templates (upgrade tiles) and the "tile" templates (unlock
+# tiles, despite the name matching the layout they use) are cut from their
+# tile's top-left CORNER, never tight to the label text - see the "row"/"tile"
+# comment on PRICE_REGIONS below for why each one specifically needs that. Do
+# not re-cut the unlock templates tight to "Unlock X Upgrades": that was tried
+# and produces a price offset that only reads one of the three tiles correctly.
+WORKSHOP_ROWS: dict[str, tuple[str, str]] = {  # name -> (template, layout)
+    "Unlock Cash Bonuses": ("workshop/unlock_cash_bonuses.png", "tile"),
+    "Unlock Defense Upgrades": ("workshop/unlock_defense_upgrades.png", "tile"),
+    "Unlock Range Upgrades": ("workshop/unlock_range_upgrades.png", "tile"),
+    "Health": ("workshop/row_health.png", "row"),
+    "Health Regen": ("workshop/row_health_regen.png", "row"),
+    "Damage": ("workshop/row_damage.png", "row"),
+    "Attack Speed": ("workshop/row_attack_speed.png", "row"),
+    "Critical Chance": ("workshop/row_critical_chance.png", "row"),
+    "Critical Factor": ("workshop/row_critical_factor.png", "row"),
+}
+
+# Shipped buy order. Taken from the community consensus (see the dashboard's
+# Guide page) and cut down to rows this account can actually SEE: everything
+# the guides name first - Cash/Wave, Coins/Wave, Def Abs, Def%, Thorns,
+# Coins/Kill - is behind one of the three unlock tiles, which is why they
+# lead. Together they cost 165 coins. Defence (Health, Health Regen) comes
+# before attack for the same reason the guides give it: tier 1 is a "turtle
+# build" - make the tower unhittable before making it hit harder.
+#
+# The crit rows ship disabled. They are here so there is a row to switch on,
+# which is the same reason `enabled` exists at all - the community is
+# unanimous that crit costs more and scales slower than everything above it
+# this early.
+#
+# (name, category, enabled) triples only - the template and layout come from
+# WORKSHOP_ROWS, which was measured when the crops were cut. Repeating them
+# here would be a second place to keep correct, and the two could drift.
+SHOPPING_ROWS: tuple[tuple[str, str, bool], ...] = (
+    ("Unlock Cash Bonuses", "UTILITY", True),
+    ("Unlock Defense Upgrades", "DEFENSE", True),
+    ("Unlock Range Upgrades", "ATTACK", True),
+    ("Health", "DEFENSE", True),
+    ("Health Regen", "DEFENSE", True),
+    ("Damage", "ATTACK", True),
+    ("Attack Speed", "ATTACK", True),
+    ("Critical Chance", "ATTACK", False),
+    ("Critical Factor", "ATTACK", False),
+)
+
+# Buy buttons on the Cards page. Cropped to the "x1"/"x10" quantity label and
+# border only - not the price or gem icon, which live in CARD_PRICE_REGION.
+# Same reasoning as WORKSHOP_ROWS: a template baked from a number that will
+# change would stop matching the moment it changes.
+CARD_BUTTONS: dict[str, str] = {
+    "x1": "cards/buy_x1.png",
+    "x10": "cards/buy_x10.png",
+}
+
+LAYOUTS: tuple[str, ...] = ("row", "tile")
+
+# Where a price sits relative to its own matched template. Two entries because
+# the workshop has two layouts and they put the number in different places: an
+# upgrade row is a half-width tile with the price right of the label, an
+# unlock tile is full-width with the price centred below it. One offset cannot
+# reach both, and a single averaged offset would miss both.
+#
+# The currency icon is INSIDE these regions deliberately. The number is
+# right-aligned against the icon and grows leftward, so trimming the icon off
+# the right would clip a longer price from the left. The reader is taught to
+# ignore the icon instead - see the `menu` size class (Task 5b).
+#
+# "row" is measured from the ROW TEMPLATE'S OWN top-left, which is the tile's
+# corner (see WORKSHOP_ROWS templates) - constant across all four upgrade
+# rows regardless of whether the label is one line ("Damage") or two
+# ("Attack Speed"), because the anchor is the corner, not the text.
+#
+# "tile" is measured from the UNLOCK TEMPLATE'S OWN top-left, which is ALSO
+# the tile's corner, not a tight crop of the label. A tight-to-label crop was
+# tried first and rejected: the three unlock labels are different lengths
+# ("Unlock Cash Bonuses" vs "Unlock Defense Upgrades"), the label is CENTRED
+# on the tile, and the price sits centred under the TILE, not under the
+# label's own left edge - so a tight label crop's top-left slides left or
+# right by up to 50px depending on the name, and one dx cannot follow it.
+# Anchoring on the tile corner (a fixed x=30 offset from the page edge, same
+# for all three) removes that dependency, exactly as it did for rows.
+# Uniqueness among the three unlock tiles (they share a border style) comes
+# from including the label text in the wider corner crop, not from cropping
+# tight to it - verified below 0.82 cross-match, well under the 0.9 threshold.
+#
+# "row"'s width was re-measured in Task 5b: at 250 the crop's right edge lands
+# inside the upgrade tile's own border, a pixel-identical sliver (columns
+# 237-243 of the crop, on every one of the six row prices in the committed
+# fixtures) that segments as a fourth "glyph". That sliver matches nothing -
+# it scores 0.0 against every real atlas entry, nowhere near
+# GLYPH_MATCH_THRESHOLD - so Atlas.match returns None for it, and because a
+# read is all-or-nothing (see digits.NumberReader.read) one unmatched glyph
+# fails the WHOLE price, not just that glyph. The failure is safe (a refused
+# read, never a wrong number) but total, so the fix has to be geometric:
+# the real content (digits + coin) ends at column 213 and the border starts
+# at column 237, so 225 sits in the middle of that gap - the same convention
+# this file uses elsewhere for picking the middle of a measured plateau
+# rather than its edge (see DIGIT_BINARY_THRESHOLDS). Trimming the right edge
+# cannot clip a longer price either: the number grows LEFTWARD against the
+# icon (see above), so nothing meaningful ever lived in the trimmed space.
+PRICE_REGIONS: dict[str, Region] = {
+    "row": Region(dx=260, dy=130, w=225, h=55),
+    "tile": Region(dx=440, dy=95, w=150, h=70),
+}
+
+# From the matched buy button's own top-left (see CARD_BUTTONS). Same
+# reasoning as PRICE_REGIONS: the icon is included on purpose, and there is
+# room to the left for the price to grow into.
+CARD_PRICE_REGION: Region = Region(dx=110, dy=29, w=210, h=55)
 
 # --- Live feed ------------------------------------------------------------
 # How much history the SSE ring holds. A reconnecting browser replays from

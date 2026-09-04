@@ -26,7 +26,7 @@ def scene(text: str) -> tuple[np.ndarray, config.Region]:
 
 def test_dumps_one_file_per_glyph(tmp_path: Path) -> None:
     screen, region = scene("407")
-    written = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path)
+    written = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path, "wallet")
 
     assert len(written) == 3
     assert all(p.exists() for p in written)
@@ -37,7 +37,7 @@ def test_dumps_one_file_per_glyph(tmp_path: Path) -> None:
 
 def test_dumped_glyphs_are_readable_greyscale(tmp_path: Path) -> None:
     screen, region = scene("5")
-    written = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path)
+    written = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path, "wallet")
     img = cv2.imread(str(written[0]), cv2.IMREAD_GRAYSCALE)
     assert img is not None and img.size > 0
 
@@ -45,11 +45,31 @@ def test_dumped_glyphs_are_readable_greyscale(tmp_path: Path) -> None:
 def test_does_not_overwrite_existing_numbering(tmp_path: Path) -> None:
     """Called twice over a session, the second batch must not clobber the first."""
     screen, region = scene("12")
-    build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path)
-    second = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path)
+    build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path, "wallet")
+    second = build_atlas.dump_glyphs(screen, region, (0, 0), tmp_path, "wallet")
 
     assert len(list(tmp_path.glob("glyph_*.png"))) == 4
     assert second[0].name == "glyph_002.png"
+
+
+def test_header_source_binarises_at_the_header_threshold(tmp_path: Path) -> None:
+    """dump_glyphs must resolve ITS OWN threshold from the size class it was
+    given, not fall back to the bare (dark-panel) default. The header bar is
+    light, not dark: at config.DIGIT_BINARY_THRESHOLD the panel survives
+    binarisation and bridges adjacent glyphs, so "1.77K" segments as
+    1 . 77 K (4 files) instead of 1 . 7 7 K (5 files) - a merged span that
+    can never be labelled. This is a behavioural check, not a check of the
+    threshold constant: it fails again if dump_glyphs ever goes back to a
+    bare digits.binarize(patch) call, whatever the constant's value is.
+    """
+    screen = frame("menu_workshop_attack.png")
+    cache = vision.TemplateCache(config.TEMPLATE_DIR)
+    _, top_left = vision.best_score(screen, cache.get(config.PAGE_ANCHORS["WORKSHOP"]))
+    coins_region, _ = config.HEADER_REGIONS["WORKSHOP"]
+
+    written = build_atlas.dump_glyphs(screen, coins_region, top_left, tmp_path, "header")
+
+    assert len(written) == 5, "1.77K must split into 1 . 7 7 K, not merge the two 7s"
 
 
 # --- Where glyphs are harvested from ---------------------------------------
@@ -69,8 +89,25 @@ def anchors_for(source: build_atlas.Source, fixture: str) -> list[tuple[int, int
 
 def test_every_size_class_can_be_harvested() -> None:
     """A size class with no source cannot be filled in at all, and the atlas
-    gap that leaves is silent: numbers using a missing digit just read None."""
-    assert set(build_atlas.SOURCES) == set(digits.SIZE_CLASSES)
+    gap that leaves is silent: numbers using a missing digit just read None.
+
+    Compared against ALL_SIZE_CLASSES, not SIZE_CLASSES: this test is about
+    the harvesting TOOLS offering every class a source, which is the wider,
+    tooling-facing tuple. SIZE_CLASSES is the narrower affordability gate -
+    header is deliberately excluded from it so an unbuilt header atlas only
+    disables shopping, not the whole bot - and that exclusion should not
+    leak into this assertion.
+
+    `menu` is deliberately excluded from BOTH sides of this comparison. Every
+    `Source` here is anchored either to a screen-level ScreenReading.state or
+    to a caption template matched full-frame - neither fits the menu prices,
+    which are anchored to a per-row/per-button template on the WORKSHOP and
+    CARDS pages, and those pages read as UNKNOWN to screens.classify() by
+    design (see PAGE_ANCHORS's comment). Bending Source's model to fit would
+    contort this module for a screen state it deliberately does not know
+    about; tools/harvest_menu_glyphs.py reads the committed fixtures directly
+    instead, the same way tools/harvest_header_glyphs.py already does."""
+    assert set(build_atlas.SOURCES) == set(digits.ALL_SIZE_CLASSES) - {"menu"}
 
 
 def test_price_is_anchored_on_each_upgrade_label() -> None:

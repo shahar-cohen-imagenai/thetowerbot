@@ -53,6 +53,7 @@ from frames import FrameBuffer
 from navigate import Navigator
 from runner import BotRunner, RunnerError
 from runs import RunTracker
+from shopping import ShoppingSession
 from snapshots import SnapshotWriter
 from sinks.log import LogSink
 from sinks.sse import SseSink
@@ -77,6 +78,7 @@ class TowerBot:
         controls: Controls | None = None,
         checks: dict[str, AffordabilityCheck | None] | None = None,
         reader: digits.NumberReader | None = None,
+        shopping: ShoppingSession | None = None,
         first_run_id: int = 1,
         frames: FrameBuffer | None = None,
         screen_confirmations: int = config.SCREEN_CONFIRMATIONS,
@@ -90,6 +92,17 @@ class TowerBot:
         self.frames = frames
         self.affordability: AffordabilityCheck = affordability_check or BrightnessAffordability()
         self.reader = reader if reader is not None else digits.NumberReader()
+        # Built once, per process, by build_shopping() - see that function's
+        # docstring for why (the header glyph atlas it gates on is exactly as
+        # expensive to build as the digit atlas `checks` already amortises).
+        # Absent entirely, every existing test that constructs a bot without
+        # `shopping=` still gets a session - just one that carries its own
+        # reason and declines every begin(), rather than an AttributeError
+        # the first time run_once() reaches self.shopping.active.
+        self.shopping: ShoppingSession = shopping if shopping is not None else ShoppingSession(
+            templates, bus, self.reader,
+            disabled_reason="no shopping session was configured for this bot",
+        )
         self.wallet: int | None = None
         # Read once, here, rather than per scan: both configure an object
         # that carries state across scans (the tracker's part-confirmed
@@ -391,11 +404,21 @@ class TowerBot:
         if isinstance(self.affordability, DigitAffordability):
             self.affordability.wallet = self.wallet
 
+        # A visit owns the frame while it runs. Three things below key off
+        # this rather than off the screen state, because the pages a visit
+        # walks are UNKNOWN to the tracker by design - see pages.py.
+        visiting = self.shopping.active
+
         # A CONFIRMED unknown, not the tracker's initial placeholder value.
         # Snapshotting on the placeholder means scan 1 of every launch saves
         # a perfectly recognisable screen; at 50 kept files, 50 launches
-        # would evict every genuine one.
-        if self.tracker.confirmed and state is screens.ScreenState.UNKNOWN:
+        # would evict every genuine one. `not visiting` on top of that: a
+        # workshop or cards page reads UNKNOWN to this tracker by design (see
+        # pages.py), so without this guard every shopping visit would fill
+        # unknown/ with pictures of the very pages it is deliberately
+        # visiting, evicting the genuine unmodelled screens the directory
+        # exists to hold.
+        if self.tracker.confirmed and state is screens.ScreenState.UNKNOWN and not visiting:
             path = self.snapshots.maybe_write(self.screen)
             if path is not None:
                 best = max(reading.scores, key=lambda name: reading.scores[name])
@@ -450,10 +473,41 @@ class TowerBot:
             settings.strategy.auto_navigate
             and not settings.paused
             and not self.run_cap_reached(max_runs, settings.strategy)
+            and not visiting
         ):
+            # Navigator taps BATTLE on MAIN_MENU on a cooldown - left alone
+            # it would start a run in the middle of a shopping errand.
             self.navigator.maybe_navigate(
                 self.screen, state, self.device, now=time.monotonic()
             )
+
+        # Checked after navigation, and begin() checked after advance() below:
+        # a visit that just ended this same scan must not restart within it,
+        # and must not race the tap navigation just skipped above.
+        if visiting and settings.paused:
+            # Freeze, don't unwind. advance() is the one tap path that spends
+            # currency, so pause has to suppress it too, not just the start
+            # of a visit - "still scanning, not tapping" has to hold
+            # mid-errand. Ending the visit instead would want a return-to-
+            # Battle tap of its own, which is exactly what pause forbids;
+            # `visiting` stays True below (shopping.active is untouched), so
+            # navigation and unknown-snapshot suppression both stay in
+            # force too - the bot is still sitting on a menu page either
+            # way. The paused Skipped event published above already makes
+            # this visible on the feed. The visit simply resumes, from
+            # wherever it left off, on the next unpaused scan.
+            pass
+        elif visiting:
+            self.shopping.advance(self.screen, self.device, settings.strategy.shopping)
+        elif (
+            state is screens.ScreenState.MAIN_MENU
+            and not settings.paused
+            and not self.run_cap_reached(max_runs, settings.strategy)
+        ):
+            # A visit begins from MAIN_MENU only, and never while paused or
+            # capped - "still scanning, not tapping" has to cover this one
+            # tap path too, since it is the one that spends currency.
+            self.shopping.begin(settings.strategy.shopping, self.runs.completed)
 
         self.bus.publish(
             events.ScanCompleted(
@@ -737,6 +791,58 @@ def build_checks_and_controls(
     checks = build_checks(atlas_root=atlas_root)
     controls = Controls(strategy=_reconcile_affordability(loaded, checks))
     return checks, controls
+
+
+# What a header read needs: the ten digits, the decimal point, and the "K"
+# suffix - see config.HEADER_REGIONS and shopping.header_numbers. Not
+# digits.SIZE_CLASSES: that tuple gates the whole bot's affordability (see
+# build_affordability), while an unbuilt header atlas gates shopping alone
+# and nothing else, per digits.ALL_SIZE_CLASSES's own docstring.
+_HEADER_GLYPHS: frozenset[str] = frozenset("0123456789.K")
+
+
+def build_shopping(
+    bus: events.EventBus | None,
+    templates: vision.TemplateCache | None,
+    reader: digits.NumberReader | None = None,
+    atlas_root: Path | None = None,
+) -> ShoppingSession:
+    """Build the shopping session, disabling it with a reason if this
+    machine's header atlas cannot read a balance yet.
+
+    Always returns a *session* - never None. A None return would force
+    every call site to branch before it could do anything, and TowerBot
+    would need a null object anyway; this mirrors how build_affordability
+    already degrades, handing back a working object of a lesser kind
+    rather than nothing at all.
+
+    The header atlas needs every digit plus "." and "K" (see
+    config.HEADER_REGIONS): a coin or gem balance that cannot be fully read
+    comes back as None from NumberReader.read, and shopping.py treats that
+    as "stop the visit", never "guess". Logging exactly which glyphs are
+    missing - not merely that some are - is what turns "header atlas
+    incomplete" into an actionable "go play a session so the balance passes
+    through 2, 3, 5, 6, 9": see build_atlas.py for the harvesting tool.
+    """
+    cache = digits.AtlasCache(
+        atlas_root if atlas_root is not None else config.ATLAS_DIR
+    )
+    atlas = cache.get("header")
+    have = atlas.labels if atlas is not None else set()
+    missing = sorted(_HEADER_GLYPHS - have)
+    reader = reader if reader is not None else digits.NumberReader(cache)
+
+    disabled_reason: str | None = None
+    if missing:
+        disabled_reason = f"header atlas is missing {', '.join(missing)}"
+        logger.warning(
+            "shopping disabled: %s - play a session so the coin balance "
+            "passes through those glyphs, then rebuild the header atlas "
+            "with build_atlas.py",
+            disabled_reason,
+        )
+
+    return ShoppingSession(templates, bus, reader, disabled_reason=disabled_reason)
 
 
 def print_debug_scores(screen: Image, templates: vision.TemplateCache) -> None:
@@ -1081,6 +1187,11 @@ def main(argv: list[str] | None = None) -> int:
         # "brightness" itself when it did not), so a "checks[...] or
         # checks['brightness']" fallback would be dead code.
         loaded_affordability = controls.snapshot().strategy.affordability
+        # Built once, here, for the same reason `checks` is: the header
+        # glyph atlas it gates on is exactly as expensive to build as the
+        # digit atlas `checks` already amortises across every bot this
+        # process ever starts.
+        shopping_session = build_shopping(bus, vision.TemplateCache(config.TEMPLATE_DIR))
 
         if args.once:
             # A single scan never settles the debounced tracker (it needs
@@ -1095,6 +1206,7 @@ def main(argv: list[str] | None = None) -> int:
                 affordability_check=checks[loaded_affordability],
                 controls=controls,
                 checks=checks,
+                shopping=shopping_session,
                 first_run_id=last_run + 1,
                 frames=frames,
             )
@@ -1113,6 +1225,7 @@ def main(argv: list[str] | None = None) -> int:
                 templates=vision.TemplateCache(config.TEMPLATE_DIR),
                 device_factory=lambda: connect_device(host=args.host, port=args.port),
                 checks=checks,
+                shopping=shopping_session,
                 frames=frames,
                 first_run_id=last_run + 1,
             )
@@ -1126,6 +1239,7 @@ def main(argv: list[str] | None = None) -> int:
                 frames=frames,
                 runner=runner,
                 store=store,
+                shopping=shopping_session,
             )
             # No signal handlers of ours here: uvicorn installs its own and
             # would overwrite them anyway.
@@ -1141,6 +1255,7 @@ def main(argv: list[str] | None = None) -> int:
                 affordability_check=checks[loaded_affordability],
                 controls=controls,
                 checks=checks,
+                shopping=shopping_session,
                 first_run_id=last_run + 1,
                 frames=frames,
             )

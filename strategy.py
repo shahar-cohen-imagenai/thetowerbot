@@ -40,7 +40,9 @@ AFFORDABILITY = ("digits", "brightness")
 # absent on purpose: renaming a profile is the store's business (save under
 # a new name), not a live edit to the running policy. `actions` is absent
 # too - it is handled separately because replacing it means re-parsing a raw
-# row list, not copying a scalar.
+# row list, not copying a scalar. `shopping` is absent for the same reason:
+# entries here are copied raw into dataclasses.replace, which would put an
+# unparsed patch dict straight into a typed field.
 PATCHABLE_FIELDS = (
     "affordability",
     "interval",
@@ -240,6 +242,311 @@ def _parse_action_rows(raw: Any) -> tuple[ActionRule, ...]:
     return tuple(rules)
 
 
+CATEGORIES: tuple[str, ...] = ("ATTACK", "DEFENSE", "UTILITY")
+CARD_BATCHES: tuple[str, ...] = ("x1", "x10")
+
+# A menu row is matched on a page where a tap spends coins, so it defaults
+# stricter than an in-run action: 0.9, not DEFAULT_THRESHOLD.
+DEFAULT_ROW_THRESHOLD: float = 0.9
+MAX_TAPS_PER_VISIT = 200
+MAX_CARDS_PER_VISIT = 50
+
+_SHOPPING_RULE_TYPES: dict[str, tuple[type, ...]] = {
+    "name": (str,), "template": (str,), "category": (str,), "layout": (str,),
+    "enabled": (bool,), "threshold": (int, float), "brightness_ratio": (int, float),
+}
+
+# The reverse of config.WORKSHOP_ROWS: template -> the layout it was
+# measured with. ShoppingRule.__post_init__'s own WORKSHOP_ROWS lookup keys
+# on NAME, so a row named something WORKSHOP_ROWS has never heard of slips
+# past it even when its TEMPLATE is a known one - e.g. a renamed copy of an
+# existing row, or a typo in the name. That still reads a real price region
+# at the wrong offset and reports a wrong price instead of a refused one,
+# which is the one failure mode this whole feature exists to avoid. Built
+# once, from the same table, rather than hand-duplicated - the two can never
+# drift out of sync with each other.
+_TEMPLATE_TO_LAYOUT: dict[str, str] = {
+    template: layout for template, layout in config.WORKSHOP_ROWS.values()
+}
+_CARD_TYPES: dict[str, tuple[type, ...]] = {
+    "enabled": (bool,), "gem_floor": (int,),
+    "max_per_visit": (int,), "batch": (str,),
+}
+_SHOPPING_TYPES: dict[str, tuple[type, ...]] = {
+    "enabled": (bool,), "armed": (bool,),
+    "visit_every_n_runs": (int,), "max_taps_per_visit": (int,),
+}
+
+
+@dataclass(frozen=True)
+class ShoppingRule:
+    """One menu row the bot may buy, and how sure it must be first.
+
+    Mirrors ActionRule, plus `category` - which tab the row lives on. The
+    category is not derivable from the template path: a row can be moved
+    between tabs by a game update, and a wrong tab means the bot searches a
+    page the row is not on and silently buys nothing.
+    """
+
+    name: str
+    template: str
+    category: str
+    # The workshop has two layouts, and they put the price in different
+    # places (see config.PRICE_REGIONS): a half-width "row" tile with the
+    # price below and right of the label, and a full-width "tile" unlock with
+    # the price centred below it. One price offset cannot reach both, so a
+    # row must say which layout its template uses - the template path does
+    # not imply it, and guessing from the name would break the moment the
+    # game renames a row.
+    layout: str = "row"
+    enabled: bool = True
+    threshold: float = DEFAULT_ROW_THRESHOLD
+    brightness_ratio: float = config.DEFAULT_BRIGHTNESS_RATIO
+
+    def __post_init__(self) -> None:
+        _check_types(_own_values(self), _SHOPPING_RULE_TYPES)
+        if not self.name:
+            raise ControlError("name", "a shopping row needs a name")
+        if not self.template:
+            raise ControlError("template", f"{self.name} needs a template file")
+        if self.category not in CATEGORIES:
+            raise ControlError("category", f"category must be one of {CATEGORIES}")
+        if self.layout not in config.LAYOUTS:
+            raise ControlError("layout", f"layout must be one of {config.LAYOUTS}")
+        if not 0.0 < self.threshold <= 1.0:
+            raise ControlError("threshold", "threshold must be above 0 and at most 1")
+        _in_range("brightness_ratio", self.brightness_ratio, 0.0, 1.0)
+
+        # config.WORKSHOP_ROWS records the layout that was actually MEASURED
+        # against a real capture when that row's template was cut - layout
+        # decides which price region gets read, and it is inferred nowhere
+        # else. This lives here, at construction, rather than in
+        # Strategy.validated() alongside the template-existence check: that
+        # check needs disk I/O (full.is_file()) and so must be deferred to a
+        # place that takes a template_dir, but this one is a pure in-memory
+        # lookup against config.WORKSHOP_ROWS, and Strategy.from_dict()
+        # builds every row through ShoppingRule(**entry) - so putting the
+        # check here closes the gap for every path a row can be built from,
+        # not just the ones that happen to call .validated() afterwards
+        # (store.load() and the "no CLI flags passed" startup path do not).
+        #
+        # A name WORKSHOP_ROWS does not know is still fine: a hand-cut
+        # template not yet (or never) measured into config.py is a supported
+        # path. What must never be fine is a row that CONTRADICTS a measured
+        # fact - that reads a real price region at the wrong offset and
+        # reports a wrong number instead of a refused one, which is the one
+        # failure mode this whole feature exists to avoid.
+        known = config.WORKSHOP_ROWS.get(self.name)
+        if known is not None and known[1] != self.layout:
+            _, known_layout = known
+            raise ControlError(
+                "layout",
+                f"{self.name}: layout must be {known_layout!r} "
+                f"(config.WORKSHOP_ROWS), not {self.layout!r}",
+            )
+
+        # The name-keyed check above only fires when the NAME is recognised.
+        # A row can dodge it by pairing a KNOWN template with an unrecognised
+        # name - {"name": "Damage2", "template": "workshop/row_damage.png",
+        # "layout": "tile"} names nothing WORKSHOP_ROWS has heard of, but
+        # still reads the price at the wrong offset the moment it is used.
+        # Not reachable from this feature's own UI (rows cannot be added and
+        # layout is read-only there), but reachable from a hand-edited
+        # strategies/*.json or a raw PATCH - both of which this feature
+        # validates everywhere else. A template genuinely unknown to
+        # WORKSHOP_ROWS is still permitted through this check: a hand-cut
+        # template not yet measured into it is a supported path, same as the
+        # name-keyed check above.
+        known_layout_for_template = _TEMPLATE_TO_LAYOUT.get(self.template)
+        if known_layout_for_template is not None and known_layout_for_template != self.layout:
+            raise ControlError(
+                "layout",
+                f"{self.template}: layout must be {known_layout_for_template!r} "
+                f"(config.WORKSHOP_ROWS), not {self.layout!r}",
+            )
+
+    def as_action(self) -> config.Action:
+        """The shape find_and_click_image() and affordable() already take.
+
+        `layout` is deliberately dropped here: config.Action has no layout
+        field and must not grow one - it is what the in-run matcher takes,
+        and the in-run path has no layouts. Layout is read by the shopping
+        session when it picks a price region, not by the matcher.
+        """
+        return config.Action(
+            name=self.name,
+            template=self.template,
+            threshold=self.threshold,
+            brightness_ratio=self.brightness_ratio,
+        )
+
+
+@dataclass(frozen=True)
+class CardPolicy:
+    """How many gems the bot may turn into cards, and where it must stop.
+
+    `gem_floor` is inclusive-at-zero on purpose: spending down to nothing is
+    a real choice, unlike a negative floor, which is not a choice at all.
+    """
+
+    enabled: bool = False
+    gem_floor: int = 40
+    max_per_visit: int = 2
+    batch: str = "x1"
+
+    def __post_init__(self) -> None:
+        _check_types(_own_values(self), _CARD_TYPES)
+        if self.gem_floor < 0:
+            raise ControlError("gem_floor", "gem_floor may not be negative")
+        _in_range("max_per_visit", self.max_per_visit, 1, MAX_CARDS_PER_VISIT)
+        if self.batch not in CARD_BATCHES:
+            raise ControlError("batch", f"batch must be one of {CARD_BATCHES}")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "enabled": self.enabled, "gem_floor": self.gem_floor,
+            "max_per_visit": self.max_per_visit, "batch": self.batch,
+        }
+
+
+@dataclass(frozen=True)
+class Shopping:
+    """The between-runs spending policy.
+
+    `enabled` and `armed` are two switches, not one mode. enabled+unarmed is
+    the rehearsal: navigate, read, decide, publish, tap nothing. `armed` is
+    the only field in this whole config that stands between a miscalibrated
+    template and a currency you cannot get back, so it is its own boolean
+    rather than a value of something else.
+
+    `workshop` order IS priority, matching Strategy.actions - and the order
+    the CATEGORIES are visited in is derived from it rather than fixed, so
+    reordering rows is the only control anyone needs.
+    """
+
+    enabled: bool = False
+    armed: bool = False
+    visit_every_n_runs: int = 1
+    max_taps_per_visit: int = 40
+    workshop: tuple[ShoppingRule, ...] = ()
+    cards: CardPolicy = CardPolicy()
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "workshop", tuple(self.workshop))
+        _check_types(_own_values(self), _SHOPPING_TYPES)
+        names = [rule.name for rule in self.workshop]
+        if len(set(names)) != len(names):
+            raise ControlError("workshop", "shopping row names must be unique")
+        _in_range("visit_every_n_runs", self.visit_every_n_runs, 1, 100)
+        _in_range("max_taps_per_visit", self.max_taps_per_visit, 1, MAX_TAPS_PER_VISIT)
+
+    def rows_for(self, category: str) -> tuple[ShoppingRule, ...]:
+        """Enabled rows on one tab, still in priority order."""
+        return tuple(
+            rule for rule in self.workshop
+            if rule.category == category and rule.enabled
+        )
+
+    def categories_in_priority_order(self) -> tuple[str, ...]:
+        """Which tabs to visit, in the order the row list implies.
+
+        Derived rather than fixed. Only one tab is readable at a time, so
+        honouring a global priority order literally would mean re-checking
+        every tab after every purchase - thrashing tabs and burning the tap
+        budget on navigation. Visiting each tab once, in the order its
+        highest-priority row appears, spends in the intended order and costs
+        two tab taps.
+
+        Tabs whose every row is disabled are skipped: visiting one is taps
+        spent to read a page nothing will be bought from.
+        """
+        seen: list[str] = []
+        for rule in self.workshop:
+            if rule.enabled and rule.category not in seen:
+                seen.append(rule.category)
+        return tuple(seen)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "enabled": self.enabled,
+            "armed": self.armed,
+            "visit_every_n_runs": self.visit_every_n_runs,
+            "max_taps_per_visit": self.max_taps_per_visit,
+            "workshop": [
+                {
+                    "name": r.name, "template": r.template, "category": r.category,
+                    "layout": r.layout, "enabled": r.enabled, "threshold": r.threshold,
+                    "brightness_ratio": r.brightness_ratio,
+                }
+                for r in self.workshop
+            ],
+            "cards": self.cards.to_dict(),
+        }
+
+    @classmethod
+    def from_dict(cls, raw: Mapping[str, Any]) -> Shopping:
+        """Parse a stored or posted shopping policy, naming what it got wrong.
+
+        The one place a raw shopping dict is parsed, used by both
+        Strategy.from_dict() and Strategy.merged() - the same rule
+        _parse_action_rows follows, and for the same reason: two parsers is
+        how "unknown field" comes to mean two different things.
+        """
+        if not isinstance(raw, Mapping):
+            raise ControlError(
+                "shopping", f"shopping must be a mapping, not {type(raw).__name__!r}"
+            )
+        known = {f.name for f in dataclasses.fields(cls)}
+        for key in raw:
+            if key not in known:
+                raise ControlError(key, f"unknown shopping field {key!r}")
+
+        values = {k: v for k, v in raw.items() if k not in ("workshop", "cards")}
+        if "workshop" in raw:
+            values["workshop"] = _parse_shopping_rows(raw["workshop"])
+        if "cards" in raw:
+            cards = raw["cards"]
+            if not isinstance(cards, Mapping):
+                raise ControlError("cards", "cards must be a mapping")
+            card_fields = {f.name for f in dataclasses.fields(CardPolicy)}
+            for key in cards:
+                if key not in card_fields:
+                    raise ControlError(key, f"unknown cards field {key!r}")
+            values["cards"] = CardPolicy(**cards)
+        try:
+            return cls(**values)
+        except ControlError:
+            raise
+        except (TypeError, ValueError) as exc:
+            raise ControlError("shopping", str(exc)) from None
+
+
+def _parse_shopping_rows(raw: Any) -> tuple[ShoppingRule, ...]:
+    if not isinstance(raw, (list, tuple)):
+        raise ControlError(
+            "workshop", f"workshop must be a list, not {type(raw).__name__!r}"
+        )
+    rule_fields = {f.name for f in dataclasses.fields(ShoppingRule)}
+    rules: list[ShoppingRule] = []
+    for entry in raw:
+        if not isinstance(entry, Mapping):
+            raise ControlError("workshop", "each shopping row must be a mapping")
+        for key in entry:
+            if key not in rule_fields:
+                raise ControlError(key, f"unknown shopping row field {key!r}")
+        try:
+            rules.append(ShoppingRule(**entry))
+        except TypeError as exc:
+            raise ControlError("workshop", str(exc)) from None
+    return tuple(rules)
+
+
+# Added here rather than alongside _STRATEGY_TYPES's other entries: Shopping
+# is defined after that dict, so a literal entry there would reference a name
+# that does not exist yet.
+_STRATEGY_TYPES["shopping"] = (Shopping,)
+
+
 @dataclass(frozen=True)
 class Strategy:
     """The whole decision policy, as one immutable value.
@@ -263,6 +570,9 @@ class Strategy:
     # answer, so the dashboard labels them "applies on next Start".
     navigation_cooldown: float = config.NAVIGATION_COOLDOWN_SECONDS
     screen_confirmations: int = config.SCREEN_CONFIRMATIONS
+    # Between-runs spending. Defaults to a policy that buys nothing, so a
+    # strategy file written before this existed loads and behaves the same.
+    shopping: Shopping = Shopping()
 
     def __post_init__(self) -> None:
         # Normalise before validating: from_dict will hand in a list, and the
@@ -299,8 +609,12 @@ class Strategy:
     def from_config(cls, name: str = "default") -> Strategy:
         """The shipped defaults, as a Strategy.
 
-        Keeps config.ACTIONS meaningful: it stays the origin of the defaults -
-        what a fresh clone starts from - without staying the source of truth.
+        Keeps config.ACTIONS and config.SHOPPING_ROWS meaningful: they stay
+        the origin of the defaults - what a fresh clone starts from -
+        without staying the source of truth. SHOPPING_ROWS carries only
+        (name, category, enabled); template and layout are looked up in
+        config.WORKSHOP_ROWS, which is what was actually measured when each
+        crop was cut, rather than repeated here as a second place to drift.
         """
         return cls(
             name=name,
@@ -312,6 +626,18 @@ class Strategy:
                     brightness_ratio=action.brightness_ratio,
                 )
                 for action in config.ACTIONS
+            ),
+            shopping=Shopping(
+                workshop=tuple(
+                    ShoppingRule(
+                        name=row_name,
+                        template=config.WORKSHOP_ROWS[row_name][0],
+                        category=category,
+                        layout=config.WORKSHOP_ROWS[row_name][1],
+                        enabled=enabled,
+                    )
+                    for row_name, category, enabled in config.SHOPPING_ROWS
+                )
             ),
         )
 
@@ -336,6 +662,7 @@ class Strategy:
             "max_runs": self.max_runs,
             "navigation_cooldown": self.navigation_cooldown,
             "screen_confirmations": self.screen_confirmations,
+            "shopping": self.shopping.to_dict(),
         }
 
     @classmethod
@@ -355,10 +682,13 @@ class Strategy:
                 raise ControlError(required, f"{required} is required")
 
         rules = _parse_action_rows(raw["actions"])
+        shopping = (
+            Shopping.from_dict(raw["shopping"]) if "shopping" in raw else Shopping()
+        )
 
-        values = {key: raw[key] for key in raw if key != "actions"}
+        values = {k: raw[k] for k in raw if k not in ("actions", "shopping")}
         try:
-            return cls(actions=rules, **values)
+            return cls(actions=rules, shopping=shopping, **values)
         except ControlError:
             raise
         except (TypeError, ValueError) as exc:
@@ -373,23 +703,26 @@ class Strategy:
 
         The validate-and-merge half of Controls.apply(): unlike from_dict(),
         which parses a whole document and rejects anything it does not
-        recognise, this ignores keys outside PATCHABLE_FIELDS and "actions"
-        rather than erroring on them - Controls.apply() feeds it session
-        state (like `paused`) that this type deliberately does not own, and
-        that is not a typo to reject, just a field for someone else.
+        recognise, this ignores keys outside PATCHABLE_FIELDS, "actions" and
+        "shopping" rather than erroring on them - Controls.apply() feeds it
+        session state (like `paused`) that this type deliberately does not
+        own, and that is not a typo to reject, just a field for someone else.
 
         What patch DOES touch is still validated whole: the candidate goes
         through the same constructor - and so the same __post_init__ - as
         every other Strategy, so a bad field never reaches self. Reuses
-        _parse_action_rows for "actions" rather than parsing rows itself, so
-        a raw action dict means the same thing here as it does in
-        from_dict() - one parser, not two that must be kept in step.
+        _parse_action_rows for "actions" and Shopping.from_dict() for
+        "shopping" rather than parsing either itself, so a raw action or
+        shopping dict means the same thing here as it does in from_dict() -
+        one parser each, not two that must be kept in step.
         """
         updates: dict[str, Any] = {
             key: patch[key] for key in PATCHABLE_FIELDS if key in patch
         }
         if "actions" in patch:
             updates["actions"] = _parse_action_rows(patch["actions"])
+        if "shopping" in patch:
+            updates["shopping"] = Shopping.from_dict(patch["shopping"])
         if not updates:
             return self
         try:
@@ -415,31 +748,37 @@ class Strategy:
         that exists. vision.py passes an absolute template straight to
         cv2.imread, so an unchecked one lets the request body choose which
         file on disk the bot reads.
+
+        Shopping rows get the identical check: a workshop template arrives in
+        the same request body and is joined to a path the same way, and a
+        disabled row is one checkbox away from spending coins on whatever it
+        pointed at.
         """
         root = template_dir if template_dir is not None else config.TEMPLATE_DIR
-        for rule in self.actions:
-            # Belt and braces with ActionRule's own type check: this runs on
+
+        def _check_template(name: str, template: str) -> None:
+            # Belt and braces with the rule's own type check: this runs on
             # whatever self holds, and frozen is not the same as unreachable.
-            if not isinstance(rule.template, str):
-                raise ControlError(
-                    "template", f"{rule.name}: template must be a filename"
-                )
-            full = root / rule.template
+            if not isinstance(template, str):
+                raise ControlError("template", f"{name}: template must be a filename")
+            full = root / template
             # Containment, not a no-separators rule: config.NAV_TARGETS uses
             # names like "nav/claim.png", so a legitimate template may live in
             # a subdirectory. What must never be legitimate is leaving the
             # directory - an absolute path (which Path.__truediv__ silently
             # takes whole, discarding root) or a "../" walk out of it.
             inside = full.resolve().is_relative_to(root.resolve())
-            if Path(rule.template).is_absolute() or not inside:
-                raise ControlError(
-                    "template", f"{rule.name}: template must be inside {root}"
-                )
+            if Path(template).is_absolute() or not inside:
+                raise ControlError("template", f"{name}: template must be inside {root}")
             if not full.is_file():
                 raise ControlError(
-                    "template",
-                    f"{rule.name}: no template file {rule.template!r} in {root}",
+                    "template", f"{name}: no template file {template!r} in {root}"
                 )
+
+        for rule in self.actions:
+            _check_template(rule.name, rule.template)
+        for rule in self.shopping.workshop:
+            _check_template(rule.name, rule.template)
         return self
 
 

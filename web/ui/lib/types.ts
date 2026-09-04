@@ -113,6 +113,38 @@ export interface ActionRule {
   brightness_ratio: number;
 }
 
+export interface ShoppingRule {
+  name: string;
+  template: string;
+  category: "ATTACK" | "DEFENSE" | "UTILITY";
+  /** Which of the two workshop layouts this row uses, which is what decides
+   * where its price sits. A half-width upgrade row puts the price beside the
+   * label; a full-width unlock tile centres it below. Not derivable from the
+   * template path, so the row has to say. */
+  layout: "row" | "tile";
+  enabled: boolean;
+  threshold: number;
+  brightness_ratio: number;
+}
+
+export interface CardPolicy {
+  enabled: boolean;
+  gem_floor: number;
+  max_per_visit: number;
+  batch: "x1" | "x10";
+}
+
+/** Mirrors strategy.py's Shopping.to_dict(). `enabled` and `armed` are two
+ * switches: enabled+unarmed reads and reports without tapping. */
+export interface Shopping {
+  enabled: boolean;
+  armed: boolean;
+  visit_every_n_runs: number;
+  max_taps_per_visit: number;
+  workshop: ShoppingRule[];
+  cards: CardPolicy;
+}
+
 /** Mirrors strategy.py's Strategy.to_dict(). */
 export interface Strategy {
   name: string;
@@ -124,12 +156,19 @@ export interface Strategy {
   max_runs: number | null;
   navigation_cooldown: number;
   screen_confirmations: number;
+  shopping: Shopping;
 }
 
 export interface ControlPayload {
   paused: boolean;
   strategy: Strategy;
   affordability_available: string[];
+  /** Non-null when this machine's header glyph atlas cannot support a
+   * balance read, which makes ShoppingSession.begin() decline every visit
+   * forever regardless of the policy - see build_shopping(). Lets the
+   * Strategy page say why enabling and arming shopping produces total
+   * silence, instead of doing nothing with no explanation. */
+  shopping_disabled_reason: string | null;
 }
 
 export interface RunStat {

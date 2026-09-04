@@ -4,21 +4,53 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Callable
 
 # Add the repo root to the path so tests can import modules from it
 repo_root = Path(__file__).parent.parent
 if str(repo_root) not in sys.path:
     sys.path.insert(0, str(repo_root))
 
+import cv2  # noqa: E402 - after the sys.path fix-up above
 import pytest  # noqa: E402 - after the sys.path fix-up above
 
 import config  # noqa: E402 - after the sys.path fix-up above
+import digits  # noqa: E402 - after the sys.path fix-up above
+import events  # noqa: E402 - after the sys.path fix-up above
+import screens  # noqa: E402 - after the sys.path fix-up above
+import vision  # noqa: E402 - after the sys.path fix-up above
+from control import Controls  # noqa: E402 - after the sys.path fix-up above
+from device import Image  # noqa: E402 - after the sys.path fix-up above
+from shopping import ShoppingSession  # noqa: E402 - after the sys.path fix-up above
+from strategy import ActionRule, Shopping, Strategy  # noqa: E402 - after the fix-up above
+from tower_bot import TowerBot  # noqa: E402 - after the sys.path fix-up above
 
 # Captured at import time, before the autouse fixture below (or anything
 # else) can ever repoint config.STRATEGY_DIR. Exactly one test needs the
 # real, committed directory rather than the session's fenced stand-in - see
-# test_strategy_store.py::test_the_committed_default_matches_config_actions.
+# test_strategy_store.py::test_the_committed_default_matches_config.
 REAL_STRATEGY_DIR = config.STRATEGY_DIR
+
+
+def seed_template_dir(templates_dir: Path) -> None:
+    """Create empty stand-ins for every template Strategy.from_config()'s
+    default now references, so a test that points config.TEMPLATE_DIR at
+    `templates_dir` and then calls save()/ensure_seeded() (which run
+    validated()) does not fail on a template that has nothing to do with
+    what the test is actually checking.
+
+    Covers both config.ACTIONS (the in-run rows) and config.WORKSHOP_ROWS
+    (the shopping rows, Task 10) - from_config() builds a Strategy out of
+    both, so validated() checks both, regardless of a workshop row's
+    `enabled` flag (a disabled row is still checked - see validated()'s own
+    docstring for why).
+    """
+    for action in config.ACTIONS:
+        (templates_dir / action.template).write_bytes(b"")
+    for template, _layout in config.WORKSHOP_ROWS.values():
+        path = templates_dir / template
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"")
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -50,3 +82,172 @@ def fenced_strategy_dir(tmp_path_factory: pytest.TempPathFactory):
     with pytest.MonkeyPatch.context() as mp:
         mp.setattr(config, "STRATEGY_DIR", fenced)
         yield fenced
+
+
+# --------------------------------------------------------------------------
+# Shopping-loop bot fixtures (tests/test_shopping_loop.py)
+# --------------------------------------------------------------------------
+_FIXTURES_DIR = Path(__file__).parent / "fixtures"
+
+
+def _frame(name: str) -> Image:
+    path = _FIXTURES_DIR / f"{name}.png"
+    image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+    assert image is not None, f"missing fixture: {name}.png"
+    return image
+
+
+class _FakeDevice:
+    """Records taps as (x, y) pairs.
+
+    navigate.Navigator, shopping.ShoppingSession and
+    TowerBot.find_and_click_image all end up calling device.tap(device, x, y),
+    which is nothing but device.click(x, y) - so a bare click() recorder
+    observes every tap path at once, with no need to monkeypatch each
+    module's own `tap` import separately.
+    """
+
+    def __init__(self) -> None:
+        self.taps: list[tuple[int, int]] = []
+
+    def click(self, x: int, y: int) -> None:
+        self.taps.append((x, y))
+
+
+class _RecordingBus:
+    """Keeps every event handed to it, unstamped.
+
+    Real events.EventBus.publish() stamps seq/ts via dataclasses.replace -
+    unnecessary ceremony here, since these tests only ever inspect an
+    event's own fields (its `.type` and whatever it carries).
+    """
+
+    def __init__(self) -> None:
+        self.published: list[events.Event] = []
+
+    def publish(self, event: events.Event) -> events.Event:
+        self.published.append(event)
+        return event
+
+
+class _RecordingSnapshotWriter:
+    """Stands in for snapshots.SnapshotWriter: records instead of touching
+    disk, and never rate-limits - a test drives exactly as many scans as it
+    wants to observe and must see every one of them land (or not)."""
+
+    def __init__(self) -> None:
+        self.written: list[Image] = []
+
+    def maybe_write(self, image: Image, now: float | None = None) -> Path:
+        self.written.append(image)
+        return _FIXTURES_DIR / f"fake-unknown-{len(self.written)}.png"
+
+
+def _shopping_bot(
+    frame_name: str, *, state: screens.ScreenState, policy: Shopping, auto_navigate: bool,
+) -> TowerBot:
+    """One TowerBot, frozen on one frame, with its tracker pre-confirmed.
+
+    Pre-setting the tracker directly - rather than warming it up through a
+    couple of run_once() calls the way test_bot_reporting.py's settled_bot
+    does - is deliberate: warming up through run_once() would run the very
+    begin()/advance() logic these tests exist to exercise, before the test
+    gets a chance to control it.
+
+    The shopping session is built directly, never through
+    tower_bot.build_shopping(): this machine's header atlas is missing
+    2, 3, 5, 6, 9, which would hand back a disabled session that can never
+    begin a visit. The fixtures' balances read correctly against the
+    glyphs that ARE present, so a directly-built session works fine here.
+    """
+    device = _FakeDevice()
+    bus = _RecordingBus()
+    templates = vision.TemplateCache(config.TEMPLATE_DIR)
+    session = ShoppingSession(templates, bus, digits.NumberReader())
+
+    bot = TowerBot(
+        device=device,
+        templates=templates,
+        bus=bus,
+        controls=Controls(strategy=Strategy(
+            # Strategy requires at least one action; disabled, so the
+            # IN_RUN fixture never tries to tap it.
+            name="t",
+            actions=(ActionRule(name="Damage", template="upgrade_damage.png", enabled=False),),
+            shopping=policy, auto_navigate=auto_navigate,
+        )),
+        shopping=session,
+        navigation_cooldown=0.0,
+    )
+    image = _frame(frame_name)
+    bot._screen = image
+    bot.refresh_screen = lambda: bot._screen  # no real device to capture from
+    bot.tracker.state = state
+    bot.tracker._confirmed = True
+    bot.snapshots = _RecordingSnapshotWriter()
+    return bot
+
+
+@pytest.fixture
+def bot_on_main_menu() -> Callable[[Shopping], TowerBot]:
+    """Factory: a bot already confirmed on MAIN_MENU, one call per policy.
+
+    auto_navigate is on and the navigation cooldown zeroed (see
+    _shopping_bot), so a test asserting "BATTLE was/was not tapped" is
+    exercising the suppression itself rather than passing because
+    auto_navigate defaulted off.
+
+    Seeded with one already-completed run: a bot idling on the main menu has
+    naturally just finished one, and
+    test_reaching_the_run_cap_does_not_start_a_visit needs that to be true
+    for a `max_runs=1` cap to mean something already reached, rather than a
+    limit nothing here would otherwise trip.
+    """
+    def build(policy: Shopping) -> TowerBot:
+        bot = _shopping_bot(
+            "main_menu", state=screens.ScreenState.MAIN_MENU,
+            policy=policy, auto_navigate=True,
+        )
+        bot.runs.completed = 1
+        return bot
+
+    return build
+
+
+@pytest.fixture
+def bot_on_workshop() -> Callable[[Shopping], TowerBot]:
+    """Factory: a bot confirmed UNKNOWN (by design - see pages.py) on a
+    workshop tab that does not yet show the policy's ATTACK row.
+
+    "menu_workshop_utility" shows the UTILITY tab selected, so a policy whose
+    only category is ATTACK finds its row nowhere on screen and keeps
+    tapping the ATTACK tab button every scan instead - the tab button itself
+    scores ~1.0 regardless of which tab is selected (see shopping.py's
+    module docstring), so this is stable across as many scans as a test
+    wants to run, never buying, erroring, or returning.
+    """
+    def build(policy: Shopping) -> TowerBot:
+        return _shopping_bot(
+            "menu_workshop_utility", state=screens.ScreenState.UNKNOWN,
+            policy=policy, auto_navigate=False,
+        )
+
+    return build
+
+
+@pytest.fixture
+def bot_in_run() -> Callable[[Shopping], TowerBot]:
+    """Factory: a bot confirmed IN_RUN, one call per policy.
+
+    Local to this file rather than reusing test_bot_reporting.py's own
+    `bot_in_run` fixture (which returns `(bot, seen)` and takes no policy) -
+    pytest resolves each test file's own fixture of the same name first, so
+    the two coexist without conflict.
+    """
+    def build(policy: Shopping) -> TowerBot:
+        return _shopping_bot(
+            "in_run_lit", state=screens.ScreenState.IN_RUN,
+            policy=policy, auto_navigate=False,
+        )
+
+    return build

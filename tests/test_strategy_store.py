@@ -13,7 +13,7 @@ import pytest
 
 import config
 from strategy import ControlError, Strategy, StrategyStore, validate_name
-from tests.conftest import REAL_STRATEGY_DIR
+from tests.conftest import REAL_STRATEGY_DIR, seed_template_dir
 
 
 @pytest.fixture
@@ -21,14 +21,13 @@ def store(tmp_path, monkeypatch) -> StrategyStore:
     """A store over tmp_path, whose templates all exist.
 
     save() runs validated(), so the fixture points TEMPLATE_DIR at a
-    directory holding the files config.ACTIONS names - otherwise every save
-    in this file would fail for a reason that has nothing to do with the
-    store.
+    directory holding the files config.ACTIONS and config.WORKSHOP_ROWS name
+    - otherwise every save in this file would fail for a reason that has
+    nothing to do with the store.
     """
     templates = tmp_path / "templates"
     templates.mkdir()
-    for action in config.ACTIONS:
-        (templates / action.template).write_bytes(b"")
+    seed_template_dir(templates)
     monkeypatch.setattr(config, "TEMPLATE_DIR", templates)
     return StrategyStore(tmp_path / "strategies")
 
@@ -213,13 +212,17 @@ def test_names_omits_a_file_the_loader_would_refuse(store) -> None:
     assert store.names() == ["mine"]
 
 
-def test_the_committed_default_matches_config_actions() -> None:
-    """The committed profile and config.ACTIONS must not drift.
+def test_the_committed_default_matches_config() -> None:
+    """The committed profile and config.py's defaults must not drift - both
+    config.ACTIONS and config.SHOPPING_ROWS (Task 10), since this compares
+    whole Strategy objects and Strategy.from_config() builds both from
+    config.py.
 
     ensure_seeded() only writes default.json when strategies/ is empty, and
-    it never is in a real clone - so config.ACTIONS is never consulted there.
-    Without this test, adding an upgrade to config.ACTIONS would reach no
-    clone, new or old, and nothing would say so.
+    it never is in a real clone - so config.py's defaults are never
+    consulted there. Without this test, adding an upgrade to config.ACTIONS
+    or reordering config.SHOPPING_ROWS would reach no clone, new or old, and
+    nothing would say so.
 
     Deliberately reads tests/conftest.py's REAL_STRATEGY_DIR rather than
     config.STRATEGY_DIR: the session-scoped fenced_strategy_dir fixture in
