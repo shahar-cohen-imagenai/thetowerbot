@@ -80,6 +80,7 @@ from typing import Any
 import config
 import events
 import pages
+import tiles
 import vision
 from device import Image, tap
 from digits import NumberReader
@@ -124,6 +125,35 @@ def header_numbers(
     coins = reader.read(screen, coins_region, top_left, "header")
     gems = reader.read(screen, gems_region, top_left, "header")
     return coins, gems
+
+
+# --- Phase 1 A/B scaffolding ---------------------------------------------
+# THROWAWAY. Exists to compare the OCR reader against the template reader on
+# live prices before any coin is risked on the former. Deleted in Phase 2
+# along with the template path itself - see the OCR row addressing spec §12.
+ab_logger = logging.getLogger("tower_bot.ocr_ab")
+
+
+def compare_readers(
+    rule: Any, template_price: int | None, rows: tuple[tiles.Row, ...]
+) -> str | None:
+    """Describe how the two readers disagree about `rule`, or None.
+
+    Compares on the normalised name, so a difference of case or spacing is
+    not reported as a disagreement - only a different row or a different
+    number is.
+    """
+    wanted = tiles.normalise(rule.name)
+    seen = [row for row in rows if tiles.normalise(row.name) == wanted]
+    if not seen:
+        read = ", ".join(repr(row.name) for row in rows) or "nothing"
+        return f"{rule.name}: OCR did not find it; read {read}"
+    ocr_price = seen[0].price
+    if ocr_price is None:
+        return f"{rule.name}: template read {template_price}, OCR could not read a price"
+    if ocr_price != template_price:
+        return f"{rule.name}: template read {template_price}, OCR read {ocr_price}"
+    return None
 
 
 class ShoppingSession:
@@ -566,6 +596,18 @@ class ShoppingSession:
             )
             self._exhausted.add(rule.name)
             return
+
+        # Phase 1 A/B - observation only, never a decision. Deleted in
+        # Phase 2. Wrapped because a reader under evaluation must not be
+        # able to break the reader in production.
+        try:
+            note = compare_readers(rule, price, tiles.read_rows(screen))
+            if note is not None:
+                ab_logger.warning("%s", note)
+            else:
+                ab_logger.info("%s: readers agree on %s", rule.name, price)
+        except Exception:
+            ab_logger.exception("the OCR comparison itself failed")
 
         if price > coins:
             self._bus.publish(events.PurchaseSkipped(item=rule.name, reason="unaffordable"))
