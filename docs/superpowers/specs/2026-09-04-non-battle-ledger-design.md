@@ -40,12 +40,23 @@ Separating them is what makes dry-run rehearsals safe to log: a rehearsal
 records the price it would have paid and a `delta` of zero, so it can never
 move a balance no matter how it is queried.
 
+`delta` distinguishes two things a single NULL would collapse:
+
+* `0` — **provably moved nothing.** A skip, a rehearsal.
+* `NULL` — **moved by an unknown amount.** Only ever an unreadable price on
+  a real purchase, or an unreadable `RunEnded.coins`. This is what puts a
+  hole in the running balance until the next reading closes it.
+
+Lines with no financial character at all (`VISIT_START`, `VISIT_END`,
+`SHOP_UNAVAILABLE`, `POLICY_CHANGED`) carry `currency = NULL` and take no
+part in the arithmetic.
+
 | kind | source | currency | delta | price |
 |---|---|---|---|---|
 | `RUN_PAYOUT` | `RunEnded` | coins | `+coins`, NULL if unreadable | — |
 | `WORKSHOP_BUY` | `Purchased`, category ≠ CARDS | coins | `−price`; 0 when `dry_run` | price |
 | `CARD_BUY` | `Purchased`, category = CARDS | gems | `−price`; 0 when `dry_run` | price |
-| `BUY_SKIPPED` | `PurchaseSkipped` | coins or gems | — | — |
+| `BUY_SKIPPED` | `PurchaseSkipped` | coins or gems | 0 | — |
 | `VISIT_START` | `ShoppingStarted` | — | — | — |
 | `VISIT_END` | `ShoppingEnded` | — | — | — |
 | `SHOP_UNAVAILABLE` | `ShoppingUnavailable` | — | — | — |
@@ -173,9 +184,11 @@ Three choices earn their place:
 * **`id` is its own key rather than `seq`.** Derived `UNEXPLAINED` lines
   have no source event. They are inserted immediately before the line that
   revealed them, so `ORDER BY id` is the canonical order with no tiebreak.
-* **The partial unique index on `seq`** makes every write idempotent via
-  `INSERT OR IGNORE`. That is what lets backfill run on every launch and
-  makes any replay safe.
+* **The partial unique index on `seq`** makes a write from a *source event*
+  idempotent via `INSERT OR IGNORE`, so an event redelivered across a
+  restart cannot be double-counted. It deliberately does not cover derived
+  lines, which have `seq = NULL` — which is why backfill guards on the
+  table being empty rather than relying on the index (see below).
 * **`AUTOINCREMENT`** means ids are never reused, so a delete cannot
   silently reorder the chain.
 
@@ -207,12 +220,24 @@ Split by statefulness, so the judgment is testable without a database.
   balance, sets `balance_after`, updates its state, and returns the list in
   insertion order.
 * `backfill(conn) -> int` — replays the existing `events` table in `seq`
-  order through a fresh `LedgerWriter`. Idempotent by the unique index.
+  order through a fresh `LedgerWriter`, and **returns 0 immediately if the
+  ledger table already holds a row**. It is a one-time migration, not a
+  repair tool: derived `UNEXPLAINED` lines have no `seq`, so the unique
+  index cannot dedupe them and a second unguarded replay would duplicate
+  every one of them. The emptiness guard is what makes calling it on every
+  launch safe.
 
 ### `db.py`
 
-Gains `insert_ledger(conn, line)`, `ledger_page(conn, *, limit, before,
-kind, currency, include_rehearsals)` and `ledger_totals(conn)`.
+Gains `insert_ledger(conn, row)`, `ledger_page(conn, *, limit, before,
+kind, currency, include_rehearsals)` and `last_balances(conn)`.
+
+`last_balances` serves two callers — it seeds `LedgerWriter` and fills the
+API's `balances` — so there is no separate `ledger_totals`. `insert_ledger`
+takes a plain row dict, not a `LedgerLine`: `db.py` "knows rows, not
+events", and importing `ledger` into it would invert that dependency. The
+conversion lives on `LedgerLine.as_row()`, mirroring `sinks/store.py`'s
+`to_row`.
 `prune_events` is unchanged — it names `events` explicitly — and gains a
 test pinning that ledger rows survive it.
 
@@ -327,8 +352,10 @@ New `tests/test_ledger.py`, alongside the existing per-module test files:
   reading resolves.
 * `LedgerWriter` seeded from a non-empty table does not emit a spurious
   `UNEXPLAINED` on its first event after a restart.
-* `backfill` is idempotent — running it twice leaves the row count
-  unchanged.
+* `backfill` on a populated `events` table produces the expected lines, and
+  running it a second time leaves the row count unchanged — in particular
+  it does not duplicate `UNEXPLAINED` lines, which have no `seq` to dedupe
+  on.
 
 Additions to existing files:
 
