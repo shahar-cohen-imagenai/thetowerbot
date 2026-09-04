@@ -56,9 +56,14 @@ export function Switch({
     >
       <span
         className={cn(
-          "absolute top-0.5 rounded-full bg-background shadow transition-transform",
+          // The left anchor has to be explicit. A button is text-align: center,
+          // so an absolutely positioned child with `left: auto` takes a static
+          // position at the *centre* of the track, and the travel below is then
+          // added to that - which parked the knob 10px past the track's right
+          // edge when checked, and mid-track when not.
+          "absolute top-0.5 left-0.5 rounded-full bg-background shadow transition-transform",
           large ? "h-5 w-5" : "h-3 w-3",
-          checked ? (large ? "translate-x-7" : "translate-x-4") : "translate-x-0.5",
+          checked ? (large ? "translate-x-7" : "translate-x-4") : "translate-x-0",
         )}
       />
     </button>
