@@ -20,6 +20,13 @@ from device import Image
 
 logger = logging.getLogger("tower_bot.ocr")
 
+# Sentinel for "construction was tried and failed", distinct from None's
+# "not tried yet". Without it a broken wheel is retried on every scan, and
+# every scan writes a full traceback into the same stderr the Phase 1 A/B
+# evidence goes to - a couple of screens a second of it. There is no startup
+# gate until Phase 2, so this is what makes the failure survivable.
+_FAILED = object()
+
 _engine: Any | None = None
 # One lock guarding construction AND inference. The bot and the web server
 # share a process, and the library makes no thread-safety promise worth
@@ -35,14 +42,22 @@ class TextBox:
 
 
 def _engine_or_none() -> Any | None:
+    """The engine, built once, or None if building it failed.
+
+    Failure is remembered: construction is attempted at most once per
+    process, and the traceback is logged once rather than once per scan.
+    """
     global _engine
+    if _engine is _FAILED:
+        return None
     if _engine is None:
         try:
             from rapidocr_onnxruntime import RapidOCR
 
             _engine = RapidOCR()
         except Exception:
-            logger.exception("could not build the OCR engine")
+            _engine = _FAILED
+            logger.exception("could not build the OCR engine; not trying again")
             return None
     return _engine
 

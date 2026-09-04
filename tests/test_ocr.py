@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+import types
 from pathlib import Path
 
 import cv2
@@ -65,3 +67,29 @@ def test_drops_boxes_below_the_confidence_floor():
 
 def test_a_frame_it_cannot_read_returns_empty_not_an_exception():
     assert ocr.read(None) == ()
+
+
+def test_a_failed_engine_build_is_not_retried(monkeypatch):
+    """A broken wheel must cost one traceback, not one per scan.
+
+    There is no startup gate until Phase 2, so a retry-forever build would
+    write a traceback into the log every couple of seconds - the same log
+    the Phase 1 A/B evidence is read out of.
+    """
+    builds = 0
+
+    class Broken(types.ModuleType):
+        def __getattr__(self, name):
+            nonlocal builds
+            builds += 1
+            raise ImportError("no wheel for this platform")
+
+    # monkeypatch restores both, so a real engine built by the test above
+    # survives this one.
+    monkeypatch.setattr(ocr, "_engine", None)
+    monkeypatch.setitem(sys.modules, "rapidocr_onnxruntime", Broken("rapidocr_onnxruntime"))
+
+    assert ocr._engine_or_none() is None
+    assert ocr._engine_or_none() is None
+    assert ocr._engine_or_none() is None
+    assert builds == 1, "construction must be attempted once, not once per scan"
