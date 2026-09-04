@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import logging
 import sqlite3
 from pathlib import Path
 from typing import Any
@@ -38,7 +39,10 @@ from typing import Any
 import config
 import db
 import events
+import ledger
 from sinks.base import QueueSink
+
+logger = logging.getLogger("tower_bot.sinks.store")
 
 # The columns the schema keeps typed. Everything else on an event goes to the
 # JSON `detail` blob, so adding a field to an event needs no migration.
@@ -78,17 +82,23 @@ class StoreSink(QueueSink):
         super().__init__(maxsize=maxsize)
         self.path = Path(path)
         self._conn: sqlite3.Connection | None = None
+        self._ledger: ledger.LedgerWriter | None = None
         self._run_id: int | None = None
         self._scans = 0
         self._taps = 0
 
     def _consume(self) -> None:
         self._conn = db.connect(self.path)
+        # After connect, because the writer seeds its running balances from
+        # the ledger table - a restart that started from zero would read the
+        # next real balance as an enormous unexplained gain.
+        self._ledger = ledger.LedgerWriter(self._conn)
         try:
             super()._consume()
         finally:
             self._conn.close()
             self._conn = None
+            self._ledger = None
 
     def handle(self, event: events.Event) -> None:
         conn = self._conn
@@ -123,6 +133,19 @@ class StoreSink(QueueSink):
                 )
 
         db.insert_event(conn, to_row(event, self._run_id))
+
+        # Guarded separately from the event write above. QueueSink._consume
+        # already catches everything, so a raise here could not kill the
+        # thread - but it would skip the _run_id cleanup below, and every
+        # orphaned event after a run ended would then be filed under the run
+        # that already finished. The event history is the more important of
+        # the two tables; the ledger must never cost it.
+        if self._ledger is not None:
+            try:
+                for line in self._ledger.lines_for(event):
+                    db.insert_ledger(conn, line.as_row())
+            except Exception:  # noqa: BLE001
+                logger.exception("could not write the ledger line for %s", event.type)
 
         if isinstance(event, events.RunEnded):
             # Orphaned events after a run ends belong to no run, not to the ended run.
