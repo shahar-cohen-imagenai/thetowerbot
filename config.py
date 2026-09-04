@@ -508,3 +508,28 @@ TILE_MAX_H: int = 230
 # DIGIT_BINARY_THRESHOLD uses. Calibrated on four images; revisit against
 # live data.
 OCR_CONFIDENCE_FLOOR: float = 0.85
+
+# Where the price sits within a tile, as a fraction of tile height. A tile
+# holds a stat value panel above a price panel, and both parse as numbers -
+# so position is what separates "3" (Damage's level) from "30" (its price).
+#
+# Measured with tools/tile_preview.py plus the recorded OCR boxes (see
+# tests/fixtures/ocr/*.json) against all four committed fixtures. The two
+# layouts put the price at very different heights - a half-width upgrade
+# tile has a separate value box well above its price (row tiles: price top
+# 0.638-0.709), while a full-width unlock tile centres its price directly
+# under the label with no value box at all (unlock tiles: price top
+# 0.536-0.551) - so the number that actually bounds this fraction is the
+# unlock tiles' low end, not the row tiles'.
+#
+# The real constraint is the gap between the highest measured NUMERIC
+# stat-value bottom (0.485: Attack Speed's "1.00" on
+# menu_workshop_attack.png - "0.00/sec" and "x1.20" sit nearby but never
+# enter this comparison at all, since parse_number already refuses them) and
+# the lowest measured price top (0.536: Unlock Cash Bonuses on
+# menu_workshop_utility.png). 0.55 (the original guess) falls ABOVE that
+# price top and would have rejected the unlock tiles' own price by ~9px - a
+# real bug, not a rounding risk. 0.51 sits in the middle of the measured
+# [0.485, 0.536] gap instead, the same pick-the-middle-of-the-plateau
+# convention DIGIT_BINARY_THRESHOLDS uses.
+TILE_PRICE_TOP_FRACTION: float = 0.51
