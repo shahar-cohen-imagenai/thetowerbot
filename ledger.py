@@ -1,0 +1,197 @@
+"""Turn events into ledger lines - this account's non-battle history.
+
+Two halves, split by statefulness, because they fail differently. classify()
+is pure: it owns the catalog of which event becomes which kind of line and
+nothing else, so every judgment in it is testable with no database.
+LedgerWriter (next task) owns the running balances and the reconciliation
+rule, because remembering the last observed balance is inherently stateful.
+
+The ledger deliberately excludes everything in-run. In-run upgrades are
+bought with per-run cash that resets at the start of the next run - the
+`wallet` on Tapped and ScanCompleted - which is a different currency from
+`coins` and not account history in any sense. A battle contributes exactly
+one line: its payout.
+"""
+
+from __future__ import annotations
+
+import dataclasses
+import json
+from dataclasses import dataclass, field
+from typing import Any
+
+import events
+
+COINS = "coins"
+GEMS = "gems"
+
+# Every kind a line can carry. The last six are RESERVED and nothing emits
+# them today: they are the parts of the economy the bot cannot see (labs and
+# lab slots, card slots, modules, relics, ultimate weapons) plus hand-entered
+# lines. They are named here so adding one later is a branch in classify(),
+# not a schema change.
+KINDS: tuple[str, ...] = (
+    "RUN_PAYOUT",
+    "WORKSHOP_BUY",
+    "CARD_BUY",
+    "BUY_SKIPPED",
+    "VISIT_START",
+    "VISIT_END",
+    "SHOP_UNAVAILABLE",
+    "POLICY_CHANGED",
+    "UNEXPLAINED",
+    "LAB",
+    "CARD_SLOT",
+    "MODULE",
+    "RELIC",
+    "UW",
+    "MANUAL",
+)
+
+
+@dataclass(frozen=True, kw_only=True)
+class LedgerLine:
+    """One row of the account's history.
+
+    `delta` and `price` are separate on purpose, and the difference is what
+    makes a dry-run rehearsal safe to record: `price` is what it cost or
+    would have cost, `delta` is what ACTUALLY moved.
+
+    `delta` itself distinguishes two things a single None would collapse:
+
+    * 0    - provably moved nothing. A skip, a rehearsal.
+    * None - moved by an unknown amount. Only ever an unreadable price on a
+             real purchase, or an unreadable RunEnded payout. This is what
+             leaves a hole in the running balance until the next reading
+             closes it, as an explicit UNEXPLAINED line.
+    """
+
+    kind: str
+    ts: float
+    seq: int | None = None
+    item: str | None = None
+    category: str | None = None
+    currency: str | None = None
+    delta: int | None = None
+    price: int | None = None
+    balance_after: int | None = None
+    observed: int | None = None
+    dry_run: bool = False
+    run_id: int | None = None
+    visit: int | None = None
+    reason: str | None = None
+    detail: dict[str, Any] = field(default_factory=dict)
+
+    def as_row(self) -> dict[str, Any]:
+        """Flatten into a row for db.insert_ledger.
+
+        Here rather than in db.py deliberately: db.py "knows rows, not
+        events", and importing this module into it would invert that.
+        Mirrors sinks/store.py's to_row for the events table.
+        """
+        row = dataclasses.asdict(self)
+        detail = row.pop("detail")
+        row["dry_run"] = int(self.dry_run)
+        row["detail"] = json.dumps(detail, default=str) if detail else None
+        return row
+
+
+def classify(event: events.Event) -> LedgerLine | None:
+    """The catalog. Returns None for every event that is not account history.
+
+    None is the honest answer for an unrecognised event, not a guess: a new
+    event type gets a branch here when someone decides what it means, and
+    until then it simply is not in the ledger.
+    """
+    base: dict[str, Any] = {"ts": event.ts, "seq": event.seq}
+
+    match event:
+        case events.RunEnded():
+            # The only thing a battle contributes. RunEnded.coins is read off
+            # the game-over modal's Coins caption - coins EARNED that run, not
+            # a running total - so it is a credit, not a balance reading.
+            return LedgerLine(
+                kind="RUN_PAYOUT",
+                currency=COINS,
+                delta=event.coins,
+                run_id=event.run_id,
+                reason="abandoned" if event.abandoned else None,
+                **base,
+            )
+
+        case events.Purchased():
+            cards = event.category == "CARDS"
+            price = event.price
+            if event.dry_run:
+                delta: int | None = 0
+            elif price is None:
+                delta = None
+            else:
+                delta = -price
+            return LedgerLine(
+                kind="CARD_BUY" if cards else "WORKSHOP_BUY",
+                item=event.item,
+                category=event.category,
+                currency=GEMS if cards else COINS,
+                delta=delta,
+                price=price,
+                observed=event.gems_before if cards else event.coins_before,
+                dry_run=event.dry_run,
+                **base,
+            )
+
+        case events.PurchaseSkipped():
+            # The currency comes from WHICH balance the event reported.
+            # PurchaseSkipped carries the balance for the currency the skip
+            # would have spent and leaves the other None - the same rule
+            # Purchased documents - so exactly one of these is ever set.
+            if event.gems_before is not None:
+                currency, observed = GEMS, event.gems_before
+            elif event.coins_before is not None:
+                currency, observed = COINS, event.coins_before
+            else:
+                # A row backfilled from before those fields existed. Still a
+                # real line; it just reconciles nothing.
+                currency, observed = None, None
+            return LedgerLine(
+                kind="BUY_SKIPPED",
+                item=event.item,
+                currency=currency,
+                # A skip provably moved nothing, which is not the same fact
+                # as an unreadable price.
+                delta=0 if currency else None,
+                observed=observed,
+                reason=event.reason,
+                detail={"detail": event.detail} if event.detail else {},
+                **base,
+            )
+
+        case events.ShoppingStarted():
+            return LedgerLine(
+                kind="VISIT_START", visit=event.visit, dry_run=event.dry_run, **base
+            )
+
+        case events.ShoppingEnded():
+            return LedgerLine(
+                kind="VISIT_END",
+                visit=event.visit,
+                reason=event.reason or ("aborted" if event.aborted else None),
+                detail={"bought": event.bought, "spent": event.spent,
+                        "aborted": event.aborted},
+                **base,
+            )
+
+        case events.ShoppingUnavailable():
+            return LedgerLine(kind="SHOP_UNAVAILABLE", reason=event.reason, **base)
+
+        case events.ControlChanged():
+            # Why the spending policy changed, which is often the answer to
+            # "why did it stop buying that".
+            return LedgerLine(
+                kind="POLICY_CHANGED",
+                reason=event.source,
+                detail={"changed": event.changed},
+                **base,
+            )
+
+    return None
