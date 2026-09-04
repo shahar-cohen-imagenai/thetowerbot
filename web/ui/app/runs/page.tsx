@@ -1,10 +1,17 @@
 "use client";
 
+import { ArrowLeft } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EventFeed } from "@/components/EventFeed";
+import { PageHeader } from "@/components/PageHeader";
 import { RunTable } from "@/components/RunTable";
+import { StatTile } from "@/components/StatTile";
+import { Button } from "@/components/ui/button";
+import { SectionCard } from "@/components/ui/section-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchRunEvents, fetchRuns } from "@/lib/api";
+import { duration } from "@/lib/format";
 import type { BotEvent, RunRow, StoredEvent } from "@/lib/types";
 
 function Runs() {
@@ -38,45 +45,70 @@ function Runs() {
 
   const run = runs.find((r) => String(r.id) === selected);
 
+  if (selected) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Button
+          variant="ghost" size="sm" onClick={() => router.push("/runs/")}
+          className="self-start"
+        >
+          <ArrowLeft />
+          all runs
+        </Button>
+        <h1 className="font-mono text-lg font-semibold">Run #{selected}</h1>
+        {run ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            {/* The shared tile, rather than the byte-identical copy that used
+                to live here alongside the one in the status strip. */}
+            <StatTile label="wave" value={run.wave ?? "—"} />
+            <StatTile label="coins" value={run.coins ?? "—"} />
+            <StatTile label="tier" value={run.tier ?? "—"} />
+            <StatTile label="taps" value={run.tap_count} />
+            <StatTile
+              label="length"
+              value={run.ended_at ? duration(run.ended_at - run.started_at) : "live"}
+              sub={`${run.scan_count} scans`}
+            />
+          </div>
+        ) : runsLoaded ? (
+          // Otherwise indistinguishable from a real run with no stored
+          // events: no tiles and an empty feed either way.
+          <p className="text-sm text-muted-foreground">No such run.</p>
+        ) : null}
+        {run || !runsLoaded ? (
+          <SectionCard title="Events">
+            <EventFeed
+              events={events.map((row) => ({ ...row, ...row.detail }) as unknown as BotEvent)}
+              // A stored run is one fixed array, not a stream; without this
+              // the feed reads the swap as the bot restarting.
+              live={false}
+            />
+          </SectionCard>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      {selected ? (
-        <>
-          <button onClick={() => router.push("/runs/")} className="self-start rounded border px-2 py-1 text-sm">
-            ← all runs
-          </button>
-          <h1 className="text-lg font-semibold">Run #{selected}</h1>
-          {run ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-              {[
-                ["wave", run.wave ?? "-"], ["coins", run.coins ?? "-"], ["tier", run.tier ?? "-"],
-                ["taps", run.tap_count], ["scans", run.scan_count],
-              ].map(([label, value]) => (
-                <div key={String(label)} className="rounded-lg border p-3">
-                  <div className="text-xs uppercase text-muted-foreground">{label}</div>
-                  <div className="mt-1 text-xl font-semibold tabular-nums">{value}</div>
-                </div>
-              ))}
-            </div>
-          ) : runsLoaded ? (
-            // Otherwise indistinguishable from a real run with no stored
-            // events: no tiles and an empty feed either way.
-            <p className="text-sm text-muted-foreground">No such run.</p>
-          ) : null}
-          {run || !runsLoaded ? (
-            <EventFeed events={events.map((row) => ({ ...row, ...row.detail }) as unknown as BotEvent)} />
-          ) : null}
-        </>
-      ) : (
-        <RunTable runs={runs} onSelect={(id) => router.push(`/runs/?id=${id}`)} />
-      )}
+      <PageHeader
+        title="Runs"
+        meta={runsLoaded ? `${runs.length} stored` : undefined}
+      />
+      <SectionCard title="Run history">
+        {runsLoaded ? (
+          <RunTable runs={runs} onSelect={(id) => router.push(`/runs/?id=${id}`)} />
+        ) : (
+          <Skeleton rows={6} />
+        )}
+      </SectionCard>
     </div>
   );
 }
 
 export default function RunsPage() {
   return (
-    <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+    <Suspense fallback={<Skeleton rows={6} />}>
       <Runs />
     </Suspense>
   );

@@ -2,10 +2,16 @@
 
 import { useEffect, useState } from "react";
 import {
-  Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Bar, BarChart, CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer,
+  Tooltip, XAxis, YAxis,
 } from "recharts";
+import { PageHeader } from "@/components/PageHeader";
+import { StatTile } from "@/components/StatTile";
 import { SectionCard } from "@/components/ui/section-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchStats } from "@/lib/api";
+import { duration } from "@/lib/format";
+import { median } from "@/lib/useDerived";
 import type { StatsPayload } from "@/lib/types";
 
 // dataviz skill: chart surface/border tokens, so the Tooltip reads correctly
@@ -49,16 +55,51 @@ function EmptyPanel({ children }: { children: React.ReactNode }) {
 
 export default function StatsPage() {
   const [stats, setStats] = useState<StatsPayload | null>(null);
-  useEffect(() => { fetchStats().then(setStats).catch(() => setStats(null)); }, []);
+  // A failed fetch used to land in the same `null` as "still loading", so an
+  // unreachable bot said "Loading…" forever.
+  const [failed, setFailed] = useState<string | null>(null);
 
-  if (!stats) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  useEffect(() => {
+    fetchStats()
+      .then((s) => { setStats(s); setFailed(null); })
+      .catch((e: Error) => setFailed(e.message));
+  }, []);
+
+  if (failed) {
+    return (
+      <div className="rounded-md border border-warn bg-warn-surface p-3">
+        <p className="text-sm text-warn">Could not load stats.</p>
+        <p className="mt-1 font-mono text-xs text-muted-foreground">{failed}</p>
+      </div>
+    );
+  }
+  if (!stats) return <Skeleton rows={5} />;
   if (!stats.runs.length) {
     // An explicit empty state, never zeros that look like real data.
     return <p className="text-sm text-muted-foreground">No stored runs yet. (Running with --no-store?)</p>;
   }
 
+  const waves = stats.runs.map((r) => r.wave).filter((w): w is number => w != null);
+  const medianWave = median(waves);
+  const medianLength = median(stats.runs.map((r) => r.duration));
+
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="flex flex-col gap-4">
+      <PageHeader title="Stats" meta={`${stats.runs.length} runs`} />
+
+      {/* Derived client-side from the runs already on the page - the numbers
+          you would otherwise read off four charts by eye. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile label="runs" value={stats.runs.length} />
+        <StatTile label="median wave" value={medianWave == null ? "—" : Math.round(medianWave)} />
+        <StatTile label="best wave" value={waves.length ? Math.max(...waves) : "—"} tone="live" />
+        <StatTile
+          label="median length"
+          value={medianLength == null ? "—" : duration(medianLength)}
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
       <Panel title="Wave per run">
         <ResponsiveContainer>
           <LineChart data={stats.runs}>
@@ -66,6 +107,19 @@ export default function StatsPage() {
             <XAxis dataKey="id" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
             <Tooltip {...TOOLTIP_STYLE} />
+            {/* Gives every point something to be read against, which a bare
+                line does not. */}
+            {medianWave != null ? (
+              <ReferenceLine
+                y={medianWave} stroke="var(--muted-foreground)" strokeDasharray="3 4"
+                label={{
+                  value: `median ${Math.round(medianWave)}`,
+                  position: "insideTopRight",
+                  fill: "var(--muted-foreground)",
+                  fontSize: 10,
+                }}
+              />
+            ) : null}
             <Line
               type="monotone" dataKey="wave" dot={false}
               stroke={WAVE} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
@@ -123,6 +177,7 @@ export default function StatsPage() {
           <EmptyPanel>No screen events recorded yet.</EmptyPanel>
         )}
       </Panel>
+      </div>
     </div>
   );
 }

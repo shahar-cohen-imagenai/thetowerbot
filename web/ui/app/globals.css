@@ -212,9 +212,46 @@
   to { transform: scale(2.4); opacity: 0; }
 }
 
+/* Tailwind's motion-safe: variant already gates each animation, so this only
+   has to catch transitions and anything added later without that prefix.
+   The feed's arrival highlight is the one effect worth keeping in some form:
+   it becomes an instant hold rather than vanishing entirely. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Windows high-contrast throws the palette away, which would otherwise leave
+   the device overlay's match boxes and the feed's type chips as invisible
+   fills on a flat ground. */
+@media (forced-colors: active) {
+  [data-state="tapped"],
+  [data-state="matched"] {
+    forced-color-adjust: none;
+    border-color: Highlight;
+  }
+  [role="switch"][aria-checked="true"] {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  /* One visible focus treatment everywhere. The primitives use a soft
+     focus-visible ring, which is weak on a near-black ground; this is the
+     floor, and it is what the raw radio inputs and links inherit. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
   }
   body {
     @apply bg-background text-foreground;

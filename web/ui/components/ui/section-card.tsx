@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 /** Tints a 1px top edge, never the whole surface. A card that reports a state
@@ -39,12 +39,22 @@ export function SectionCard({
     // jump from the section nav parks the card's first line underneath it.
     <Card size="sm" className={cn("scroll-mt-24", tone && TONE[tone], className)} {...props}>
       <CardHeader>
-        <CardTitle className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        {/* A real <h2>, not CardTitle's <div>: these panels are the page's
+            section structure, and the pages this replaced were already using
+            headings here. Losing them would take the whole document outline
+            with it. */}
+        <h2 className="font-heading text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           {title}
-        </CardTitle>
+        </h2>
         {action ? <CardAction>{action}</CardAction> : null}
       </CardHeader>
-      <CardContent className={contentClassName}>{children}</CardContent>
+      {/* Stacked with a gap by default. The Card this replaced laid its own
+          children out with gap-3, so content that is several paragraphs and
+          tables long (the Guide) would otherwise collapse into one block with
+          Tailwind's margin reset and nothing to separate it. */}
+      <CardContent className={cn("flex flex-col gap-3", contentClassName)}>
+        {children}
+      </CardContent>
     </Card>
   );
 }

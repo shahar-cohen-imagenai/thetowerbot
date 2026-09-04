@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+import { SectionNav, type NavItem } from "@/components/SectionNav";
 import type { Strategy } from "@/lib/types";
 
 type Section = {
   id: string;
   label: string;
-  /** "3/9 on" for rule lists, a plain count of settings otherwise. */
+  /** "3/9" for rule lists, a plain count of settings otherwise. */
   count: (s: Strategy) => string;
   /** Which slice of the document this section owns, for the unsaved dot. */
   slice: (s: Strategy) => unknown;
@@ -60,63 +59,11 @@ const SECTIONS: Section[] = [
  * unsaved edit was not.
  */
 export function StrategyNav({ draft, saved }: { draft: Strategy; saved: Strategy }) {
-  const [current, setCurrent] = useState<string>(SECTIONS[0].id);
-
-  useEffect(() => {
-    // jsdom has no IntersectionObserver; the nav is a convenience, so skip
-    // the highlight rather than making the page unrenderable in tests.
-    if (typeof IntersectionObserver === "undefined") return;
-    const seen = new Map<string, number>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) seen.set(entry.target.id, entry.intersectionRatio);
-        let best: string | null = null;
-        let bestRatio = 0;
-        for (const [id, ratio] of seen) {
-          if (ratio > bestRatio) { best = id; bestRatio = ratio; }
-        }
-        if (best) setCurrent(best);
-      },
-      { threshold: [0, 0.25, 0.5, 1] },
-    );
-    for (const section of SECTIONS) {
-      const node = document.getElementById(section.id);
-      if (node) observer.observe(node);
-    }
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <nav className="sticky top-4 hidden w-44 shrink-0 flex-col gap-0.5 self-start xl:flex">
-      <div className="px-2.5 pb-1.5 text-[9.5px] font-semibold uppercase tracking-[0.14em] text-faint-foreground">
-        Sections
-      </div>
-      {SECTIONS.map((section) => {
-        const dirty = JSON.stringify(section.slice(draft)) !== JSON.stringify(section.slice(saved));
-        return (
-          <a
-            key={section.id}
-            href={`#${section.id}`}
-            className={cn(
-              "flex items-center gap-2 rounded-md border-l-2 border-transparent px-2.5 py-1.5 text-sm transition-colors",
-              current === section.id
-                ? "border-l-primary bg-primary/12 text-foreground"
-                : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
-            )}
-          >
-            <span className="truncate">{section.label}</span>
-            {dirty ? (
-              <span
-                className="size-1.5 shrink-0 rounded-full bg-warn"
-                aria-label="unsaved changes in this section"
-              />
-            ) : null}
-            <span className="ml-auto font-mono text-[10px] text-faint-foreground">
-              {section.count(draft)}
-            </span>
-          </a>
-        );
-      })}
-    </nav>
-  );
+  const items: NavItem[] = SECTIONS.map((section) => ({
+    id: section.id,
+    label: section.label,
+    meta: section.count(draft),
+    dot: JSON.stringify(section.slice(draft)) !== JSON.stringify(section.slice(saved)),
+  }));
+  return <SectionNav items={items} />;
 }
