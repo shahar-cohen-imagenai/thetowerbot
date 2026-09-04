@@ -161,7 +161,7 @@ def classify(event: events.Event) -> LedgerLine | None:
                 currency=currency,
                 # A skip provably moved nothing, which is not the same fact
                 # as an unreadable price.
-                delta=0 if currency else None,
+                delta=0,
                 observed=observed,
                 reason=event.reason,
                 detail={"detail": event.detail} if event.detail else {},
@@ -280,13 +280,22 @@ class LedgerWriter:
 
         out.append(dataclasses.replace(line, balance_after=balance))
 
+        # Commit the reading unconditionally. An UNEXPLAINED line above has
+        # already priced any gap it revealed, so the anchor has to move to it
+        # even when this line's own movement is unknown - otherwise the next
+        # reading prices the same gap a second time.
         if line.delta is None:
-            # Moved by an amount nobody read. Keep the last certain balance
-            # so the next reading can price the whole gap, but stop deriving
-            # balances from it until then.
+            # Moved by an amount nobody read. The anchor stays where the last
+            # reading put it and the chain stops deriving balances, but it
+            # keeps reconciling: the next reading prices the whole gap,
+            # this purchase's cost included.
+            self._known[currency] = known
             self._stale[currency] = True
         else:
-            self._known[currency] = balance if balance is not None else known
+            # A known movement counts against the anchor even while stale.
+            # Dropping it here is what made a stale chain report a payout as
+            # an unexplained GAIN.
+            self._known[currency] = None if known is None else known + line.delta
             self._stale[currency] = stale
         return out
 

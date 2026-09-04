@@ -64,6 +64,21 @@ group("LedgerPage", () => {
     expect(screen.getByText(/outside the bot/i)).toBeDefined();
   });
 
+  it("does not mark a non-financial line as an unknown amount", async () => {
+    fetchLedger.mockResolvedValue(payload({
+      lines: [{
+        ...A_PURCHASE, id: 3, kind: "VISIT_END", item: null, currency: null,
+        delta: null, price: null, balance_after: null, observed: null,
+      }],
+    }));
+    render(<LedgerPage />);
+
+    await screen.findByText("VISIT_END");
+    // "?" means "moved by an unknown amount" and a visit boundary moved
+    // nothing at all.
+    expect(screen.queryByText("?")).toBeNull();
+  });
+
   it("hides rehearsals until asked, and says how many there are", async () => {
     fetchLedger.mockResolvedValue(payload({ lines: [A_PURCHASE], rehearsals: 3 }));
     render(<LedgerPage />);
@@ -74,5 +89,61 @@ group("LedgerPage", () => {
     await waitFor(() =>
       expect(fetchLedger).toHaveBeenLastCalledWith({ includeRehearsals: true }),
     );
+  });
+
+  it("asks the route for one kind when a chip is picked, and drops it again", async () => {
+    fetchLedger.mockResolvedValue(payload({ lines: [A_PURCHASE] }));
+    render(<LedgerPage />);
+
+    const chip = await screen.findByRole("button", { name: "workshop buy" });
+    fireEvent.click(chip);
+
+    await waitFor(() =>
+      expect(fetchLedger).toHaveBeenLastCalledWith({ kind: "WORKSHOP_BUY" }),
+    );
+
+    // The route takes a single kind, so the active chip is a toggle: clicking
+    // it again means no filter, not an empty one.
+    fireEvent.click(screen.getByRole("button", { name: "workshop buy" }));
+    await waitFor(() => expect(fetchLedger).toHaveBeenLastCalledWith({}));
+  });
+
+  it("asks the route for one currency, and sends none for all", async () => {
+    fetchLedger.mockResolvedValue(payload({ lines: [A_PURCHASE] }));
+    render(<LedgerPage />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "gems" }));
+    await waitFor(() =>
+      expect(fetchLedger).toHaveBeenLastCalledWith({ currency: "gems" }),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "all" }));
+    await waitFor(() => expect(fetchLedger).toHaveBeenLastCalledWith({}));
+  });
+
+  it("offers no way to page an account whose history is already whole", async () => {
+    fetchLedger.mockResolvedValue(payload({ lines: [A_PURCHASE], next: null }));
+    render(<LedgerPage />);
+
+    await screen.findByText("Health");
+    expect(screen.queryByRole("button", { name: /load more/i })).toBeNull();
+  });
+
+  it("appends the next page rather than replacing the lines on screen", async () => {
+    const older = { ...A_PURCHASE, id: 9, item: "Damage", balance_after: 1620 };
+    fetchLedger
+      .mockResolvedValueOnce(payload({ lines: [A_PURCHASE], next: 1 }))
+      .mockResolvedValueOnce(payload({ lines: [older], next: null }));
+    render(<LedgerPage />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /load more/i }));
+
+    await screen.findByText("Damage");
+    // The first page is still there - a history that replaces itself as you
+    // page through it is not a history.
+    expect(screen.getByText("Health")).toBeDefined();
+    expect(fetchLedger).toHaveBeenLastCalledWith({ before: 1 });
+    // ...and the last page says so by taking the control away.
+    expect(screen.queryByRole("button", { name: /load more/i })).toBeNull();
   });
 });

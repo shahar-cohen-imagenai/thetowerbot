@@ -77,6 +77,18 @@ def test_a_card_skip_reconciles_against_gems() -> None:
     assert (line.currency, line.observed) == ("gems", 40)
 
 
+def test_a_skip_with_no_readable_balance_still_moved_nothing() -> None:
+    """A row backfilled from before PurchaseSkipped carried balances. It
+    reconciles nothing, but "provably moved nothing" is still the truth -
+    None would claim it moved by an unknown amount."""
+    line = ledger.classify(
+        events.PurchaseSkipped(item="Damage", reason="no_match", seq=1, ts=1.0)
+    )
+
+    assert line is not None
+    assert (line.currency, line.delta) == (None, 0)
+
+
 def test_a_run_payout_credits_the_coins_it_earned() -> None:
     line = ledger.classify(
         events.RunEnded(run_id=4, duration=300.0, wave=10, coins=350, tier=1,
@@ -238,6 +250,68 @@ def test_a_hole_from_an_unreadable_price_is_closed_by_the_next_reading(
     assert [line.kind for line in after] == ["UNEXPLAINED", "BUY_SKIPPED"]
     assert after[0].delta == -95
     assert after[1].balance_after == 1600
+
+
+def test_a_reading_taken_on_an_unreadable_purchase_is_not_reported_twice(
+    tmp_path: Path,
+) -> None:
+    """The gap a reading reveals is priced once. Discarding the reading
+    because the same line's price was unreadable made the next reading
+    report the same coins missing all over again."""
+    write, _ = writer(tmp_path)
+
+    write.lines_for(
+        events.Purchased(item="Health", category="DEFENSE", price=75,
+                         coins_before=1770, dry_run=False, seq=1, ts=1.0)
+    )
+    # 195 coins went somewhere the bot cannot see, and the price of this
+    # purchase could not be read either.
+    revealed = write.lines_for(
+        events.Purchased(item="Damage", category="ATTACK", price=None,
+                         coins_before=1500, dry_run=False, seq=2, ts=2.0)
+    )
+    later = write.lines_for(
+        events.PurchaseSkipped(item="Damage", reason="unaffordable",
+                               coins_before=1400, seq=3, ts=3.0)
+    )
+
+    assert [line.kind for line in revealed] == ["UNEXPLAINED", "WORKSHOP_BUY"]
+    assert revealed[0].delta == -195
+    # Only the unreadable purchase's own cost is still outstanding - the 195
+    # is settled and must not appear again.
+    assert [line.kind for line in later] == ["UNEXPLAINED", "BUY_SKIPPED"]
+    assert later[0].delta == -100
+
+
+def test_a_known_payout_still_counts_while_the_chain_is_stale(
+    tmp_path: Path,
+) -> None:
+    """A run payout the bot recorded itself is not unexplained. Dropping it
+    from the anchor made the next reading report a LOSS of 100 as a GAIN of
+    250 - wrong sign, on the one line the page exists to make trustworthy."""
+    write, _ = writer(tmp_path)
+
+    write.lines_for(
+        events.Purchased(item="Health", category="DEFENSE", price=75,
+                         coins_before=1770, dry_run=False, seq=1, ts=1.0)
+    )
+    write.lines_for(  # actually cost 100, unreadable
+        events.Purchased(item="Damage", category="ATTACK", price=None,
+                         coins_before=1695, dry_run=False, seq=2, ts=2.0)
+    )
+    payout = write.lines_for(
+        events.RunEnded(run_id=1, duration=300.0, wave=10, coins=350, tier=1,
+                        seq=3, ts=3.0)
+    )
+    after = write.lines_for(
+        events.PurchaseSkipped(item="Damage", reason="unaffordable",
+                               coins_before=1945, seq=4, ts=4.0)
+    )
+
+    # The chain is stale, so the payout line itself still reports no balance.
+    assert payout[0].balance_after is None
+    assert [line.kind for line in after] == ["UNEXPLAINED", "BUY_SKIPPED"]
+    assert after[0].delta == -100
 
 
 def test_a_rehearsal_leaves_the_balance_exactly_where_it_was(tmp_path: Path) -> None:
