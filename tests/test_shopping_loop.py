@@ -27,8 +27,7 @@ def frame(name: str):
 def a_policy(**over) -> Shopping:
     base = dict(
         enabled=True, armed=False,
-        workshop=(ShoppingRule(name="Damage", template="workshop/row_damage.png",
-                               category="ATTACK"),),
+        workshop=(ShoppingRule(name="Damage", category="ATTACK"),),
     )
     return Shopping(**{**base, **over})
 

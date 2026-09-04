@@ -127,8 +127,7 @@ def test_start_resets_a_shopping_session_left_mid_visit(runner_parts) -> None:
     )
     policy = Shopping(
         enabled=True, armed=False,
-        workshop=(ShoppingRule(name="Damage", template="workshop/row_damage.png",
-                                category="ATTACK"),),
+        workshop=(ShoppingRule(name="Damage", category="ATTACK"),),
     )
     shopping.begin(policy, run_count=1)
     assert shopping.active, "the fixture must actually be mid-visit to test anything"

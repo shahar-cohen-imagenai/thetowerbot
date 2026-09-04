@@ -5,7 +5,6 @@ import { type ComponentRef, useEffect, useRef, useState } from "react";
 import { OrderChip, ReorderButtons } from "@/components/StrategyEditor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
 import { SectionCard } from "@/components/ui/section-card";
 import { Switch } from "@/components/ui/switch";
@@ -279,40 +278,13 @@ export function ShoppingEditor({
                   <Badge variant="outline" className="font-mono text-[10px] uppercase">
                     {row.category}
                   </Badge>
-                  {/* Read-only: `layout` records which workshop layout this
-                      row's template was cut for, which decides where the bot
-                      reads the price. Editing it here could not change where
-                      the game actually renders that price - it would only make
-                      the bot read the wrong pixels and report a wrong number
-                      instead of a refused one. config.WORKSHOP_ROWS enforces
-                      this server-side too. */}
-                  <Badge
-                    variant="outline"
-                    className="font-mono text-[10px] uppercase"
-                    title="Which workshop layout this row's template was cut for - read-only, set when the template was measured"
-                  >
-                    layout: {row.layout}
-                  </Badge>
-                  <label className="flex items-center gap-1 text-xs text-muted-foreground">
-                    match
-                    <Input
-                      type="number" min={0.05} max={1} step={0.05}
-                      aria-label={`${row.name} threshold`}
-                      key={row.threshold}
-                      defaultValue={row.threshold}
-                      disabled={disabled}
-                      onBlur={(e) => setRow(index, { threshold: Number(e.target.value) })}
-                      className="w-20 text-right font-mono"
-                    />
-                  </label>
-                  {/* No brightness control here on purpose: shopping.py has no
-                      brightness path for menu prices at all (the game
-                      desaturates rather than dims an unaffordable button on
-                      these pages - see the Guide and shopping.py's module
-                      docstring), so an editable field here would let someone
-                      tune a knob that is never read. brightness_ratio stays on
-                      ShoppingRule for schema symmetry with ActionRule, not
-                      because this page can do anything with it. */}
+                  {/* Nothing else belongs on a row. A row is addressed by
+                      the name OCR reads off the page, so there is no template
+                      to match, no match threshold to tune, no brightness knob
+                      and no layout to record where a price sits - the reader
+                      finds the price itself. The reorder buttons below are the
+                      only other thing this page can change, because priority
+                      is the one property no page can read. */}
                   <ReorderButtons
                     index={index} count={shopping.workshop.length} disabled={disabled}
                     onMove={(delta) => move(index, delta)}

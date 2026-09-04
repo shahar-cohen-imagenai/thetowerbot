@@ -9,10 +9,8 @@ const policy: Shopping = {
   visit_every_n_runs: 1,
   max_taps_per_visit: 40,
   workshop: [
-    { name: "Unlock Cash Bonuses", template: "workshop/unlock_cash_bonuses.png",
-      category: "UTILITY", layout: "tile", enabled: true, threshold: 0.9, brightness_ratio: 0.75 },
-    { name: "Damage", template: "workshop/row_damage.png",
-      category: "ATTACK", layout: "row", enabled: true, threshold: 0.9, brightness_ratio: 0.75 },
+    { name: "Unlock Cash Bonuses", category: "UTILITY", enabled: true },
+    { name: "Damage", category: "ATTACK", enabled: true },
   ],
   cards: { enabled: false, gem_floor: 40, max_per_visit: 2, batch: "x1" },
 };
@@ -56,12 +54,18 @@ describe("ShoppingEditor", () => {
     expect(screen.getByTestId("hint-Unlock Cash Bonuses")).toHaveTextContent(/Utility tab/i);
   });
 
-  it("shows layout as read-only text, not an editable control", () => {
+  it("shows a row as a name, a category and a switch - nothing else", () => {
+    // A row is addressed by the name OCR reads off the page now, so there is
+    // no template to match, no match threshold to tune and no layout to
+    // record. Leaving the threshold input here would be worse than untidy:
+    // its onBlur PATCHes `threshold` back, and the server rejects a row
+    // field it no longer knows.
     render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
     const row = screen.getAllByTestId("shopping-row")[0];
-    expect(row).toHaveTextContent(/tile/i);
-    expect(row.querySelector("select")).toBeNull();
-    expect(row.querySelector('input[value="tile"]')).toBeNull();
+    expect(row).toHaveTextContent("Unlock Cash Bonuses");
+    expect(row).toHaveTextContent(/utility/i);
+    expect(row).not.toHaveTextContent(/layout/i);
+    expect(screen.queryByLabelText(/threshold/i)).toBeNull();
   });
 
   it("has no brightness control on a row - shopping.py has no brightness path", () => {

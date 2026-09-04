@@ -115,16 +115,10 @@ export interface ActionRule {
 
 export interface ShoppingRule {
   name: string;
-  template: string;
+  /** The identity: matched, normalised, against the row names OCR reads off
+   * the page. Nothing else addresses a row. */
   category: "ATTACK" | "DEFENSE" | "UTILITY";
-  /** Which of the two workshop layouts this row uses, which is what decides
-   * where its price sits. A half-width upgrade row puts the price beside the
-   * label; a full-width unlock tile centres it below. Not derivable from the
-   * template path, so the row has to say. */
-  layout: "row" | "tile";
   enabled: boolean;
-  threshold: number;
-  brightness_ratio: number;
 }
 
 export interface CardPolicy {

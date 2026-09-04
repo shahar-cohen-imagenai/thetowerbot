@@ -98,17 +98,9 @@ def a_policy(**over) -> Shopping:
         enabled=True,
         armed=False,
         workshop=(
-            # layout="tile": this is an unlock tile, not an upgrade row.
-            # Omitting it reads the price from PRICE_REGIONS["row"] instead
-            # of ["tile"] and fails every read on this rule - layout is
-            # never inferred from the name, only declared.
-            ShoppingRule(name="Unlock Cash Bonuses",
-                         template="workshop/unlock_cash_bonuses.png",
-                         category="UTILITY", layout="tile"),
-            ShoppingRule(name="Health", template="workshop/row_health.png",
-                         category="DEFENSE"),
-            ShoppingRule(name="Damage", template="workshop/row_damage.png",
-                         category="ATTACK"),
+            ShoppingRule(name="Unlock Cash Bonuses", category="UTILITY"),
+            ShoppingRule(name="Health", category="DEFENSE"),
+            ShoppingRule(name="Damage", category="ATTACK"),
         ),
     )
     return Shopping(**{**base, **over})
@@ -290,9 +282,8 @@ def test_the_highest_priority_affordable_row_wins_not_the_cheapest(session) -> N
     with Critical Chance listed first it must be the one chosen."""
     device = FakeDevice()
     policy = a_policy(workshop=(
-        ShoppingRule(name="Critical Chance",
-                     template="workshop/row_critical_chance.png", category="ATTACK"),
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Critical Chance", category="ATTACK"),
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
     ))
     session.begin(policy, run_count=1)
@@ -306,14 +297,14 @@ def test_the_highest_priority_affordable_row_wins_not_the_cheapest(session) -> N
 def test_a_row_is_bought_without_its_template_file(session, fake_header) -> None:
     """Nothing in the workshop buy path reads a row template any more.
 
-    The rule still carries a `template` field until the schema cut-over, so
-    this points it at a file that is not on disk: if any code path still
-    loads it, the purchase cannot happen. Tab and nav templates are
-    untouched and still load - only the ROW templates are gone.
+    The rule no longer even has a `template` field to carry, so this swaps
+    in a cache that raises if the buy path asks for one anyway: if any code
+    path still loads a row template, the purchase cannot happen. Tab and nav
+    templates are untouched and still load - only the ROW templates are gone.
     """
     device = FakeDevice()
     policy = a_policy(armed=True, workshop=(
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
     ))
     session._templates = _NoRowTemplates(config.TEMPLATE_DIR)
@@ -340,7 +331,7 @@ def test_a_row_costing_more_than_the_balance_is_skipped_as_unaffordable(
     """
     device = FakeDevice()
     policy = a_policy(workshop=(
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
     ))
     session.begin(policy, run_count=1)
@@ -364,7 +355,7 @@ def test_an_unreadable_balance_stops_the_visit_rather_than_guessing(
     """
     device = FakeDevice()
     policy = a_policy(workshop=(
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
     ))
     fake_header["coins"] = None
@@ -399,8 +390,7 @@ def test_a_row_whose_price_cannot_be_read_is_skipped_rather_than_guessed(
     monkeypatch.setattr(shopping_mod.tiles, "read_rows", lambda screen: (priceless,))
     policy = a_policy(workshop=(
         ShoppingRule(name="Unlock Cash Bonuses",
-                     template="workshop/unlock_cash_bonuses.png",
-                     category="UTILITY", layout="tile"),
+                     category="UTILITY"),
     ))
     session.begin(policy, run_count=1)
     session.advance(frame("menu_workshop_utility"), device, policy)
@@ -686,7 +676,7 @@ def test_a_row_purchase_taps_the_price_panel_not_the_label(
     """
     device = FakeDevice()
     policy = a_policy(armed=True, workshop=(
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
     ))
     session.begin(policy, run_count=1)
@@ -719,7 +709,6 @@ def test_a_price_the_glyph_atlas_cannot_read_is_bought_at_the_ocr_price(
     device = FakeDevice()
     policy = a_policy(armed=True, workshop=(
         ShoppingRule(name="Attack Speed",
-                     template="workshop/row_attack_speed.png",
                      category="ATTACK"),
     ))
     session.begin(policy, run_count=1)
@@ -737,10 +726,9 @@ def test_a_price_the_glyph_atlas_cannot_read_is_bought_at_the_ocr_price(
 # -- a screen the reader cannot see -----------------------------------------
 def _two_attack_rows():
     return (
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
         ShoppingRule(name="Attack Speed",
-                     template="workshop/row_attack_speed.png",
                      category="ATTACK"),
     )
 
@@ -845,8 +833,7 @@ def test_arrival_is_judged_by_the_page_heading_not_a_row_template(
     device = FakeDevice()
     policy = a_policy(armed=True, workshop=(
         ShoppingRule(name="Unlock Cash Bonuses",
-                     template="workshop/unlock_cash_bonuses.png",
-                     category="UTILITY", layout="tile"),
+                     category="UTILITY"),
     ))
     session.begin(policy, run_count=1)
     session.advance(frame("menu_main"), device, policy)
@@ -879,8 +866,7 @@ def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
     device = FakeDevice()
     policy = a_policy(armed=True, workshop=(
         ShoppingRule(name="Unlock Cash Bonuses",
-                     template="workshop/unlock_cash_bonuses.png",
-                     category="UTILITY", layout="tile"),
+                     category="UTILITY"),
     ))
     session.begin(policy, run_count=1)
     session.advance(frame("menu_main"), device, policy)
