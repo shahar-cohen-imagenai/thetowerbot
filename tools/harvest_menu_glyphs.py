@@ -40,6 +40,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import config  # noqa: E402
 import digits  # noqa: E402
+import tiles  # noqa: E402
 import vision  # noqa: E402
 from device import Image  # noqa: E402
 
@@ -109,19 +110,21 @@ def _harvest_region(
         _absorb(kept, glyph)
 
 
-def harvest_workshop(screen: Image, cache: vision.TemplateCache, kept: list[Image]) -> None:
+def harvest_workshop(screen: Image, kept: list[Image]) -> None:
     """Every row and unlock-tile price visible on one workshop tab.
 
-    Tries every configured row on every fixture rather than looking up which
-    rows belong to which tab: a row absent from this tab simply fails to
-    locate (see test_shopping_templates.py's cross-tab test), so trying them
-    all is simpler than duplicating that mapping here.
+    Reads whatever prices `tiles.read_rows` finds on this tab, the same way
+    the bot itself does now - there is nothing to configure and nothing to
+    keep in sync with a tab layout, unlike the template-and-PRICE_REGIONS
+    version this replaced, which had to try every configured row against
+    every fixture because it had no other way to know which rows belonged to
+    which tab.
     """
-    for template_path, layout in config.WORKSHOP_ROWS.values():
-        match = vision.locate_template(screen, cache.get(template_path), 0.9)
-        if match is None:
+    for row in tiles.read_rows(screen):
+        if row.price_rect is None:
             continue
-        _harvest_region(screen, config.PRICE_REGIONS[layout], match.top_left, kept)
+        r = row.price_rect
+        _harvest_region(screen, config.Region(dx=r.x, dy=r.y, w=r.w, h=r.h), (0, 0), kept)
 
 
 def harvest_cards(screen: Image, cache: vision.TemplateCache, kept: list[Image]) -> None:
@@ -169,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
         screen = cv2.imread(str(path), cv2.IMREAD_COLOR)
         if screen is None:
             raise SystemExit(f"could not read fixture: {path}")
-        harvest_workshop(screen, cache, kept)
+        harvest_workshop(screen, kept)
 
     cards_path = args.fixtures_dir / CARDS_FIXTURE
     screen = cv2.imread(str(cards_path), cv2.IMREAD_COLOR)

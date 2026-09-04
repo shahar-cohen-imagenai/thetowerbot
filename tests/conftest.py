@@ -39,18 +39,13 @@ def seed_template_dir(templates_dir: Path) -> None:
     validated()) does not fail on a template that has nothing to do with
     what the test is actually checking.
 
-    Covers both config.ACTIONS (the in-run rows) and config.WORKSHOP_ROWS
-    (the shopping rows, Task 10) - from_config() builds a Strategy out of
-    both, so validated() checks both, regardless of a workshop row's
-    `enabled` flag (a disabled row is still checked - see validated()'s own
-    docstring for why).
+    Covers config.ACTIONS (the in-run rows) only. A workshop row is found by
+    matching its name against what tiles.read_rows sees on the page (spec
+    §7's AMENDMENT), not by a template, so validated() no longer has a
+    shopping-side template to check and there is nothing to seed for it.
     """
     for action in config.ACTIONS:
         (templates_dir / action.template).write_bytes(b"")
-    for template, _layout in config.WORKSHOP_ROWS.values():
-        path = templates_dir / template
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(b"")
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -155,10 +150,10 @@ def _shopping_bot(
     gets a chance to control it.
 
     The shopping session is built directly, never through
-    tower_bot.build_shopping(): this machine's header atlas is missing
-    2, 3, 5, 6, 9, which would hand back a disabled session that can never
-    begin a visit. The fixtures' balances read correctly against the
-    glyphs that ARE present, so a directly-built session works fine here.
+    tower_bot.build_shopping(): that function's startup gate builds the OCR
+    engine to decide whether to disable buying, and these tests are about
+    the visit loop, not about whether a wheel imports. A directly-built
+    session skips the gate and stays fast.
     """
     device = _FakeDevice()
     bus = _RecordingBus()

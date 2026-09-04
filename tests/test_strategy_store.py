@@ -21,9 +21,9 @@ def store(tmp_path, monkeypatch) -> StrategyStore:
     """A store over tmp_path, whose templates all exist.
 
     save() runs validated(), so the fixture points TEMPLATE_DIR at a
-    directory holding the files config.ACTIONS and config.WORKSHOP_ROWS name
-    - otherwise every save in this file would fail for a reason that has
-    nothing to do with the store.
+    directory holding the files config.ACTIONS names - otherwise every save
+    in this file would fail for a reason that has nothing to do with the
+    store.
     """
     templates = tmp_path / "templates"
     templates.mkdir()

@@ -96,15 +96,18 @@ def test_header_is_offered_to_the_atlas_tools_but_not_to_affordability() -> None
     assert "header" not in digits.SIZE_CLASSES
 
 
-# NumberReader.read is all-or-nothing: one glyph the atlas cannot match fails
-# the WHOLE read and returns None, never a partial or guessed number (see
-# digits.NumberReader.read's docstring). That is what makes an incomplete
-# atlas SAFE rather than merely inconvenient - a balance the bot could not
-# fully read comes back as None, and nothing downstream can approve a
-# purchase against a balance it never actually read. The two tests below
-# hold the atlas to exactly what the committed fixtures can prove, and
-# separately document - without silently passing - what a live session
-# still needs to add before the atlas covers real play.
+# NumberReader.read is all-or-nothing: one glyph the atlas cannot match
+# fails the WHOLE read and returns None, never a partial or guessed number
+# (see digits.NumberReader.read's docstring). That is what made an
+# incomplete atlas safe rather than merely wrong.
+#
+# It no longer makes it BLOCKING. shopping.header_numbers() reads the two
+# balances with OCR, so no production path asks this atlas for a header
+# glyph any more, and the missing 2 3 5 9 M B cost nothing. The tests below
+# still read the header through it because that path is what they measure -
+# the threshold, the segmentation and the regions - and those measurements
+# outlive the reader. What is gone is the demand that somebody play a
+# session by hand to complete it.
 
 # Every glyph the five committed fixtures' coin/gem counters show between
 # them: WORKSHOP's "1.77K" and "40", CARDS's "78" and "40", MAIN_MENU's "78"
@@ -114,32 +117,14 @@ FIXTURE_GLYPHS = {"0", "1", "4", "7", "8", ".", "K"}
 
 
 def test_header_atlas_has_every_glyph_the_fixtures_contain() -> None:
-    """The real completeness gate for this plan: every other test in it reads
-    a committed fixture, and these seven glyphs are everything those
-    fixtures show, so they are sufficient for the tests that exist today."""
+    """Sufficiency, not completeness: every other test here reads a
+    committed fixture, and these seven glyphs are everything those fixtures
+    show. A superset rather than equality - a half-finished harvest left in
+    templates/atlas/header/ is now a harmless extra file, and a suite that
+    broke on one would be policing a requirement that no longer exists."""
     atlas = digits.AtlasCache().get("header")
     assert atlas is not None, "run tools/harvest_header_glyphs.py"
-    assert atlas.labels == FIXTURE_GLYPHS
-
-
-@pytest.mark.skip(
-    reason=(
-        "header atlas is missing 2 3 5 6 9 M B - no committed fixture's "
-        "balance has passed through those digits or reached millions/"
-        "billions. Harvest them from a live play session with "
-        "`uv run build_atlas.py --size-class header --frames 20`, label "
-        "them, then delete this skip marker."
-    )
-)
-def test_header_atlas_is_not_yet_complete_for_live_play() -> None:
-    """Once a play session supplies the missing glyphs, the header atlas
-    should carry the full set the live game can render - not just what the
-    fixtures happen to show."""
-    atlas = digits.AtlasCache().get("header")
-    assert atlas is not None
-    required = set("0123456789") | {".", "K", "M", "B"}
-    missing = required - atlas.labels
-    assert not missing, f"header atlas is missing {sorted(missing)}"
+    assert FIXTURE_GLYPHS <= atlas.labels
 
 
 # page, expected coins, expected gems - see the task brief for how each

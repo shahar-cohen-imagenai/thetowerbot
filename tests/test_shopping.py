@@ -15,12 +15,28 @@ import pytest
 
 import config
 import digits
+import ocr
+import tiles
 import events
 import shopping as shopping_mod
 import vision
 from strategy import CardPolicy, Shopping, ShoppingRule
 
 FIXTURES = Path(__file__).parent / "fixtures"
+
+
+class _NoRowTemplates(vision.TemplateCache):
+    """A template cache with the workshop ROW templates removed.
+
+    Deleted-file behaviour without deleting a file: anything under
+    workshop/row_ or workshop/unlock_ raises, everything else (nav buttons,
+    tab pictograms, page anchors) loads normally.
+    """
+
+    def get(self, name: str):
+        if name.startswith("workshop/row_") or name.startswith("workshop/unlock_"):
+            raise AssertionError(f"the buy path still reads a row template: {name}")
+        return super().get(name)
 
 
 class FakeDevice:
@@ -50,7 +66,7 @@ def fake_header(monkeypatch):
     """
     values = {"coins": 1770, "gems": 40}
 
-    def _header(screen, page, top_left, reader):
+    def _header(screen, page, top_left):
         return values["coins"], values["gems"]
 
     monkeypatch.setattr(shopping_mod, "header_numbers", _header)
@@ -82,17 +98,9 @@ def a_policy(**over) -> Shopping:
         enabled=True,
         armed=False,
         workshop=(
-            # layout="tile": this is an unlock tile, not an upgrade row.
-            # Omitting it reads the price from PRICE_REGIONS["row"] instead
-            # of ["tile"] and fails every read on this rule - layout is
-            # never inferred from the name, only declared.
-            ShoppingRule(name="Unlock Cash Bonuses",
-                         template="workshop/unlock_cash_bonuses.png",
-                         category="UTILITY", layout="tile"),
-            ShoppingRule(name="Health", template="workshop/row_health.png",
-                         category="DEFENSE"),
-            ShoppingRule(name="Damage", template="workshop/row_damage.png",
-                         category="ATTACK"),
+            ShoppingRule(name="Unlock Cash Bonuses", category="UTILITY"),
+            ShoppingRule(name="Health", category="DEFENSE"),
+            ShoppingRule(name="Damage", category="ATTACK"),
         ),
     )
     return Shopping(**{**base, **over})
@@ -181,13 +189,36 @@ def test_disabling_shopping_mid_visit_ends_it_instead_of_continuing(session) -> 
 
 # -- reading the header ----------------------------------------------------
 def test_the_header_reads_coins_and_gems_off_a_workshop_frame() -> None:
-    reader = digits.NumberReader()
+    """Real engine, real fixture. The two balances sit on one header row, so
+    this is also what proves each region keeps to its own number."""
     cache = vision.TemplateCache(config.TEMPLATE_DIR)
     screen = frame("menu_workshop_attack")
     _, top_left = vision.best_score(screen, cache.get(config.PAGE_ANCHORS["WORKSHOP"]))
-    coins, gems = shopping_mod.header_numbers(screen, "WORKSHOP", top_left, reader)
+    coins, gems = shopping_mod.header_numbers(screen, "WORKSHOP", top_left)
     assert coins == 1770
     assert gems == 40
+
+
+def test_the_header_reads_a_balance_the_glyph_atlas_could_not(monkeypatch) -> None:
+    """2, 3 and 5 are glyphs templates/atlas/header/ has never held, so a
+    balance containing them read as None through the atlas and aborted the
+    visit. Reading the header with OCR is what retires that failure - and
+    with it the harvesting session build_shopping() used to demand.
+    """
+    def _read(screen):
+        return (ocr.TextBox(text="2.35K", confidence=0.99, rect=config.Rect(90, 164, 130, 46)),)
+
+    monkeypatch.setattr(shopping_mod.ocr, "read", _read)
+    coins, gems = shopping_mod.header_numbers(None, "WORKSHOP", (32, 244))
+    assert coins == 2350
+    assert gems is None, "nothing was read in the gem region"
+
+
+def test_the_header_reads_nothing_off_a_page_that_has_no_header() -> None:
+    """MISSIONS, or a frame that failed to classify. Returning a pair of
+    Nones rather than raising is what lets the caller treat "no header here"
+    and "unreadable header" as the same refusal."""
+    assert shopping_mod.header_numbers(None, "MISSIONS", (32, 244)) == (None, None)
 
 
 # -- page transitions -------------------------------------------------------
@@ -251,9 +282,8 @@ def test_the_highest_priority_affordable_row_wins_not_the_cheapest(session) -> N
     with Critical Chance listed first it must be the one chosen."""
     device = FakeDevice()
     policy = a_policy(workshop=(
-        ShoppingRule(name="Critical Chance",
-                     template="workshop/row_critical_chance.png", category="ATTACK"),
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Critical Chance", category="ATTACK"),
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
     ))
     session.begin(policy, run_count=1)
@@ -262,6 +292,29 @@ def test_the_highest_priority_affordable_row_wins_not_the_cheapest(session) -> N
     session.advance(frame("menu_workshop_attack"), device, policy)
     bought = session._bus.of_type("Purchased")
     assert bought[0].item == "Critical Chance"
+
+
+def test_a_row_is_bought_without_its_template_file(session, fake_header) -> None:
+    """Nothing in the workshop buy path reads a row template any more.
+
+    The rule no longer even has a `template` field to carry, so this swaps
+    in a cache that raises if the buy path asks for one anyway: if any code
+    path still loads a row template, the purchase cannot happen. Tab and nav
+    templates are untouched and still load - only the ROW templates are gone.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Damage",
+                     category="ATTACK"),
+    ))
+    session._templates = _NoRowTemplates(config.TEMPLATE_DIR)
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)
+
+    bought = session._bus.of_type("Purchased")
+    assert bought and bought[0].item == "Damage"
+    assert bought[0].price == 30
 
 
 def test_a_row_costing_more_than_the_balance_is_skipped_as_unaffordable(
@@ -278,7 +331,7 @@ def test_a_row_costing_more_than_the_balance_is_skipped_as_unaffordable(
     """
     device = FakeDevice()
     policy = a_policy(workshop=(
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
     ))
     session.begin(policy, run_count=1)
@@ -302,7 +355,7 @@ def test_an_unreadable_balance_stops_the_visit_rather_than_guessing(
     """
     device = FakeDevice()
     policy = a_policy(workshop=(
-        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+        ShoppingRule(name="Damage",
                      category="ATTACK"),
     ))
     fake_header["coins"] = None
@@ -314,32 +367,31 @@ def test_an_unreadable_balance_stops_the_visit_rather_than_guessing(
     assert device.taps == []
 
 
-def test_a_row_with_the_wrong_layout_reads_no_price_and_is_skipped_as_unreadable(
-    session,
+def test_a_row_whose_price_cannot_be_read_is_skipped_rather_than_guessed(
+    session, monkeypatch
 ) -> None:
-    """The workshop row's own unreadable-PRICE branch, distinct from an
-    unreadable balance: coins read fine (real header, not faked), but the
-    row's own price read comes back None. A rule with the wrong layout is
-    the real-world way this happens without faking anything:
-    ShoppingRule.layout is never inferred from its template, so a
-    hand-edited strategy can declare the wrong one and read garbage pixels
-    for the price.
+    """The row's own unreadable-PRICE branch, distinct from an unreadable
+    balance: coins read fine (real header, not faked), the row is found, and
+    its price is not.
 
-    ShoppingRule.__post_init__ now refuses "row" for this name outright
-    (Task 10 review, round 1: config.WORKSHOP_ROWS says "Unlock Cash
-    Bonuses" is "tile"), so the wrong value can no longer be handed to the
-    normal constructor - it is built correctly, then forced past that check
-    with object.__setattr__, the same way test_strategy.py forces a
-    non-string template past ActionRule's own type check. The session's own
-    defence against a bad layout is still worth testing even though
-    construction now catches the realistic route to one.
+    This used to be reached by declaring the wrong `layout` on a rule, which
+    made the template reader crop the price from garbage pixels. Addressing
+    rows by name off OCR deletes that route - the price comes from the tile
+    the name was found in, so there is no offset left to get wrong (spec §7:
+    the mode stops existing when tiles are detected rather than assumed).
+    The branch itself still matters: a tile whose price box is missing or
+    unparseable yields Row.price None, and a refused read must never become
+    a guessed purchase.
     """
     device = FakeDevice()
-    bad_layout = ShoppingRule(name="Unlock Cash Bonuses",
-                               template="workshop/unlock_cash_bonuses.png",
-                               category="UTILITY", layout="tile")
-    object.__setattr__(bad_layout, "layout", "row")
-    policy = a_policy(workshop=(bad_layout,))
+    priceless = tiles.Row(name="Unlock Cash Bonuses", price=None,
+                          tap=(540, 600), rect=tiles.Rect(30, 500, 1020, 196),
+                          confidence=0.99)
+    monkeypatch.setattr(shopping_mod.tiles, "read_rows", lambda screen: (priceless,))
+    policy = a_policy(workshop=(
+        ShoppingRule(name="Unlock Cash Bonuses",
+                     category="UTILITY"),
+    ))
     session.begin(policy, run_count=1)
     session.advance(frame("menu_workshop_utility"), device, policy)
     skips = session._bus.of_type("PurchaseSkipped")
@@ -606,3 +658,220 @@ def test_the_bot_never_taps_unlock_new_slot(session) -> None:
     slots above them and the bot cannot see labs. Guarded by the fact that no
     slot template exists at all, which this pins."""
     assert not any("slot" in path.lower() for path in config.CARD_BUTTONS.values())
+
+
+# -- where a purchase actually taps -----------------------------------------
+def test_a_row_purchase_taps_the_price_panel_not_the_label(
+    session, fake_header
+) -> None:
+    """The label is not a button. Verified on a live device: the bot ran a
+    clean armed visit, published Purchased, and bought nothing - coins,
+    stat value and price all unchanged - because match.center lands on the
+    words "Attack Speed". A tap on the price strip bought it (coins
+    1770 -> 1740, price 30 -> 56) at the point PRICE_REGIONS already
+    locates from the same anchor.
+
+    This is the trap config.buy_point() exists to avoid for in-run
+    upgrades; a workshop tile turns out to share it.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Damage",
+                     category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)
+
+    assert session._bus.of_type("Purchased"), "the row was never bought"
+    # taps[0] is the nav tap that opened the Workshop; the purchase is last.
+    # (434, 633) is the centre of the price box OCR read on this frame - the
+    # tap is derived from the read, so whatever a row charges is what gets
+    # tapped. The label's own centre, which this used to tap, is (130, 558).
+    assert device.taps[-1] == (434, 633)
+    assert (130, 558) not in device.taps, "tapped the label, which buys nothing"
+
+
+def test_a_price_the_glyph_atlas_cannot_read_is_bought_at_the_ocr_price(
+    session, fake_header
+) -> None:
+    """The case the whole cut-over rests on, in real pixels.
+
+    menu_workshop_attack_escalated.png is a live capture taken after a
+    purchase pushed Attack Speed from 30 to 56. The `menu` atlas has never
+    held a 6, so the template reader returns None on that price and the row
+    was refused as "unreadable" - a row the bot could see, afford and never
+    buy. OCR reads 56 off the same pixels.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Attack Speed",
+                     category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack_escalated"), device, policy)
+
+    bought = session._bus.of_type("Purchased")
+    assert bought, "the row was refused - see PurchaseSkipped"
+    assert bought[0].item == "Attack Speed"
+    assert bought[0].price == 56
+    # The price strip inside the buy panel, read off this very frame.
+    assert device.taps[-1] == (952, 634)
+
+
+# -- a screen the reader cannot see -----------------------------------------
+def _two_attack_rows():
+    return (
+        ShoppingRule(name="Damage",
+                     category="ATTACK"),
+        ShoppingRule(name="Attack Speed",
+                     category="ATTACK"),
+    )
+
+
+def test_a_blinded_screen_does_not_write_the_row_off(session, fake_header) -> None:
+    """"I cannot see" is not "it is not here".
+
+    A live armed visit tapped a row's label, which opened an info panel over
+    the grid, and then skipped every remaining row as no_match - exhausting
+    four rows that were sitting right there, unbought, for the rest of the
+    visit. The row must survive an unreadable frame.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=_two_attack_rows())
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)   # buys Damage
+    session.advance(frame("menu_workshop_info_panel"), device, policy)
+
+    assert "Attack Speed" not in session._exhausted, (
+        "a row nobody could see was written off for the visit"
+    )
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert any(s.reason == "unreadable" and s.detail == "screen" for s in skips)
+    assert not any(s.reason == "no_match" for s in skips), (
+        "an unreadable screen was reported as the row being absent"
+    )
+
+
+def test_a_blinded_screen_is_tapped_clear(session, fake_header) -> None:
+    """The panel closes on a tap anywhere outside it. The dismiss point sits
+    on the page title, ABOVE the tile grid - measured there rather than in
+    the empty space below it, because that space fills up as rows unlock and
+    a tap that lands on a price box would buy something nobody asked for.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=_two_attack_rows())
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)
+    session.advance(frame("menu_workshop_info_panel"), device, policy)
+
+    assert device.taps[-1] == config.PANEL_DISMISS_POINT
+
+
+def test_a_screen_that_stays_blind_ends_the_visit(session, fake_header) -> None:
+    """The dismiss tap is one attempt, not a loop. If the page is still
+    unreadable on the next scan it is something this code does not
+    understand, and spinning on it silently is the failure mode
+    _off_page_streak exists to prevent everywhere else.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=_two_attack_rows())
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)
+    session.advance(frame("menu_workshop_info_panel"), device, policy)
+    session.advance(frame("menu_workshop_info_panel"), device, policy)
+
+    assert session._bus.of_type("ShoppingEnded"), "the visit spun instead of ending"
+    assert session.active is False
+
+
+def test_an_explainer_modal_is_acknowledged_rather_than_tapped_around(
+    session, fake_header
+) -> None:
+    """One-time explainer modals swallow every tap until their OK is pressed.
+
+    menu_workshop_explainer_modal.png is a live capture: unlocking a feature
+    queued an "ULTIMATE WEAPONS ... [OK]" dialog that was already up when the
+    Workshop opened. The page classifies as WORKSHOP, so positioning carried
+    on tapping a tab that could never arrive, and the visit spent its whole
+    budget without reading a single row. Nothing here reaches _buy_rows, so
+    the blind handling there cannot help - and a tap anywhere outside this
+    one does not close it, unlike the info panel.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=_two_attack_rows())
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_explainer_modal"), device, policy)
+
+    # The OK button, read off that very frame.
+    assert device.taps[-1] == (541, 1578)
+
+
+def test_arrival_is_judged_by_the_page_heading_not_a_row_template(
+    session, fake_header
+) -> None:
+    """A tab whose configured row has been bought must still be recognised.
+
+    Arrival used to be "can I locate one of this category's row templates?".
+    That answers "no" forever once the row is bought and gone from the page,
+    so the session taps the tab until its budget dies - a live visit spent a
+    whole visit doing exactly that on UTILITY after an earlier run bought
+    Unlock Cash Bonuses.
+
+    menu_workshop_utility_restocked.png is that page: the configured row's
+    template no longer matches anything, and three other rows are sitting
+    there. The heading says which tab this is, and OCR can read it.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Unlock Cash Bonuses",
+                     category="UTILITY"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_utility_restocked"), device, policy)
+
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert any(s.reason == "no_match" for s in skips), (
+        "never reached the rows - still waiting to arrive on a tab it is on"
+    )
+    assert "Unlock Cash Bonuses" in session._exhausted, (
+        "a row genuinely gone from the page must be given up on, once"
+    )
+
+
+def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
+    session, fake_header
+) -> None:
+    """A garbled name must be loud, not merely unbought.
+
+    Live evidence that this is real and not defensive: OCR read
+    'Damage / Meter C' off the ATTACK tab, the coin glyph having joined the
+    row name. A row spelled that way in a strategy would never match, and
+    without this event the feed would show nothing at all - the row would
+    simply never be bought, forever, for no visible reason.
+
+    menu_workshop_utility_restocked.png is the honest version of the same
+    shape: the configured row was bought in an earlier session and is gone,
+    and three other rows are on the page.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Unlock Cash Bonuses",
+                     category="UTILITY"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_utility_restocked"), device, policy)
+
+    unmatched = session._bus.of_type("RowUnmatched")
+    assert unmatched, "nothing said why the row was never bought"
+    assert unmatched[0].item == "Unlock Cash Bonuses"
+    assert unmatched[0].read == (
+        "Cash Bonus", "Cash / Wave", "Unlock Coin Bonuses",
+    )

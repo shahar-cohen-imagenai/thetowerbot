@@ -266,29 +266,13 @@ def _parse_action_rows(raw: Any) -> tuple[ActionRule, ...]:
 CATEGORIES: tuple[str, ...] = ("ATTACK", "DEFENSE", "UTILITY")
 CARD_BATCHES: tuple[str, ...] = ("x1", "x10")
 
-# A menu row is matched on a page where a tap spends coins, so it defaults
-# stricter than an in-run action: 0.9, not DEFAULT_THRESHOLD.
-DEFAULT_ROW_THRESHOLD: float = 0.9
 MAX_TAPS_PER_VISIT = 200
 MAX_CARDS_PER_VISIT = 50
 
 _SHOPPING_RULE_TYPES: dict[str, tuple[type, ...]] = {
-    "name": (str,), "template": (str,), "category": (str,), "layout": (str,),
-    "enabled": (bool,), "threshold": (int, float), "brightness_ratio": (int, float),
+    "name": (str,), "category": (str,), "enabled": (bool,),
 }
 
-# The reverse of config.WORKSHOP_ROWS: template -> the layout it was
-# measured with. ShoppingRule.__post_init__'s own WORKSHOP_ROWS lookup keys
-# on NAME, so a row named something WORKSHOP_ROWS has never heard of slips
-# past it even when its TEMPLATE is a known one - e.g. a renamed copy of an
-# existing row, or a typo in the name. That still reads a real price region
-# at the wrong offset and reports a wrong price instead of a refused one,
-# which is the one failure mode this whole feature exists to avoid. Built
-# once, from the same table, rather than hand-duplicated - the two can never
-# drift out of sync with each other.
-_TEMPLATE_TO_LAYOUT: dict[str, str] = {
-    template: layout for template, layout in config.WORKSHOP_ROWS.values()
-}
 _CARD_TYPES: dict[str, tuple[type, ...]] = {
     "enabled": (bool,), "gem_floor": (int,),
     "max_per_visit": (int,), "batch": (str,),
@@ -301,105 +285,28 @@ _SHOPPING_TYPES: dict[str, tuple[type, ...]] = {
 
 @dataclass(frozen=True)
 class ShoppingRule:
-    """One menu row the bot may buy, and how sure it must be first.
+    """One menu row the bot may buy.
 
-    Mirrors ActionRule, plus `category` - which tab the row lives on. The
-    category is not derivable from the template path: a row can be moved
-    between tabs by a game update, and a wrong tab means the bot searches a
-    page the row is not on and silently buys nothing.
+    `name` is the identity: it is matched, normalised, against the row names
+    OCR reads off the page (see shopping._row_named). Nothing else addresses
+    a row any more.
+
+    `category` is the one thing OCR cannot supply. A row on the DEFENSE tab
+    is invisible until that tab is open, so category is what tells the bot
+    which tabs to open and in what order - see
+    Shopping.categories_in_priority_order().
     """
 
     name: str
-    template: str
     category: str
-    # The workshop has two layouts, and they put the price in different
-    # places (see config.PRICE_REGIONS): a half-width "row" tile with the
-    # price below and right of the label, and a full-width "tile" unlock with
-    # the price centred below it. One price offset cannot reach both, so a
-    # row must say which layout its template uses - the template path does
-    # not imply it, and guessing from the name would break the moment the
-    # game renames a row.
-    layout: str = "row"
     enabled: bool = True
-    threshold: float = DEFAULT_ROW_THRESHOLD
-    brightness_ratio: float = config.DEFAULT_BRIGHTNESS_RATIO
 
     def __post_init__(self) -> None:
         _check_types(_own_values(self), _SHOPPING_RULE_TYPES)
         if not self.name:
             raise ControlError("name", "a shopping row needs a name")
-        if not self.template:
-            raise ControlError("template", f"{self.name} needs a template file")
         if self.category not in CATEGORIES:
             raise ControlError("category", f"category must be one of {CATEGORIES}")
-        if self.layout not in config.LAYOUTS:
-            raise ControlError("layout", f"layout must be one of {config.LAYOUTS}")
-        if not 0.0 < self.threshold <= 1.0:
-            raise ControlError("threshold", "threshold must be above 0 and at most 1")
-        _in_range("brightness_ratio", self.brightness_ratio, 0.0, 1.0)
-
-        # config.WORKSHOP_ROWS records the layout that was actually MEASURED
-        # against a real capture when that row's template was cut - layout
-        # decides which price region gets read, and it is inferred nowhere
-        # else. This lives here, at construction, rather than in
-        # Strategy.validated() alongside the template-existence check: that
-        # check needs disk I/O (full.is_file()) and so must be deferred to a
-        # place that takes a template_dir, but this one is a pure in-memory
-        # lookup against config.WORKSHOP_ROWS, and Strategy.from_dict()
-        # builds every row through ShoppingRule(**entry) - so putting the
-        # check here closes the gap for every path a row can be built from,
-        # not just the ones that happen to call .validated() afterwards
-        # (store.load() and the "no CLI flags passed" startup path do not).
-        #
-        # A name WORKSHOP_ROWS does not know is still fine: a hand-cut
-        # template not yet (or never) measured into config.py is a supported
-        # path. What must never be fine is a row that CONTRADICTS a measured
-        # fact - that reads a real price region at the wrong offset and
-        # reports a wrong number instead of a refused one, which is the one
-        # failure mode this whole feature exists to avoid.
-        known = config.WORKSHOP_ROWS.get(self.name)
-        if known is not None and known[1] != self.layout:
-            _, known_layout = known
-            raise ControlError(
-                "layout",
-                f"{self.name}: layout must be {known_layout!r} "
-                f"(config.WORKSHOP_ROWS), not {self.layout!r}",
-            )
-
-        # The name-keyed check above only fires when the NAME is recognised.
-        # A row can dodge it by pairing a KNOWN template with an unrecognised
-        # name - {"name": "Damage2", "template": "workshop/row_damage.png",
-        # "layout": "tile"} names nothing WORKSHOP_ROWS has heard of, but
-        # still reads the price at the wrong offset the moment it is used.
-        # Not reachable from this feature's own UI (rows cannot be added and
-        # layout is read-only there), but reachable from a hand-edited
-        # strategies/*.json or a raw PATCH - both of which this feature
-        # validates everywhere else. A template genuinely unknown to
-        # WORKSHOP_ROWS is still permitted through this check: a hand-cut
-        # template not yet measured into it is a supported path, same as the
-        # name-keyed check above.
-        known_layout_for_template = _TEMPLATE_TO_LAYOUT.get(self.template)
-        if known_layout_for_template is not None and known_layout_for_template != self.layout:
-            raise ControlError(
-                "layout",
-                f"{self.template}: layout must be {known_layout_for_template!r} "
-                f"(config.WORKSHOP_ROWS), not {self.layout!r}",
-            )
-
-    def as_action(self) -> config.Action:
-        """The shape find_and_click_image() and affordable() already take.
-
-        `layout` is deliberately dropped here: config.Action has no layout
-        field and must not grow one - it is what the in-run matcher takes,
-        and the in-run path has no layouts. Layout is read by the shopping
-        session when it picks a price region, not by the matcher.
-        """
-        return config.Action(
-            name=self.name,
-            template=self.template,
-            threshold=self.threshold,
-            brightness_ratio=self.brightness_ratio,
-        )
 
 
 @dataclass(frozen=True)
@@ -494,11 +401,7 @@ class Shopping:
             "visit_every_n_runs": self.visit_every_n_runs,
             "max_taps_per_visit": self.max_taps_per_visit,
             "workshop": [
-                {
-                    "name": r.name, "template": r.template, "category": r.category,
-                    "layout": r.layout, "enabled": r.enabled, "threshold": r.threshold,
-                    "brightness_ratio": r.brightness_ratio,
-                }
+                {"name": r.name, "category": r.category, "enabled": r.enabled}
                 for r in self.workshop
             ],
             "cards": self.cards.to_dict(),
@@ -641,10 +544,7 @@ class Strategy:
 
         Keeps config.ACTIONS and config.SHOPPING_ROWS meaningful: they stay
         the origin of the defaults - what a fresh clone starts from -
-        without staying the source of truth. SHOPPING_ROWS carries only
-        (name, category, enabled); template and layout are looked up in
-        config.WORKSHOP_ROWS, which is what was actually measured when each
-        crop was cut, rather than repeated here as a second place to drift.
+        without staying the source of truth.
         """
         return cls(
             name=name,
@@ -659,13 +559,7 @@ class Strategy:
             ),
             shopping=Shopping(
                 workshop=tuple(
-                    ShoppingRule(
-                        name=row_name,
-                        template=config.WORKSHOP_ROWS[row_name][0],
-                        category=category,
-                        layout=config.WORKSHOP_ROWS[row_name][1],
-                        enabled=enabled,
-                    )
+                    ShoppingRule(name=row_name, category=category, enabled=enabled)
                     for row_name, category, enabled in config.SHOPPING_ROWS
                 )
             ),
@@ -781,11 +675,6 @@ class Strategy:
         that exists. vision.py passes an absolute template straight to
         cv2.imread, so an unchecked one lets the request body choose which
         file on disk the bot reads.
-
-        Shopping rows get the identical check: a workshop template arrives in
-        the same request body and is joined to a path the same way, and a
-        disabled row is one checkbox away from spending coins on whatever it
-        pointed at.
         """
         root = template_dir if template_dir is not None else config.TEMPLATE_DIR
 
@@ -809,8 +698,6 @@ class Strategy:
                 )
 
         for rule in self.actions:
-            _check_template(rule.name, rule.template)
-        for rule in self.shopping.workshop:
             _check_template(rule.name, rule.template)
         return self
 

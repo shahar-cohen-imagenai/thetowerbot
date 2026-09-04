@@ -27,8 +27,7 @@ def frame(name: str):
 def a_policy(**over) -> Shopping:
     base = dict(
         enabled=True, armed=False,
-        workshop=(ShoppingRule(name="Damage", template="workshop/row_damage.png",
-                               category="ATTACK"),),
+        workshop=(ShoppingRule(name="Damage", category="ATTACK"),),
     )
     return Shopping(**{**base, **over})
 
@@ -148,13 +147,24 @@ def test_reaching_the_run_cap_does_not_start_a_visit(bot_on_main_menu) -> None:
     assert not bot.shopping.active
 
 
-def test_shopping_is_disabled_when_the_header_atlas_is_incomplete(monkeypatch) -> None:
-    """No coin read means no purchase can be approved, so say so once at
-    startup rather than failing silently on every visit.
+def test_shopping_is_disabled_when_the_ocr_engine_will_not_load(monkeypatch) -> None:
+    """No reader means no balance and no price, so no purchase can ever be
+    approved - say so once at startup rather than failing silently on every
+    visit. Spec §10's startup gate.
 
     build_shopping() always returns a session, never None - a disabled one
     carries a non-empty `disabled_reason` and declines every begin()."""
+    monkeypatch.setattr(tower_bot.ocr, "available", lambda: False)
+    session = tower_bot.build_shopping(bus=None, templates=None)
+    assert session.disabled_reason, "an engine that will not load must disable shopping"
+    assert session.begin(a_policy(enabled=True), run_count=1) is False
+
+
+def test_an_unbuilt_glyph_atlas_no_longer_disables_shopping(monkeypatch) -> None:
+    """The header used to be read glyph by glyph, so shopping was gated on
+    an atlas only a manual harvesting session could complete. The header is
+    read with OCR now; the atlas has no say."""
+    monkeypatch.setattr(tower_bot.ocr, "available", lambda: True)
     monkeypatch.setattr(digits.AtlasCache, "get", lambda self, name: None)
     session = tower_bot.build_shopping(bus=None, templates=None)
-    assert session.disabled_reason, "an unbuilt header atlas must disable shopping"
-    assert session.begin(a_policy(enabled=True), run_count=1) is False
+    assert session.disabled_reason is None
