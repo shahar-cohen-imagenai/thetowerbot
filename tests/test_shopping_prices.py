@@ -12,6 +12,7 @@ measured below threshold (tile->row scored 0.67 against a 0.70 bar).
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import cv2
@@ -19,7 +20,10 @@ import pytest
 
 import config
 import digits
+import ocr
+import tiles
 import vision
+from tools import harvest_menu_glyphs
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -55,58 +59,65 @@ WORKSHOP_PRICE_CASES: tuple[tuple[str, str, int], ...] = (
 )
 
 
+def _recorded(stem: str) -> tuple[ocr.TextBox, ...]:
+    raw = json.loads((FIXTURES / "ocr" / f"{stem}.json").read_text())
+    return tuple(
+        ocr.TextBox(text=entry["text"], confidence=entry["confidence"],
+                    rect=tiles.Rect(*entry["rect"]))
+        for entry in raw
+    )
+
+
 @pytest.mark.parametrize("fixture,row_name,expected", WORKSHOP_PRICE_CASES)
-def test_every_workshop_price_reads_exactly(
-    fixture: str, row_name: str, expected: int, cache, reader
-) -> None:
+def test_every_workshop_price_reads_exactly(fixture: str, row_name: str, expected: int) -> None:
+    """A row is addressed by name now (spec §7): the price comes from
+    `tiles.read_rows`/`row.price`, not from a template-matched anchor plus
+    `config.PRICE_REGIONS`. Uses the recorded OCR fixtures rather than a live
+    OCR engine - deterministic, same pattern as test_tiles.py - since this is
+    a test of the tile-to-row assignment and price parse, not of OCR itself.
+    """
     screen = frame(fixture)
-    template_path, layout = config.WORKSHOP_ROWS[row_name]
-    match = vision.locate_template(screen, cache.get(template_path), 0.9)
-    assert match is not None, f"{row_name} not found on {fixture}"
+    rows = {row.name: row for row in tiles.rows_from(_recorded(fixture), tiles.find_tiles(screen))}
+    assert row_name in rows, f"{row_name} not found on {fixture}"
+    assert rows[row_name].price == expected, (
+        f"{fixture} {row_name}: expected {expected}, got {rows[row_name].price}"
+    )
 
-    price = reader.read(screen, config.PRICE_REGIONS[layout], match.top_left, "menu")
-    assert price == expected, f"{fixture} {row_name}: expected {expected}, got {price}"
 
+def test_ocr_harvest_reaches_the_same_glyph_shapes_as_the_template_harvest(monkeypatch) -> None:
+    """tools/harvest_menu_glyphs.py's harvest_workshop no longer
+    template-matches config.WORKSHOP_ROWS and crops config.PRICE_REGIONS
+    (both deleted, spec §7 plus its AMENDMENT) - it reads `tiles.read_rows`
+    and crops `row.price_rect`, the same way the bot itself finds a price
+    now. This proves that trade lost nothing digit-shape-wise: every glyph
+    the rewritten harvester crops out of the workshop fixtures still matches
+    a label already in the committed menu atlas, and the matched set is
+    exactly the digits WORKSHOP_PRICE_CASES' prices are built from (30, 30,
+    50, 50, 50, 30, 30, 75, 40 -> 0, 3, 4, 5, 7).
 
-def test_row_region_excludes_the_tile_border(cache) -> None:
-    """Pins the PRICE_REGIONS["row"] width trim (250 -> 225).
-
-    At the original width the crop's right edge caught a few pixels of the
-    upgrade tile's own border - a fixed sliver that segments as a fourth
-    "glyph" alongside the two digits and the coin. That sliver matches no
-    real atlas entry (it scores 0.0 against every one of them, nowhere near
-    GLYPH_MATCH_THRESHOLD), so Atlas.match returns None for it and the whole
-    price fails under the all-or-nothing rule - a safe failure, but a total
-    one. Exactly 3 spans (2 digits + the coin) is the signal that the border
-    is excluded; a regression back toward width 250 would show up here as 4.
+    Uses the recorded OCR fixtures for the same determinism reason as the
+    price-read test above, monkeypatching `tiles.read_rows` as seen by the
+    harvester module - the same technique tests/test_shopping.py uses to
+    drive shopping.py off a canned Row without a live OCR engine.
     """
-    screen = frame("menu_workshop_attack")
-    template_path, _ = config.WORKSHOP_ROWS["Damage"]
-    match = vision.locate_template(screen, cache.get(template_path), 0.9)
-    assert match is not None
+    kept: list = []
+    for stem in ("menu_workshop_attack", "menu_workshop_defense", "menu_workshop_utility"):
+        screen = frame(stem)
+        monkeypatch.setattr(
+            harvest_menu_glyphs.tiles, "read_rows",
+            lambda s, stem=stem: tiles.rows_from(_recorded(stem), tiles.find_tiles(s)),
+        )
+        harvest_menu_glyphs.harvest_workshop(screen, kept)
 
-    patch = digits.crop(screen, config.PRICE_REGIONS["row"], match.top_left)
-    spans = digits.glyph_spans(digits.binarize(patch, digits.threshold_for("menu")))
-    assert len(spans) == 3, f"expected 2 digits + coin, segmented {len(spans)}"
+    assert kept, "harvest_workshop produced no glyphs"
 
-
-def test_widening_the_row_region_reintroduces_the_border_and_fails_the_read(cache, reader) -> None:
-    """The regression this trim guards against, demonstrated directly: widen
-    PRICE_REGIONS["row"] back toward its original 250 and the border sliver
-    comes back into the crop, segments as an unmatched fourth glyph, and
-    fails the whole read - even though the two real digits and the coin are
-    still sitting at the exact same pixels they were at the narrower width.
-    """
-    screen = frame("menu_workshop_attack")
-    template_path, _ = config.WORKSHOP_ROWS["Damage"]
-    match = vision.locate_template(screen, cache.get(template_path), 0.9)
-    assert match is not None
-
-    narrow = config.PRICE_REGIONS["row"]
-    widened = config.Region(dx=narrow.dx, dy=narrow.dy, w=250, h=narrow.h)
-
-    assert reader.read(screen, narrow, match.top_left, "menu") == 30
-    assert reader.read(screen, widened, match.top_left, "menu") is None
+    atlas = digits.AtlasCache().get("menu")
+    assert atlas is not None, "run tools/harvest_menu_glyphs.py"
+    matched = {atlas.match(glyph) for glyph in kept}
+    assert None not in matched, (
+        "a glyph the OCR harvest cropped does not match any labelled atlas entry"
+    )
+    assert matched == {"0", "3", "4", "5", "7"}, matched
 
 
 CARD_PRICE_CASES: tuple[tuple[str, int], ...] = (
@@ -179,8 +190,12 @@ def test_menu_is_offered_to_the_atlas_tools_but_not_to_affordability() -> None:
     ],
 )
 def test_parse_number_discards_both_currency_icons(text: str, expected: int) -> None:
-    """Both price regions deliberately include their currency icon (see
-    config.PRICE_REGIONS's and config.CARD_PRICE_REGION's own comments), so
-    the parser has to be able to see and discard each one - pinned directly,
-    independent of the image pipeline above."""
+    """CARD_PRICE_REGION deliberately includes its currency icon (see its own
+    comment in config.py), so the parser has to be able to see and discard
+    it - pinned directly, independent of the image pipeline above. The coin
+    icon is pinned alongside it for the same reason even though workshop
+    prices no longer route through this parser (they come off OCR text via
+    ocr.parse_number instead, spec §7's AMENDMENT): digits.parse_number is a
+    general-purpose parser and this is its only direct pin of coin-discarding
+    behaviour."""
     assert digits.parse_number(text) == expected

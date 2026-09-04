@@ -335,19 +335,19 @@ the event feed as any other run, not one entry that shows up after the fact.
 > balance grows a digit wider. This fails safe the same way the glyph atlas
 > did: an unread balance aborts the visit, and can approve no purchase.
 >
-> The `menu` glyph atlas — the size class every price is read at, in both
-> `_buy_rows` and `_buy_cards` — is incomplete the same way. `templates/atlas/
-> menu/` holds `0 2 3 4 5 7 coin gem`, missing `1 6 8 9`: a glyph can only be
-> harvested once a price actually containing it has appeared on screen, and
-> nothing so far has forced one. Unlike the header atlas this is not gated at
-> `build_shopping()` time - prices escalate with every purchase, so a session
-> could buy once or twice against today's readable prices and then start
-> refusing every purchase the moment one crosses 1, 6, 8 or 9. It fails safe
-> the same way an unreadable balance does: `_reader.read()` returns None,
-> shopping.py publishes `PurchaseSkipped(reason="unreadable")`, and the row
-> is exhausted for the visit - a refused read, never a wrong price. See
-> "Known gap" below for how to close it - `tools/harvest_menu_glyphs.py`,
-> not `build_atlas.py`.
+> The `menu` glyph atlas — the size class card prices are read at — is
+> incomplete the same way. `templates/atlas/menu/` holds `0 2 3 4 5 7 coin
+> gem`, missing `1 6 8 9`: a glyph can only be harvested once a price
+> actually containing it has appeared on screen, and nothing so far has
+> forced one. Unlike the header atlas this is not gated at
+> `build_shopping()` time - card prices escalate with every purchase, so a
+> session could buy once or twice against today's readable prices and then
+> start refusing every card purchase the moment one crosses 1, 6, 8 or 9.
+> The `menu` atlas gap no longer affects workshop prices: those are read by
+> OCR (`tiles.read_rows`), which read `92` off a live Attack Speed row that
+> the atlas refused, and bought it. The atlas is still what reads CARD
+> prices, which are not part of the OCR row-addressing work, so the gap
+> stays real there.
 >
 > The workshop buy point has never been tapped on a live device. A row
 > purchase taps the centre of the row's own matched template (`match.center`
@@ -456,9 +456,9 @@ with OCR (`ocr.number_in` against `config.HEADER_REGIONS`), and
 atlas. The class stays built for the threshold and segmentation
 measurements `tests/test_header_digits.py` still makes against it.
 
-The `menu` atlas - the size class `shopping.py` reads every workshop and
-card price at (`_buy_rows` and `_buy_cards` both pass `"menu"` to
-`NumberReader.read`) - has the same kind of gap: it is missing `1 6 8 9`,
+The `menu` atlas - the size class `shopping.py` reads every card price at
+(`_buy_cards` passes `"menu"` to `NumberReader.read`) - has the same kind of
+gap: it is missing `1 6 8 9`,
 because none of the committed fixtures happen to show a price containing
 them. There is no dedicated startup gate for this one - `build_shopping()`
 checks only that the OCR engine loads - so the failure shows up

@@ -684,9 +684,6 @@ def test_a_row_purchase_taps_the_price_panel_not_the_label(
     session.advance(frame("menu_workshop_attack"), device, policy)
 
     assert session._bus.of_type("Purchased"), "the row was never bought"
-    # Measured off menu_workshop_attack.png: the Damage label matches at
-    # (30, 478), so PRICE_REGIONS["row"] centres at (402, 635). The label's
-    # own centre - what this used to tap - is (130, 558).
     # taps[0] is the nav tap that opened the Workshop; the purchase is last.
     # (434, 633) is the centre of the price box OCR read on this frame - the
     # tap is derived from the read, so whatever a row charges is what gets

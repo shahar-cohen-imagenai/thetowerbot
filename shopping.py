@@ -16,7 +16,7 @@ rehearsal worth anything: it is not a different code path, it is the same
 code path with the last step removed.
 
 There is no brightness fallback anywhere in this module. Measured on the
-real device (see config.PRICE_REGIONS and tests/test_shopping_templates.py),
+real device (see config.CARD_PRICE_REGION and tests/test_shopping_templates.py),
 the game marks an unaffordable button by DESATURATING it, not dimming it -
 on the cards page the unaffordable button is actually the BRIGHTER of the
 two. A brightness gate calibrated on the affordable style would wave the
@@ -724,15 +724,15 @@ class ShoppingSession:
             self._exhausted.add(rule.name)
             return
 
-        # NOT match.center. The label is not a button - tapping it buys
-        # nothing at all, which a live armed visit demonstrated by
+        # NOT the tile's own centre. The label is not a button - tapping it
+        # buys nothing at all, which a live armed visit demonstrated by
         # publishing Purchased while coins, stat value and price all stayed
-        # exactly where they were. The buy button is the panel the price
-        # sits in, and PRICE_REGIONS already locates that panel from this
-        # same anchor, so the tap is derived from it rather than measured
-        # separately - one calibration to keep correct instead of two that
-        # can drift apart. This is config.buy_point()'s reasoning exactly;
-        # a workshop tile shares the in-run tile's trap.
+        # exactly where they were. The buy button is the price panel itself,
+        # and seen.tap is derived from the very price box that was just read
+        # (tiles.rows_from sets tap from price_boxes[-1].rect), so the two
+        # cannot drift apart the way a separately-measured offset could.
+        # This is config.buy_point()'s reasoning exactly; a workshop tile
+        # shares the in-run tile's trap.
         if not self._try_tap(*seen.tap, device, shopping, screen):
             return
 

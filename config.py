@@ -329,30 +329,6 @@ WORKSHOP_TABS: dict[str, str] = {
     "UTILITY": "workshop/tab_utility.png",
 }
 
-# Every buyable thing this account can currently SEE, and which of the two
-# layouts it uses. Rows behind an unlock tile are absent on purpose: a
-# template that was never cut against a real frame matches nothing or matches
-# everything, and there is no third option. They get added when the unlock
-# reveals them and the crop comes from a live capture.
-#
-# Both the "row" templates (upgrade tiles) and the "tile" templates (unlock
-# tiles, despite the name matching the layout they use) are cut from their
-# tile's top-left CORNER, never tight to the label text - see the "row"/"tile"
-# comment on PRICE_REGIONS below for why each one specifically needs that. Do
-# not re-cut the unlock templates tight to "Unlock X Upgrades": that was tried
-# and produces a price offset that only reads one of the three tiles correctly.
-WORKSHOP_ROWS: dict[str, tuple[str, str]] = {  # name -> (template, layout)
-    "Unlock Cash Bonuses": ("workshop/unlock_cash_bonuses.png", "tile"),
-    "Unlock Defense Upgrades": ("workshop/unlock_defense_upgrades.png", "tile"),
-    "Unlock Range Upgrades": ("workshop/unlock_range_upgrades.png", "tile"),
-    "Health": ("workshop/row_health.png", "row"),
-    "Health Regen": ("workshop/row_health_regen.png", "row"),
-    "Damage": ("workshop/row_damage.png", "row"),
-    "Attack Speed": ("workshop/row_attack_speed.png", "row"),
-    "Critical Chance": ("workshop/row_critical_chance.png", "row"),
-    "Critical Factor": ("workshop/row_critical_factor.png", "row"),
-}
-
 # Shipped buy order. Taken from the community consensus (see the dashboard's
 # Guide page) and cut down to rows this account can actually SEE: everything
 # the guides name first - Cash/Wave, Coins/Wave, Def Abs, Def%, Thorns,
@@ -366,9 +342,10 @@ WORKSHOP_ROWS: dict[str, tuple[str, str]] = {  # name -> (template, layout)
 # unanimous that crit costs more and scales slower than everything above it
 # this early.
 #
-# (name, category, enabled) triples only - the template and layout come from
-# WORKSHOP_ROWS, which was measured when the crops were cut. Repeating them
-# here would be a second place to keep correct, and the two could drift.
+# (name, category, enabled) triples only - a row is found by matching its
+# name against what tiles.read_rows sees on the page, not by a template or a
+# measured layout (spec §7's AMENDMENT), so there is nothing else to repeat
+# here.
 SHOPPING_ROWS: tuple[tuple[str, str, bool], ...] = (
     ("Unlock Cash Bonuses", "UTILITY", True),
     ("Unlock Defense Upgrades", "DEFENSE", True),
@@ -383,67 +360,18 @@ SHOPPING_ROWS: tuple[tuple[str, str, bool], ...] = (
 
 # Buy buttons on the Cards page. Cropped to the "x1"/"x10" quantity label and
 # border only - not the price or gem icon, which live in CARD_PRICE_REGION.
-# Same reasoning as WORKSHOP_ROWS: a template baked from a number that will
-# change would stop matching the moment it changes.
+# A buy button carries no row name to read, unlike a workshop row, so it
+# stays template-matched rather than addressed by name.
 CARD_BUTTONS: dict[str, str] = {
     "x1": "cards/buy_x1.png",
     "x10": "cards/buy_x10.png",
 }
 
-LAYOUTS: tuple[str, ...] = ("row", "tile")
-
-# Where a price sits relative to its own matched template. Two entries because
-# the workshop has two layouts and they put the number in different places: an
-# upgrade row is a half-width tile with the price right of the label, an
-# unlock tile is full-width with the price centred below it. One offset cannot
-# reach both, and a single averaged offset would miss both.
-#
-# The currency icon is INSIDE these regions deliberately. The number is
+# From the matched buy button's own top-left (see CARD_BUTTONS). The
+# currency icon is INSIDE this region deliberately: the number is
 # right-aligned against the icon and grows leftward, so trimming the icon off
 # the right would clip a longer price from the left. The reader is taught to
-# ignore the icon instead - see the `menu` size class (Task 5b).
-#
-# "row" is measured from the ROW TEMPLATE'S OWN top-left, which is the tile's
-# corner (see WORKSHOP_ROWS templates) - constant across all four upgrade
-# rows regardless of whether the label is one line ("Damage") or two
-# ("Attack Speed"), because the anchor is the corner, not the text.
-#
-# "tile" is measured from the UNLOCK TEMPLATE'S OWN top-left, which is ALSO
-# the tile's corner, not a tight crop of the label. A tight-to-label crop was
-# tried first and rejected: the three unlock labels are different lengths
-# ("Unlock Cash Bonuses" vs "Unlock Defense Upgrades"), the label is CENTRED
-# on the tile, and the price sits centred under the TILE, not under the
-# label's own left edge - so a tight label crop's top-left slides left or
-# right by up to 50px depending on the name, and one dx cannot follow it.
-# Anchoring on the tile corner (a fixed x=30 offset from the page edge, same
-# for all three) removes that dependency, exactly as it did for rows.
-# Uniqueness among the three unlock tiles (they share a border style) comes
-# from including the label text in the wider corner crop, not from cropping
-# tight to it - verified below 0.82 cross-match, well under the 0.9 threshold.
-#
-# "row"'s width was re-measured in Task 5b: at 250 the crop's right edge lands
-# inside the upgrade tile's own border, a pixel-identical sliver (columns
-# 237-243 of the crop, on every one of the six row prices in the committed
-# fixtures) that segments as a fourth "glyph". That sliver matches nothing -
-# it scores 0.0 against every real atlas entry, nowhere near
-# GLYPH_MATCH_THRESHOLD - so Atlas.match returns None for it, and because a
-# read is all-or-nothing (see digits.NumberReader.read) one unmatched glyph
-# fails the WHOLE price, not just that glyph. The failure is safe (a refused
-# read, never a wrong number) but total, so the fix has to be geometric:
-# the real content (digits + coin) ends at column 213 and the border starts
-# at column 237, so 225 sits in the middle of that gap - the same convention
-# this file uses elsewhere for picking the middle of a measured plateau
-# rather than its edge (see DIGIT_BINARY_THRESHOLDS). Trimming the right edge
-# cannot clip a longer price either: the number grows LEFTWARD against the
-# icon (see above), so nothing meaningful ever lived in the trimmed space.
-PRICE_REGIONS: dict[str, Region] = {
-    "row": Region(dx=260, dy=130, w=225, h=55),
-    "tile": Region(dx=440, dy=95, w=150, h=70),
-}
-
-# From the matched buy button's own top-left (see CARD_BUTTONS). Same
-# reasoning as PRICE_REGIONS: the icon is included on purpose, and there is
-# room to the left for the price to grow into.
+# ignore the icon instead - see the `menu` size class.
 CARD_PRICE_REGION: Region = Region(dx=110, dy=29, w=210, h=55)
 
 # --- Live feed ------------------------------------------------------------

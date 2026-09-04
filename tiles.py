@@ -76,6 +76,12 @@ class Row:
     tap: tuple[int, int]
     rect: Rect
     confidence: float
+    # The price box's own rectangle, not just its centre - `tap` locates
+    # where to press, this locates what to crop. Set beside `tap` from the
+    # same winning box (`price_boxes[-1]`) so the two can never disagree.
+    # None on the priceless path, where `tap` falls back to the tile centre
+    # and there is no price box to crop.
+    price_rect: Rect | None = None
 
 
 def normalise(text: str) -> str:
@@ -161,10 +167,12 @@ def rows_from(boxes: tuple[ocr.TextBox, ...], found: tuple[Rect, ...]) -> tuple[
         # price is refused upstream), so this is only a sensible-default
         # for a tap that never happens.
         tap = _centre(tile)
+        price_rect = None
         if price_boxes:
             price_boxes.sort(key=lambda b: b.rect.y)
             price = ocr.parse_number(price_boxes[-1].text)
             tap = _centre(price_boxes[-1].rect)
+            price_rect = price_boxes[-1].rect
 
         rows.append(
             Row(
@@ -173,6 +181,7 @@ def rows_from(boxes: tuple[ocr.TextBox, ...], found: tuple[Rect, ...]) -> tuple[
                 tap=tap,
                 rect=tile,
                 confidence=min(box.confidence for box in label_boxes),
+                price_rect=price_rect,
             )
         )
     return tuple(rows)

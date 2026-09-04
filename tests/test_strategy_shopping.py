@@ -8,7 +8,6 @@ validation nicety.
 
 import pytest
 
-import config
 import strategy as strategy_mod
 from strategy import CardPolicy, ControlError, Shopping, ShoppingRule, Strategy
 
@@ -222,11 +221,3 @@ def test_the_shipped_order_matches_the_guide_page() -> None:
         "Unlock Cash Bonuses", "Unlock Defense Upgrades", "Unlock Range Upgrades"
     ]
     assert rows.index("Health") < rows.index("Damage"), "defence before attack"
-
-
-def test_every_shipped_row_name_is_known_to_workshop_rows() -> None:
-    """A typo in config.SHOPPING_ROWS would otherwise surface as a KeyError
-    at bot startup (from_config()'s WORKSHOP_ROWS lookup) rather than here,
-    at test time."""
-    for row_name, _category, _enabled in config.SHOPPING_ROWS:
-        assert row_name in config.WORKSHOP_ROWS
