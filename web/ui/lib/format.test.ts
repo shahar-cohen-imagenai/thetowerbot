@@ -59,7 +59,7 @@ group("splitEvent shopping events", () => {
     const line = describe({
       seq: 1, ts: 0, type: "Purchased", item: "Health", category: "DEFENSE",
       price: 75, coins_before: 1770, gems_before: null, dry_run: false,
-    } as never);
+    });
 
     expect(line).toContain("BUY");
     expect(line).toContain("Health");
@@ -70,7 +70,7 @@ group("splitEvent shopping events", () => {
     const line = describe({
       seq: 1, ts: 0, type: "Purchased", item: "Health", category: "DEFENSE",
       price: 75, coins_before: 1770, gems_before: null, dry_run: true,
-    } as never);
+    });
 
     expect(line).toContain("rehearsal");
   });
@@ -79,7 +79,7 @@ group("splitEvent shopping events", () => {
     const line = describe({
       seq: 1, ts: 0, type: "PurchaseSkipped", item: "Damage",
       reason: "unaffordable", detail: "", coins_before: 1770, gems_before: null,
-    } as never);
+    });
 
     expect(line).toContain("NOBUY");
     expect(line).toContain("unaffordable");
@@ -89,7 +89,7 @@ group("splitEvent shopping events", () => {
     const line = describe({
       seq: 1, ts: 0, type: "ShoppingEnded", visit: 3, bought: 2, spent: 95,
       aborted: false, reason: "",
-    } as never);
+    });
 
     expect(line).toContain("SHOP");
     expect(line).toContain("2");
