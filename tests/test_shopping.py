@@ -342,6 +342,33 @@ def test_a_row_costing_more_than_the_balance_is_skipped_as_unaffordable(
     assert any(s.reason == "unaffordable" for s in skips)
 
 
+def test_an_unaffordable_skip_reports_the_balance_that_refused_it(
+    session, fake_header
+) -> None:
+    """The skip IS the balance reading. Most rows on this account are
+    unaffordable, so a visit that buys nothing is the common one - and
+    without this the ledger would learn a balance only on the rare visit
+    that bought something."""
+    device = FakeDevice()
+    policy = a_policy(workshop=(
+        ShoppingRule(name="Damage",
+                     category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    fake_header["coins"] = 10
+    session.advance(frame("menu_workshop_attack"), device, policy)
+
+    skips = session._bus.of_type("PurchaseSkipped")
+    unaffordable = [s for s in skips if s.reason == "unaffordable"]
+    assert unaffordable
+    for skip in unaffordable:
+        assert skip.coins_before == 10
+        # The currency it did not spend stays None rather than being reused,
+        # because the ledger reads the currency off whichever field is set.
+        assert skip.gems_before is None
+
+
 def test_an_unreadable_balance_stops_the_visit_rather_than_guessing(
     session, fake_header
 ) -> None:

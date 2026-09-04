@@ -19,6 +19,10 @@ const CHIP: Record<string, string> = {
   UNKNWN: "bg-danger-surface text-danger",
   CTRL: "bg-primary/15 text-primary",
   SCAN: "bg-transparent text-faint-foreground",
+  BUY: "bg-chart-2/15 text-chart-2",
+  NOBUY: "bg-muted text-muted-foreground",
+  SHOP: "bg-chart-2/15 text-chart-2",
+  PAGE: "bg-chart-1/15 text-chart-1",
 };
 
 export function EventFeed({

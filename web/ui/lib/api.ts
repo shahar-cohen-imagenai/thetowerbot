@@ -1,6 +1,7 @@
 import type {
   BotStatus,
   ControlPayload,
+  LedgerPayload,
   RunRow,
   Snapshot,
   StatsPayload,
@@ -49,6 +50,24 @@ export const fetchRunEvents = (id: number) => getJson<StoredEvent[]>(`/api/runs/
 export const fetchUnknown = () => getJson<Snapshot[]>("/api/unknown");
 export const fetchStats = () => getJson<StatsPayload>("/api/stats");
 export const fetchErrors = (limit = 100) => getJson<StoredEvent[]>(`/api/errors?limit=${limit}`);
+
+export const fetchLedger = (
+  opts: {
+    includeRehearsals?: boolean;
+    before?: number;
+    /** A single kind, matching the route - not a list. */
+    kind?: string;
+    currency?: string;
+  } = {},
+) => {
+  const params = new URLSearchParams();
+  if (opts.includeRehearsals) params.set("include_rehearsals", "true");
+  if (opts.before !== undefined) params.set("before", String(opts.before));
+  if (opts.kind) params.set("kind", opts.kind);
+  if (opts.currency) params.set("currency", opts.currency);
+  const query = params.toString();
+  return getJson<LedgerPayload>(`/api/ledger${query ? `?${query}` : ""}`);
+};
 
 export const fetchControl = () => getJson<ControlPayload>("/api/control");
 

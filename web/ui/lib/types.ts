@@ -17,7 +17,13 @@ export type BotEvent =
   | (EventBase & { type: "Navigated"; target: string })
   | (EventBase & { type: "UnknownScreen"; snapshot_path: string; best_anchor: string; best_score: number })
   | (EventBase & { type: "BotError"; message: string; traceback: string })
-  | (EventBase & { type: "ControlChanged"; changed: Record<string, unknown>; source: string });
+  | (EventBase & { type: "ControlChanged"; changed: Record<string, unknown>; source: string })
+  | (EventBase & { type: "PageChanged"; prev_page: string; curr_page: string; confidence: number })
+  | (EventBase & { type: "ShoppingStarted"; visit: number; dry_run: boolean })
+  | (EventBase & { type: "ShoppingUnavailable"; reason: string })
+  | (EventBase & { type: "Purchased"; item: string; category: string; price: number | null; coins_before: number | null; gems_before: number | null; dry_run: boolean })
+  | (EventBase & { type: "PurchaseSkipped"; item: string; reason: string; detail: string; coins_before: number | null; gems_before: number | null })
+  | (EventBase & { type: "ShoppingEnded"; visit: number; bought: number; spent: number; aborted: boolean; reason: string });
 
 /** A row from the `events` table, which carries columns plus a JSON blob. */
 export interface StoredEvent {
@@ -184,4 +190,35 @@ export interface StatsPayload {
   runs: RunStat[];
   taps: { action: string; count: number }[];
   screens: { screen: string; count: number }[];
+}
+
+/** A row from the `ledger` table - the account's permanent non-battle
+ *  history. Distinct from StoredEvent, which is the 30-day event log. */
+export interface LedgerLine {
+  id: number;
+  /** The source event's bus seq, or null for a derived UNEXPLAINED line. */
+  seq: number | null;
+  ts: number;
+  kind: string;
+  item: string | null;
+  category: string | null;
+  currency: string | null;
+  /** What actually moved. 0 means "provably nothing" (a skip, a rehearsal);
+   *  null means "an unknown amount" (an unreadable price). */
+  delta: number | null;
+  price: number | null;
+  balance_after: number | null;
+  observed: number | null;
+  dry_run: number;
+  run_id: number | null;
+  visit: number | null;
+  reason: string | null;
+  detail: Record<string, unknown>;
+}
+
+export interface LedgerPayload {
+  lines: LedgerLine[];
+  balances: { coins: number | null; gems: number | null };
+  rehearsals: number;
+  next: number | null;
 }

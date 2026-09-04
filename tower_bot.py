@@ -41,6 +41,7 @@ import db
 import digits
 import events
 import jitter
+import ledger
 import ocr
 import screens
 import vision
@@ -991,6 +992,12 @@ def prepare_store(
     never be reissued, even for an event old enough to have just aged out of
     retention. Pruning is disk hygiene, not a reason to rewind the counter.
 
+    Backfills the ledger BEFORE pruning too, and for a related reason: the
+    ledger is the permanent account history and `events` is not, so an event
+    already past the retention window has to reach the ledger on its way out.
+    Backfill refuses to run once the ledger holds anything, so this is a
+    one-time migration despite being called on every launch.
+
     Also closes out any run a killed process left with `ended_at IS NULL`:
     without a RunEnded, the row - and the dashboard's "live" badge on it -
     would otherwise persist forever. This is the only place that legitimately
@@ -1004,6 +1011,9 @@ def prepare_store(
         abandoned = db.close_abandoned_runs(conn)
         if abandoned:
             logger.info("Closed %d run(s) left live by a killed process", abandoned)
+        written = ledger.backfill(conn)
+        if written:
+            logger.info("Backfilled %d ledger line(s) from stored events", written)
         removed = db.prune_events(conn, retention_days)
         if removed:
             logger.info("Pruned %d events older than %d days", removed, retention_days)

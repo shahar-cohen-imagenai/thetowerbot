@@ -338,3 +338,74 @@ def test_run_routes_degrade_to_empty_history_under_no_store() -> None:
     assert client.get("/api/runs").json() == []
     assert client.get("/api/runs/1/events").status_code == 200
     assert client.get("/api/runs/1/events").json() == []
+
+
+def a_ledger_line(seq: int, **overrides: object) -> dict[str, object]:
+    line: dict[str, object] = {
+        "seq": seq, "ts": 1000.0 + seq, "kind": "WORKSHOP_BUY", "item": "Health",
+        "category": "DEFENSE", "currency": "coins", "delta": -75, "price": 75,
+        "balance_after": 1695, "observed": 1770, "dry_run": 0, "run_id": None,
+        "visit": 1, "reason": None, "detail": None,
+    }
+    line.update(overrides)
+    return line
+
+
+def test_the_ledger_route_returns_lines_newest_first_with_balances(harness) -> None:
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    db.insert_ledger(conn, a_ledger_line(1))
+    db.insert_ledger(conn, a_ledger_line(2, balance_after=1620, observed=1695))
+    conn.close()
+
+    body = client.get("/api/ledger").json()
+
+    assert [line["seq"] for line in body["lines"]] == [2, 1]
+    assert body["balances"] == {"coins": 1620, "gems": None}
+    assert body["rehearsals"] == 0
+
+
+def test_the_ledger_route_hides_rehearsals_but_counts_them(harness) -> None:
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    db.insert_ledger(conn, a_ledger_line(1))
+    db.insert_ledger(conn, a_ledger_line(2, dry_run=1, delta=0))
+    conn.close()
+
+    hidden = client.get("/api/ledger").json()
+    shown = client.get("/api/ledger?include_rehearsals=true").json()
+
+    assert [line["seq"] for line in hidden["lines"]] == [1]
+    assert hidden["rehearsals"] == 1
+    assert [line["seq"] for line in shown["lines"]] == [2, 1]
+
+
+def test_the_ledger_route_pages_with_a_cursor(harness) -> None:
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    for seq in range(1, 4):
+        db.insert_ledger(conn, a_ledger_line(seq))
+    conn.close()
+
+    first = client.get("/api/ledger?limit=2").json()
+    assert len(first["lines"]) == 2
+    assert first["next"] == first["lines"][-1]["id"]
+
+    second = client.get(f"/api/ledger?limit=2&before={first['next']}").json()
+    assert len(second["lines"]) == 1
+    assert second["next"] is None
+
+
+def test_the_ledger_route_answers_no_store_with_an_empty_ledger(harness) -> None:
+    """--no-store is a supported mode. An empty account is the honest
+    answer; a 500 is not."""
+    client, state, sse, bus, _, unknown_dir = harness
+    app = create_app(state=state, sse=sse, bus=bus, db_path=None,
+                     unknown_dir=unknown_dir)
+
+    body = TestClient(app).get("/api/ledger").json()
+
+    assert body == {
+        "lines": [], "balances": {"coins": None, "gems": None},
+        "rehearsals": 0, "next": None,
+    }

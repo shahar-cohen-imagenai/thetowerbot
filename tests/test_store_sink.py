@@ -166,6 +166,58 @@ def test_orphan_events_between_runs_do_not_corrupt_counts(tmp_path: Path) -> Non
     assert orphans[0]["type"] == "Tapped"
 
 
+def test_a_purchase_lands_in_both_the_events_table_and_the_ledger(
+    tmp_path: Path,
+) -> None:
+    path = drain(tmp_path, [
+        events.Purchased(item="Health", category="DEFENSE", price=75,
+                         coins_before=1770, dry_run=False),
+    ])
+
+    with db.reader(path) as conn:
+        assert len(db.ledger_page(conn)) == 1
+        assert db.ledger_page(conn)[0]["kind"] == "WORKSHOP_BUY"
+        assert db.last_balances(conn)["coins"] == 1695
+
+
+def test_a_tap_writes_an_event_row_and_no_ledger_line(tmp_path: Path) -> None:
+    """In-run taps are not account history. They are bought with per-run
+    cash, which resets."""
+    path = drain(tmp_path, [events.Tapped(action="Damage", x=1, y=2, score=0.9)])
+
+    with db.reader(path) as conn:
+        assert db.ledger_page(conn) == []
+
+
+def test_a_failing_ledger_write_still_records_the_event(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """The event history is the more important of the two. A ledger that
+    cannot write must lose ledger lines, never event rows - and it must not
+    skip the run bookkeeping that follows it either."""
+    import ledger
+
+    def boom(self, event):  # noqa: ANN001, ANN201
+        raise RuntimeError("ledger is broken")
+
+    monkeypatch.setattr(ledger.LedgerWriter, "lines_for", boom)
+    path = drain(tmp_path, [
+        events.RunStarted(run_id=1),
+        events.RunEnded(run_id=1, duration=10.0, wave=5, coins=100, tier=1),
+        events.Tapped(action="Damage", x=1, y=2, score=0.9),
+    ])
+
+    with db.reader(path) as conn:
+        stored = conn.execute("SELECT type FROM events ORDER BY seq").fetchall()
+        assert [row[0] for row in stored] == ["RunStarted", "RunEnded", "Tapped"]
+        # _run_id was still cleared after RunEnded, so the trailing tap is
+        # not misattributed to the run that already finished.
+        orphan = conn.execute(
+            "SELECT run_id FROM events WHERE type = 'Tapped'"
+        ).fetchone()
+        assert orphan[0] is None
+
+
 def test_control_changes_are_persisted(tmp_path: Path) -> None:
     """A setting change must be as reconstructable as every other change.
 

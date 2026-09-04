@@ -153,12 +153,28 @@ class Purchased(Event):
 
 @dataclass(frozen=True, kw_only=True)
 class PurchaseSkipped(Event):
+    """One thing not bought, and why.
+
+    `coins_before` and `gems_before` follow the same rule Purchased sets out:
+    the currency this row WOULD have spent carries the balance, the other
+    stays None rather than being reused for the wrong currency. The ledger
+    infers a skip's currency from which of the two is set, so filling both
+    would make it report the wrong one.
+
+    They are here because a skip is a balance reading. Most rows on this
+    account are unaffordable, so a visit that buys nothing is the common
+    case - and without these fields it would tell the ledger nothing about
+    where the balances actually stand.
+    """
+
     item: str
     # unaffordable | unreadable | no_match | capped - "disabled" is not in
     # this list on purpose: a disabled row is filtered out of rows_for()
     # before BUY_ROWS ever sees it, so that value is never emitted.
     reason: str
     detail: str = ""
+    coins_before: int | None = None
+    gems_before: int | None = None
 
 
 @dataclass(frozen=True, kw_only=True)

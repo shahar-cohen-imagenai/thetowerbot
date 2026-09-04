@@ -45,6 +45,7 @@ STATIC_DIR = Path(__file__).parent / "static"
 # One page of history is plenty for a dashboard, and it bounds the response
 # whatever the query string asks for.
 MAX_RUNS_PER_PAGE = 500
+MAX_LEDGER_PER_PAGE = 200
 
 # strategy.ControlError carries a `code` naming the KIND of failure, so the
 # routes below map a status without matching on message text.
@@ -600,6 +601,47 @@ def create_app(
             return []
         with db.reader(db_path) as conn:
             return db.error_log(conn, limit=max(1, min(limit, 500)))
+
+    # Above the catch-all below, like every other /api route. A route
+    # registered after it is unreachable and 404s exactly as if it had never
+    # been wired, which is a far more confusing failure than normal
+    # shadowing - see that route's comment.
+    @app.get("/api/ledger")
+    def ledger_lines(
+        limit: int = 50,
+        before: int | None = None,
+        kind: str | None = None,
+        currency: str | None = None,
+        include_rehearsals: bool = False,
+    ) -> dict:
+        # --no-store: there is no file to read, so an empty account history
+        # is the honest answer, the same as /api/runs and /api/errors.
+        if db_path is None:
+            return {
+                "lines": [],
+                "balances": {"coins": None, "gems": None},
+                "rehearsals": 0,
+                "next": None,
+            }
+        capped = max(1, min(limit, MAX_LEDGER_PER_PAGE))
+        with db.reader(db_path) as conn:
+            lines = db.ledger_page(
+                conn,
+                limit=capped,
+                before=before,
+                kind=kind,
+                currency=currency,
+                include_rehearsals=include_rehearsals,
+            )
+            return {
+                "lines": lines,
+                "balances": db.last_balances(conn),
+                "rehearsals": db.count_rehearsals(conn),
+                # Only a full page can have more behind it. A short page is
+                # the end, and claiming otherwise costs the client a request
+                # that returns nothing.
+                "next": lines[-1]["id"] if len(lines) == capped else None,
+            }
 
     # A write verb against an /api path nothing above registered (e.g.
     # /api/bot/start with no runner wired) must read as "this route does

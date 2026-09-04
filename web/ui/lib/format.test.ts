@@ -53,3 +53,46 @@ group("describe", () => {
     expect(line).toContain("web");
   });
 });
+
+group("splitEvent shopping events", () => {
+  it("describes a purchase with what it cost and what it spent", () => {
+    const line = describe({
+      seq: 1, ts: 0, type: "Purchased", item: "Health", category: "DEFENSE",
+      price: 75, coins_before: 1770, gems_before: null, dry_run: false,
+    });
+
+    expect(line).toContain("BUY");
+    expect(line).toContain("Health");
+    expect(line).toContain("75");
+  });
+
+  it("marks a rehearsal so it cannot be read as a real purchase", () => {
+    const line = describe({
+      seq: 1, ts: 0, type: "Purchased", item: "Health", category: "DEFENSE",
+      price: 75, coins_before: 1770, gems_before: null, dry_run: true,
+    });
+
+    expect(line).toContain("rehearsal");
+  });
+
+  it("describes a skipped purchase with its reason", () => {
+    const line = describe({
+      seq: 1, ts: 0, type: "PurchaseSkipped", item: "Damage",
+      reason: "unaffordable", detail: "", coins_before: 1770, gems_before: null,
+    });
+
+    expect(line).toContain("NOBUY");
+    expect(line).toContain("unaffordable");
+  });
+
+  it("describes the end of a shopping visit", () => {
+    const line = describe({
+      seq: 1, ts: 0, type: "ShoppingEnded", visit: 3, bought: 2, spent: 95,
+      aborted: false, reason: "",
+    });
+
+    expect(line).toContain("SHOP");
+    expect(line).toContain("2");
+    expect(line).toContain("95");
+  });
+});
