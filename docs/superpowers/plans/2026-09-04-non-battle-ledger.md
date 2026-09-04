@@ -1806,8 +1806,9 @@ they existed."
 Create `web/ui/app/ledger/page.test.tsx`:
 
 ```tsx
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+// fireEvent, not @testing-library/user-event: user-event is not a
+// dependency of this project and every other test here uses fireEvent.
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe as group, expect, it, vi } from "vitest";
 import LedgerPage from "./page";
 
@@ -1876,9 +1877,11 @@ group("LedgerPage", () => {
     render(<LedgerPage />);
 
     const toggle = await screen.findByRole("button", { name: /show rehearsals \(3\)/i });
-    await userEvent.click(toggle);
+    fireEvent.click(toggle);
 
-    expect(fetchLedger).toHaveBeenLastCalledWith({ includeRehearsals: true });
+    await waitFor(() =>
+      expect(fetchLedger).toHaveBeenLastCalledWith({ includeRehearsals: true }),
+    );
   });
 });
 ```
