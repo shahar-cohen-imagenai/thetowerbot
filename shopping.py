@@ -148,6 +148,19 @@ def _absolute(region: config.Region, top_left: tuple[int, int]) -> config.Rect:
     return config.Rect(top_left[0] + region.dx, top_left[1] + region.dy, region.w, region.h)
 
 
+def _row_named(name: str, rows: tuple[tiles.Row, ...]) -> tiles.Row | None:
+    """The OCR row addressed by `name`, or None if it is not on screen.
+
+    Matched on the normalised name, so spacing and case in a strategy file
+    do not have to reproduce what the font renders.
+    """
+    wanted = tiles.normalise(name)
+    for row in rows:
+        if tiles.normalise(row.name) == wanted:
+            return row
+    return None
+
+
 # --- Phase 1 A/B scaffolding ---------------------------------------------
 # THROWAWAY. Exists to compare the OCR reader against the template reader on
 # live prices before any coin is risked on the former. Deleted in Phase 2
@@ -639,6 +652,17 @@ class ShoppingSession:
             return
 
         rule = rows[0]
+        # Addressed by NAME, off OCR - not by template match. A live session
+        # settled this: the menu atlas has never held 1, 6, 8 or 9, so the
+        # moment a price escalated past one of them the template reader
+        # returned None and the row was refused as "unreadable" for good,
+        # while OCR read it off the same pixels. Prices only ever escalate,
+        # so that failure is not a corner case, it is the destination.
+        #
+        visible = tiles.read_rows(screen)
+        seen = _row_named(rule.name, visible)
+        # The template match is still taken, for the observation below only.
+        # Nothing decides on it any more.
         match = vision.locate_template(screen, self._templates.get(rule.template), rule.threshold)
         # Read the price BEFORE the early returns rather than after, so the
         # Phase 1 A/B below observes the template reader's FAILURES too - a
@@ -658,7 +682,7 @@ class ShoppingSession:
         # Phase 2. Wrapped because a reader under evaluation must not be
         # able to break the reader in production.
         try:
-            note = compare_readers(rule, price, tiles.read_rows(screen))
+            note = compare_readers(rule, price, visible)
             if note is not None:
                 ab_logger.warning("%s", note)
             else:
@@ -666,11 +690,14 @@ class ShoppingSession:
         except Exception:
             ab_logger.exception("the OCR comparison itself failed")
 
-        if match is None:
+        if seen is None:
+            # Not on this tab, or not on the visible screenful - Phase 2's
+            # scroll-and-map is what will tell those two apart.
             self._bus.publish(events.PurchaseSkipped(item=rule.name, reason="no_match"))
             self._exhausted.add(rule.name)
             return
 
+        price = seen.price
         if price is None:
             self._bus.publish(
                 events.PurchaseSkipped(item=rule.name, reason="unreadable", detail="price")
@@ -683,8 +710,16 @@ class ShoppingSession:
             self._exhausted.add(rule.name)
             return
 
-        x, y = match.center
-        if not self._try_tap(x, y, device, shopping, screen):
+        # NOT match.center. The label is not a button - tapping it buys
+        # nothing at all, which a live armed visit demonstrated by
+        # publishing Purchased while coins, stat value and price all stayed
+        # exactly where they were. The buy button is the panel the price
+        # sits in, and PRICE_REGIONS already locates that panel from this
+        # same anchor, so the tap is derived from it rather than measured
+        # separately - one calibration to keep correct instead of two that
+        # can drift apart. This is config.buy_point()'s reasoning exactly;
+        # a workshop tile shares the in-run tile's trap.
+        if not self._try_tap(*seen.tap, device, shopping, screen):
             return
 
         self._exhausted.add(rule.name)

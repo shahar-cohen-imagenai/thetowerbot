@@ -16,6 +16,7 @@ import pytest
 import config
 import digits
 import ocr
+import tiles
 import events
 import shopping as shopping_mod
 import vision
@@ -338,32 +339,32 @@ def test_an_unreadable_balance_stops_the_visit_rather_than_guessing(
     assert device.taps == []
 
 
-def test_a_row_with_the_wrong_layout_reads_no_price_and_is_skipped_as_unreadable(
-    session,
+def test_a_row_whose_price_cannot_be_read_is_skipped_rather_than_guessed(
+    session, monkeypatch
 ) -> None:
-    """The workshop row's own unreadable-PRICE branch, distinct from an
-    unreadable balance: coins read fine (real header, not faked), but the
-    row's own price read comes back None. A rule with the wrong layout is
-    the real-world way this happens without faking anything:
-    ShoppingRule.layout is never inferred from its template, so a
-    hand-edited strategy can declare the wrong one and read garbage pixels
-    for the price.
+    """The row's own unreadable-PRICE branch, distinct from an unreadable
+    balance: coins read fine (real header, not faked), the row is found, and
+    its price is not.
 
-    ShoppingRule.__post_init__ now refuses "row" for this name outright
-    (Task 10 review, round 1: config.WORKSHOP_ROWS says "Unlock Cash
-    Bonuses" is "tile"), so the wrong value can no longer be handed to the
-    normal constructor - it is built correctly, then forced past that check
-    with object.__setattr__, the same way test_strategy.py forces a
-    non-string template past ActionRule's own type check. The session's own
-    defence against a bad layout is still worth testing even though
-    construction now catches the realistic route to one.
+    This used to be reached by declaring the wrong `layout` on a rule, which
+    made the template reader crop the price from garbage pixels. Addressing
+    rows by name off OCR deletes that route - the price comes from the tile
+    the name was found in, so there is no offset left to get wrong (spec §7:
+    the mode stops existing when tiles are detected rather than assumed).
+    The branch itself still matters: a tile whose price box is missing or
+    unparseable yields Row.price None, and a refused read must never become
+    a guessed purchase.
     """
     device = FakeDevice()
-    bad_layout = ShoppingRule(name="Unlock Cash Bonuses",
-                               template="workshop/unlock_cash_bonuses.png",
-                               category="UTILITY", layout="tile")
-    object.__setattr__(bad_layout, "layout", "row")
-    policy = a_policy(workshop=(bad_layout,))
+    priceless = tiles.Row(name="Unlock Cash Bonuses", price=None,
+                          tap=(540, 600), rect=tiles.Rect(30, 500, 1020, 196),
+                          confidence=0.99)
+    monkeypatch.setattr(shopping_mod.tiles, "read_rows", lambda screen: (priceless,))
+    policy = a_policy(workshop=(
+        ShoppingRule(name="Unlock Cash Bonuses",
+                     template="workshop/unlock_cash_bonuses.png",
+                     category="UTILITY", layout="tile"),
+    ))
     session.begin(policy, run_count=1)
     session.advance(frame("menu_workshop_utility"), device, policy)
     skips = session._bus.of_type("PurchaseSkipped")
@@ -630,3 +631,67 @@ def test_the_bot_never_taps_unlock_new_slot(session) -> None:
     slots above them and the bot cannot see labs. Guarded by the fact that no
     slot template exists at all, which this pins."""
     assert not any("slot" in path.lower() for path in config.CARD_BUTTONS.values())
+
+
+# -- where a purchase actually taps -----------------------------------------
+def test_a_row_purchase_taps_the_price_panel_not_the_label(
+    session, fake_header
+) -> None:
+    """The label is not a button. Verified on a live device: the bot ran a
+    clean armed visit, published Purchased, and bought nothing - coins,
+    stat value and price all unchanged - because match.center lands on the
+    words "Attack Speed". A tap on the price strip bought it (coins
+    1770 -> 1740, price 30 -> 56) at the point PRICE_REGIONS already
+    locates from the same anchor.
+
+    This is the trap config.buy_point() exists to avoid for in-run
+    upgrades; a workshop tile turns out to share it.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+                     category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)
+
+    assert session._bus.of_type("Purchased"), "the row was never bought"
+    # Measured off menu_workshop_attack.png: the Damage label matches at
+    # (30, 478), so PRICE_REGIONS["row"] centres at (402, 635). The label's
+    # own centre - what this used to tap - is (130, 558).
+    # taps[0] is the nav tap that opened the Workshop; the purchase is last.
+    # (434, 633) is the centre of the price box OCR read on this frame - the
+    # tap is derived from the read, so whatever a row charges is what gets
+    # tapped. The label's own centre, which this used to tap, is (130, 558).
+    assert device.taps[-1] == (434, 633)
+    assert (130, 558) not in device.taps, "tapped the label, which buys nothing"
+
+
+def test_a_price_the_glyph_atlas_cannot_read_is_bought_at_the_ocr_price(
+    session, fake_header
+) -> None:
+    """The case the whole cut-over rests on, in real pixels.
+
+    menu_workshop_attack_escalated.png is a live capture taken after a
+    purchase pushed Attack Speed from 30 to 56. The `menu` atlas has never
+    held a 6, so the template reader returns None on that price and the row
+    was refused as "unreadable" - a row the bot could see, afford and never
+    buy. OCR reads 56 off the same pixels.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Attack Speed",
+                     template="workshop/row_attack_speed.png",
+                     category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack_escalated"), device, policy)
+
+    bought = session._bus.of_type("Purchased")
+    assert bought, "the row was refused - see PurchaseSkipped"
+    assert bought[0].item == "Attack Speed"
+    assert bought[0].price == 56
+    # The price strip inside the buy panel, read off this very frame.
+    assert device.taps[-1] == (952, 634)
