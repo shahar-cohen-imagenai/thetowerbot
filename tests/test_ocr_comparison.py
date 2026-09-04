@@ -45,5 +45,24 @@ def test_an_unreadable_ocr_price_is_reported():
     assert note is not None
 
 
+def test_a_price_only_ocr_could_read_is_reported_as_such():
+    """The Phase 2 argument: template read nothing, OCR read a number.
+
+    This is the shape the whole A/B exists to catch - a price the menu atlas
+    could not read (it is missing the digits 1 6 8 9) and OCR could. It must
+    not read like the "neither reader got it" note below.
+    """
+    note = shopping.compare_readers(RULE, None, (_row("Damage", 68),))
+    assert note is not None
+    assert "68" in note
+    assert "template" in note and "could not read" in note
+
+
+def test_neither_reader_reading_a_price_is_reported():
+    note = shopping.compare_readers(RULE, None, (_row("Damage", None),))
+    assert note is not None
+    assert "neither" in note
+
+
 def test_normalisation_differences_are_not_disagreements():
     assert shopping.compare_readers(RULE, 30, (_row("DAMAGE", 30),)) is None
