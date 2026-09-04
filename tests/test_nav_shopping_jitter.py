@@ -177,9 +177,7 @@ def a_policy(**over) -> Shopping:
         enabled=True,
         armed=True,
         workshop=(
-            ShoppingRule(
-                name="Damage", template="workshop/row_damage.png", category="ATTACK"
-            ),
+            ShoppingRule(name="Damage", category="ATTACK"),
         ),
     )
     return Shopping(**{**base, **over})
