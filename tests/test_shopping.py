@@ -25,6 +25,20 @@ from strategy import CardPolicy, Shopping, ShoppingRule
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
+class _NoRowTemplates(vision.TemplateCache):
+    """A template cache with the workshop ROW templates removed.
+
+    Deleted-file behaviour without deleting a file: anything under
+    workshop/row_ or workshop/unlock_ raises, everything else (nav buttons,
+    tab pictograms, page anchors) loads normally.
+    """
+
+    def get(self, name: str):
+        if name.startswith("workshop/row_") or name.startswith("workshop/unlock_"):
+            raise AssertionError(f"the buy path still reads a row template: {name}")
+        return super().get(name)
+
+
 class FakeDevice:
     """Records taps instead of sending them."""
 
@@ -287,6 +301,29 @@ def test_the_highest_priority_affordable_row_wins_not_the_cheapest(session) -> N
     session.advance(frame("menu_workshop_attack"), device, policy)
     bought = session._bus.of_type("Purchased")
     assert bought[0].item == "Critical Chance"
+
+
+def test_a_row_is_bought_without_its_template_file(session, fake_header) -> None:
+    """Nothing in the workshop buy path reads a row template any more.
+
+    The rule still carries a `template` field until the schema cut-over, so
+    this points it at a file that is not on disk: if any code path still
+    loads it, the purchase cannot happen. Tab and nav templates are
+    untouched and still load - only the ROW templates are gone.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Damage", template="workshop/row_damage.png",
+                     category="ATTACK"),
+    ))
+    session._templates = _NoRowTemplates(config.TEMPLATE_DIR)
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_attack"), device, policy)
+
+    bought = session._bus.of_type("Purchased")
+    assert bought and bought[0].item == "Damage"
+    assert bought[0].price == 30
 
 
 def test_a_row_costing_more_than_the_balance_is_skipped_as_unaffordable(
