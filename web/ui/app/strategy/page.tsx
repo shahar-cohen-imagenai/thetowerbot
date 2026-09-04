@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ProfileBar } from "@/components/ProfileBar";
 import { ShoppingEditor } from "@/components/ShoppingEditor";
 import { StrategyEditor } from "@/components/StrategyEditor";
+import { StrategyNav } from "@/components/StrategyNav";
 import {
   activateStrategy, deleteStrategy, fetchControl, fetchStrategies,
   fetchStrategy, saveStrategy,
@@ -112,9 +113,12 @@ export default function StrategyPage() {
   }
 
   return (
-    <div className="flex max-w-3xl flex-col gap-4">
+    <div className="flex gap-6">
+      <StrategyNav draft={draft} saved={saved} />
+
+      <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-4">
       {error ? (
-        <p className="rounded-md border border-red-500 p-2 text-sm text-red-500">{error}</p>
+        <p className="rounded-md border border-danger p-2 text-sm text-danger">{error}</p>
       ) : null}
 
       <ProfileBar
@@ -186,6 +190,7 @@ export default function StrategyPage() {
         disabled={busy}
         disabledReason={shoppingDisabledReason}
       />
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
+import { SectionCard } from "@/components/ui/section-card";
 import { fetchStats } from "@/lib/api";
 import type { StatsPayload } from "@/lib/types";
 
@@ -21,19 +22,20 @@ const TOOLTIP_STYLE = {
   cursor: { stroke: "var(--border)" },
 };
 
-// One series per panel here, so one hue (the palette's slot 1) does
-// identity work for all four charts - it reads as one system rather than
-// four unrelated colors, and a single series needs no legend box (the
-// panel title already names what's plotted).
-const SERIES_COLOR = "var(--chart-1)";
+// Each panel plots a different quantity, so each takes its own slot from the
+// validated categorical palette rather than four repetitions of slot 1. A
+// single series still needs no legend - the panel title names what's plotted.
+const WAVE = "var(--chart-1)";
+const DURATION = "var(--chart-3)";
+const TAPS = "var(--chart-2)";
+const SCREENS = "var(--chart-4)";
 
 function Panel({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border p-3">
-      <h2 className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">{title}</h2>
+    <SectionCard title={title}>
       {note ? <p className="mb-2 text-xs text-muted-foreground">{note}</p> : null}
       <div className="h-64">{children}</div>
-    </section>
+    </SectionCard>
   );
 }
 
@@ -66,7 +68,7 @@ export default function StatsPage() {
             <Tooltip {...TOOLTIP_STYLE} />
             <Line
               type="monotone" dataKey="wave" dot={false}
-              stroke={SERIES_COLOR} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
+              stroke={WAVE} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
             />
           </LineChart>
         </ResponsiveContainer>
@@ -81,7 +83,7 @@ export default function StatsPage() {
             <Tooltip {...TOOLTIP_STYLE} />
             <Line
               type="monotone" dataKey="duration" dot={false}
-              stroke={SERIES_COLOR} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
+              stroke={DURATION} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
             />
           </LineChart>
         </ResponsiveContainer>
@@ -98,7 +100,7 @@ export default function StatsPage() {
               <XAxis dataKey="action" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip {...TOOLTIP_STYLE} />
-              <Bar dataKey="count" fill={SERIES_COLOR} radius={[4, 4, 0, 0]} maxBarSize={24} />
+              <Bar dataKey="count" fill={TAPS} radius={[4, 4, 0, 0]} maxBarSize={24} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
@@ -114,7 +116,7 @@ export default function StatsPage() {
               <XAxis dataKey="screen" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip {...TOOLTIP_STYLE} />
-              <Bar dataKey="count" fill={SERIES_COLOR} radius={[4, 4, 0, 0]} maxBarSize={24} />
+              <Bar dataKey="count" fill={SCREENS} radius={[4, 4, 0, 0]} maxBarSize={24} />
             </BarChart>
           </ResponsiveContainer>
         ) : (

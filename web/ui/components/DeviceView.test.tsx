@@ -43,10 +43,10 @@ group("DeviceView", () => {
 
     const matchedBox = screen.getByTitle(/Damage 0/);
     const tappedBox = screen.getByTitle(/Health 0/);
-    expect(matchedBox.className).toContain("border-amber-400");
-    expect(matchedBox.className).not.toContain("border-emerald-400");
-    expect(tappedBox.className).toContain("border-emerald-400");
-    expect(tappedBox.className).not.toContain("border-amber-400");
+    // Asserted on the state attribute rather than the class, so restyling the
+    // overlay does not break a test about which box the bot actually hit.
+    expect(matchedBox.getAttribute("data-state")).toBe("matched");
+    expect(tappedBox.getAttribute("data-state")).toBe("tapped");
   });
 
   it("hides the boxes but keeps the image when the overlay is toggled off", () => {

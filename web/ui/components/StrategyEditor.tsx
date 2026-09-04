@@ -1,7 +1,12 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { NumberField } from "@/components/ui/number-field";
+import { SectionCard } from "@/components/ui/section-card";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import type { ActionRule, Strategy } from "@/lib/types";
 
 /** Fields whose value is read when the bot is BUILT, not per scan.
@@ -17,6 +22,51 @@ function StartOnly() {
   return (
     <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
       {START_ONLY}
+    </span>
+  );
+}
+
+/** Shared by both editors' rule lists. Priority ordering is a core mechanic of
+ *  this page and was driven by the smallest hit targets on it - roughly
+ *  24x20px arrows made of text glyphs. */
+export function ReorderButtons({
+  index, count, disabled, onMove,
+}: {
+  index: number;
+  count: number;
+  disabled?: boolean;
+  onMove: (delta: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <Button
+        type="button" variant="ghost" size="icon-sm" aria-label="Move up"
+        disabled={disabled || index === 0}
+        onClick={() => onMove(-1)}
+      >
+        <ChevronUp />
+      </Button>
+      <Button
+        type="button" variant="ghost" size="icon-sm" aria-label="Move down"
+        disabled={disabled || index === count - 1}
+        onClick={() => onMove(1)}
+      >
+        <ChevronDown />
+      </Button>
+    </div>
+  );
+}
+
+/** The order badge. Its text is the priority, and the priority is the point. */
+export function OrderChip({ index, enabled }: { index: number; enabled: boolean }) {
+  return (
+    <span
+      className={cn(
+        "w-5 shrink-0 rounded text-center font-mono text-[11px] leading-5",
+        enabled ? "bg-muted text-foreground" : "text-faint-foreground",
+      )}
+    >
+      {index + 1}
     </span>
   );
 }
@@ -51,86 +101,91 @@ export function StrategyEditor({
   };
 
   const usable = (name: string) => available === undefined || available.includes(name);
+  const enabledCount = value.actions.filter((row) => row.enabled).length;
 
   return (
     <div className="flex flex-col gap-4">
-      <Card className="gap-3 p-3">
-        <h2 className="text-xs uppercase tracking-wide text-muted-foreground">
-          Purchases
-        </h2>
-        <p className="text-xs text-muted-foreground">
+      <SectionCard
+        id="purchases"
+        title="Purchases"
+        action={
+          <span className="font-mono text-xs text-muted-foreground">
+            {enabledCount}/{value.actions.length} on
+          </span>
+        }
+      >
+        <p className="mb-3 text-xs text-muted-foreground">
           Evaluated top to bottom on every scan — the order is the priority.
         </p>
-        {value.actions.map((row, index) => (
-          <div
-            key={row.name}
-            data-testid="action-row"
-            data-name={row.name}
-            className="flex flex-wrap items-center gap-2 rounded-md border p-2 text-sm"
-          >
-            <span className="w-4 text-center text-xs text-muted-foreground">
-              {index + 1}
-            </span>
-            <input
-              type="checkbox"
-              aria-label="Enabled"
-              checked={row.enabled}
-              disabled={disabled}
-              onChange={(e) => setRow(index, { enabled: e.target.checked })}
-            />
-            <span className="min-w-32 flex-1 font-medium">{row.name}</span>
-            <label className="flex items-center gap-1 text-xs text-muted-foreground">
-              match
-              <Input
-                type="number" min={0.05} max={1} step={0.05}
-                aria-label={`${row.name} threshold`}
-                // Keyed on the value for the same reason NumberField below
-                // is: defaultValue is only honoured at mount, and this row's
-                // own key={row.name} does not change when row.threshold
-                // does, so without this a Revert would update the draft but
-                // leave the field showing the stale, previously-typed number.
-                key={row.threshold}
-                defaultValue={row.threshold}
-                disabled={disabled}
-                onBlur={(e) => setRow(index, { threshold: Number(e.target.value) })}
-                className="w-20 text-right"
-              />
-            </label>
-            <label className="flex items-center gap-1 text-xs text-muted-foreground">
-              brightness
-              <Input
-                type="number" min={0} max={1} step={0.05}
-                aria-label={`${row.name} brightness`}
-                // Same reasoning as the threshold field's key above.
-                key={row.brightness_ratio}
-                defaultValue={row.brightness_ratio}
-                disabled={disabled}
-                onBlur={(e) =>
-                  setRow(index, { brightness_ratio: Number(e.target.value) })
-                }
-                className="w-20 text-right"
-              />
-            </label>
-            <button
-              type="button" aria-label="Move up"
-              disabled={disabled || index === 0}
-              onClick={() => move(index, -1)}
-              className="rounded border px-2 disabled:opacity-30"
+        <div className="flex flex-col gap-2">
+          {value.actions.map((row, index) => (
+            <div
+              key={row.name}
+              data-testid="action-row"
+              data-name={row.name}
+              // A disabled rule used to be visually identical to an enabled
+              // one but for the state of a 13px checkbox.
+              className={cn(
+                "flex flex-wrap items-center gap-2 rounded-md border p-2 text-sm",
+                !row.enabled && "opacity-60",
+              )}
             >
-              ↑
-            </button>
-            <button
-              type="button" aria-label="Move down"
-              disabled={disabled || index === value.actions.length - 1}
-              onClick={() => move(index, 1)}
-              className="rounded border px-2 disabled:opacity-30"
-            >
-              ↓
-            </button>
-          </div>
-        ))}
+              <OrderChip index={index} enabled={row.enabled} />
+              <Switch
+                label="Enabled"
+                checked={row.enabled}
+                disabled={disabled}
+                onCheckedChange={(next) => setRow(index, { enabled: next })}
+              />
+              <span className={cn("min-w-32 flex-1 font-medium", !row.enabled && "text-muted-foreground")}>
+                {row.name}
+              </span>
+              {!row.enabled ? (
+                <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wide text-faint-foreground">
+                  off
+                </span>
+              ) : null}
+              <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                match
+                <Input
+                  type="number" min={0.05} max={1} step={0.05}
+                  aria-label={`${row.name} threshold`}
+                  // Keyed on the value for the same reason NumberField is:
+                  // defaultValue is only honoured at mount, and this row's
+                  // own key={row.name} does not change when row.threshold
+                  // does, so without this a Revert would update the draft but
+                  // leave the field showing the stale, previously-typed number.
+                  key={row.threshold}
+                  defaultValue={row.threshold}
+                  disabled={disabled}
+                  onBlur={(e) => setRow(index, { threshold: Number(e.target.value) })}
+                  className="w-20 text-right font-mono"
+                />
+              </label>
+              <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                brightness
+                <Input
+                  type="number" min={0} max={1} step={0.05}
+                  aria-label={`${row.name} brightness`}
+                  // Same reasoning as the threshold field's key above.
+                  key={row.brightness_ratio}
+                  defaultValue={row.brightness_ratio}
+                  disabled={disabled}
+                  onBlur={(e) =>
+                    setRow(index, { brightness_ratio: Number(e.target.value) })
+                  }
+                  className="w-20 text-right font-mono"
+                />
+              </label>
+              <ReorderButtons
+                index={index} count={value.actions.length} disabled={disabled}
+                onMove={(delta) => move(index, delta)}
+              />
+            </div>
+          ))}
+        </div>
 
-        <div className="text-sm">
+        <div className="mt-3 text-sm">
           <div className="mb-1">Affordability</div>
           {["digits", "brightness"].map((name) => (
             <label
@@ -139,6 +194,7 @@ export function StrategyEditor({
             >
               <input
                 type="radio" name="affordability" aria-label={name}
+                className="accent-primary"
                 checked={value.affordability === name}
                 disabled={disabled || !usable(name)}
                 onChange={() => set("affordability", name)}
@@ -148,10 +204,9 @@ export function StrategyEditor({
             </label>
           ))}
         </div>
-      </Card>
+      </SectionCard>
 
-      <Card className="gap-3 p-3">
-        <h2 className="text-xs uppercase tracking-wide text-muted-foreground">Timing</h2>
+      <SectionCard id="timing" title="Timing" contentClassName="flex flex-col gap-3">
         <NumberField
           label="Scan interval (s)" value={value.interval} disabled={disabled}
           min={0.1} max={3600} step={0.1}
@@ -172,10 +227,9 @@ export function StrategyEditor({
           disabled={disabled} min={1} max={10} step={1}
           onCommit={(n) => set("screen_confirmations", n)} badge={<StartOnly />}
         />
-      </Card>
+      </SectionCard>
 
-      <Card className="gap-3 p-3">
-        <h2 className="text-xs uppercase tracking-wide text-muted-foreground">Jitter</h2>
+      <SectionCard id="jitter" title="Jitter" contentClassName="flex flex-col gap-3">
         <p className="text-xs text-muted-foreground">
           Every tap is an ADB <code>input tap</code>: no travel, no dwell, and the
           same pixel every time. These scatter it. Zero switches each one off.
@@ -195,19 +249,18 @@ export function StrategyEditor({
           min={0} max={2} step={0.05}
           onCommit={(n) => set("tap_delay", n)}
         />
-      </Card>
+      </SectionCard>
 
-      <Card className="gap-3 p-3">
-        <h2 className="text-xs uppercase tracking-wide text-muted-foreground">
-          Run policy
-        </h2>
-        <label className="flex items-center justify-between text-sm">
+      <SectionCard id="run-policy" title="Run policy" contentClassName="flex flex-col gap-3">
+        <div className="flex items-center justify-between text-sm">
           Auto-navigate
-          <input
-            type="checkbox" checked={value.auto_navigate} disabled={disabled}
-            onChange={(e) => set("auto_navigate", e.target.checked)}
+          <Switch
+            label="Auto-navigate"
+            checked={value.auto_navigate}
+            disabled={disabled}
+            onCheckedChange={(next) => set("auto_navigate", next)}
           />
-        </label>
+        </div>
         <label className="flex items-center justify-between text-sm">
           <span>
             Max runs{" "}
@@ -229,42 +282,10 @@ export function StrategyEditor({
             onBlur={(e) =>
               set("max_runs", e.target.value === "" ? null : Number(e.target.value))
             }
-            className="w-24 text-right"
+            className="w-24 text-right font-mono"
           />
         </label>
-      </Card>
+      </SectionCard>
     </div>
-  );
-}
-
-function NumberField({
-  label, value, onCommit, min, max, step, disabled, badge,
-}: {
-  label: string;
-  value: number;
-  onCommit: (n: number) => void;
-  min: number; max: number; step: number;
-  disabled?: boolean;
-  badge?: React.ReactNode;
-}) {
-  return (
-    <label className="flex items-center justify-between text-sm">
-      <span>
-        {label}
-        {badge}
-      </span>
-      <Input
-        type="number" min={min} max={max} step={step} aria-label={label}
-        // Keyed on the value so a change from another tab (or a rejected
-        // save) remounts the field rather than leaving a stale local edit
-        // sitting there looking live - the same reasoning the old control
-        // page documented for its interval input.
-        key={value}
-        defaultValue={value}
-        disabled={disabled}
-        onBlur={(e) => onCommit(Number(e.target.value))}
-        className="w-24 text-right"
-      />
-    </label>
   );
 }

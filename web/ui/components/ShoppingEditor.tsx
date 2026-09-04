@@ -1,9 +1,15 @@
 "use client";
 
+import { TriangleAlert } from "lucide-react";
 import { type ComponentRef, useEffect, useRef, useState } from "react";
+import { OrderChip, ReorderButtons } from "@/components/StrategyEditor";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { NumberField } from "@/components/ui/number-field";
+import { SectionCard } from "@/components/ui/section-card";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import type { CardPolicy, Shopping, ShoppingRule } from "@/lib/types";
 
 /** Verbatim from the Guide's "Per-row hints for the Strategy page" table,
@@ -95,79 +101,60 @@ export function ShoppingEditor({
     setConfirmingArm(true);
   };
 
+  const enabledRows = shopping.workshop.filter((row) => row.enabled).length;
+
   return (
     <div className="flex flex-col gap-4">
-      <Card className="gap-3 p-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs uppercase tracking-wide text-muted-foreground">Shopping</h2>
-          <label className="flex items-center gap-2 text-sm">
-            Shop between runs
-            <input
-              type="checkbox"
-              aria-label="Shopping enabled"
+      <SectionCard
+        id="shopping"
+        title="Shopping"
+        tone={shopping.armed ? "danger" : undefined}
+        action={
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-xs text-muted-foreground">Shop between runs</span>
+            <Switch
+              label="Shopping enabled"
               checked={shopping.enabled}
               disabled={disabled}
-              onChange={(e) => set("enabled", e.target.checked)}
+              onCheckedChange={(next) => set("enabled", next)}
             />
-          </label>
-        </div>
-
+          </div>
+        }
+        contentClassName="flex flex-col gap-3"
+      >
+        {/* This is the reason the entire feature is inert. It was rendered as
+            a dashed muted paragraph, which reads as a footnote. */}
         {disabledReason ? (
-          <p className="rounded-md border border-dashed p-2 text-xs text-muted-foreground">
-            Shopping cannot run on this machine yet: {disabledReason}. Enabling or arming it
-            below will not do anything until this is fixed.
-          </p>
+          <div className="flex gap-2 rounded-md border border-warn bg-warn-surface p-2.5">
+            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden="true" />
+            <p className="text-xs text-warn">
+              Shopping cannot run on this machine yet: {disabledReason}. Enabling or arming it
+              below will not do anything until this is fixed.
+            </p>
+          </div>
         ) : null}
 
-        <div className="flex flex-col gap-2 rounded-md border p-2 text-sm">
-          <label className="flex items-center justify-between gap-2">
-            <span>
-              Visit frequency
-              <span className="block max-w-xs text-xs text-muted-foreground">
-                {VISIT_FREQUENCY_NOTE}
-              </span>
-            </span>
-            <Input
-              type="number" min={1} max={100} step={1}
-              aria-label="Visit every N runs"
-              key={shopping.visit_every_n_runs}
-              defaultValue={shopping.visit_every_n_runs}
-              disabled={disabled}
-              onBlur={(e) => set("visit_every_n_runs", Number(e.target.value))}
-              className="w-20 text-right"
-            />
-          </label>
-          <label className="flex items-center justify-between gap-2">
-            <span>
-              Tap budget per visit
-              <span className="block max-w-xs text-xs text-muted-foreground">
-                {TAP_BUDGET_NOTE}
-              </span>
-            </span>
-            <Input
-              type="number" min={1} max={200} step={1}
-              aria-label="Max taps per visit"
-              key={shopping.max_taps_per_visit}
-              defaultValue={shopping.max_taps_per_visit}
-              disabled={disabled}
-              onBlur={(e) => set("max_taps_per_visit", Number(e.target.value))}
-              className="w-20 text-right"
-            />
-          </label>
-        </div>
-
-        {/* The arm switch: deliberately not styled like the checkboxes on
-            this page. It is the one control here that spends real currency,
-            so it must not be mistaken for one of them at a glance. */}
+        {/* The arm block leads the card now: it is the only control here that
+            spends currency nobody gets back, so it should not be the fourth
+            thing you meet on the way down. */}
         <div
-          className={`flex flex-wrap items-center justify-between gap-3 rounded-md border-2 p-3 ${
+          className={cn(
+            "flex flex-wrap items-center justify-between gap-3 rounded-md border-2 p-3",
             shopping.armed
-              ? "border-destructive bg-destructive/10"
-              : "border-dashed border-muted-foreground/40"
-          }`}
+              ? "border-danger bg-danger-surface"
+              : "border-dashed border-border-strong",
+          )}
         >
           <div className="flex flex-col gap-1 text-sm">
-            <span className="font-semibold">
+            {/* The heading itself carries the state - promoted in weight and
+                colour rather than duplicated into a separate badge, so the
+                phrase a reader searches for still appears exactly once. */}
+            <span
+              className={cn(
+                "font-semibold",
+                shopping.armed ? "uppercase tracking-[0.06em] text-danger" : "text-foreground",
+              )}
+            >
               {!shopping.enabled
                 ? "Shopping is off"
                 : shopping.armed
@@ -188,25 +175,14 @@ export function ShoppingEditor({
                     "would buy, and reports every purchase it would make - it just taps nothing."}
             </span>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={shopping.armed}
-            aria-label="Arm shopping (spends real coins and gems)"
+          <Switch
+            label="Arm shopping (spends real coins and gems)"
+            checked={shopping.armed}
             disabled={disabled}
-            onClick={toggleArm}
-            className={`relative h-7 w-14 shrink-0 rounded-full border-2 transition-colors disabled:opacity-50 ${
-              shopping.armed
-                ? "border-destructive bg-destructive"
-                : "border-muted-foreground/50 bg-muted"
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 h-5 w-5 rounded-full bg-background shadow transition-transform ${
-                shopping.armed ? "translate-x-7" : "translate-x-0.5"
-              }`}
-            />
-          </button>
+            onCheckedChange={toggleArm}
+            size="lg"
+            tone="danger"
+          />
         </div>
 
         {confirmingArm ? (
@@ -222,7 +198,7 @@ export function ShoppingEditor({
             role="alertdialog"
             aria-live="assertive"
             aria-label="Confirm arming shopping"
-            className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-destructive bg-destructive/10 p-2 text-sm"
+            className="flex flex-wrap items-center justify-between gap-2 rounded-md border-2 border-danger bg-danger-surface p-2.5 text-sm"
           >
             <span>
               Arming spends real coins and gems on the bot&apos;s next shopping visit. This
@@ -237,7 +213,7 @@ export function ShoppingEditor({
                 Cancel
               </Button>
               <Button
-                type="button" variant="destructive" size="sm" disabled={disabled}
+                type="button" variant="danger" size="sm" disabled={disabled}
                 onClick={() => {
                   setConfirmingArm(false);
                   set("armed", true);
@@ -249,139 +225,140 @@ export function ShoppingEditor({
           </div>
         ) : null}
 
-        <p className="text-xs text-muted-foreground">
-          Visited tab by tab in this order, top to bottom within a tab — the order is the buy
-          priority.
-        </p>
+        <div className="flex flex-col gap-2 rounded-md border p-2.5">
+          <NumberField
+            label="Visit frequency" ariaLabel="Visit every N runs"
+            note={VISIT_FREQUENCY_NOTE}
+            value={shopping.visit_every_n_runs} disabled={disabled}
+            min={1} max={100} step={1} width="w-20"
+            onCommit={(n) => set("visit_every_n_runs", n)}
+          />
+          <NumberField
+            label="Tap budget per visit" ariaLabel="Max taps per visit"
+            note={TAP_BUDGET_NOTE}
+            value={shopping.max_taps_per_visit} disabled={disabled}
+            min={1} max={200} step={1} width="w-20"
+            onCommit={(n) => set("max_taps_per_visit", n)}
+          />
+        </div>
 
-        {shopping.workshop.map((row, index) => {
-          const hint = HINTS[row.name];
-          return (
-            <div
-              key={row.name}
-              data-testid="shopping-row"
-              data-name={row.name}
-              className="flex flex-col gap-1 rounded-md border p-2 text-sm"
-            >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="w-4 text-center text-xs text-muted-foreground">{index + 1}</span>
-                <input
-                  type="checkbox"
-                  aria-label="Enabled"
-                  checked={row.enabled}
-                  disabled={disabled}
-                  onChange={(e) => setRow(index, { enabled: e.target.checked })}
-                />
-                <span className="min-w-32 flex-1 font-medium">{row.name}</span>
-                <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                  {row.category}
-                </span>
-                {/* Read-only: `layout` records which workshop layout this
-                    row's template was cut for, which decides where the bot
-                    reads the price. Editing it here could not change where
-                    the game actually renders that price - it would only make
-                    the bot read the wrong pixels and report a wrong number
-                    instead of a refused one. config.WORKSHOP_ROWS enforces
-                    this server-side too. */}
-                <span
-                  className="rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
-                  title="Which workshop layout this row's template was cut for - read-only, set when the template was measured"
-                >
-                  layout: {row.layout}
-                </span>
-                <label className="flex items-center gap-1 text-xs text-muted-foreground">
-                  match
-                  <Input
-                    type="number" min={0.05} max={1} step={0.05}
-                    aria-label={`${row.name} threshold`}
-                    key={row.threshold}
-                    defaultValue={row.threshold}
+        <div className="flex items-baseline justify-between">
+          <p className="text-xs text-muted-foreground">
+            Visited tab by tab in this order, top to bottom within a tab — the order is the buy
+            priority.
+          </p>
+          <span className="shrink-0 pl-2 font-mono text-xs text-muted-foreground">
+            {enabledRows}/{shopping.workshop.length} on
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {shopping.workshop.map((row, index) => {
+            const hint = HINTS[row.name];
+            return (
+              <div
+                key={row.name}
+                data-testid="shopping-row"
+                data-name={row.name}
+                className={cn(
+                  "flex flex-col gap-1 rounded-md border p-2 text-sm",
+                  !row.enabled && "opacity-60",
+                )}
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <OrderChip index={index} enabled={row.enabled} />
+                  <Switch
+                    label="Enabled"
+                    checked={row.enabled}
                     disabled={disabled}
-                    onBlur={(e) => setRow(index, { threshold: Number(e.target.value) })}
-                    className="w-20 text-right"
+                    onCheckedChange={(next) => setRow(index, { enabled: next })}
                   />
-                </label>
-                {/* No brightness control here on purpose: shopping.py has no
-                    brightness path for menu prices at all (the game
-                    desaturates rather than dims an unaffordable button on
-                    these pages - see the Guide and shopping.py's module
-                    docstring), so an editable field here would let someone
-                    tune a knob that is never read. brightness_ratio stays on
-                    ShoppingRule for schema symmetry with ActionRule, not
-                    because this page can do anything with it. */}
-                <button
-                  type="button" aria-label="Move up"
-                  disabled={disabled || index === 0}
-                  onClick={() => move(index, -1)}
-                  className="rounded border px-2 disabled:opacity-30"
-                >
-                  ↑
-                </button>
-                <button
-                  type="button" aria-label="Move down"
-                  disabled={disabled || index === shopping.workshop.length - 1}
-                  onClick={() => move(index, 1)}
-                  className="rounded border px-2 disabled:opacity-30"
-                >
-                  ↓
-                </button>
+                  <span className={cn("min-w-32 flex-1 font-medium", !row.enabled && "text-muted-foreground")}>
+                    {row.name}
+                  </span>
+                  <Badge variant="outline" className="font-mono text-[10px] uppercase">
+                    {row.category}
+                  </Badge>
+                  {/* Read-only: `layout` records which workshop layout this
+                      row's template was cut for, which decides where the bot
+                      reads the price. Editing it here could not change where
+                      the game actually renders that price - it would only make
+                      the bot read the wrong pixels and report a wrong number
+                      instead of a refused one. config.WORKSHOP_ROWS enforces
+                      this server-side too. */}
+                  <Badge
+                    variant="outline"
+                    className="font-mono text-[10px] uppercase"
+                    title="Which workshop layout this row's template was cut for - read-only, set when the template was measured"
+                  >
+                    layout: {row.layout}
+                  </Badge>
+                  <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                    match
+                    <Input
+                      type="number" min={0.05} max={1} step={0.05}
+                      aria-label={`${row.name} threshold`}
+                      key={row.threshold}
+                      defaultValue={row.threshold}
+                      disabled={disabled}
+                      onBlur={(e) => setRow(index, { threshold: Number(e.target.value) })}
+                      className="w-20 text-right font-mono"
+                    />
+                  </label>
+                  {/* No brightness control here on purpose: shopping.py has no
+                      brightness path for menu prices at all (the game
+                      desaturates rather than dims an unaffordable button on
+                      these pages - see the Guide and shopping.py's module
+                      docstring), so an editable field here would let someone
+                      tune a knob that is never read. brightness_ratio stays on
+                      ShoppingRule for schema symmetry with ActionRule, not
+                      because this page can do anything with it. */}
+                  <ReorderButtons
+                    index={index} count={shopping.workshop.length} disabled={disabled}
+                    onMove={(delta) => move(index, delta)}
+                  />
+                </div>
+                {hint ? (
+                  <p data-testid={`hint-${row.name}`} className="pl-7 text-xs text-muted-foreground">
+                    {hint}
+                  </p>
+                ) : null}
               </div>
-              {hint ? (
-                <p data-testid={`hint-${row.name}`} className="text-xs text-muted-foreground">
-                  {hint}
-                </p>
-              ) : null}
-            </div>
-          );
-        })}
-      </Card>
+            );
+          })}
+        </div>
+      </SectionCard>
 
-      <Card className="gap-3 p-3">
-        <h2 className="text-xs uppercase tracking-wide text-muted-foreground">Cards</h2>
-        <label className="flex items-center justify-between text-sm">
+      <SectionCard id="cards" title="Cards" contentClassName="flex flex-col gap-3">
+        <div className="flex items-center justify-between text-sm">
           Buy cards with gems
-          <input
-            type="checkbox"
-            aria-label="Cards enabled"
+          <Switch
+            label="Cards enabled"
             checked={shopping.cards.enabled}
             disabled={disabled}
-            onChange={(e) => setCards({ enabled: e.target.checked })}
+            onCheckedChange={(next) => setCards({ enabled: next })}
           />
-        </label>
-        <label className="flex items-center justify-between text-sm">
-          <span>
-            Gem floor
-            <span className="block max-w-xs text-xs text-muted-foreground">
-              {GEM_FLOOR_NOTE} The bot stops buying cards once spending would take the balance
-              below this.
-            </span>
-          </span>
-          <Input
-            type="number" min={0} step={1} aria-label="Gem floor"
-            key={shopping.cards.gem_floor}
-            defaultValue={shopping.cards.gem_floor}
-            disabled={disabled}
-            onBlur={(e) => setCards({ gem_floor: Number(e.target.value) })}
-            className="w-24 text-right"
-          />
-        </label>
-        <label className="flex items-center justify-between text-sm">
-          Max cards per visit
-          <Input
-            type="number" min={1} step={1} aria-label="Max cards per visit"
-            key={shopping.cards.max_per_visit}
-            defaultValue={shopping.cards.max_per_visit}
-            disabled={disabled}
-            onBlur={(e) => setCards({ max_per_visit: Number(e.target.value) })}
-            className="w-24 text-right"
-          />
-        </label>
+        </div>
+        <NumberField
+          label="Gem floor"
+          note={`${GEM_FLOOR_NOTE} The bot stops buying cards once spending would take the balance below this.`}
+          value={shopping.cards.gem_floor} disabled={disabled}
+          min={0} step={1}
+          onCommit={(n) => setCards({ gem_floor: n })}
+        />
+        <NumberField
+          label="Max cards per visit"
+          value={shopping.cards.max_per_visit} disabled={disabled}
+          min={1} step={1}
+          onCommit={(n) => setCards({ max_per_visit: n })}
+        />
         <div className="text-sm">
           <div className="mb-1">Batch size</div>
           {(["x1", "x10"] as const).map((b) => (
             <label key={b} className="mr-4">
               <input
                 type="radio" name="card-batch" aria-label={b}
+                className="accent-primary"
                 checked={shopping.cards.batch === b}
                 disabled={disabled}
                 onChange={() => setCards({ batch: b })}
@@ -390,7 +367,7 @@ export function ShoppingEditor({
             </label>
           ))}
         </div>
-      </Card>
+      </SectionCard>
     </div>
   );
 }
