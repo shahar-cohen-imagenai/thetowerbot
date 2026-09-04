@@ -166,3 +166,9 @@ def test_the_unmatched_api_catch_all_does_not_shadow_real_routes() -> None:
     response = client.post("/api/bot/stop")
     assert response.status_code == 200
     assert runner.stops == 1
+
+
+def test_the_ledger_route_is_not_shadowed_by_the_api_catch_all(wired) -> None:
+    client = wired[0]
+
+    assert client.get("/api/ledger").status_code == 200
