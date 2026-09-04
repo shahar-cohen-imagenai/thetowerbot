@@ -127,6 +127,15 @@ Skips are recorded rather than silent, with five reasons, checked cheapest
 first: `paused`, then `screen_gated`, then the match score, then
 `unaffordable` / `dimmed`, then `cooldown`.
 
+Menu pages — `MAIN_MENU`, `WORKSHOP`, `CARDS`, `MISSIONS` — are a separate
+classification, done by `pages.py` against `config.PAGE_ANCHORS`, and kept
+deliberately out of the table above. `screens.classify()` does
+`ScreenState(winner)`, which raises on any name the enum does not have, so a
+menu page can never become a `ScreenState` member without turning every
+Workshop or Cards frame into a crash. Outside a shopping visit, a menu page
+reading `UNKNOWN` to this tracker is correct behaviour, not a gap — see
+"Shopping between runs" below.
+
 ### Unknown screens
 
 Ads, daily rewards, anything unmodelled: the bot holds still. It taps nothing,
@@ -135,6 +144,12 @@ see what it hit. Writes are throttled to one per `UNKNOWN_MIN_INTERVAL`
 (`30.0`s) and the directory is pruned to the newest `UNKNOWN_KEEP` (`50`). The
 directory is gitignored; the dashboard shows the newest twelve as thumbnails.
 These are how you decide which screen to model next.
+
+Snapshotting is suppressed for the whole time a shopping visit is running.
+The Workshop and Cards pages read `UNKNOWN` to this tracker by design (see
+above), so without the guard every visit would fill `unknown/` with pictures
+of the very pages it is deliberately visiting, evicting the genuine
+unmodelled screens the directory exists to capture.
 
 ### Runs
 
@@ -161,6 +176,130 @@ Turned on, it taps exactly two buttons: `RETRY` on `GAME_OVER` and `BATTLE` on
 `MAIN_MENU`, each at the matched template's centre, no closer together than
 `NAVIGATION_COOLDOWN_SECONDS` (`3.0`s). `--max-runs N` stops after N runs and
 suppresses the RETRY that would have started run N+1.
+
+### Shopping between runs
+
+Off by default (`shopping.enabled` in the active strategy, same shape as
+`auto_navigate`). When the bot lands on `MAIN_MENU` between runs, it can walk
+the Workshop and Cards pages and buy from a priority list you edit on the
+**Strategy** page, instead of just sitting there waiting for the next
+`BATTLE` tap.
+
+A visit advances **one step per scan** — one capture, one decision, at most
+one tap — the same discipline the rest of the scan loop already runs under.
+`ShoppingSession.advance()` in `shopping.py` is written so every call either
+makes progress, publishes a skip or a purchase, or ends the visit; it never
+blocks waiting on the next frame. That is what keeps a minute-long shopping
+errand from arriving as one opaque log line after the fact: Pause still
+freezes it mid-errand instead of having to unwind it, the device frame
+stream never stalls, and the event feed shows every row it looked at, not
+just the ones it bought.
+
+**This is the first thing the bot does that spends a resource you cannot get
+back.** `navigate.py`'s own docstring opens by boasting that "nothing here
+spends permanent resources: in-run upgrades are bought with per-run cash
+that resets, and coins are only ever earned." Shopping breaks that
+invariant on purpose — it spends coins and gems the game does not hand back
+— so every safety property the rest of the bot gets for free had to be
+re-earned here explicitly: no brightness fallback (see below), a step that
+raises ends the visit instead of the bot, a tap budget, and a switch that
+defaults to off.
+
+Two switches, not one mode:
+
+| Field | Default | What it does |
+|---|---|---|
+| `enabled` | `false` | Lets a visit start at all |
+| `armed` | `false` | Lets a visit actually tap |
+
+`enabled` without `armed` is a full rehearsal: the bot navigates, reads
+prices and balances, decides what it would buy, and publishes a `Purchased`
+event for every purchase it *would* make (`dry_run=True`) — it just never
+reaches `device.tap`. `_tap()` in `shopping.py` is the only place in the
+whole module that calls it, and it returns before getting there whenever
+`not shopping.armed`. `armed` is the only field standing between a
+miscalibrated template and coins or gems that cannot be refunded, which is
+why it is its own boolean rather than a value of something else, and why it
+defaults to `false` independently of `enabled`.
+
+**The buy rule** is: on the current tab, buy the highest-priority affordable
+row, re-read the balance, and repeat until nothing left on that tab is
+affordable. Row order **is** the policy — `Shopping.workshop` is a flat,
+reorderable list, the same shape as `Strategy.actions` for in-run upgrades —
+and which tabs get visited, and in what order, is *derived* from that same
+list (`Shopping.categories_in_priority_order()`) rather than configured
+separately. Reordering rows is the only control anyone needs: a tab whose
+rows are all disabled is never opened, because there is nothing on it to
+buy.
+
+Cards work the same way with one difference: a card purchase does not use up
+the row, so the bot keeps buying the configured batch (`x1` or `x10`) until
+it hits a cap rather than until the button disappears. Cards ship disabled
+(`cards.enabled: false` by default) — see "What it never taps" below for
+why. Three numbers bound how much a visit can spend:
+
+- **Gem floor** (`cards.gem_floor`, default `40`) — the bot will not spend a
+  gem balance below this floor. Inclusive at zero on purpose: spending down
+  to nothing is a real, permitted choice, unlike a negative floor, which is
+  not a choice at all.
+- **Cards per visit** (`cards.max_per_visit`, default `2`).
+- **Tap budget** (`max_taps_per_visit`, default `40`) — every attempted tap
+  counts against it, armed or not, so a rehearsal hits the same ceiling a
+  real run would.
+
+**What it never taps:** card slots, labs, modules, relics, the shop, and
+Ultimate Weapon selection — all deliberate, not missing features.
+
+- Gem purchases don't touch **lab slots**, even though the community's own
+  gem spend order (see the **Guide** page) puts lab slots *above* cards. The
+  bot cannot see the Labs screen at all — no template, no classifier,
+  nothing — so a bot spending gems on cards while blind to the better
+  purchase would be worse than one spending none.
+- **Ultimate Weapon** picks are irreversible, and each new pick costs more
+  than the last. Permanent plus escalating is exactly the combination a
+  policy read off a priority list should not be trusted with.
+- Card **slots**, **modules**, **relics** and the **shop** are simply out of
+  scope for this feature; nothing about any of them is modelled.
+
+**Bail-outs.** Any of the following ends the visit immediately and taps the
+Battle tab on the way out, best-effort, whether or not the tap budget has
+room left — the one tap explicitly licensed past the cap, because the
+alternative is a bot stranded on the Workshop or Cards page with nothing,
+not even `navigate.py`, able to rescue it:
+
+- The tap budget runs out.
+- The same page fails to classify, or a positioning step's target template
+  is not found, two scans in a row — once is assumed to be an animation
+  frame still settling, twice means a mis-cut or renamed template.
+- Any step raises. `advance()` catches everything, logs it, and ends the
+  visit with the exception message as the reason, rather than ever letting
+  a bad frame crash the scan loop.
+
+Every ending, clean or aborted, publishes `ShoppingEnded(bought=…, spent=…,
+aborted=…, reason=…)`, and every purchase attempt along the way publishes
+its own `Purchased` or `PurchaseSkipped` event — so a visit is as legible in
+the event feed as any other run, not one entry that shows up after the fact.
+
+> **Two things here are still unverified on a live device.**
+>
+> The header glyph atlas is incomplete. `templates/atlas/header/` holds
+> `0 1 4 7 8 . K` — every glyph the committed fixtures happened to contain.
+> `2 3 5 6 9` only show up once a coin balance has actually passed through
+> them, which needs a real play session (see "Known gap" below for the
+> harvesting steps). Until then, `build_shopping()` in `tower_bot.py` logs
+> exactly which glyphs are missing and hands back a permanently disabled
+> session rather than one that might approve a purchase against a balance
+> it half-read. This fails safe on purpose: an unreadable balance can
+> approve no purchase, ever.
+>
+> The workshop buy point has never been tapped on a live device. A row
+> purchase taps the centre of the row's own matched template (`match.center`
+> in `shopping.py`), not `config.buy_point()`. That function exists in the
+> first place because an in-run upgrade's label is itself a button that
+> opens an info panel instead of buying anything — `config.buy_point()` is
+> how that trap is avoided for in-run upgrades. Nobody has yet confirmed
+> whether a workshop tile behaves the same way. It needs one deliberate,
+> watched tap on a cheap row to settle, not a batch run.
 
 ## Capturing templates
 
@@ -286,18 +425,24 @@ disables the check for that action.
 > case works and is verified with a wide margin.
 >
 > It does **not** work for a greyed-out unaffordable button, and this has
-> now actually been measured rather than assumed: on the Cards page, the
-> unaffordable `x10` button is *brighter* than the affordable `x1` one
-> (mean grey 65.1 vs 52.5), not dimmer - the game signals "cannot afford" by
-> **desaturating** the price and icon toward grey, a change `brightness_ratio`
-> cannot see at all, in either direction. A gate calibrated on the affordable
-> style would have let the unaffordable button straight through. See
+> now actually been measured rather than assumed: on the Cards page at 40
+> gems, the affordable `x1` button reads mean grey `51.7` / border
+> saturation `57.0`, while the unaffordable `x10` button reads mean grey
+> `59.7` / saturation `45.5` - the unaffordable button is *brighter*, not
+> dimmer. The game signals "cannot afford" by **desaturating** the price and
+> icon toward grey, not by darkening anything, so `brightness_ratio` - which
+> only ever measures mean grey - cannot distinguish the two at all: a gate
+> calibrated on the affordable style scores the unaffordable button at
+> roughly `1.24` and would wave it straight through, in exactly the wrong
+> direction. See the comment on `config.DEFAULT_BRIGHTNESS_RATIO` and
 > `test_the_unaffordable_card_button_is_desaturated_not_dimmed` in
 > `tests/test_shopping_templates.py` for the measurement. Do not try to
 > calibrate `brightness_ratio` against an unaffordable state by spending a
 > wallet down and reading `--debug-scores` - that advice assumed a dimming
-> that is not how this particular state is actually rendered. Reading the
-> numbers (`digits`) is the only affordability check that works for both
+> that is not how this particular state is actually rendered. Brightness
+> keeps doing its original job - rejecting a dimmed overlay - and nothing
+> more; reading the numbers (`digits`) is the only affordability check that
+> works for both
 > workshop upgrades and cards.
 
 ## Watching it work
@@ -309,9 +454,9 @@ current screen, uptime, scan count, a tap tally per action, a skip tally per
 reason, the last error, and the twelve most recent events. Logging is silenced
 while it runs, because rich owns the terminal.
 
-**`--web`** serves a dashboard at `http://127.0.0.1:8765`, six pages behind a
-sidebar. `--web --idle` serves the dashboard without starting a bot — press
-**Start** in the browser.
+**`--web`** serves a dashboard at `http://127.0.0.1:8765`, seven pages behind
+a sidebar. `--web --idle` serves the dashboard without starting a bot —
+press **Start** in the browser.
 
 - **Live** — the current run, the live device screen with its match overlay,
   a wave sparkline, a filterable live event feed, a run-history table, and
@@ -326,10 +471,16 @@ sidebar. `--web --idle` serves the dashboard without starting a bot — press
   in one place.
 - **Strategy** — the whole decision policy: which upgrades to buy and in
   what order, per-row match and brightness thresholds, loop timing, and run
-  policy. Named profiles live in `strategies/*.json`, switchable live and
-  editable by hand. Two fields — navigation cooldown and screen
-  confirmations — configure objects built once per bot, so they are labelled
-  *applies on next Start*.
+  policy, plus a **Shopping** section for the between-runs buy list — see
+  "Shopping between runs" above. Named profiles live in `strategies/*.json`,
+  switchable live and editable by hand. Two fields — navigation cooldown and
+  screen confirmations — configure objects built once per bot, so they are
+  labelled *applies on next Start*.
+- **Guide** — the researched community strategy the bot's default buy order
+  is drawn from, sourced page by page (economy/defence/attack order, the gem
+  spend order, card mechanics) so you can judge whether you agree with it.
+  Where the community disagrees with itself, the disagreement is kept
+  rather than papered over.
 - **Control** — see below.
 
 The live device screen is `GET /api/frame`, an MJPEG stream
@@ -354,9 +505,14 @@ same SSE feed.
 > screenshots, plus this machine's entire event history, and its control
 > page lets anyone who can reach the port pause the bot, start or stop it,
 > shut down the whole dashboard process, rewrite what it buys, and create
-> or delete strategy files — which is why it binds loopback. `--web-host`
-> will let you bind something else, and the bot logs a warning when you do,
-> but it will not stop you. Do not put it on a network without real auth in
+> or delete strategy files — which is why it binds loopback. Since shopping,
+> that includes flipping `armed` to `true` and reordering the between-runs
+> buy list from the Strategy page. Every other control here stops mattering
+> the instant you kill the process; coins and gems a visit already spent do
+> not come back when the bot exits, which makes this the first control
+> surface here whose damage survives it. `--web-host` will let you bind
+> something else, and the bot logs a warning when you do, but it will not
+> stop you. Do not put it on a network without real auth in
 > front of it.
 
 Ctrl+C and `POST /api/shutdown` stop both the bot and the dashboard.
