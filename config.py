@@ -37,15 +37,18 @@ DEFAULT_THRESHOLD: float = 0.8
 # overlay covering the whole screen (modal fade: 1.00 lit, 0.28 dimmed - see
 # vision.brightness_ratio's docstring and test_vision.py). It does NOT detect
 # a per-button "cannot afford" style: measured on menu_cards.png (x1
-# affordable at 40 gems, x10 not), the unaffordable button is DESATURATED
-# (border saturation 45.5 vs 57.0 affordable) rather than dimmed - its mean
-# grey level is actually HIGHER (59.7 vs 51.7 affordable), the wrong
-# direction for this ratio to catch. See
+# affordable at 40 gems, x10 not) over the button's OWN matched template -
+# CARD_BUTTONS, label and border only, not the price strip - the unaffordable
+# button is DESATURATED (border saturation 45.5 vs 57.0 affordable) rather
+# than dimmed - its mean grey level is actually HIGHER (59.7 vs 51.7
+# affordable), the wrong direction for this ratio to catch. See
 # test_the_unaffordable_card_button_is_desaturated_not_dimmed in
-# tests/test_shopping_templates.py for the measurement. The 0.75 default
-# stays as-is: it still does its real job (rejecting a dimmed overlay on
-# shopping rows), and digit-reading (Task 5b) is required for card and
-# workshop affordability regardless.
+# tests/test_shopping_templates.py for a second measurement of the same
+# finding over CARD_PRICE_REGION instead - different absolute numbers,
+# because it is a different region, but the same direction. The 0.75
+# default stays as-is: it still does its real job (rejecting a dimmed
+# overlay on shopping rows), and digit-reading (Task 5b) is required for
+# card and workshop affordability regardless.
 DEFAULT_BRIGHTNESS_RATIO: float = 0.75
 
 

@@ -236,8 +236,12 @@ Cards work the same way with one difference: a card purchase does not use up
 the row, so the bot keeps buying the configured batch (`x1` or `x10`) until
 it hits a cap rather than until the button disappears. Cards ship disabled
 (`cards.enabled: false` by default) — see "What it never taps" below for
-why. Three numbers bound how much a visit can spend:
+why. Four numbers bound how often a visit happens and how much it can
+spend:
 
+- **Visit cadence** (`visit_every_n_runs`, default `1`) — how many runs pass
+  between the end of one visit and the start of the next being considered
+  at all. `1` means every run that ends on `MAIN_MENU` is a candidate.
 - **Gem floor** (`cards.gem_floor`, default `40`) — the bot will not spend a
   gem balance below this floor. Inclusive at zero on purpose: spending down
   to nothing is a real, permitted choice, unlike a negative floor, which is
@@ -426,21 +430,27 @@ disables the check for that action.
 >
 > It does **not** work for a greyed-out unaffordable button, and this has
 > now actually been measured rather than assumed: on the Cards page at 40
-> gems, the affordable `x1` button reads mean grey `51.7` / border
-> saturation `57.0`, while the unaffordable `x10` button reads mean grey
-> `59.7` / saturation `45.5` - the unaffordable button is *brighter*, not
-> dimmer. The game signals "cannot afford" by **desaturating** the price and
-> icon toward grey, not by darkening anything, so `brightness_ratio` - which
-> only ever measures mean grey - cannot distinguish the two at all: a gate
-> calibrated on the affordable style scores the unaffordable button at
-> roughly `1.24` and would wave it straight through, in exactly the wrong
-> direction. See the comment on `config.DEFAULT_BRIGHTNESS_RATIO` and
+> gems, measured over each button's own matched template (`CARD_BUTTONS` -
+> the label and border only, not the price strip), the affordable `x1`
+> button reads mean grey `51.7` / saturation `57.0`, while the unaffordable
+> `x10` button reads mean grey `59.7` / saturation `45.5` - the unaffordable
+> button is *brighter*, not dimmer. The game signals "cannot afford" by
+> **desaturating** the price and icon toward grey, not by darkening
+> anything, so `brightness_ratio` - which only ever measures mean grey -
+> cannot distinguish the two at all: a gate calibrated on the affordable
+> style scores the unaffordable button at roughly `59.7 / 51.7 ≈ 1.15` and
+> would wave it straight through, in exactly the wrong direction. (A second
+> measurement over `CARD_PRICE_REGION` instead - the price strip plus its
+> gem icon, a different region with different absolute numbers - gets
+> `52.5`/`65.1` mean grey and the same conclusion, at roughly `1.24`; see
 > `test_the_unaffordable_card_button_is_desaturated_not_dimmed` in
-> `tests/test_shopping_templates.py` for the measurement. Do not try to
-> calibrate `brightness_ratio` against an unaffordable state by spending a
-> wallet down and reading `--debug-scores` - that advice assumed a dimming
-> that is not how this particular state is actually rendered. Brightness
-> keeps doing its original job - rejecting a dimmed overlay - and nothing
+> `tests/test_shopping_templates.py`.) See the comment on
+> `config.DEFAULT_BRIGHTNESS_RATIO` for the button-template measurement. Do
+> not try to calibrate `brightness_ratio` against an unaffordable state by
+> spending a wallet down and reading `--debug-scores` - that advice assumed
+> a dimming that is not how this particular state is actually rendered.
+> Brightness keeps doing its original job - rejecting a dimmed overlay - and
+> nothing
 > more; reading the numbers (`digits`) is the only affordability check that
 > works for both
 > workshop upgrades and cards.
@@ -507,13 +517,12 @@ same SSE feed.
 > shut down the whole dashboard process, rewrite what it buys, and create
 > or delete strategy files — which is why it binds loopback. Since shopping,
 > that includes flipping `armed` to `true` and reordering the between-runs
-> buy list from the Strategy page. Every other control here stops mattering
-> the instant you kill the process; coins and gems a visit already spent do
-> not come back when the bot exits, which makes this the first control
-> surface here whose damage survives it. `--web-host` will let you bind
-> something else, and the bot logs a warning when you do, but it will not
-> stop you. Do not put it on a network without real auth in
-> front of it.
+> buy list from the Strategy page, and this one is not like the others: a
+> deleted strategy file can be rewritten from git or by hand, but gems and
+> coins a visit already spent cannot be recovered by any means available to
+> the player, ever. `--web-host` will let you bind something else, and the
+> bot logs a warning when you do, but it will not stop you. Do not put it on
+> a network without real auth in front of it.
 
 Ctrl+C and `POST /api/shutdown` stop both the bot and the dashboard.
 Reaching `--max-runs`, or stopping the bot from the dashboard, stops only the

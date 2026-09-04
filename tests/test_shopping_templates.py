@@ -146,6 +146,15 @@ def test_the_unaffordable_card_button_is_desaturated_not_dimmed(cache) -> None:
     PASSED this unaffordable button as affordable, in the wrong direction
     from a false rejection. Brightness cannot do this job for cards; only
     digit-reading (Task 5b) can.
+
+    config.py's comment on DEFAULT_BRIGHTNESS_RATIO cites a second
+    measurement of the same finding over a different region - the button's
+    own matched template (CARD_BUTTONS: label and border only, not the
+    price strip) rather than CARD_PRICE_REGION - with different absolute
+    numbers (51.7/59.7 grey, 57.0/45.5 saturation) but the same direction:
+    the unaffordable button reads brighter and less saturated there too.
+    The two figures are not the same measurement and should not be expected
+    to match digit-for-digit; only the conclusion is shared.
     """
     screen = frame("menu_cards")
     x1_match = vision.locate_template(screen, cache.get(config.CARD_BUTTONS["x1"]), 0.9)
