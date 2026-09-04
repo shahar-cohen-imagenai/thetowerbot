@@ -69,6 +69,33 @@ export function splitEvent(event: BotEvent): EventLine {
         .join(" ");
       return { kind: "CTRL", body: `${parts} (${event.source})` };
     }
+    case "Purchased":
+      return {
+        kind: "BUY",
+        // "rehearsal" spelled out rather than a dry_run flag: this line is
+        // read at a glance on a second monitor, and a purchase that did not
+        // happen must not look like one that did.
+        body: `${event.item} ${money(event.price)}${event.dry_run ? " (rehearsal)" : ""}`,
+      };
+    case "PurchaseSkipped":
+      return {
+        kind: "NOBUY",
+        body: `${event.item} reason=${event.reason}${event.detail ? " " + event.detail : ""}`,
+      };
+    case "ShoppingStarted":
+      return { kind: "SHOP", body: `visit #${event.visit}${event.dry_run ? " (rehearsal)" : ""}` };
+    case "ShoppingEnded":
+      return {
+        kind: "SHOP",
+        body: `visit #${event.visit} ${event.aborted ? "aborted" : "done"} bought=${event.bought} spent=${event.spent}${event.reason ? " " + event.reason : ""}`,
+      };
+    case "ShoppingUnavailable":
+      return { kind: "SHOP", body: event.reason };
+    case "PageChanged":
+      return {
+        kind: "PAGE",
+        body: `${event.prev_page} -> ${event.curr_page} (${event.confidence.toFixed(3)})`,
+      };
     default:
       // An event type the UI predates. Showing its name beats dropping it.
       return { kind: (event as { type: string }).type, body: "" };

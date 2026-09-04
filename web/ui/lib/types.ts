@@ -17,7 +17,13 @@ export type BotEvent =
   | (EventBase & { type: "Navigated"; target: string })
   | (EventBase & { type: "UnknownScreen"; snapshot_path: string; best_anchor: string; best_score: number })
   | (EventBase & { type: "BotError"; message: string; traceback: string })
-  | (EventBase & { type: "ControlChanged"; changed: Record<string, unknown>; source: string });
+  | (EventBase & { type: "ControlChanged"; changed: Record<string, unknown>; source: string })
+  | (EventBase & { type: "PageChanged"; prev_page: string; curr_page: string; confidence: number })
+  | (EventBase & { type: "ShoppingStarted"; visit: number; dry_run: boolean })
+  | (EventBase & { type: "ShoppingUnavailable"; reason: string })
+  | (EventBase & { type: "Purchased"; item: string; category: string; price: number | null; coins_before: number | null; gems_before: number | null; dry_run: boolean })
+  | (EventBase & { type: "PurchaseSkipped"; item: string; reason: string; detail: string; coins_before: number | null; gems_before: number | null })
+  | (EventBase & { type: "ShoppingEnded"; visit: number; bought: number; spent: number; aborted: boolean; reason: string });
 
 /** A row from the `events` table, which carries columns plus a JSON blob. */
 export interface StoredEvent {
