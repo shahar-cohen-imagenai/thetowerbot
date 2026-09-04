@@ -5,9 +5,7 @@ import {
 
 // Every number and claim here comes from the community wiki the game's
 // Discord points newcomers at (tower-hub.com). Where the community disagrees
-// with itself, that disagreement is kept rather than papered over. See
-// .superpowers/sdd/2026-09-03-menu-shopping/guide-content.md for the
-// researched source text this page renders.
+// with itself, that disagreement is kept rather than papered over.
 const SECTION_HEADING = "text-xs uppercase tracking-wide text-muted-foreground";
 
 function SourceLine({ paths }: { paths: string[] }) {

@@ -46,8 +46,7 @@ def fake_header(monkeypatch):
     Patched at module scope in shopping.py, not by setting session state: the
     session re-reads the header every step, so an attribute poked before
     advance() is overwritten before anything reads it. A test that sets
-    _coins and then asserts on affordability is asserting nothing - see
-    task-8-overrides.md, override 1.
+    _coins and then asserts on affordability is asserting nothing.
     """
     values = {"coins": 1770, "gems": 40}
 
@@ -83,12 +82,10 @@ def a_policy(**over) -> Shopping:
         enabled=True,
         armed=False,
         workshop=(
-            # layout="tile": this is an unlock tile, not an upgrade row - the
-            # brief's own draft of this fixture omitted it, which reads the
-            # price from PRICE_REGIONS["row"] instead of ["tile"] and fails
-            # every read on this rule (see task-8-overrides.md, override 2:
-            # ShoppingRule.layout is never inferred from the name, only
-            # declared).
+            # layout="tile": this is an unlock tile, not an upgrade row.
+            # Omitting it reads the price from PRICE_REGIONS["row"] instead
+            # of ["tile"] and fails every read on this rule - layout is
+            # never inferred from the name, only declared.
             ShoppingRule(name="Unlock Cash Bonuses",
                          template="workshop/unlock_cash_bonuses.png",
                          category="UTILITY", layout="tile"),
@@ -270,10 +267,9 @@ def test_the_highest_priority_affordable_row_wins_not_the_cheapest(session) -> N
 def test_a_row_costing_more_than_the_balance_is_skipped_as_unaffordable(
     session, fake_header
 ) -> None:
-    """Rewritten per task-8-overrides.md, override 1: the brief's own version
-    poked session._coins, which BUY_ROWS's re-read-every-step rule overwrites
-    before anything sees it. fake_header is what actually makes the session
-    believe the balance is 10.
+    """Poking session._coins directly would assert nothing: BUY_ROWS's
+    re-read-every-step rule overwrites it before anything sees it.
+    fake_header is what actually makes the session believe the balance is 10.
 
     A single ATTACK-only policy (rather than the brief's three-category
     default) is used so the two advance() calls land the session in
@@ -296,10 +292,10 @@ def test_a_row_costing_more_than_the_balance_is_skipped_as_unaffordable(
 def test_an_unreadable_balance_stops_the_visit_rather_than_guessing(
     session, fake_header
 ) -> None:
-    """Rewritten per task-8-overrides.md, override 1 (see the comment on
+    """See the comment on
     test_a_row_costing_more_than_the_balance_is_skipped_as_unaffordable for
-    why fake_header replaces the brief's session._coins poke, and why this
-    uses a single-category policy).
+    why fake_header replaces a direct session._coins poke, and why this
+    uses a single-category policy.
 
     There is no brightness fallback on a menu page, and guessing is the
     failure mode that costs coins.
@@ -324,10 +320,10 @@ def test_a_row_with_the_wrong_layout_reads_no_price_and_is_skipped_as_unreadable
     """The workshop row's own unreadable-PRICE branch, distinct from an
     unreadable balance: coins read fine (real header, not faked), but the
     row's own price read comes back None. A rule with the wrong layout is
-    the real-world way this happens without faking anything - see the
-    task-8-report.md note that ShoppingRule.layout is never inferred from
-    its template, so a hand-edited strategy can declare the wrong one and
-    read garbage pixels for the price.
+    the real-world way this happens without faking anything:
+    ShoppingRule.layout is never inferred from its template, so a
+    hand-edited strategy can declare the wrong one and read garbage pixels
+    for the price.
 
     ShoppingRule.__post_init__ now refuses "row" for this name outright
     (Task 10 review, round 1: config.WORKSHOP_ROWS says "Unlock Cash
@@ -362,10 +358,8 @@ def test_tabs_are_visited_in_the_order_the_rows_imply(session) -> None:
 def test_the_tap_budget_ends_the_visit(session) -> None:
     """Exactly 2 (the tab-switch attempts that spend the budget) plus 1 (the
     recovery tap on the way out, which is deliberately NOT bound by the same
-    cap - see task-8-overrides.md fix round 2, Critical 1). A loose `<= 2`
-    bound would also pass if the code made zero taps, which hides a
-    too-few-taps bug more serious than a too-many-taps one - tightened per
-    that same review round.
+    cap). A loose `<= 2` bound would also pass if the code made zero taps,
+    which hides a too-few-taps bug more serious than a too-many-taps one.
     """
     device = FakeDevice()
     policy = a_policy(armed=True, max_taps_per_visit=2)
@@ -442,10 +436,10 @@ def test_an_unexpected_page_twice_running_ends_the_visit(session) -> None:
 
 
 def test_a_missing_nav_target_ends_the_visit_after_two_misses(session) -> None:
-    """Round-1 fix (task-8-overrides.md concern 3): a positioning step that
-    cannot find its target must not spin silently forever with the tap
-    budget untouched and the event feed empty - it is a leg of an errand
-    supposed to be making progress, not an opportunistic Navigator tap.
+    """A positioning step that cannot find its target must not spin
+    silently forever with the tap budget untouched and the event feed
+    empty - it is a leg of an errand supposed to be making progress, not an
+    opportunistic Navigator tap.
 
     menu_missions has no bottom tab bar at all, so NAV_TARGETS["BATTLE_TAB"]
     never matches there (measured: 0.31, nowhere near the 0.8 threshold) -
@@ -578,9 +572,8 @@ def test_unreadable_gems_stop_the_visit_rather_than_guessing(session, fake_heade
 def test_the_gem_floor_stops_card_buying(session, fake_header) -> None:
     """40 gems, a 20-gem card and a floor of 40: buying would breach it.
 
-    Rewritten per task-8-overrides.md, override 1: fake_header replaces the
-    brief's session._gems poke, for the same reason as the workshop tests
-    above.
+    fake_header replaces a direct session._gems poke, for the same reason
+    as the workshop tests above.
     """
     device = FakeDevice()
     policy = a_policy(armed=True, cards=CardPolicy(enabled=True, gem_floor=40))
@@ -594,8 +587,7 @@ def test_the_gem_floor_stops_card_buying(session, fake_header) -> None:
 
 
 def test_card_buying_stops_at_the_per_visit_cap(session, fake_header) -> None:
-    """Rewritten per task-8-overrides.md, override 1: fake_header replaces
-    the brief's session._gems poke."""
+    """fake_header replaces a direct session._gems poke."""
     device = FakeDevice()
     policy = a_policy(armed=True, cards=CardPolicy(
         enabled=True, gem_floor=0, max_per_visit=1

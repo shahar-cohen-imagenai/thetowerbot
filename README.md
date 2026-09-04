@@ -307,8 +307,8 @@ the event feed as any other run, not one entry that shows up after the fact.
 > the same way an unreadable balance does: `_reader.read()` returns None,
 > shopping.py publishes `PurchaseSkipped(reason="unreadable")`, and the row
 > is exhausted for the visit - a refused read, never a wrong price. See
-> "Known gap" below - closing this one needs a harvesting source added to
-> `build_atlas.py` first, not just a play session.
+> "Known gap" below for how to close it - `tools/harvest_menu_glyphs.py`,
+> not `build_atlas.py`.
 >
 > The workshop buy point has never been tapped on a live device. A row
 > purchase taps the centre of the row's own matched template (`match.center`
@@ -430,11 +430,19 @@ exhausted for the visit) rather than reading a neighbouring glyph and
 reporting a wrong number. Today's fixture prices - 30, 40, 50, 75 - happen
 to avoid all four digits, which is why this has not surfaced in a fixture
 run; prices escalate with every purchase on a live account, so a real
-session would eventually hit one. Closing it needs more than a play session,
-though: `build_atlas.py`'s `SOURCES` table (above) has no `"menu"` entry at
-all, so `--size-class menu` is not a valid choice yet - a `Source` pointing
-at a workshop or cards row's price region would need adding there first,
-the same way `price` points at an in-run upgrade's.
+session would eventually hit one.
+
+Closing it does NOT go through `build_atlas.py`: its `SOURCES` table (above)
+keys every source on a `screens.ScreenState`, and the workshop and cards
+pages a menu price lives on read as `UNKNOWN` to `screens.classify` by
+design (see pages.py) - there is no `ScreenState` for `build_atlas.py` to
+key a `"menu"` source on, and that is deliberate, not an oversight.
+`tools/harvest_menu_glyphs.py` is the tool for this class instead: it reads
+the COMMITTED menu fixtures rather than a live device, and is what built
+the current partial `templates/atlas/menu/` in the first place. Capture a
+fixture showing a price that contains `1`, `6`, `8` or `9`, add it alongside
+the existing ones, then re-run `uv run tools/harvest_menu_glyphs.py` followed
+by `uv run tools/label_glyphs.py --size-class menu --reference modal`.
 
 ### Brightness, the older heuristic
 

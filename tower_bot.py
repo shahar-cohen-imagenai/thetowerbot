@@ -810,12 +810,11 @@ def build_shopping(
     """Build the shopping session, disabling it with a reason if this
     machine's header atlas cannot read a balance yet.
 
-    Always returns a *session* - never None (see
-    task-9-overrides.md, override 2). A None return would force every call
-    site to branch before it could do anything, and TowerBot would need a
-    null object anyway; this mirrors how build_affordability already
-    degrades, handing back a working object of a lesser kind rather than
-    nothing at all.
+    Always returns a *session* - never None. A None return would force
+    every call site to branch before it could do anything, and TowerBot
+    would need a null object anyway; this mirrors how build_affordability
+    already degrades, handing back a working object of a lesser kind
+    rather than nothing at all.
 
     The header atlas needs every digit plus "." and "K" (see
     config.HEADER_REGIONS): a coin or gem balance that cannot be fully read

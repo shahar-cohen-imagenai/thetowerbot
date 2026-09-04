@@ -34,10 +34,9 @@ def a_policy(**over) -> Shopping:
 
 
 def navigated(bus) -> list[str]:
-    """The targets Navigator actually tapped, per task-9-overrides.md,
-    override 1: Navigator has no `last_target` attribute and must not grow
-    one just so a test can read it - events.Navigated is the public record
-    of the thing being tested."""
+    """The targets Navigator actually tapped. Navigator has no
+    `last_target` attribute and must not grow one just so a test can read
+    it - events.Navigated is the public record of the thing being tested."""
     return [e.target for e in bus.published if e.type == "Navigated"]
 
 
@@ -153,9 +152,8 @@ def test_shopping_is_disabled_when_the_header_atlas_is_incomplete(monkeypatch) -
     """No coin read means no purchase can be approved, so say so once at
     startup rather than failing silently on every visit.
 
-    Per task-9-overrides.md, override 2: build_shopping() always returns a
-    session, never None - a disabled one carries a non-empty
-    `disabled_reason` and declines every begin()."""
+    build_shopping() always returns a session, never None - a disabled one
+    carries a non-empty `disabled_reason` and declines every begin()."""
     monkeypatch.setattr(digits.AtlasCache, "get", lambda self, name: None)
     session = tower_bot.build_shopping(bus=None, templates=None)
     assert session.disabled_reason, "an unbuilt header atlas must disable shopping"

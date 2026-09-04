@@ -1,17 +1,17 @@
 """Harvest menu glyphs from the COMMITTED menu fixtures, not a live device.
 
 Menu prices render at three physical sizes: 22-23px in an upgrade row, 28-29px
-in an unlock tile, 31-32px on a cards buy button (see task-5b-brief.md for the
-measurements). `digits.Atlas` stores one image per label, so a size class can
-only keep ONE size of each glyph - and `Atlas.match` resizes the CANDIDATE to
-the TEMPLATE's size, so whichever size gets stored decides which direction
-every future read has to rescale in. Downscaling a big candidate into a small
-template is the one direction measured below the recognition threshold (a
-28px "5" resized into a 22px template scored 0.67, under the 0.70 bar), while
-every other pairing scored comfortably above it. So this harvester always
-keeps the LARGEST instance of each glyph shape and discards smaller
-duplicates - see `_absorb` below, which decides that from the pixels
-themselves rather than from the order fixtures happen to be listed in.
+in an unlock tile, 31-32px on a cards buy button. `digits.Atlas` stores one
+image per label, so a size class can only keep ONE size of each glyph - and
+`Atlas.match` resizes the CANDIDATE to the TEMPLATE's size, so whichever size
+gets stored decides which direction every future read has to rescale in.
+Downscaling a big candidate into a small template is the one direction
+measured below the recognition threshold (a 28px "5" resized into a 22px
+template scored 0.67, under the 0.70 bar), while every other pairing scored
+comfortably above it. So this harvester always keeps the LARGEST instance of
+each glyph shape and discards smaller duplicates - see `_absorb` below,
+which decides that from the pixels themselves rather than from the order
+fixtures happen to be listed in.
 
 Reads the committed fixtures rather than a live device for the same reason
 tools/harvest_header_glyphs.py does: the fixtures were captured specifically

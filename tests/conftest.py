@@ -156,10 +156,9 @@ def _shopping_bot(
 
     The shopping session is built directly, never through
     tower_bot.build_shopping(): this machine's header atlas is missing
-    2, 3, 5, 6, 9 (see task-9-overrides.md, override 3), which would hand
-    back a disabled session that can never begin a visit. The fixtures'
-    balances read correctly against the glyphs that ARE present, so a
-    directly-built session works fine here.
+    2, 3, 5, 6, 9, which would hand back a disabled session that can never
+    begin a visit. The fixtures' balances read correctly against the
+    glyphs that ARE present, so a directly-built session works fine here.
     """
     device = _FakeDevice()
     bus = _RecordingBus()

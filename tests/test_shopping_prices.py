@@ -41,7 +41,7 @@ def reader():
 
 
 # Every price the committed fixtures show, hand-verified against the fixture
-# it came from (see task-5b-report.md for the by-hand check of each digit).
+# it came from.
 WORKSHOP_PRICE_CASES: tuple[tuple[str, str, int], ...] = (
     ("menu_workshop_attack", "Damage", 30),
     ("menu_workshop_attack", "Attack Speed", 30),
@@ -129,8 +129,7 @@ def test_every_card_price_reads_exactly(
 
 # Every glyph the committed fixtures' price regions supply between them: the
 # union of digits across all eleven prices above (0 2 3 4 5 7), plus the two
-# currency icons. See task-5b-report.md for which fixture/price/size each one
-# was harvested at and the by-hand verification of every label.
+# currency icons.
 FIXTURE_GLYPHS = {"0", "2", "3", "4", "5", "7", "©", digits.GEM}
 
 

@@ -40,10 +40,9 @@ def test_a_purchase_with_an_unreadable_price_is_still_expressible() -> None:
 
 
 def test_a_card_purchase_reports_gems_not_coins() -> None:
-    """Round-2 fix (task-8-overrides.md fix round 2, Important 4): a card
-    purchase spends gems, not coins - coins_before must not be reused to
-    carry the gem balance, and gems_before must not be left at its default
-    just because a workshop row never needed it.
+    """A card purchase spends gems, not coins - coins_before must not be
+    reused to carry the gem balance, and gems_before must not be left at
+    its default just because a workshop row never needed it.
     """
     event = events.Purchased(
         item="x1", category="CARDS", price=20, gems_before=400, dry_run=True

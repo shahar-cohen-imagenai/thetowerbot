@@ -8,7 +8,7 @@ import type { CardPolicy, Shopping, ShoppingRule } from "@/lib/types";
 
 /** Verbatim from the Guide's "Per-row hints for the Strategy page" table,
  * keyed by row name. A row not in this map gets no hint rather than a made
- * up one - see task-12-overrides.md, Override 2. */
+ * up one. */
 const HINTS: Record<string, string> = {
   "Unlock Cash Bonuses":
     "Opens the whole Utility tab — Cash Bonus and Coins/Kill live behind it. 40 coins.",
@@ -25,8 +25,7 @@ const HINTS: Record<string, string> = {
 };
 
 /** The gem floor's warning copy. A test asserts on this exact phrase, so it
- * and the rendered text must stay in step - see task-12-overrides.md,
- * Override 3. */
+ * and the rendered text must stay in step. */
 const GEM_FLOOR_NOTE = "Gems cannot be earned back quickly, unlike coins.";
 
 const VISIT_FREQUENCY_NOTE =
@@ -87,8 +86,7 @@ export function ShoppingEditor({
 
   // Arming needs an explicit second step because it is the only control in
   // the dashboard that spends something the player cannot get back;
-  // disarming is the safe direction and happens immediately. See
-  // task-12-overrides.md, Override 3.
+  // disarming is the safe direction and happens immediately.
   const toggleArm = () => {
     if (shopping.armed) {
       set("armed", false);
