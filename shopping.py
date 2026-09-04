@@ -129,11 +129,10 @@ def header_numbers(
 class ShoppingSession:
     """Walks the Workshop and Cards pages, buying what the policy allows.
 
-    `shopping` is accepted at construction for symmetry with the reader and
-    template cache, but every method that decides anything is handed the
-    live policy explicitly - the same way the rest of the scan loop always
-    reads Shopping fresh rather than trusting a copy made when the session
-    was built.
+    Every method that decides anything is handed the live policy explicitly
+    - the same way the rest of the scan loop always reads Shopping fresh
+    rather than trusting a copy made when the session was built. There is
+    deliberately no `self.policy` here to go stale.
     """
 
     def __init__(
@@ -141,14 +140,12 @@ class ShoppingSession:
         templates: vision.TemplateCache,
         bus: Any,
         reader: NumberReader,
-        shopping: Shopping | None = None,
         threshold: float = 0.8,
         disabled_reason: str | None = None,
     ) -> None:
         self._templates = templates
         self._bus = bus
         self._reader = reader
-        self._shopping = shopping
         self._threshold = threshold
         # Set once, by tower_bot.build_shopping(), when this machine's header
         # atlas cannot support reading a balance. A non-empty reason makes
@@ -156,6 +153,11 @@ class ShoppingSession:
         # never approve a purchase - see the module docstring's paragraph on
         # why an unreadable balance must stop the visit, not guess.
         self.disabled_reason = disabled_reason
+        # begin() publishes ShoppingUnavailable the first time it declines
+        # for disabled_reason, and never again - a disabled session declines
+        # every scan forever, and a per-scan publish would flood the feed
+        # with the same fact. See begin().
+        self._announced_disabled = False
 
         self._step: Step = Step.IDLE
         self._visit = 0
@@ -164,8 +166,6 @@ class ShoppingSession:
         self._bought = 0
         self._spent = 0
         self._cards_bought = 0
-        self._coins: int | None = None
-        self._gems: int | None = None
         # Rows that no longer match (a mis-cut template) or that were just
         # bought, or found unaffordable, this visit. Not retried: a row that
         # cannot be found loops until the tap budget runs out otherwise, and
@@ -173,6 +173,13 @@ class ShoppingSession:
         # forever just because a static frame never visibly changes.
         self._exhausted: set[str] = set()
         self._last_run_count: int | None = None
+        # The last page seen this visit, or None before the first frame.
+        # Compared every advance() against the fresh classification so a
+        # real transition (MAIN_MENU -> WORKSHOP -> CARDS -> MAIN_MENU)
+        # publishes PageChanged - see advance(). Reset in begin() so a new
+        # visit's first frame never diffs against the previous visit's last
+        # page.
+        self._last_page: str | None = None
         # Consecutive scans with no progress: either the page did not
         # classify at all, or a positioning step's target template could
         # not be found. Reset to 0 the instant anything makes progress; see
@@ -199,9 +206,21 @@ class ShoppingSession:
         Also declines - permanently - when `disabled_reason` is set: this
         machine's header atlas cannot read a balance, and a visit that could
         never approve a purchase is a minute of tab-tapping for nothing. See
-        tower_bot.build_shopping().
+        tower_bot.build_shopping(). The first such decline publishes
+        ShoppingUnavailable so the dashboard says why nothing is happening,
+        rather than a feature that looks armed and does nothing forever -
+        every decline after that stays silent, since the reason never
+        changes once the process has started.
         """
         if self.disabled_reason:
+            # bus is None in the one caller that builds a session purely to
+            # inspect disabled_reason without wiring the rest of the bot
+            # (see tests/test_shopping_loop.py) - nothing else here ever
+            # runs for a permanently-disabled session, so that stays a
+            # legal, bus-less way to ask "why is this disabled".
+            if not self._announced_disabled and self._bus is not None:
+                self._announced_disabled = True
+                self._bus.publish(events.ShoppingUnavailable(reason=self.disabled_reason))
             return False
         if not shopping.enabled:
             return False
@@ -222,15 +241,14 @@ class ShoppingSession:
         self._bought = 0
         self._spent = 0
         self._cards_bought = 0
-        self._coins = None
-        self._gems = None
         self._exhausted = set()
         self._off_page_streak = 0
+        self._last_page = None
         self._last_run_count = run_count
         self._step = Step.OPEN_WORKSHOP if categories else Step.OPEN_CARDS
 
         self._bus.publish(events.ShoppingStarted(
-            visit=self._visit, coins=None, gems=None, dry_run=not shopping.armed,
+            visit=self._visit, dry_run=not shopping.armed,
         ))
         return True
 
@@ -256,12 +274,36 @@ class ShoppingSession:
             return
 
         try:
+            if not shopping.enabled:
+                # Shopping was switched off mid-visit - or this is a stale
+                # visit that survived a restart (see BotRunner.start()'s
+                # reset() call, which now also catches this case before it
+                # gets here). "I turned it off" has to mean the taps stop
+                # NOW, not once the visit happens to wind down on its own:
+                # this is the one tap path that spends currency, and it is
+                # exactly the panic gesture someone reaches for mid-visit.
+                # Routed through _abort rather than a bare `self._step =
+                # Step.IDLE` so it gets the same recovery tap and the same
+                # honest ShoppingEnded any other abort gets, instead of
+                # leaving the bot silently stranded on a menu page.
+                self._abort(device, shopping, screen, "shopping disabled")
+                return
             reading = pages.classify_page(screen, self._templates)
             if reading.page == pages.UNKNOWN:
                 self._off_page_streak += 1
                 if self._off_page_streak >= 2:
                     self._abort(device, shopping, screen, "unexpected page")
                 return
+            if reading.page != self._last_page:
+                # Skip the very first frame of a visit: `_last_page` starts
+                # None so there is nothing to have changed FROM, and
+                # ShoppingStarted already marks the beginning on the feed.
+                if self._last_page is not None:
+                    self._bus.publish(events.PageChanged(
+                        prev_page=self._last_page, curr_page=reading.page,
+                        confidence=reading.confidence,
+                    ))
+                self._last_page = reading.page
             # Deliberately NOT reset here just because the page classified:
             # _register_progress (called from inside the handlers) is what
             # clears the streak, so a positioning step's own target-miss
@@ -502,8 +544,10 @@ class ShoppingSession:
             self._step = Step.OPEN_TAB if self._categories else self._next_after_categories(shopping)
             return
 
-        coins, gems = header_numbers(screen, reading.page, reading.top_left, self._reader)
-        self._coins, self._gems = coins, gems
+        # Gems are irrelevant to a workshop row (it spends coins) - see the
+        # matching comment in _buy_cards for why the unused half of the pair
+        # is discarded rather than stored.
+        coins, _gems = header_numbers(screen, reading.page, reading.top_left, self._reader)
         if coins is None:
             self._abort(device, shopping, screen, "unreadable balance")
             return
@@ -556,8 +600,10 @@ class ShoppingSession:
             self._step = Step.RETURN
             return
 
-        coins, gems = header_numbers(screen, reading.page, reading.top_left, self._reader)
-        self._coins, self._gems = coins, gems
+        # Coins are irrelevant to a card purchase (it spends gems) - the
+        # header is always read as a pair, so the unused half is discarded
+        # rather than stored on an attribute nothing ever reads back.
+        _coins, gems = header_numbers(screen, reading.page, reading.top_left, self._reader)
         if gems is None:
             self._abort(device, shopping, screen, "unreadable balance")
             return

@@ -145,6 +145,43 @@ def test_begin_opens_cards_directly_when_only_cards_are_enabled(session) -> None
     assert session._step is shopping_mod.Step.OPEN_CARDS
 
 
+def test_a_permanently_disabled_session_announces_it_only_once(session) -> None:
+    """begin() must say why nothing is happening the first time it declines
+    for disabled_reason, and stay silent every time after - the reason never
+    changes once the process has started, so a publish per scan would just
+    flood the feed with the same fact forever."""
+    session.disabled_reason = "header atlas is missing 2, 3, 5, 6, 9"
+    for _ in range(5):
+        assert session.begin(a_policy(), run_count=1) is False
+    unavailable = session._bus.of_type("ShoppingUnavailable")
+    assert len(unavailable) == 1
+    assert unavailable[0].reason == session.disabled_reason
+
+
+# -- turning shopping off mid-visit -----------------------------------------
+def test_disabling_shopping_mid_visit_ends_it_instead_of_continuing(session) -> None:
+    """The critical bug this closes: shopping.enabled was checked only in
+    begin(), never in advance(), so unticking "Shop between runs" while a
+    visit was under way left the bot tapping through it to completion. The
+    fix routes a disabled policy through the same abort path any other wedge
+    takes - a best-effort return tap and an honest ShoppingEnded - rather
+    than a silent `_step = IDLE`.
+    """
+    device = FakeDevice()
+    policy = a_policy(enabled=True, armed=False)
+    session.begin(policy, run_count=1)
+    assert session.active is True
+
+    turned_off = a_policy(enabled=False, armed=False)
+    session.advance(frame("menu_workshop_utility"), device, turned_off)
+
+    ended = session._bus.of_type("ShoppingEnded")
+    assert ended and ended[-1].aborted
+    assert ended[-1].reason == "shopping disabled"
+    assert session.active is False
+    assert device.taps == [], "unarmed - even the recovery tap must not reach the device"
+
+
 # -- reading the header ----------------------------------------------------
 def test_the_header_reads_coins_and_gems_off_a_workshop_frame() -> None:
     reader = digits.NumberReader()
@@ -154,6 +191,34 @@ def test_the_header_reads_coins_and_gems_off_a_workshop_frame() -> None:
     coins, gems = shopping_mod.header_numbers(screen, "WORKSHOP", top_left, reader)
     assert coins == 1770
     assert gems == 40
+
+
+# -- page transitions -------------------------------------------------------
+def test_a_page_transition_publishes_page_changed(session) -> None:
+    """events.PageChanged is defined and store-tested but was never actually
+    published anywhere - this is that wiring, on the transition a real
+    visit makes crossing from the main menu onto the Workshop page."""
+    device = FakeDevice()
+    policy = a_policy()
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)  # taps into WORKSHOP
+    session.advance(frame("menu_workshop_utility"), device, policy)
+
+    changed = session._bus.of_type("PageChanged")
+    assert len(changed) == 1
+    assert changed[0].prev_page == "MAIN_MENU"
+    assert changed[0].curr_page == "WORKSHOP"
+
+
+def test_the_first_frame_of_a_visit_publishes_no_transition(session) -> None:
+    """There is nothing to have changed FROM on the very first frame -
+    ShoppingStarted already marks the beginning, so this must not also fire
+    a PageChanged from some leftover state."""
+    device = FakeDevice()
+    policy = a_policy()
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    assert session._bus.of_type("PageChanged") == []
 
 
 # -- the dry run taps nothing ---------------------------------------------

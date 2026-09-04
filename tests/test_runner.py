@@ -14,11 +14,15 @@ from typing import Any
 
 import pytest
 
+import config
+import digits
+import vision
 from control import Controls
 from events import EventBus
 from runner import BotRunner, RunnerError
+from shopping import ShoppingSession
 from sinks.state import BotState
-from strategy import ActionRule, Strategy
+from strategy import ActionRule, Shopping, ShoppingRule, Strategy
 
 
 class FakeBot:
@@ -102,6 +106,37 @@ def test_start_connects_a_device_and_spawns_a_bot(runner_parts) -> None:
         assert status["since"] is not None
         assert len(devices) == 1
         assert len(made) == 1
+    finally:
+        runner.stop()
+
+
+def test_start_resets_a_shopping_session_left_mid_visit(runner_parts) -> None:
+    """The restart half of the critical fix: stop the bot mid-visit, and the
+    ShoppingSession's `_step` is still non-IDLE. Without this, the NEXT
+    bot's very first run_once() would see `shopping.active` True and call
+    advance() directly - skipping begin() entirely, and with it the enabled
+    check, the cadence, the run cap and the MAIN_MENU precondition - while
+    resuming against a stale `_categories` list from the previous policy.
+    reset() at Start closes that regardless of what the live policy says now.
+    """
+    runner, made, devices, seen, state = runner_parts
+    shopping = ShoppingSession(
+        templates=vision.TemplateCache(config.TEMPLATE_DIR),
+        bus=EventBus(),
+        reader=digits.NumberReader(),
+    )
+    policy = Shopping(
+        enabled=True, armed=False,
+        workshop=(ShoppingRule(name="Damage", template="workshop/row_damage.png",
+                                category="ATTACK"),),
+    )
+    shopping.begin(policy, run_count=1)
+    assert shopping.active, "the fixture must actually be mid-visit to test anything"
+
+    runner._shopping = shopping
+    runner.start()
+    try:
+        assert shopping.active is False
     finally:
         runner.stop()
 

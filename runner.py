@@ -157,6 +157,22 @@ class BotRunner:
             # path to tidy up a scan count.
             self._state.reset()
 
+            # A visit left mid-errand by the previous bot (Stop pressed
+            # mid-visit, or run_forever ending because max_runs was lowered
+            # from the dashboard while shopping was under way) must not
+            # resume against stale state under a NEW bot: `_step` would
+            # still be non-IDLE, so the new bot's very first run_once() would
+            # call advance() directly - skipping begin() entirely, and with
+            # it the enabled check, the cadence, the run cap and the
+            # MAIN_MENU precondition - while the emulator may not even be on
+            # the page that stale `_categories` list assumes. reset() forces
+            # IDLE with no return tap of its own; if the emulator is still
+            # sitting on a menu page, the new bot's own begin()/advance()
+            # cycle deals with that from a clean slate exactly as it would
+            # after any other restart.
+            if self._shopping is not None:
+                self._shopping.reset()
+
             strategy = self._controls.snapshot().strategy
             bot = self._bot_factory(
                 device=device,

@@ -63,6 +63,20 @@ def test_a_workshop_purchase_reports_coins_not_gems() -> None:
     assert event.gems_before is None
 
 
+def test_shopping_started_carries_no_balance_fields() -> None:
+    """begin() has not read a frame yet when this publishes, so a `coins`/
+    `gems` field here could only ever be None - see the event's own
+    docstring for why they were dropped rather than shipped always-empty."""
+    event = events.ShoppingStarted(visit=1, dry_run=True)
+    assert not hasattr(event, "coins")
+    assert not hasattr(event, "gems")
+
+
+def test_shopping_unavailable_carries_the_disabled_reason() -> None:
+    event = events.ShoppingUnavailable(reason="header atlas is missing 2, 3")
+    assert event.reason == "header atlas is missing 2, 3"
+
+
 def test_shopping_ended_records_an_abort_with_its_reason() -> None:
     event = events.ShoppingEnded(
         visit=3, bought=2, spent=60, aborted=True, reason="tap budget exhausted"
@@ -79,7 +93,8 @@ def test_every_new_event_stores_without_a_migration() -> None:
     }
     samples = [
         events.PageChanged(prev_page="MAIN_MENU", curr_page="WORKSHOP", confidence=0.99),
-        events.ShoppingStarted(visit=1, coins=1770, gems=40, dry_run=True),
+        events.ShoppingStarted(visit=1, dry_run=True),
+        events.ShoppingUnavailable(reason="header atlas is missing 2, 3"),
         events.Purchased(
             item="Damage", category="ATTACK", price=30, coins_before=1770, dry_run=True
         ),

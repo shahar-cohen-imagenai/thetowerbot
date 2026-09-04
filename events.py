@@ -104,10 +104,24 @@ class PageChanged(Event):
 
 @dataclass(frozen=True, kw_only=True)
 class ShoppingStarted(Event):
+    """A visit begins. No `coins`/`gems` fields here on purpose: begin()
+    has not read a frame yet when this publishes, so any balance here would
+    always be None - a field that can only ever hold one value is not
+    reporting anything. The first real balance shows up on the first
+    Purchased or PurchaseSkipped of the visit instead."""
+
     visit: int
-    coins: int | None = None
-    gems: int | None = None
     dry_run: bool = True
+
+
+@dataclass(frozen=True, kw_only=True)
+class ShoppingUnavailable(Event):
+    """Published once, the first time ShoppingSession.begin() declines
+    because this machine's header atlas cannot support a balance read - not
+    on every scan that follows, which would flood the feed with the same
+    fact forever. See build_shopping() and ShoppingSession.begin()."""
+
+    reason: str
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -140,7 +154,10 @@ class Purchased(Event):
 @dataclass(frozen=True, kw_only=True)
 class PurchaseSkipped(Event):
     item: str
-    reason: str  # unaffordable | unreadable | no_match | disabled | capped
+    # unaffordable | unreadable | no_match | capped - "disabled" is not in
+    # this list on purpose: a disabled row is filtered out of rows_for()
+    # before BUY_ROWS ever sees it, so that value is never emitted.
+    reason: str
     detail: str = ""
 
 
