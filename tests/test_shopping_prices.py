@@ -109,6 +109,33 @@ def test_widening_the_row_region_reintroduces_the_border_and_fails_the_read(cach
     assert reader.read(screen, widened, match.top_left, "menu") is None
 
 
+def test_workshop_buy_point_is_the_price_box_not_the_template_centre(cache) -> None:
+    """Pins config.workshop_buy_point() against the live measurement that
+    found the bug: tapping the Damage row's matched centre, absolute
+    (130, 558), opened an info panel ("Damage each Projectile deals to
+    enemies.", Level 0/6000) and spent no coins - the same label-is-a-button
+    trap config.buy_point() already documents for the in-run screen. Tapping
+    the price box centre instead, absolute (402, 635), bought one level for
+    30 coins (value 3->6, next price 55).
+
+    A future refactor that quietly reverts _buy_rows to match.center would
+    fail the first assertion here; one that drifts the derivation away from
+    PRICE_REGIONS would fail the second.
+    """
+    screen = frame("menu_workshop_attack")
+    template_path, layout = config.WORKSHOP_ROWS["Damage"]
+    match = vision.locate_template(screen, cache.get(template_path), 0.9)
+    assert match is not None
+
+    point = config.workshop_buy_point(match.top_left, layout)
+    assert point != match.center, "must not be the label centre - that opens the info panel"
+
+    region = config.PRICE_REGIONS[layout]
+    left, top = match.top_left[0] + region.dx, match.top_left[1] + region.dy
+    assert left <= point[0] < left + region.w
+    assert top <= point[1] < top + region.h
+
+
 CARD_PRICE_CASES: tuple[tuple[str, int], ...] = (
     ("x1", 20),
     ("x10", 200),

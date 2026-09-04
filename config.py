@@ -356,6 +356,35 @@ CARD_BUTTONS: dict[str, str] = {
 
 LAYOUTS: tuple[str, ...] = ("row", "tile")
 
+
+def workshop_buy_point(anchor: tuple[int, int], layout: str) -> tuple[int, int]:
+    """Where to tap to BUY the workshop row/tile whose template matched at `anchor`.
+
+    NOT the template's own centre. WORKSHOP_ROWS templates are cut from the
+    tile's top-left CORNER (see the comment there), which puts that centre
+    in the tile's LABEL area - and the label is itself a button, same trap
+    documented on buy_point() above for the in-run screen: it opens an info
+    panel that covers the screen, so a tap there buys nothing and blinds the
+    next scan. Confirmed live on a second screen, not just assumed from the
+    in-run case: tapping the Damage row's matched centre, absolute (130,
+    558), opened a panel titled "Damage" ("Damage each Projectile deals to
+    enemies.", Level 0/6000) and spent no coins. Tapping the centre of the
+    price box instead - PRICE_REGIONS["row"] projected from that same match,
+    absolute (402, 635) - bought exactly one level for 30 coins, taking the
+    value 3->6 and the next price to 55.
+
+    The point is derived from PRICE_REGIONS[layout] rather than measured
+    separately, same reasoning as buy_point(): that offset already locates
+    the price box - which IS the buy target - from this same anchor, for
+    this layout. One calibration to keep correct instead of two that can
+    drift apart.
+    """
+    region = PRICE_REGIONS[layout]
+    return (
+        anchor[0] + region.dx + region.w // 2,
+        anchor[1] + region.dy + region.h // 2,
+    )
+
 # Where a price sits relative to its own matched template. Two entries because
 # the workshop has two layouts and they put the number in different places: an
 # upgrade row is a half-width tile with the price right of the label, an

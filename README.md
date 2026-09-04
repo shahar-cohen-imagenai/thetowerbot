@@ -284,7 +284,8 @@ aborted=…, reason=…)`, and every purchase attempt along the way publishes
 its own `Purchased` or `PurchaseSkipped` event — so a visit is as legible in
 the event feed as any other run, not one entry that shows up after the fact.
 
-> **Three things here are still unverified on a live device.**
+> **One thing here is still unverified on a live device: the glyph atlases
+> are incomplete.**
 >
 > The header glyph atlas is incomplete. `templates/atlas/header/` holds
 > `0 1 4 7 8 . K` — every glyph the committed fixtures happened to contain.
@@ -309,15 +310,28 @@ the event feed as any other run, not one entry that shows up after the fact.
 > is exhausted for the visit - a refused read, never a wrong price. See
 > "Known gap" below for how to close it - `tools/harvest_menu_glyphs.py`,
 > not `build_atlas.py`.
->
-> The workshop buy point has never been tapped on a live device. A row
-> purchase taps the centre of the row's own matched template (`match.center`
-> in `shopping.py`), not `config.buy_point()`. That function exists in the
-> first place because an in-run upgrade's label is itself a button that
-> opens an info panel instead of buying anything — `config.buy_point()` is
-> how that trap is avoided for in-run upgrades. Nobody has yet confirmed
-> whether a workshop tile behaves the same way. It needs one deliberate,
-> watched tap on a cheap row to settle, not a batch run.
+
+The workshop buy point has now been settled by one deliberate, watched tap
+on a live device, not just assumed from the in-run case. A row purchase
+used to tap the centre of the row's own matched template (`match.center`),
+on the theory that a workshop tile might not fall into the same trap
+`config.buy_point()` exists to avoid on the in-run screen — where the
+upgrade's label is itself a button that opens an info panel instead of
+buying anything. It does: tapping the Damage row's matched centre, absolute
+`(130, 558)`, opened a panel titled "Damage" ("Damage each Projectile deals
+to enemies.", Level 0/6000) and spent nothing. Tapping the centre of the
+price box instead — `config.PRICE_REGIONS["row"]` projected from that same
+match, absolute `(402, 635)` — bought exactly one level for 30 coins,
+taking the value 3→6 and the next price to 55. `_buy_rows` now taps
+`config.workshop_buy_point(match.top_left, rule.layout)`, derived from
+`PRICE_REGIONS` the same way `buy_point()` derives the in-run tap from
+`PRICE_REGION`, rather than a second, independently-measured offset.
+
+The Cards page buy buttons (`CARD_BUTTONS`) still tap `match.center` and
+are still unverified the same way the workshop point was before today —
+those templates are cropped to the button itself rather than a tile
+corner, so the centre is very likely correct, but confirming it costs 20
+gems that have not been spent yet.
 
 ## Capturing templates
 

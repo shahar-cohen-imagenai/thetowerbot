@@ -572,7 +572,10 @@ class ShoppingSession:
             self._exhausted.add(rule.name)
             return
 
-        x, y = match.center
+        # NOT match.center - that lands in the row's LABEL area, which is
+        # itself a button that opens an info panel instead of buying (see
+        # config.workshop_buy_point's docstring for the live measurement).
+        x, y = config.workshop_buy_point(match.top_left, rule.layout)
         if not self._try_tap(x, y, device, shopping, screen):
             return
 
@@ -632,6 +635,13 @@ class ShoppingSession:
             self._step = Step.RETURN
             return
 
+        # match.center is correct here, unlike the workshop row case above:
+        # CARD_BUTTONS templates are cropped to the buy button itself (see
+        # their comment), not to a tile corner, so the centre lands on the
+        # button rather than a label. That is a different geometry from the
+        # workshop rows and is very likely right, but it has NOT been
+        # confirmed on a live device the way workshop_buy_point now has - a
+        # watched tap here costs 20 gems, and that has not been spent yet.
         x, y = match.center
         if not self._try_tap(x, y, device, shopping, screen):
             return
