@@ -17,9 +17,11 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import sqlite3
 from dataclasses import dataclass, field
 from typing import Any
 
+import db
 import events
 
 COINS = "coins"
@@ -195,3 +197,95 @@ def classify(event: events.Event) -> LedgerLine | None:
             )
 
     return None
+
+
+class LedgerWriter:
+    """Turns events into ledger lines, carrying the running balances.
+
+    Stateful, unlike classify(), because reconciliation needs to remember
+    what the last observed balance was. Seeded from the table rather than
+    from zero: a restart that started from zero would read the next real
+    balance as an enormous unexplained gain.
+
+    Two pieces of state per currency, not one, and the difference matters:
+
+    * `_known`  - the last balance actually READ off the screen, plus every
+                  movement since that was itself known.
+    * `_stale`  - whether an unknown movement (an unreadable price) has
+                  happened since. A stale chain can no longer compute a
+                  balance, but it can still reconcile: the next reading is
+                  compared against `_known`, and the gap - which includes
+                  whatever the unreadable purchase cost - becomes one
+                  UNEXPLAINED line.
+
+    Collapsing the two by setting `_known` to None on a hole was tried and
+    is wrong: it silently discards the last certain balance, so the reading
+    that should have closed the hole instead starts a fresh chain and the
+    missing coins are never accounted for anywhere.
+
+    Not thread-safe, and does not need to be - the store sink's consumer
+    thread is the only caller, and it is also the database's only writer.
+    """
+
+    def __init__(self, conn: sqlite3.Connection) -> None:
+        self._known: dict[str, int | None] = db.last_balances(conn)
+        # A seeded writer assumes an intact chain: last_balances only returns
+        # a non-NULL balance_after, which is by definition a line that closed
+        # cleanly. If the process died mid-hole, the first reading after the
+        # restart still produces the right UNEXPLAINED - only a non-observing
+        # event landing in between would be computed off a stale base.
+        self._stale: dict[str, bool] = {COINS: False, GEMS: False}
+
+    def lines_for(self, event: events.Event) -> list[LedgerLine]:
+        """Every line this event produces, in the order they must be written.
+
+        Usually one. Two when the balance it reports contradicts the running
+        total, in which case the UNEXPLAINED line comes FIRST: the gap
+        happened before the event that revealed it.
+        """
+        line = classify(event)
+        if line is None:
+            return []
+
+        currency = line.currency
+        if currency is None:
+            return [line]
+
+        out: list[LedgerLine] = []
+        known = self._known.get(currency)
+        stale = self._stale.get(currency, False)
+
+        if line.observed is not None:
+            if known is not None and line.observed != known:
+                out.append(
+                    LedgerLine(
+                        kind="UNEXPLAINED",
+                        ts=line.ts,
+                        currency=currency,
+                        delta=line.observed - known,
+                        balance_after=line.observed,
+                        observed=line.observed,
+                        reason="balance moved outside the bot",
+                    )
+                )
+            # The game is the source of truth. Whatever the running total
+            # said, the number on screen is what the balance actually is -
+            # and reading it closes any hole that was open.
+            known, stale = line.observed, False
+
+        if known is None or stale or line.delta is None:
+            balance = None
+        else:
+            balance = known + line.delta
+
+        out.append(dataclasses.replace(line, balance_after=balance))
+
+        if line.delta is None:
+            # Moved by an amount nobody read. Keep the last certain balance
+            # so the next reading can price the whole gap, but stop deriving
+            # balances from it until then.
+            self._stale[currency] = True
+        else:
+            self._known[currency] = balance if balance is not None else known
+            self._stale[currency] = stale
+        return out
