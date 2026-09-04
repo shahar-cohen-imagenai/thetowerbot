@@ -1,0 +1,456 @@
+{
+  "article_count": 90,
+  "glossary_terms_reviewed": 159,
+  "articles": [
+    {
+      "url": "https://www.tower-hub.com/wiki/bot/amplify-bot",
+      "file": "wiki__bot__amplify-bot.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/bot/bot-bot",
+      "file": "wiki__bot__bot-bot.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/bot/flame-bot",
+      "file": "wiki__bot__flame-bot.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/bot/golden-bot",
+      "file": "wiki__bot__golden-bot.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/bot/thunder-bot",
+      "file": "wiki__bot__thunder-bot.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/advancedanalysis",
+      "file": "wiki__guide__advancedanalysis.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/beginner-guide",
+      "file": "wiki__guide__beginner-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/beginner-s-exploration-guide",
+      "file": "wiki__guide__beginner-s-exploration-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/cf-guide",
+      "file": "wiki__guide__cf-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/coin-guide-basics",
+      "file": "wiki__guide__coin-guide-basics.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/common-abbreviations",
+      "file": "wiki__guide__common-abbreviations.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/devo-guide",
+      "file": "wiki__guide__devo-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/dissonant-runs-guide",
+      "file": "wiki__guide__dissonant-runs-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/event-guide",
+      "file": "wiki__guide__event-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/footguns",
+      "file": "wiki__guide__footguns.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/frequently-asked-questions",
+      "file": "wiki__guide__frequently-asked-questions.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/gem-guide",
+      "file": "wiki__guide__gem-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/guardian-guide",
+      "file": "wiki__guide__guardian-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/guides",
+      "file": "wiki__guide__guides.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/guides-100-afk-orb-devo",
+      "file": "wiki__guide__guides-100-afk-orb-devo.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/guides-50s-smax",
+      "file": "wiki__guide__guides-50s-smax.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/guides-thinking-about-perks",
+      "file": "wiki__guide__guides-thinking-about-perks.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/health-build",
+      "file": "wiki__guide__health-build.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/hybrid-guide",
+      "file": "wiki__guide__hybrid-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/intro-sprint",
+      "file": "wiki__guide__intro-sprint.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/legend-battle-conditions",
+      "file": "wiki__guide__legend-battle-conditions.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/medals-guide",
+      "file": "wiki__guide__medals-guide.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/milestones",
+      "file": "wiki__guide__milestones.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/orb-devo",
+      "file": "wiki__guide__orb-devo.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/rushing-tiers",
+      "file": "wiki__guide__rushing-tiers.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/smax-devo",
+      "file": "wiki__guide__smax-devo.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/strategies",
+      "file": "wiki__guide__strategies.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/target-priority",
+      "file": "wiki__guide__target-priority.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/uw-tier-list",
+      "file": "wiki__guide__uw-tier-list.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/guide/which-uw-do-i-select",
+      "file": "wiki__guide__which-uw-do-i-select.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/echo-lab",
+      "file": "wiki__lab__echo-lab.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+      "file": "wiki__lab__lab-category-attack-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-battle-condition",
+      "file": "wiki__lab__lab-category-battle-condition.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+      "file": "wiki__lab__lab-category-bot-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+      "file": "wiki__lab__lab-category-card-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+      "file": "wiki__lab__lab-category-defense-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+      "file": "wiki__lab__lab-category-enemy-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+      "file": "wiki__lab__lab-category-main-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+      "file": "wiki__lab__lab-category-module-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+      "file": "wiki__lab__lab-category-perk-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+      "file": "wiki__lab__lab-category-ultimate-weapon-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+      "file": "wiki__lab__lab-category-utility-research.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-garlic-thorns",
+      "file": "wiki__lab__lab-garlic-thorns.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-shatter-shards",
+      "file": "wiki__lab__lab-shatter-shards.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/lab-upgrades",
+      "file": "wiki__lab__lab-upgrades.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/laboratory",
+      "file": "wiki__lab__laboratory.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/labs-coin-discount",
+      "file": "wiki__lab__labs-coin-discount.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/labs-speed",
+      "file": "wiki__lab__labs-speed.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/perk-labs",
+      "file": "wiki__lab__perk-labs.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/second-wind-labs",
+      "file": "wiki__lab__second-wind-labs.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/lab/wall-labs",
+      "file": "wiki__lab__wall-labs.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/challenges",
+      "file": "wiki__system__challenges.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/chips",
+      "file": "wiki__system__chips.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/content-creator-page",
+      "file": "wiki__system__content-creator-page.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/contributors",
+      "file": "wiki__system__contributors.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/daily-missions",
+      "file": "wiki__system__daily-missions.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/dissonance",
+      "file": "wiki__system__dissonance.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/events",
+      "file": "wiki__system__events.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/gameplay",
+      "file": "wiki__system__gameplay.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/guardian",
+      "file": "wiki__system__guardian.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/guilds",
+      "file": "wiki__system__guilds.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/icet-s-gem-and-card-priority-list",
+      "file": "wiki__system__icet-s-gem-and-card-priority-list.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/in-game-support",
+      "file": "wiki__system__in-game-support.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/perks",
+      "file": "wiki__system__perks.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/profile",
+      "file": "wiki__system__profile.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/relics",
+      "file": "wiki__system__relics.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/seasons",
+      "file": "wiki__system__seasons.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/the-tower",
+      "file": "wiki__system__the-tower.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/the-tower-idle-tower-defense-wiki",
+      "file": "wiki__system__the-tower-idle-tower-defense-wiki.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/the-vault",
+      "file": "wiki__system__the-vault.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/themes-menu",
+      "file": "wiki__system__themes-menu.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/tickets",
+      "file": "wiki__system__tickets.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/tiers",
+      "file": "wiki__system__tiers.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/tournaments",
+      "file": "wiki__system__tournaments.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/system/workshop-defense-discount",
+      "file": "wiki__system__workshop-defense-discount.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/black-hole",
+      "file": "wiki__uw__black-hole.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/chain-lightning",
+      "file": "wiki__uw__chain-lightning.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/chrono-field",
+      "file": "wiki__uw__chrono-field.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/death-wave",
+      "file": "wiki__uw__death-wave.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/golden-tower",
+      "file": "wiki__uw__golden-tower.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/inner-land-mines",
+      "file": "wiki__uw__inner-land-mines.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/poison-swamp",
+      "file": "wiki__uw__poison-swamp.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/smart-missiles",
+      "file": "wiki__uw__smart-missiles.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/spotlight",
+      "file": "wiki__uw__spotlight.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    },
+    {
+      "url": "https://www.tower-hub.com/wiki/uw/ultimate-weapons",
+      "file": "wiki__uw__ultimate-weapons.prose.txt",
+      "review": "Full prose read, removing duplicate navigation/headings; tables catalogued separately; mechanics not independently validated in installed game."
+    }
+  ]
+}

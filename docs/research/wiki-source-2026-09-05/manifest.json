@@ -14595,5 +14595,15 @@
     "Retrieval is complete for recursively linked English wiki routes. Detailed review focuses current mechanics and planning; historical patches and repetitive cost rows were indexed, not independently validated.",
     "Some server-rendered/hydrated cells contain framework string references; these are retained as raw source, not executable costs.",
     "Wiki is unofficial, internally inconsistent, and contains empty/pointer guides. Not every linked external guide is reproduced."
-  ]
+  ],
+  "review_completion": {
+    "current_article_prose": 206,
+    "historical_patch_articles_indexed_only": 28,
+    "glossary_entries_reviewed": 159,
+    "reviewers": {
+      "wiki_audit": 90,
+      "code_audit": 114,
+      "root": 2
+    }
+  }
 }
