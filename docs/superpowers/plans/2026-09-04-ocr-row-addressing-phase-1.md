@@ -1072,63 +1072,150 @@ in production, and is deleted in Phase 2 along with the template path."
 Phase 1 is finished when the code is merged, but it has not *served its
 purpose* until it has run against the live game. That is the gate on Phase 2.
 
-1. Set the active strategy's `shopping.enabled = true` and leave
-   `shopping.armed = false`. Nothing taps: the bot reads the workshop,
-   compares the two readers, and buys nothing.
+**`armed = false` means the bot cannot move the phone at all.** Not "does
+not buy" — does not tap, full stop. `_tap()` is the only `device.tap` in
+`shopping.py` (deliberately: see that module's docstring) and it returns
+before the device when unarmed, which covers the *navigation* taps too. An
+unarmed visit started from the main menu locates the Workshop button, counts
+a tap against its budget, sends nothing, and finds itself on the main menu
+again next scan — until the budget runs out:
 
-2. Run it **without `--tui`**, and redirect stderr to a file — the A/B is
+```
+begin -> True   step OPEN_WORKSHOP
+scan 1:  step=OPEN_WORKSHOP taps=1
+scan 41: visit ended, reason='tap budget exhausted'
+```
+
+Zero comparisons. Fed a frame that is *already* the workshop attack tab, the
+same session reaches `BUY_ROWS` on scan 1 and logs
+`tower_bot.ocr_ab Damage: readers agree on 30`. So the reader works
+perfectly well unarmed — what does not work is expecting the bot to go and
+find something to read. Somebody has to navigate. That leaves two ways to
+run this, and they are a real choice, not a preference.
+
+### Setup, both ways
+
+1. Emulator up, ADB reachable (`adb devices` lists `127.0.0.1:5555`).
+
+2. In the active strategy: `shopping.enabled = true`, `auto_navigate` left
+   `false`. Nothing needs harvesting first — spec §10's startup gate landed
+   ahead of the rest of Phase 2 because it had to. `build_shopping()` used
+   to disable the session outright when the header glyph atlas was
+   incomplete (it is, missing `2 3 5 9`), so `begin()` returned False before
+   a single price was read; and even past that gate `_buy_rows` aborts on an
+   unreadable balance before reaching the A/B. Two walls, both cleared by
+   reading the header with OCR (`shopping.header_numbers()`) and gating on
+   `ocr.available()` — without harvesting a glyph for a reader Phase 2
+   deletes.
+
+3. Run it **without `--tui`**, and redirect stderr to a file — the A/B is
    log-only (deliberately: giving it an event would mean schema churn in
    `events.py` and `db.py` for scaffolding Phase 2 deletes), `--tui`
-   silences stdlib logging so rich can own the terminal, and
-   `basicConfig` writes to stderr, which nothing captures on its own:
+   silences stdlib logging so rich can own the terminal, and `basicConfig`
+   writes to stderr, which nothing captures on its own. `*.log` is not
+   gitignored, so write it outside the repo:
 
 ```bash
-uv run tower_bot.py 2>&1 | tee rehearsal.log
+uv run tower_bot.py 2>&1 | tee ~/rehearsal.log
 ```
 
-3. **Advance the prices by hand.** This is the step that makes the
-   rehearsal worth running, and it is manual work — there is no way around
-   it. Prices escalate only when an upgrade is actually *bought*, and step 1
-   guarantees the bot never buys anything, so a dry run left alone forever
-   sees only the prices the account already has. The fixture-era prices
-   (30/40/50/75) happen to contain none of the four digits the `menu` atlas
-   is missing (`1`, `6`, `8`, `9` — see README, "The `menu` atlas is
-   incomplete"), so a rehearsal at those prices can only ever report
-   agreement, which proves nothing about the case Phase 2 rests on.
+### Way A — unarmed, and you are the navigator
 
-   So: **play the account manually while the dry run watches.** Buy
-   workshop upgrades yourself — attack and defense rows both, and at least
-   one unlock tile — until the visible prices contain each of `1`, `6`, `8`
-   and `9`. The bot is reading the same screen you are; every visit it makes
-   while you play produces a comparison line. (Any other way of moving the
-   prices does as well — an account that is already further along, or a
-   second armed session on a throwaway save. What does not work is leaving
-   an unarmed bot running overnight.)
+Zero coins at risk, which is what the dry run was for. The cost is
+choreography, and one setting that will otherwise cut you off mid-visit:
 
-4. Read the comparison log. Each line carries its logger name, so `ocr_ab`
-   is what selects the A/B; agreements are logged too, and are the noise
-   here:
+**Raise `max_taps_per_visit`** (200 is comfortable; the default is 40).
+`_tap` increments the counter *regardless* of `armed`, on purpose — a
+rehearsal is supposed to hit the same ceiling a real run would. Unarmed,
+though, every scan spent waiting for you to tap something burns one, at one
+per 2s scan. At 40 the whole visit gets ~80 seconds of human latency before
+it aborts.
+
+Then, per visit — a visit begins **only from MAIN_MENU**, so park there:
+
+1. Sit on the main menu until `ShoppingStarted` appears.
+2. Tap Workshop. `_open_workshop` sees `reading.page == "WORKSHOP"` and
+   advances on its own; it does not need to have done the tapping.
+3. Tap the tabs in the order the session wants them, which is the order the
+   rows appear in the strategy — `UTILITY`, then `DEFENSE`, then `ATTACK`
+   for the shipped default. On the wrong tab, `OPEN_TAB` waits (and burns
+   budget); it cannot switch for you.
+4. Each row yields **one** comparison line and one dry-run `Purchased`, then
+   is exhausted for the visit. Seven enabled rows, seven lines.
+5. The visit ends on `RETURN` failing to tap its way back to Battle, and
+   aborts. That is expected, not a fault.
+
+The next visit needs `visit_every_n_runs` completed runs (default 1) *and* a
+return to the main menu.
+
+### Way B — armed, and the bot drives
+
+Everything above happens by itself, on every tab, every visit, and prices
+escalate without you buying a thing. Far more comparisons for far less
+work. Two things to weigh first:
+
+- **It spends coins.** But the *template* reader still decides every
+  purchase — OCR is observation-only until Phase 2 — so arming exposes the
+  pre-existing risk `armed` has always guarded, not a new one introduced by
+  the reader under evaluation.
+- **The workshop buy point has never been tapped on a live device** (README,
+  third unverified item). A row purchase taps the centre of the matched
+  template; an in-run upgrade's label is itself a button that opens an info
+  panel instead of buying, and nobody has confirmed a workshop tile does
+  not do the same. If it does, the bot taps, publishes `Purchased`, and the
+  price never moves — producing a long rehearsal full of agreement that
+  proves nothing.
+
+So arm it in two stages: **one cheap row enabled, one watched tap**, and
+confirm the price actually escalates. Then re-enable the rest. That settles
+two of the README's three live unknowns in a single session.
+
+### Advancing the prices
+
+This is what makes the rehearsal worth running. Prices escalate only when an
+upgrade is actually *bought*, and the fixture-era prices (30/40/50/75)
+contain none of the four digits the `menu` atlas is missing (`1`, `6`, `8`,
+`9` — see README, "The `menu` atlas is incomplete"), so a rehearsal at those
+prices can only ever report agreement.
+
+Under Way B the bot does it. Under Way A you do: buy workshop upgrades
+yourself between visits — attack and defense rows both, and at least one
+unlock tile — until the visible prices contain each of `1`, `6`, `8` and
+`9`. (An account already further along does as well. What does not work is
+leaving an unarmed bot running overnight.)
+
+### Reading it
+
+Each line carries its logger name, so `ocr_ab` is what selects the A/B;
+agreements are logged too, and are the noise here:
 
 ```bash
-grep 'tower_bot.ocr_ab' rehearsal.log | grep -v 'readers agree'
+grep 'tower_bot.ocr_ab' ~/rehearsal.log | grep -v 'readers agree'
 ```
 
-   An empty result means one of two very different things — no
-   disagreements, or no comparisons at all. Check which before reading it
-   as a clean rehearsal:
+An empty result means one of two very different things — no disagreements,
+or no comparisons at all. Check which before reading it as a clean
+rehearsal:
 
 ```bash
-grep -c 'tower_bot.ocr_ab' rehearsal.log   # must be well above zero
+grep -c 'tower_bot.ocr_ab' ~/rehearsal.log   # must be well above zero
 ```
 
-5. **Every disagreement must be explained before Phase 2 begins.** The
-   line to hunt for is `the template reader could not read a price, OCR
-   read N` — OCR right where the atlas refused, which is the argument for
-   the cut-over. `neither reader could read a price` argues nothing either
-   way. A disagreement where OCR produced a confident wrong number is a
-   stop.
-6. Capture scrolled fixtures during this session — Phase 2's map tests need
-   them and none exist today.
+**Every disagreement must be explained before Phase 2 begins.** The line to
+hunt for is `the template reader could not read a price, OCR read N` — OCR
+right where the atlas refused, which is the argument for the cut-over.
+`neither reader could read a price` argues nothing either way. A
+disagreement where OCR produced a confident wrong number is a stop.
+
+### While you are in there
+
+Capture scrolled fixtures — Phase 2's map tests need them and none exist
+today:
+
+```bash
+uv run grab_screen.py tests/fixtures/menu_workshop_attack_scrolled.png
+uv run tools/record_ocr.py tests/fixtures/menu_workshop_attack_scrolled.png
+```
 
 ---
 
@@ -1145,9 +1232,12 @@ guesses, and Task 1's gate can still invalidate the whole approach.
 
 What Phase 2 contains, from spec §12:
 
-- The startup gate spec §10 requires: `ocr.available()`, checked where
-  `build_shopping()` checks the header atlas, disabling buying and
-  publishing the reason when the engine will not load.
+- ~~The startup gate spec §10 requires~~ — **landed early**, before the
+  rehearsal rather than after it: `ocr.available()` now stands where
+  `build_shopping()` checked the header atlas, and the header is read with
+  OCR. Pulled forward because the atlas gate made the rehearsal itself
+  unrunnable (see "Running the rehearsal", Setup); it depends on no
+  evidence the rehearsal produces, so nothing is prejudged by moving it.
 - Scroll-and-map: the `MAP_TAB` step, name-keyed dedupe, bottom detection,
   a swipe budget separate from `max_taps_per_visit`, and the truncated-map
   flag.

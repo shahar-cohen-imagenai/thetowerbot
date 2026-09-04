@@ -151,3 +151,42 @@ def test_normalise(raw, expected):
 
 def test_normalise_does_not_make_different_rows_equal():
     assert tiles.normalise("Critical Chance") != tiles.normalise("Critical Factor")
+
+
+# -- where a row would actually be tapped -----------------------------------
+
+
+@pytest.mark.parametrize("stem,fixture", [
+    ("menu_workshop_attack", "menu_workshop_attack.png"),
+    ("menu_workshop_defense", "menu_workshop_defense.png"),
+    ("menu_workshop_utility", "menu_workshop_utility.png"),
+])
+def test_the_tap_point_lands_on_the_price_not_the_tile_centre(stem, fixture):
+    """A tile's centre is not a button. Verified on a live device: a tap at
+    Row.tap left coins and price untouched (1740 -> 1740, 56 -> 56), while a
+    tap on the price strip bought the upgrade. The buy button is the panel
+    the price sits in, so that is where a row must be tapped.
+    """
+    boxes = _recorded(stem)
+    screen = cv2.imread(str(FIXTURES / fixture))
+    rows = [r for r in tiles.rows_from(boxes, tiles.find_tiles(screen)) if r.price is not None]
+    assert rows, "fixture has no priced rows to check"
+    for row in rows:
+        on = [b for b in boxes if _contains(b.rect, *row.tap)]
+        assert on, f"{row.name}: tap landed on no text at all"
+        assert ocr.parse_number(on[0].text) == row.price, (
+            f"{row.name}: tap landed on {on[0].text!r}, not the price"
+        )
+
+
+def test_an_info_panel_hides_every_tile():
+    """menu_workshop_info_panel.png is a live capture taken after tapping a
+    row's LABEL, which opens an info panel over the grid and dims the page
+    behind it. The page still classifies as WORKSHOP, so nothing upstream
+    notices; find_tiles is what goes to zero.
+
+    This is why an empty read cannot mean "the row is not on this tab" - see
+    the matching test in test_shopping.py.
+    """
+    screen = cv2.imread(str(FIXTURES / "menu_workshop_info_panel.png"))
+    assert tiles.find_tiles(screen) == ()

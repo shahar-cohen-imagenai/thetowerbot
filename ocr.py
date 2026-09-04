@@ -119,3 +119,43 @@ def parse_number(text: str) -> int | None:
     # rather than guess - a rounding-induced off-by-one is exactly the kind
     # of silently wrong number that contract exists to prevent.
     return round(float(digits) * _SUFFIXES.get(suffix or "", 1))
+
+
+def available() -> bool:
+    """Whether the engine will load - the startup gate of spec §10.
+
+    Building it here rather than on the first scan is the point: a missing
+    or broken wheel becomes a loud, once-only reason at startup instead of
+    silent inaction discovered a visit later.
+    """
+    return _engine_or_none() is not None
+
+
+def number_in(boxes: tuple[TextBox, ...], rect: Rect) -> int | None:
+    """The one number read inside `rect`, or None.
+
+    Membership is by box CENTRE, not by containment: OCR boxes sit a few
+    pixels proud of the glyphs they bound, and a region measured on the
+    glyphs would reject its own number if the whole box had to fit.
+
+    Two numbers inside one region is ambiguity, and ambiguity refuses. The
+    coin and gem balances share a header row, so "pick the first" would pick
+    a balance by luck - and this module's contract, everywhere else too, is
+    that a refused read is safe and a wrong number is not.
+    """
+    numbers = [
+        number
+        for box in boxes
+        if _centre_in(rect, box.rect)
+        and (number := parse_number(box.text)) is not None
+    ]
+    if len(numbers) != 1:
+        if numbers:
+            logger.warning("refusing %s: %d numbers inside it", rect, len(numbers))
+        return None
+    return numbers[0]
+
+
+def _centre_in(rect: Rect, box: Rect) -> bool:
+    cx, cy = box.x + box.w // 2, box.y + box.h // 2
+    return rect.x <= cx < rect.x + rect.w and rect.y <= cy < rect.y + rect.h

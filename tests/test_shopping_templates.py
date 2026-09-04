@@ -15,14 +15,6 @@ import vision
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
-ROWS_BY_FIXTURE = {
-    "menu_workshop_attack": [
-        "Damage", "Attack Speed", "Critical Chance", "Critical Factor",
-        "Unlock Range Upgrades",
-    ],
-    "menu_workshop_defense": ["Health", "Health Regen", "Unlock Defense Upgrades"],
-    "menu_workshop_utility": ["Unlock Cash Bonuses"],
-}
 # Which tab is SELECTED on each fixture - the tab template is cut unselected,
 # so its own page is the one place it is allowed not to match.
 SELECTED_TAB = {
@@ -41,41 +33,6 @@ def frame(name: str):
 @pytest.fixture
 def cache():
     return vision.TemplateCache(config.TEMPLATE_DIR)
-
-
-@pytest.mark.parametrize("fixture,rows", ROWS_BY_FIXTURE.items())
-def test_every_row_is_found_on_its_own_tab(fixture, rows, cache) -> None:
-    screen = frame(fixture)
-    for name in rows:
-        template, _ = config.WORKSHOP_ROWS[name]
-        assert vision.locate_template(screen, cache.get(template), 0.9) is not None, \
-            f"{name} not found on {fixture}"
-
-
-@pytest.mark.parametrize("fixture,rows", ROWS_BY_FIXTURE.items())
-def test_rows_are_absent_from_the_other_tabs(fixture, rows, cache) -> None:
-    """A row matching on a tab it does not live on would be bought there.
-    The three Unlock tiles share styling, so this is the test that catches
-    them cross-matching."""
-    screen = frame(fixture)
-    for name in set(config.WORKSHOP_ROWS) - set(rows):
-        template, _ = config.WORKSHOP_ROWS[name]
-        score, _ = vision.best_score(screen, cache.get(template))
-        assert score < 0.9, f"{name} scored {score:.3f} on {fixture}, where it is absent"
-
-
-def test_every_row_declares_a_layout_that_exists() -> None:
-    for name, (_, layout) in config.WORKSHOP_ROWS.items():
-        assert layout in config.LAYOUTS, f"{name} has unknown layout {layout!r}"
-        assert layout in config.PRICE_REGIONS, f"no price region for layout {layout!r}"
-
-
-def test_unlock_tiles_use_the_tile_layout() -> None:
-    """The full-width tiles centre their price under the label; the half-width
-    upgrade rows put it beside. Getting this backwards reads the wrong pixels."""
-    for name, (_, layout) in config.WORKSHOP_ROWS.items():
-        expected = "tile" if name.startswith("Unlock ") else "row"
-        assert layout == expected, f"{name} declares {layout!r}, expected {expected!r}"
 
 
 @pytest.mark.parametrize("tab", ["ATTACK", "DEFENSE", "UTILITY"])
@@ -202,7 +159,23 @@ def test_the_unaffordable_card_button_is_desaturated_not_dimmed(cache) -> None:
 
 
 def test_every_configured_template_exists_on_disk(cache) -> None:
-    paths = [t for t, _ in config.WORKSHOP_ROWS.values()]
-    paths += list(config.WORKSHOP_TABS.values()) + list(config.CARD_BUTTONS.values())
+    paths = list(config.WORKSHOP_TABS.values()) + list(config.CARD_BUTTONS.values())
     for path in paths:
         assert cache.get(path) is not None, f"missing template: {path}"
+
+
+def test_no_workshop_row_templates_remain() -> None:
+    """Spec §7. A row is addressed by name now; a PNG of its label is a
+    thing to keep in sync with a font, for no reader.
+
+    The workshop directory itself stays - the tab pictograms live there and
+    are still template-matched, because a tab icon carries no text to read.
+    """
+    workshop = config.TEMPLATE_DIR / "workshop"
+    assert workshop.is_dir()
+    strays = sorted(
+        p.name for p in workshop.glob("*.png")
+        if p.name.startswith(("row_", "unlock_"))
+    )
+    assert strays == [], f"still on disk: {strays}"
+    assert (workshop / "tab_attack.png").is_file(), "tab pictograms must stay"

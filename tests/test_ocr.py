@@ -93,3 +93,59 @@ def test_a_failed_engine_build_is_not_retried(monkeypatch):
     assert ocr._engine_or_none() is None
     assert ocr._engine_or_none() is None
     assert builds == 1, "construction must be attempted once, not once per scan"
+
+
+# --- the startup gate ------------------------------------------------------
+
+
+def test_reports_the_engine_as_unavailable_once_construction_has_failed(monkeypatch):
+    """The startup gate build_shopping() checks. _FAILED is the sentinel for
+    "tried and could not", so available() must read it as a hard no rather
+    than retrying the build it already gave up on."""
+    monkeypatch.setattr(ocr, "_engine", ocr._FAILED)
+    assert ocr.available() is False
+
+
+def test_reports_the_engine_as_available_once_it_is_built(monkeypatch):
+    monkeypatch.setattr(ocr, "_engine", object())
+    assert ocr.available() is True
+
+
+# --- a number inside a region ----------------------------------------------
+
+
+def box(text: str, rect: tuple[int, int, int, int]) -> ocr.TextBox:
+    return ocr.TextBox(text=text, confidence=0.99, rect=config.Rect(*rect))
+
+
+REGION = config.Rect(85, 152, 170, 68)
+
+
+def test_reads_the_number_whose_box_sits_in_the_region():
+    """The coin balance off the workshop header, as recorded from the real
+    engine against menu_workshop_attack.png."""
+    boxes = (box("1.77K", (90, 164, 130, 46)),)
+    assert ocr.number_in(boxes, REGION) == 1770
+
+
+def test_ignores_a_box_whose_centre_falls_outside_the_region():
+    """The gem balance is a second number on the same header row; a coin
+    region that swept it up would report gems as coins."""
+    boxes = (box("40", (441, 162, 76, 50)),)
+    assert ocr.number_in(boxes, REGION) is None
+
+
+def test_refuses_when_the_only_box_in_the_region_is_not_a_number():
+    boxes = (box("WORKSHOP", (90, 164, 130, 46)),)
+    assert ocr.number_in(boxes, REGION) is None
+
+
+def test_refuses_when_two_numbers_share_the_region():
+    """Two candidates is ambiguity, and this module refuses rather than
+    guesses - picking one would be picking a balance by luck."""
+    boxes = (box("1.77K", (90, 164, 60, 46)), box("40", (200, 164, 40, 46)))
+    assert ocr.number_in(boxes, REGION) is None
+
+
+def test_refuses_when_nothing_was_read_at_all():
+    assert ocr.number_in((), REGION) is None

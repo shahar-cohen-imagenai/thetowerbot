@@ -16,7 +16,7 @@ rehearsal worth anything: it is not a different code path, it is the same
 code path with the last step removed.
 
 There is no brightness fallback anywhere in this module. Measured on the
-real device (see config.PRICE_REGIONS and tests/test_shopping_templates.py),
+real device (see config.CARD_PRICE_REGION and tests/test_shopping_templates.py),
 the game marks an unaffordable button by DESATURATING it, not dimming it -
 on the cards page the unaffordable button is actually the BRIGHTER of the
 two. A brightness gate calibrated on the affordable style would wave the
@@ -80,6 +80,7 @@ from typing import Any
 import config
 import events
 import jitter
+import ocr
 import pages
 import tiles
 import vision
@@ -103,6 +104,11 @@ logger = logging.getLogger("tower_bot.shopping")
 # tab, quietly defeating "highest-priority row wins" for the rest of the visit.
 ARRIVAL_ABSENCE_THRESHOLD: float = 0.9
 
+# Labels that mean "I have read this" and nothing else. Deliberately not
+# CONFIRM, YES, BUY or CLAIM: those answer a question, and a bot that cannot
+# read the question must not answer it.
+_MODAL_ACKNOWLEDGEMENTS: frozenset[str] = frozenset({"OK"})
+
 
 class Step(Enum):
     IDLE = auto()
@@ -115,62 +121,65 @@ class Step(Enum):
 
 
 def header_numbers(
-    screen: Image, page: str, top_left: tuple[int, int] | None, reader: NumberReader
+    screen: Image, page: str, top_left: tuple[int, int] | None
 ) -> tuple[int | None, int | None]:
     """Coins and gems off the menu header, or (None, None) off a page that
-    has no header regions (MISSIONS, or a page that failed to classify)."""
+    has no header regions (MISSIONS, or a page that failed to classify).
+
+    Read with OCR rather than the glyph atlas. The atlas could only ever
+    read a balance built from glyphs a past play session happened to push
+    through it - templates/atlas/header/ has never held 2, 3, 5 or 9 - and
+    an unreadable balance aborts the visit, so the bot could not shop until
+    somebody harvested them by hand. OCR needs no such session, which is
+    why build_shopping() now gates on the engine instead of on the atlas.
+
+    One whole-frame read serves both regions: the two balances share a
+    header row, and reading twice would pay for the same pixels twice.
+    """
     regions = config.HEADER_REGIONS.get(page)
     if regions is None or top_left is None:
         return None, None
     coins_region, gems_region = regions
-    coins = reader.read(screen, coins_region, top_left, "header")
-    gems = reader.read(screen, gems_region, top_left, "header")
-    return coins, gems
+    boxes = ocr.read(screen)
+    return (
+        ocr.number_in(boxes, _absolute(coins_region, top_left)),
+        ocr.number_in(boxes, _absolute(gems_region, top_left)),
+    )
 
 
-# --- Phase 1 A/B scaffolding ---------------------------------------------
-# THROWAWAY. Exists to compare the OCR reader against the template reader on
-# live prices before any coin is risked on the former. Deleted in Phase 2
-# along with the template path itself - see the OCR row addressing spec §12.
-ab_logger = logging.getLogger("tower_bot.ocr_ab")
+def _absolute(region: config.Region, top_left: tuple[int, int]) -> config.Rect:
+    """A Region is anchor-relative by design (see config.Region); ocr works
+    in frame coordinates. This is the one place the two meet."""
+    return config.Rect(top_left[0] + region.dx, top_left[1] + region.dy, region.w, region.h)
 
 
-def compare_readers(
-    rule: Any, template_price: int | None, rows: tuple[tiles.Row, ...]
-) -> str | None:
-    """Describe how the two readers disagree about `rule`, or None.
+def _heading_names(screen: Image, category: str) -> bool:
+    """Does this page's heading say it is `category`'s tab?
 
-    Compares on the normalised name, so a difference of case or spacing is
-    not reported as a disagreement - only a different row or a different
-    number is.
-
-    `template_price` is None when the template path failed: either it did
-    not locate the row, or the menu atlas could not read the price. Those
-    readings are the interesting ones, not the boring ones - see the caller.
-    Only two readers that both read the same number are silent; every other
-    shape, "neither reader got it" included, returns a note.
+    Compared with everything but the letters stripped out: OCR renders the
+    heading as "ATTACKUPGRADES" on some frames and "ATTACK UPGRADES" on
+    others, and neither spelling should decide whether the bot can shop.
+    Matching the whole heading rather than searching for the category name
+    keeps a row called "Unlock Range Upgrades" from reading as one.
     """
-    wanted = tiles.normalise(rule.name)
-    seen = [row for row in rows if tiles.normalise(row.name) == wanted]
-    if not seen:
-        read = ", ".join(repr(row.name) for row in rows) or "nothing"
-        return f"{rule.name}: OCR did not find it; read {read}"
-    ocr_price = seen[0].price
-    if template_price is None:
-        # The Phase 2 argument, when OCR did read one: this is a price the
-        # bot skipped as unreadable and would not have had to. Reported
-        # separately from "neither reader got it", which argues nothing
-        # either way and must not be mistaken for it.
-        if ocr_price is None:
-            return f"{rule.name}: neither reader could read a price"
-        return (
-            f"{rule.name}: the template reader could not read a price, "
-            f"OCR read {ocr_price}"
-        )
-    if ocr_price is None:
-        return f"{rule.name}: template read {template_price}, OCR could not read a price"
-    if ocr_price != template_price:
-        return f"{rule.name}: template read {template_price}, OCR read {ocr_price}"
+    wanted = _letters(f"{category}UPGRADES")
+    return any(_letters(box.text) == wanted for box in ocr.read(screen))
+
+
+def _letters(text: str) -> str:
+    return "".join(ch for ch in text.upper() if ch.isalpha())
+
+
+def _row_named(name: str, rows: tuple[tiles.Row, ...]) -> tiles.Row | None:
+    """The OCR row addressed by `name`, or None if it is not on screen.
+
+    Matched on the normalised name, so spacing and case in a strategy file
+    do not have to reproduce what the font renders.
+    """
+    wanted = tiles.normalise(name)
+    for row in rows:
+        if tiles.normalise(row.name) == wanted:
+            return row
     return None
 
 
@@ -237,6 +246,10 @@ class ShoppingSession:
         # not be found. Reset to 0 the instant anything makes progress; see
         # _register_progress and _miss.
         self._off_page_streak = 0
+        # Consecutive scans on which the reader saw nothing at all - see
+        # _buy_rows. Separate from _off_page_streak because _dispatch resets
+        # that one optimistically before every BUY_ROWS call.
+        self._blind_streak = 0
 
     @property
     def active(self) -> bool:
@@ -295,6 +308,7 @@ class ShoppingSession:
         self._cards_bought = 0
         self._exhausted = set()
         self._off_page_streak = 0
+        self._blind_streak = 0
         self._last_page = None
         self._last_run_count = run_count
         self._step = Step.OPEN_WORKSHOP if categories else Step.OPEN_CARDS
@@ -360,6 +374,8 @@ class ShoppingSession:
                 if self._off_page_streak >= 2:
                     self._abort(device, shopping, screen, "unexpected page")
                 return
+            if self._acknowledge_modal(screen, device, shopping):
+                return
             if reading.page != self._last_page:
                 # Skip the very first frame of a visit: `_last_page` starts
                 # None so there is nothing to have changed FROM, and
@@ -396,6 +412,40 @@ class ShoppingSession:
                 )
                 self._step = Step.IDLE
                 self._categories = []
+
+    def _acknowledge_modal(
+        self, screen: Image, device: Any, shopping: Shopping
+    ) -> bool:
+        """Tap a one-time explainer dialog's OK, if one is up. True if tapped.
+
+        These are queued by the game when a feature is unlocked and appear
+        the next time the page is opened - a live visit met "ULTIMATE
+        WEAPONS ... [OK]" the moment it reached the Workshop. A modal
+        swallows every tap outside itself, so positioning kept tapping a tab
+        that could never arrive and the visit spent its whole budget without
+        reading a row. It is not the info panel _buy_rows handles: that one
+        closes on any tap outside it, this one only on its own button.
+
+        Checked on every step of a visit rather than only where it bit,
+        because "a dialog is up" is not a property of any one step. That
+        costs one OCR pass per scan; _buy_rows already pays for one, and the
+        alternative is a shopping feature that stays dead until a human taps
+        OK.
+
+        Only an acknowledgement label counts. Anything offering a choice is
+        left alone - this must never be the thing that answers a question
+        the bot did not understand.
+        """
+        for box in ocr.read(screen):
+            if box.text.strip().upper() in _MODAL_ACKNOWLEDGEMENTS:
+                self._register_progress()
+                self._try_tap(
+                    box.rect.x + box.rect.w // 2,
+                    box.rect.y + box.rect.h // 2,
+                    device, shopping, screen,
+                )
+                return True
+        return False
 
     def _register_progress(self) -> None:
         """Something real happened this call - a tap, an arrival, or a buy
@@ -519,18 +569,18 @@ class ShoppingSession:
             self._step = Step.BUY_ROWS
             self._register_progress()
             return True
-        if any(
-            vision.locate_template(
-                screen, self._templates.get(r.template),
-                max(r.threshold, ARRIVAL_ABSENCE_THRESHOLD),
-            ) is not None
-            for r in rows
-        ):
-            # Arrival is judged by what we actually came here for, not by
-            # the tab button's own look - see the module docstring for the
-            # measurement: every tab template still matches its own
-            # selected page well above threshold, so its absence cannot
-            # signal arrival. Seeing one of this category's own rows can.
+        if _heading_names(screen, category):
+            # Arrival is judged by the page's own heading - "UTILITY
+            # UPGRADES" - which names the tab outright.
+            #
+            # Not by the tab button's look: every tab template still matches
+            # its own selected page well above threshold (measured 0.955 on
+            # the tab it is standing on), so its absence cannot signal
+            # arrival. And no longer by locating one of this category's row
+            # templates either: that answers "no" forever once the row is
+            # bought and gone, and a live visit spent its entire budget
+            # tapping the UTILITY tab it was already standing on for exactly
+            # that reason. The heading is there whatever is left to buy.
             self._step = Step.BUY_ROWS
             self._register_progress()
             return True
@@ -613,48 +663,57 @@ class ShoppingSession:
         # Gems are irrelevant to a workshop row (it spends coins) - see the
         # matching comment in _buy_cards for why the unused half of the pair
         # is discarded rather than stored.
-        coins, _gems = header_numbers(screen, reading.page, reading.top_left, self._reader)
+        coins, _gems = header_numbers(screen, reading.page, reading.top_left)
         if coins is None:
             self._abort(device, shopping, screen, "unreadable balance")
             return
 
         rule = rows[0]
-        match = vision.locate_template(screen, self._templates.get(rule.template), rule.threshold)
-        # Read the price BEFORE the early returns rather than after, so the
-        # Phase 1 A/B below observes the template reader's FAILURES too - a
-        # row it could not locate, or a price it could not read. Those are
-        # the cases Phase 2's argument rests on (the menu atlas is missing
-        # the digits 1 6 8 9, so a price containing one reads as None here
-        # while OCR is expected to read it fine); an A/B that only ever sees
-        # successful reads can report agreement and nothing else. Neither
-        # locate_template nor reader.read has a side effect, so hoisting the
-        # read past nothing changes no decision below.
-        price = (
-            None if match is None
-            else self._reader.read(screen, config.PRICE_REGIONS[rule.layout], match.top_left, "menu")
-        )
+        # Addressed by NAME, off OCR - not by template match. A live session
+        # settled this: the menu atlas has never held 1, 6, 8 or 9, so the
+        # moment a price escalated past one of them the template reader
+        # returned None and the row was refused as "unreadable" for good,
+        # while OCR read it off the same pixels. Prices only ever escalate,
+        # so that failure is not a corner case, it is the destination.
+        #
+        visible = tiles.read_rows(screen)
+        if not visible:
+            # Blind, not empty. Something is covering the grid - an info
+            # panel opened by a stray tap on a label is the known cause, and
+            # the page still classifies as WORKSHOP throughout, so nothing
+            # upstream catches it. Reporting this as no_match would exhaust
+            # a row that is sitting right there: a live visit did exactly
+            # that to four of them. Tap the panel away and let the next scan
+            # try again; if the page is still unreadable then, this is not a
+            # panel and the visit ends rather than spinning.
+            self._blind_streak += 1
+            if self._blind_streak >= 2:
+                self._abort(device, shopping, screen, "nothing readable on the page")
+                return
+            self._try_tap(*config.PANEL_DISMISS_POINT, device, shopping, screen)
+            self._bus.publish(events.PurchaseSkipped(
+                item=rule.name, reason="unreadable", detail="screen",
+            ))
+            return
+        self._blind_streak = 0
 
-        # Phase 1 A/B - observation only, never a decision. Deleted in
-        # Phase 2. Wrapped because a reader under evaluation must not be
-        # able to break the reader in production.
-        try:
-            note = compare_readers(rule, price, tiles.read_rows(screen))
-            if note is not None:
-                ab_logger.warning("%s", note)
-            else:
-                ab_logger.info("%s: readers agree on %s", rule.name, price)
-        except Exception:
-            ab_logger.exception("the OCR comparison itself failed")
-
-        if match is None:
-            self._bus.publish(
-                events.PurchaseSkipped(
-                    item=rule.name, reason="no_match", coins_before=coins
-                )
-            )
+        seen = _row_named(rule.name, visible)
+        if seen is None:
+            # Bought and gone, garbled by OCR, or below the fold on a tab
+            # that has outgrown one screenful. RowUnmatched carries what was
+            # actually read so those stay distinguishable in the feed - and
+            # it is the tripwire for the third case, which is the trigger
+            # for building scroll-and-map (spec §4).
+            self._bus.publish(events.RowUnmatched(
+                item=rule.name, read=tuple(row.name for row in visible),
+            ))
+            self._bus.publish(events.PurchaseSkipped(
+                item=rule.name, reason="no_match", coins_before=coins,
+            ))
             self._exhausted.add(rule.name)
             return
 
+        price = seen.price
         if price is None:
             self._bus.publish(
                 events.PurchaseSkipped(item=rule.name, reason="unreadable", detail="price",
@@ -673,8 +732,16 @@ class ShoppingSession:
             self._exhausted.add(rule.name)
             return
 
-        x, y = match.center
-        if not self._try_tap(x, y, device, shopping, screen):
+        # NOT the tile's own centre. The label is not a button - tapping it
+        # buys nothing at all, which a live armed visit demonstrated by
+        # publishing Purchased while coins, stat value and price all stayed
+        # exactly where they were. The buy button is the price panel itself,
+        # and seen.tap is derived from the very price box that was just read
+        # (tiles.rows_from sets tap from price_boxes[-1].rect), so the two
+        # cannot drift apart the way a separately-measured offset could.
+        # This is config.buy_point()'s reasoning exactly; a workshop tile
+        # shares the in-run tile's trap.
+        if not self._try_tap(*seen.tap, device, shopping, screen):
             return
 
         self._exhausted.add(rule.name)
@@ -704,7 +771,7 @@ class ShoppingSession:
         # Coins are irrelevant to a card purchase (it spends gems) - the
         # header is always read as a pair, so the unused half is discarded
         # rather than stored on an attribute nothing ever reads back.
-        _coins, gems = header_numbers(screen, reading.page, reading.top_left, self._reader)
+        _coins, gems = header_numbers(screen, reading.page, reading.top_left)
         if gems is None:
             self._abort(device, shopping, screen, "unreadable balance")
             return
