@@ -295,11 +295,20 @@ def test_tui_keeps_stdlib_logging_off_the_terminal() -> None:
 
         root.handlers.clear()
         tower_bot.configure_logging(tui=False)
-        assert any(
-            isinstance(h, logging.StreamHandler)
+        streams = [
+            h for h in root.handlers
+            if isinstance(h, logging.StreamHandler)
             and not isinstance(h, logging.NullHandler)
-            for h in root.handlers
+        ]
+        assert streams
+        # The logger NAME must reach the line. The Phase 1 OCR rehearsal
+        # selects its evidence with `grep tower_bot.ocr_ab`, and a format
+        # without %(name)s makes "no disagreements" and "nothing was ever
+        # logged" the same empty grep.
+        record = logging.LogRecord(
+            "tower_bot.ocr_ab", logging.WARNING, __file__, 1, "hello", None, None
         )
+        assert "tower_bot.ocr_ab" in streams[0].format(record)
     finally:
         root.handlers[:] = saved_handlers
         root.setLevel(saved_level)

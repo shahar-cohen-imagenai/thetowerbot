@@ -12,6 +12,10 @@ dependencies = [
     "rich>=15.0.0",
     "fastapi>=0.141.1",
     "uvicorn>=0.52.4",
+    # Reads upgrade names and prices off the screen. Pinned: RapidOCR's
+    # output can shift between versions, and the confidence floor in
+    # config.py is calibrated against this one.
+    "rapidocr-onnxruntime==1.4.4",
 ]
 
 [tool.uv]

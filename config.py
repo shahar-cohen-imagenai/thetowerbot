@@ -460,3 +460,107 @@ FRAME_POLL_SECONDS: float = 0.25
 # Loopback is doing real work here, not just avoiding an open port.
 WEB_HOST: str = "127.0.0.1"
 WEB_PORT: int = 8765
+
+# --- Upgrade tiles --------------------------------------------------------
+# An absolute rectangle on the frame. Not Region, which is anchor-relative
+# (dx, dy): a Rect says where something IS, a Region says where to look
+# relative to something already found. Both ocr.py and tiles.py need this,
+# which is why it lives here rather than in either of them.
+class Rect(NamedTuple):
+    x: int
+    y: int
+    w: int
+    h: int
+
+
+# A tile is a bright bordered rectangle: a half-width upgrade tile, or a
+# full-width unlock tile. Both the workshop and the in-run panel use them.
+#
+# Measured with tools/tile_preview.py --all against all four committed
+# fixtures (menu_workshop_attack/defense/utility.png, in_run_lit.png). Real
+# tiles are a tight, consistent pair of sizes: half-width upgrade tiles are
+# 503x196, the full-width unlock tile is 1020x196 - so every real tile seen
+# is exactly 196 tall, regardless of page or width.
+#
+# Everything RETR_EXTERNAL returns alongside them is either much smaller
+# (glyphs, icons: w<=108, h<=94) or falls in a gap around that 196:
+#   - menu bottom nav bar: ~267-807 wide, 99-106 tall
+#   - in_run_lit.png's HUD panels above the upgrade area (the fixture
+#     called out as likely trouble, since its background is a live battle
+#     rather than a flat menu): 519 wide, 158-160 tall - close enough in
+#     WIDTH to a real tile that width alone can't reject it, but still short
+#     of the 196 a real tile measures
+#   - in_run_lit.png's full-width top HUD bar: 1080 wide (the screen width),
+#     100 tall
+# So height alone separates them without needing a crop region: the widest
+# gap below a real tile's 196 is above the HUD panels' 160, and TILE_MIN_H
+# sits at the middle of that gap (178), the same convention used elsewhere
+# in this file (see DIGIT_BINARY_THRESHOLDS) for picking the middle of a
+# measured plateau rather than its edge. TILE_MAX_H (230) leaves comfortable
+# headroom above 196 without reaching any measured false candidate.
+#
+# TILE_MIN_W (450) and TILE_MAX_W (1050) sit just outside the measured real
+# widths (503 and 1020): nothing false was measured between 503 and 1020, and
+# the nearest false width above 1020 is the in_run_lit.png top HUD bar at
+# 1080, so 1050 sits in that gap. Width is the weaker filter here - height is
+# what actually rejects the HUD panels - but it still rejects the smaller
+# glyph/icon contours and stays wide, as the bounds should: they exist to
+# reject the value and price panels nested inside a tile (and now, measured,
+# a couple of same-size-range HUD elements), not to pin a layout a game
+# update may nudge.
+#
+# TILE_BINARY_THRESHOLD (100) was swept from 40 to 180 across all four
+# fixtures: the detected tile count did not move at any point in that range,
+# so 100 sits well inside a stable plateau rather than on an edge - a tile's
+# border is bright and its surroundings are dark enough that where exactly
+# the cut falls barely matters.
+TILE_BINARY_THRESHOLD: int = 100
+TILE_MIN_W: int = 450
+TILE_MAX_W: int = 1050
+TILE_MIN_H: int = 178
+TILE_MAX_H: int = 230
+
+# Where the price sits within a tile, as a fraction of tile height. A tile
+# holds a stat value panel above a price panel, and both parse as numbers -
+# so position is what separates "3" (Damage's level) from "30" (its price).
+#
+# This bounds a box TOP: tiles.py compares box.rect.y, so tops are the only
+# edge that enters the predicate and the only edge worth measuring. (An
+# earlier revision of this comment justified its number against stat-value
+# BOTTOMS, which the code never looks at.)
+#
+# Measured with tools/tile_preview.py plus the recorded OCR boxes (see
+# tests/fixtures/ocr/*.json) against all four committed fixtures; every real
+# tile is 196px tall. The two layouts put the price at very different
+# heights - a half-width upgrade tile has a separate value box well above
+# its price (row tiles: price top 0.638-0.709), while a full-width unlock
+# tile centres its price directly under the label with no value box at all
+# (unlock tiles: price top 0.536-0.551) - so the number that bounds this
+# fraction from above is the unlock tiles' low end, not the row tiles'.
+#
+# The feasible interval is therefore (highest NUMERIC stat-value top,
+# lowest price top]:
+#   - highest numeric stat-value top: 0.286, the "5" on
+#     menu_workshop_defense.png. ("0.00/sec", "1.00%" and "x1.20" sit at
+#     0.255-0.27 but never enter this comparison at all, since parse_number
+#     already refuses them; the highest that does parse besides the "5" is
+#     "3" at 0.281 and "1.00" at 0.26-0.27.)
+#   - lowest price top: 0.536, Unlock Cash Bonuses on
+#     menu_workshop_utility.png.
+# 0.41 is the middle of that (0.286, 0.536] gap, the same
+# pick-the-middle-of-the-plateau convention TILE_MIN_H and
+# DIGIT_BINARY_THRESHOLDS use, and leaves ~24px of margin on each side of a
+# 196px tile. The two previous guesses were both measured against the wrong
+# edge: 0.55 fell ABOVE the unlock price top and would have rejected the
+# unlock tiles' own price outright, and 0.51 left only ~5px before doing the
+# same.
+TILE_PRICE_TOP_FRACTION: float = 0.41
+
+# --- OCR -------------------------------------------------------------------
+# Boxes below this are dropped inside ocr.py and never reach a consumer.
+# Measured on the committed fixtures: real content read at 0.968-1.000 and
+# the one observed phantom - an 'A' on empty screen - at 0.555. This sits in
+# the middle of that gap, the same pick-the-middle-of-the-plateau convention
+# DIGIT_BINARY_THRESHOLD uses. Calibrated on four images; revisit against
+# live data.
+OCR_CONFIDENCE_FLOOR: float = 0.85

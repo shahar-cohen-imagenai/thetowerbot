@@ -922,15 +922,22 @@ def configure_logging(tui: bool) -> None:
     """Set up stdlib logging, or get it out of the TUI's way.
 
     rich's Live owns the terminal under --tui; stdlib logging writing to
-    stderr draws straight over the panel. Nothing is lost by silencing it:
-    failures reach the panel as BotError events on the bus.
+    stderr draws straight over the panel. No FAILURE is lost by silencing
+    it: those reach the panel as BotError events on the bus. Log-only
+    output is lost, though - including the Phase 1 OCR A/B on
+    'tower_bot.ocr_ab', which has no event of its own - so the rehearsal in
+    the Phase 1 plan must be run WITHOUT --tui.
+
+    The name is in the format on purpose: the rehearsal greps the log for
+    'ocr_ab', and a format that omits it turns "no disagreements found" and
+    "the evidence was never written down" into the same empty grep.
     """
     if tui:
         logging.basicConfig(level=logging.CRITICAL, handlers=[logging.NullHandler()])
         return
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s  %(levelname)-7s %(message)s",
+        format="%(asctime)s  %(levelname)-7s %(name)-20s %(message)s",
         datefmt="%H:%M:%S",
     )
 
