@@ -378,3 +378,45 @@ def test_the_shipped_default_passes_its_own_template_check() -> None:
     # If this fails, config.ACTIONS references a template that is not in the
     # repo - which would make ensure_seeded() write an unloadable profile.
     Strategy.from_config().validated()
+
+
+# -- target_speed -----------------------------------------------------------
+
+
+def test_target_speed_defaults_to_leaving_the_speed_alone() -> None:
+    """None, not 1.0. A default of 1.0 would drag a hand-set speed back down
+    the first time the bot entered a run, which is a change nobody asked
+    for."""
+    assert Strategy.from_config().target_speed is None
+
+
+def test_target_speed_accepts_a_known_speed() -> None:
+    assert Strategy.from_config().merged({"target_speed": 1.0}).target_speed == 1.0
+
+
+def test_target_speed_refuses_to_hold_the_game_paused() -> None:
+    """x0.0 is readable but not targetable, and the asymmetry is the point.
+    The bot must RECOGNISE a paused game to climb out of one, but a strategy
+    that holds the game at x0.0 is a soft hang: no cash accrues, no upgrade
+    becomes affordable, the run never ends, max_runs is never reached, and
+    the dashboard says "running" throughout."""
+    with pytest.raises(ControlError):
+        Strategy.from_config().merged({"target_speed": 0.0})
+
+
+def test_target_speed_rejects_a_speed_the_widget_cannot_show() -> None:
+    """Every legal value needs a readout template to recognise it by, so an
+    off-list target is not a preference the bot can act on - it is a target it
+    would tap toward forever without ever matching."""
+    with pytest.raises(ControlError):
+        Strategy.from_config().merged({"target_speed": 7.5})
+
+
+def test_target_speed_can_be_cleared_back_to_none() -> None:
+    tuned = Strategy.from_config().merged({"target_speed": 1.0})
+    assert tuned.merged({"target_speed": None}).target_speed is None
+
+
+def test_target_speed_survives_a_round_trip() -> None:
+    tuned = Strategy.from_config().merged({"target_speed": 1.0})
+    assert Strategy.from_dict(tuned.to_dict()).target_speed == 1.0

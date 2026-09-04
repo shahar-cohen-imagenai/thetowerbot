@@ -246,3 +246,31 @@ def bot_in_run() -> Callable[[Shopping], TowerBot]:
         )
 
     return build
+
+
+@pytest.fixture
+def bot_in_run_paused() -> TowerBot:
+    """A bot IN_RUN on a frame whose speed widget reads x0.0 - the game
+    stopped dead at the widget's bottom step.
+
+    Not a factory like the fixtures above: nothing about this frame concerns
+    shopping, so there is no policy to vary. Captured off a live emulator
+    rather than constructed, because the whole point of it is that x0.0 is a
+    real reading the bot has to recognise and climb out of.
+    """
+    return _shopping_bot(
+        "in_run_paused", state=screens.ScreenState.IN_RUN,
+        policy=Shopping(), auto_navigate=False,
+    )
+
+
+@pytest.fixture
+def bot_in_run_fast() -> TowerBot:
+    """A bot IN_RUN on a frame whose speed widget reads x1.5 - the ceiling on
+    the account these fixtures were captured from. The counterpart to
+    bot_in_run_paused: one frame above every legal target, one below.
+    """
+    return _shopping_bot(
+        "in_run_fast", state=screens.ScreenState.IN_RUN,
+        policy=Shopping(), auto_navigate=False,
+    )

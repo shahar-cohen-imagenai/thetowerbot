@@ -23,6 +23,7 @@ const CHIP: Record<string, string> = {
   NOBUY: "bg-muted text-muted-foreground",
   SHOP: "bg-chart-2/15 text-chart-2",
   PAGE: "bg-chart-1/15 text-chart-1",
+  SPEED: "bg-chart-3/15 text-chart-3",
 };
 
 export function EventFeed({

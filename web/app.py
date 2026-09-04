@@ -192,7 +192,19 @@ class ControlPatch(BaseModel):
     tap_jitter_px: float | None = None
     timing_jitter: float | None = None
     tap_delay: float | None = None
+    target_speed: float | None = None
     actions: list[dict[str, Any]] | None = None
+
+
+class CommandRequest(BaseModel):
+    """One thing to do once, as opposed to a setting to hold.
+
+    Loose on the value for the same reason ControlPatch is: Controls.request()
+    owns the list of legal commands, and spelling it out here as an Enum
+    would be a second copy to keep in step.
+    """
+
+    command: str
 
 
 def create_app(
@@ -357,6 +369,14 @@ def create_app(
             # is fully usable, or when this process never wired one at all
             # (--once, --tui, or a test that built create_app without it).
             payload["shopping_disabled_reason"] = getattr(shopping, "disabled_reason", None)
+            # Which in-battle speeds a strategy may aim for. Same reasoning as
+            # affordability_available: this list grows when a readout template
+            # is harvested, and a copy hardcoded in the browser would quietly
+            # disagree with the validator the moment it did.
+            #
+            # TARGET_SPEEDS, not SPEED_VALUES - the dropdown must not offer
+            # x0.0, which the bot can read but must never be told to hold.
+            payload["speed_values"] = list(config.TARGET_SPEEDS)
             return payload
 
         @app.get("/api/control")
@@ -469,6 +489,25 @@ def create_app(
                 bus.publish(events.ControlChanged(changed=changed, source="web"))
 
             return _control_payload()
+
+        @app.post("/api/control/command")
+        def post_command(body: CommandRequest) -> dict:
+            """Queue one action for the scan loop's next pass.
+
+            Deliberately separate from PATCH /api/control rather than another
+            optional field on it. A patch is idempotent - re-sending it leaves
+            the same settings - whereas re-sending a command taps again, and
+            folding the two together would make a retried request after a
+            dropped response silently double the taps.
+
+            This route never touches the device. It cannot: the web layer has
+            no handle on one, which is the boundary control.py exists to keep.
+            """
+            try:
+                controls.request(body.command)
+            except ControlError as exc:
+                raise HTTPException(status_code=422, detail=f"{exc.field}: {exc}") from exc
+            return {"queued": body.command}
 
     if runner is not None:
 

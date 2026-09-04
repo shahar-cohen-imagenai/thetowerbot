@@ -96,3 +96,31 @@ group("splitEvent shopping events", () => {
     expect(line).toContain("95");
   });
 });
+
+group("splitEvent speed events", () => {
+  it("describes a policy nudge with where it was and where it is going", () => {
+    const line = describe({
+      seq: 1, ts: 0, type: "SpeedAdjusted", direction: "up",
+      source: "policy", reading: 1, target: 2,
+    });
+
+    expect(line).toContain("SPEED");
+    expect(line).toContain("up");
+    expect(line).toContain("x1.0");
+    expect(line).toContain("x2.0");
+  });
+
+  it("describes a manual nudge, which has no reading and no target", () => {
+    // A dashboard press means "one step from wherever it is now", so this
+    // path deliberately never read the widget. The line must not render
+    // "x null" or claim a target nobody set.
+    const line = describe({
+      seq: 1, ts: 0, type: "SpeedAdjusted", direction: "down",
+      source: "web", reading: null, target: null,
+    });
+
+    expect(line).toContain("SPEED");
+    expect(line).toContain("down");
+    expect(line).not.toContain("null");
+  });
+});

@@ -234,3 +234,49 @@ def test_an_out_of_range_jitter_patch_is_refused(wired) -> None:
     assert controls.snapshot().strategy.tap_jitter_px == pytest.approx(
         Strategy.from_config().tap_jitter_px
     )
+
+
+# -- game speed -------------------------------------------------------------
+
+
+def test_the_target_speed_can_be_set_through_the_patch_route(wired) -> None:
+    client, controls, _, _ = wired
+    assert client.patch("/api/control", json={"target_speed": 1.0}).status_code == 200
+    assert controls.snapshot().strategy.target_speed == 1.0
+
+
+def test_an_unknown_target_speed_is_refused(wired) -> None:
+    client, controls, _, _ = wired
+    response = client.patch("/api/control", json={"target_speed": 7.5})
+
+    assert response.status_code == 422
+    assert controls.snapshot().strategy.target_speed is None
+
+
+def test_a_speed_command_is_queued_for_the_scan_loop(wired) -> None:
+    """The route must not touch the device - it queues, and the loop taps.
+    That is the boundary the whole module is built around."""
+    client, controls, _, _ = wired
+    assert client.post("/api/control/command", json={"command": "speed_up"}).status_code == 200
+    assert controls.drain() == ("speed_up",)
+
+
+def test_the_payload_advertises_the_speeds_that_can_be_targeted(wired) -> None:
+    """Same reasoning as affordability_available: the browser cannot know
+    which speeds have readout templates, and a hardcoded list in the UI would
+    drift from config the moment the harvest tool adds one.
+
+    TARGET_SPEEDS, not SPEED_VALUES: x0.0 is readable but not offerable, so
+    the dropdown must not list a value the validator will reject."""
+    client, _, _, _ = wired
+    body = client.get("/api/control").json()
+    assert body["speed_values"] == list(config.TARGET_SPEEDS)
+    assert 0.0 not in body["speed_values"]
+
+
+def test_an_unknown_command_is_refused_by_the_route(wired) -> None:
+    client, controls, _, _ = wired
+    response = client.post("/api/control/command", json={"command": "launch"})
+
+    assert response.status_code == 422
+    assert controls.drain() == ()

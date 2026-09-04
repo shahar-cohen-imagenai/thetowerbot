@@ -25,6 +25,7 @@ const api = vi.hoisted(() => ({
   startBot: vi.fn(),
   stopBot: vi.fn(),
   shutdown: vi.fn(),
+  postCommand: vi.fn(),
 }));
 // Spread the real module first so `ApiError` stays the real class - the page
 // branches on `e instanceof ApiError`, and a hand-rolled double here would
@@ -53,6 +54,7 @@ beforeEach(() => {
   api.patchControl.mockImplementation((p: Record<string, unknown>) =>
     Promise.resolve({ paused: !!p.paused, strategy, affordability_available: [] }),
   );
+  api.postCommand.mockResolvedValue({ queued: "speed_up" });
 });
 
 afterEach(() => {
@@ -212,5 +214,88 @@ describe("ControlPage", () => {
     expect(screen.queryByLabelText("Damage threshold")).toBeNull();
     expect(screen.getByRole("link", { name: /edit strategy/i }).getAttribute("href"))
       .toBe("/strategy/");
+  });
+
+  // -- entering battle ------------------------------------------------------
+  // auto_navigate is the difference between "the scan loop is running" and
+  // "the bot is playing". It is a strategy field, but it belongs next to
+  // Start: with it off, Start produces a bot that watches the death modal
+  // forever, and the only way to find that out was to go and look at the
+  // emulator.
+
+  it("warns that Start will not enter battle when auto-navigate is off", async () => {
+    api.fetchControl.mockResolvedValue({
+      paused: false,
+      strategy: { ...strategy, auto_navigate: false },
+      affordability_available: ["digits"],
+    });
+    render(<ControlPage />);
+
+    await waitFor(() => expect(screen.getByText(/will not enter battle/i)).toBeTruthy());
+  });
+
+  it("does not warn when auto-navigate is on", async () => {
+    render(<ControlPage />);
+    await waitFor(() => screen.getByText("Start"));
+    expect(screen.queryByText(/will not enter battle/i)).toBeNull();
+  });
+
+  it("turns auto-navigate on from the control page", async () => {
+    api.fetchControl.mockResolvedValue({
+      paused: false,
+      strategy: { ...strategy, auto_navigate: false },
+      affordability_available: ["digits"],
+    });
+    render(<ControlPage />);
+    await waitFor(() => screen.getByLabelText("Enter battle automatically"));
+
+    fireEvent.click(screen.getByLabelText("Enter battle automatically"));
+
+    await waitFor(() =>
+      expect(api.patchControl).toHaveBeenCalledWith({ auto_navigate: true }),
+    );
+  });
+
+  // -- game speed -----------------------------------------------------------
+
+  it("sends a speed-up command", async () => {
+    api.fetchStatus.mockResolvedValue({ bot: { running: true, since: 1, error: null } });
+    render(<ControlPage />);
+    await waitFor(() => screen.getByLabelText("Speed up"));
+
+    fireEvent.click(screen.getByLabelText("Speed up"));
+
+    await waitFor(() => expect(api.postCommand).toHaveBeenCalledWith("speed_up"));
+  });
+
+  it("sends a speed-down command", async () => {
+    api.fetchStatus.mockResolvedValue({ bot: { running: true, since: 1, error: null } });
+    render(<ControlPage />);
+    await waitFor(() => screen.getByLabelText("Speed down"));
+
+    fireEvent.click(screen.getByLabelText("Speed down"));
+
+    await waitFor(() => expect(api.postCommand).toHaveBeenCalledWith("speed_down"));
+  });
+
+  it("says when the strategy is holding a speed", async () => {
+    api.fetchControl.mockResolvedValue({
+      paused: false,
+      strategy: { ...strategy, target_speed: 1 },
+      affordability_available: ["digits"],
+    });
+    render(<ControlPage />);
+
+    await waitFor(() => expect(screen.getByText(/held at x1\.0/)).toBeTruthy());
+  });
+
+  it("will not send a speed command while the bot is stopped", async () => {
+    // The queue is drained by the scan loop. With no loop running there is
+    // nothing to drain it, so the command would sit there and fire whenever
+    // the bot was next started - a tap from a button pressed long ago.
+    render(<ControlPage />);
+    await waitFor(() => screen.getByText("Start"));
+
+    expect(screen.getByLabelText("Speed up").hasAttribute("disabled")).toBe(true);
   });
 });

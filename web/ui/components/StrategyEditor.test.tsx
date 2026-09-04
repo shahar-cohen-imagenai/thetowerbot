@@ -19,6 +19,7 @@ const strategy: Strategy = {
   tap_jitter_px: 8,
   timing_jitter: 0.15,
   tap_delay: 0.12,
+  target_speed: null,
   shopping: {
     enabled: false,
     armed: false,
@@ -199,5 +200,44 @@ describe("StrategyEditor", () => {
     rerender(<StrategyEditor value={{ ...strategy, tap_delay: 0.4 }} onChange={vi.fn()} />);
 
     expect(getInput().value).toBe("0.4");
+  });
+
+  // -- target speed ---------------------------------------------------------
+
+  it("offers only the speeds the server says it can recognise", () => {
+    render(
+      <StrategyEditor value={strategy} onChange={vi.fn()} speedValues={[1, 2, 3]} />,
+    );
+    const options = Array.from(
+      (screen.getByLabelText("Target speed") as HTMLSelectElement).options,
+    ).map((o) => o.value);
+
+    // "" is the leave-it-alone option, which is not a speed and so is never
+    // in the server's list.
+    expect(options).toEqual(["", "1", "2", "3"]);
+  });
+
+  it("sets a target speed as a number, not the select's string", () => {
+    const onChange = vi.fn();
+    render(
+      <StrategyEditor value={strategy} onChange={onChange} speedValues={[1, 2]} />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Target speed"), { target: { value: "2" } });
+
+    expect(onChange.mock.calls[0][0].target_speed).toBe(2);
+  });
+
+  it("clears the target speed back to leaving the speed alone", () => {
+    const onChange = vi.fn();
+    render(
+      <StrategyEditor
+        value={{ ...strategy, target_speed: 2 }} onChange={onChange} speedValues={[1, 2]}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Target speed"), { target: { value: "" } });
+
+    expect(onChange.mock.calls[0][0].target_speed).toBeNull();
   });
 });

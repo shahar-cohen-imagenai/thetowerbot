@@ -54,6 +54,7 @@ PATCHABLE_FIELDS = (
     "tap_jitter_px",
     "timing_jitter",
     "tap_delay",
+    "target_speed",
 )
 
 # Longest a cooldown may be. Zero is legal - it means "no cooldown" - but a
@@ -130,10 +131,11 @@ _STRATEGY_TYPES: dict[str, tuple[type, ...]] = {
     "screen_confirmations": (int,),
     "auto_navigate": (bool,),
     "max_runs": (int,),
+    "target_speed": (int, float),
 }
 
 # Fields whose declared type includes None, so None is not a type error.
-_OPTIONAL = frozenset({"max_runs"})
+_OPTIONAL = frozenset({"max_runs", "target_speed"})
 
 
 def _has_type(value: Any, types: tuple[type, ...]) -> bool:
@@ -500,6 +502,12 @@ class Strategy:
     tap_jitter_px: float = config.TAP_JITTER_PX
     timing_jitter: float = config.TIMING_JITTER
     tap_delay: float = config.TAP_DELAY_SECONDS
+
+    # Which in-battle game speed to hold, or None to leave the widget alone.
+    # None rather than 1.0 as the default on purpose: a bot that has never
+    # been told to manage the speed must not quietly tap a hand-set speed
+    # back down the first time it enters a run.
+    target_speed: float | None = None
     # Between-runs spending. Defaults to a policy that buys nothing, so a
     # strategy file written before this existed loads and behaves the same.
     shopping: Shopping = Shopping()
@@ -537,6 +545,20 @@ class Strategy:
         )
         if self.max_runs is not None and self.max_runs < 1:
             raise ControlError("max_runs", "max_runs must be null or at least 1")
+        if self.target_speed is not None and self.target_speed not in config.TARGET_SPEEDS:
+            # A membership check rather than a range: every legal value needs
+            # a readout template to be recognised by, so a target between two
+            # known speeds is one the bot could tap toward forever without
+            # ever matching it. The list grows by harvesting templates, never
+            # by widening a bound.
+            #
+            # TARGET_SPEEDS, not SPEED_VALUES: x0.0 is readable but not
+            # targetable - see that constant's comment for why holding the
+            # game stopped is a soft hang rather than a slow setting.
+            raise ControlError(
+                "target_speed",
+                f"target_speed must be null or one of {list(config.TARGET_SPEEDS)}",
+            )
 
     @classmethod
     def from_config(cls, name: str = "default") -> Strategy:
@@ -589,6 +611,7 @@ class Strategy:
             "tap_jitter_px": self.tap_jitter_px,
             "timing_jitter": self.timing_jitter,
             "tap_delay": self.tap_delay,
+            "target_speed": self.target_speed,
             "shopping": self.shopping.to_dict(),
         }
 

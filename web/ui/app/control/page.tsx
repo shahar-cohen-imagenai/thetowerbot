@@ -6,8 +6,10 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
+import { Switch } from "@/components/ui/switch";
 import {
-  ApiError, fetchControl, fetchStatus, patchControl, shutdown, startBot, stopBot,
+  ApiError, fetchControl, fetchStatus, patchControl, postCommand, shutdown,
+  startBot, stopBot,
 } from "@/lib/api";
 import { useControlSync } from "@/lib/useControlSync";
 import { errorText } from "@/lib/utils";
@@ -172,6 +174,75 @@ export default function ControlPage() {
                   ? "paused — scanning, not tapping"
                   : "running"}
           </span>
+
+          {/* auto_navigate is a strategy field, and every other strategy
+              field is edited on /strategy/. This one is here because it is
+              the difference between "the scan loop is running" and "the bot
+              is playing": with it off, Start produces a bot that watches the
+              death modal forever, and the only way to discover that was to
+              go and look at the emulator. */}
+          <div className="flex items-center justify-between gap-3 border-t pt-3">
+            <div>
+              <div className="text-sm">Enter battle automatically</div>
+              <p
+                className={`mt-0.5 text-xs ${
+                  s.auto_navigate ? "text-muted-foreground" : "text-warn"
+                }`}
+              >
+                {s.auto_navigate
+                  ? "taps BATTLE on the menu and RETRY on the death modal"
+                  : "off — this bot will not enter battle; you tap Battle yourself"}
+              </p>
+            </div>
+            <Switch
+              label="Enter battle automatically"
+              checked={s.auto_navigate}
+              disabled={busy}
+              onCheckedChange={(next) =>
+                void guard(async () =>
+                  setControl(await patchControl({ auto_navigate: next })),
+                )
+              }
+            />
+          </div>
+
+          {/* The two arrows inside a battle. A one-shot command rather than a
+              setting: it means "one step from wherever it is now". The
+              standing preference is target_speed, on /strategy/.
+
+              Disabled unless a bot is actually scanning, because the queue is
+              drained by the scan loop - with nothing draining it, a press
+              would sit there and fire whenever the bot was next started. */}
+          <div className="flex items-center justify-between gap-3 border-t pt-3">
+            <div>
+              <div className="text-sm">Game speed</div>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {/* `== null`, deliberately loose: it catches undefined as
+                    well as null, which is what a strategy from a server that
+                    predates this field looks like. Strict equality here
+                    crashed the whole page on that payload. */}
+                {s.target_speed == null
+                  ? "one step per press, in battle only"
+                  : `held at x${s.target_speed.toFixed(1)} by the strategy`}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline" size="icon-sm" aria-label="Speed down"
+                disabled={busy || !running || control.paused}
+                onClick={() => void guard(async () => { await postCommand("speed_down"); })}
+              >
+                −
+              </Button>
+              <Button
+                variant="outline" size="icon-sm" aria-label="Speed up"
+                disabled={busy || !running || control.paused}
+                onClick={() => void guard(async () => { await postCommand("speed_up"); })}
+              >
+                +
+              </Button>
+            </div>
+          </div>
 
           {notice ? (
             <span className="text-sm text-muted-foreground">{notice}</span>

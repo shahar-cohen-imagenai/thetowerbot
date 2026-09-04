@@ -508,3 +508,52 @@ TILE_PRICE_TOP_FRACTION: float = 0.41
 # DIGIT_BINARY_THRESHOLD uses. Calibrated on four images; revisit against
 # live data.
 OCR_CONFIDENCE_FLOOR: float = 0.85
+
+
+# --- In-battle game speed -------------------------------------------------
+# The widget sits at the bottom right of the play area: [-] x1.0 [+]. All
+# three parts are anchor-relative, like every other in-run region - the
+# IN_RUN anchor's top-left is (12, 1646) on tests/fixtures/in_run_lit.png,
+# which is where these offsets were measured.
+#
+# The readout is matched inside SPEED_READOUT_REGION rather than full-frame,
+# and that is not an optimisation: "x1.00" (coins multiplier) and "x1.20"
+# (critical factor) are both drawn elsewhere on the same screen, so a
+# full-frame match for "x1.0" would happily find the wrong one.
+SPEED_MINUS_REGION: Region = Region(dx=664, dy=-265, w=65, h=66)
+SPEED_PLUS_REGION: Region = Region(dx=864, dy=-265, w=65, h=66)
+# Deliberately wider than the "x1.0" glyph block it currently holds, so a
+# longer label ("x10.0") still fits without re-measuring.
+SPEED_READOUT_REGION: Region = Region(dx=733, dy=-255, w=126, h=50)
+
+# Every speed the arrows step through, in ascending order, each with a
+# readout template at templates/speed/<label>.png. Harvested off a live run
+# by tools/harvest_speed_glyphs.py, which is also how this list grows: a
+# value here without a template is a crash the first time the bot reads the
+# widget, so never add one by hand.
+#
+# x1.5 is the ceiling on the account this was harvested from, not a ceiling
+# in the game - higher speeds unlock with progression. Re-run the harvest
+# after unlocking one and the tuple grows.
+SPEED_VALUES: tuple[float, ...] = (0.0, 1.0, 1.5)
+
+# The subset a strategy may aim for. x0.0 is deliberately excluded, and the
+# asymmetry with SPEED_VALUES above is the whole point.
+#
+# The bottom step of the widget does not slow the game, it STOPS it. That has
+# to be readable - a bot that read None at x0.0 could never climb out, since
+# decide() refuses to act on a widget it cannot read - but it must not be
+# holdable: a strategy pinned to x0.0 is a soft hang. No cash accrues, no
+# upgrade becomes affordable, the run never ends, max_runs is never reached,
+# and the dashboard reports "running" the entire time.
+TARGET_SPEEDS: tuple[float, ...] = tuple(v for v in SPEED_VALUES if v > 0.0)
+
+# A readout must match its template at least this well to be believed. Higher
+# than DEFAULT_THRESHOLD: the labels differ by a single glyph, so a loose
+# threshold reads x1.0 as x4.0 rather than failing honestly.
+SPEED_MATCH_THRESHOLD: float = 0.9
+
+
+def speed_template(value: float) -> str:
+    """Template path for one speed value. One place builds this name."""
+    return f"speed/x{value:.1f}.png"

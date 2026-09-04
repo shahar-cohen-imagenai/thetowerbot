@@ -12,6 +12,15 @@ export type BotEvent =
   | (EventBase & { type: "ScanCompleted"; screen: string; duration_ms: number; wallet: number | null })
   | (EventBase & { type: "Tapped"; action: string; x: number; y: number; score: number; price: number | null; wallet: number | null })
   | (EventBase & { type: "Skipped"; action: string; reason: string; detail: string })
+  | (EventBase & {
+      type: "SpeedAdjusted";
+      direction: string;
+      source: string;
+      /** Both null for a manual nudge from the dashboard, which never reads
+       * the widget - see splitEvent's own comment. */
+      reading: number | null;
+      target: number | null;
+    })
   | (EventBase & { type: "RunStarted"; run_id: number })
   | (EventBase & { type: "RunEnded"; run_id: number; duration: number; wave: number | null; coins: number | null; tier: number | null; abandoned: boolean })
   | (EventBase & { type: "Navigated"; target: string })
@@ -159,6 +168,8 @@ export interface Strategy {
   tap_jitter_px: number;
   timing_jitter: number;
   tap_delay: number;
+  /** null means "leave the in-battle speed alone". */
+  target_speed: number | null;
   shopping: Shopping;
 }
 
@@ -172,6 +183,9 @@ export interface ControlPayload {
    * Strategy page say why enabling and arming shopping produces total
    * silence, instead of doing nothing with no explanation. */
   shopping_disabled_reason: string | null;
+  /** The in-battle speeds this build has readout templates for. Grows when
+   * tools/harvest_speed_glyphs.py captures another one. */
+  speed_values: number[];
 }
 
 export interface RunStat {

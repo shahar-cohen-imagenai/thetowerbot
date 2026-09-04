@@ -177,6 +177,13 @@ Turned on, it taps exactly two buttons: `RETRY` on `GAME_OVER` and `BATTLE` on
 closer together than `NAVIGATION_COOLDOWN_SECONDS` (`3.0`s). `--max-runs N`
 stops after N runs and suppresses the RETRY that would have started run N+1.
 
+This is a strategy field, but its switch sits on the **Control** page beside
+Start rather than only on the Strategy page, and that placement is the point:
+it is the difference between "the scan loop is running" and "the bot is
+playing". With it off, Start produces a bot that watches the death modal
+forever, and the only way to find that out used to be to go and look at the
+emulator. Off, the page now says so before you press anything.
+
 ### Jitter
 
 Every tap is an `input tap` over ADB: a synthetic event with no travel path
@@ -214,6 +221,84 @@ that already works:
 The jittered point — not the un-jittered one — is what the device view's
 crosshair draws and what `Tapped` events carry, so the overlay never lies
 about where a tap actually landed.
+
+### Game speed
+
+Inside a battle the game draws a speed widget at the bottom right of the play
+area — `[−] x1.0 [+]`. `speed.py` reads it and taps its arrows, and there are
+two ways to drive it, deliberately kept apart:
+
+| | What it is | Where |
+| --- | --- | --- |
+| `target_speed` | Standing policy. The bot reads the readout every scan and taps one arrow toward the target until they match. `null` (the default) means "leave the speed alone". | Strategy → Run policy |
+| `speed_up` / `speed_down` | One command, performed once. "One step from wherever it is now." | Control page, the `−` / `+` buttons |
+
+The split matters because the two fail differently. A patch is idempotent —
+re-sending it leaves the same settings — whereas re-sending a command taps
+again, so they do not share a route: commands go to `POST
+/api/control/command`, which queues them on `Controls` for the scan loop's
+next pass. **The web layer never taps the device.** It has no handle on one,
+which is the boundary `control.py` exists to keep.
+
+Both paths are refused off the battle screen and while paused, and a command
+the loop cannot honour right now is **discarded rather than banked** — held,
+it would fire the moment the bot next entered a run, which can be minutes
+after the person who pressed the button stopped watching.
+
+**Two lists, and the difference matters.** `SPEED_VALUES` is every reading the
+widget can show — harvested off a live run as `(0.0, 1.0, 1.5)`.
+`TARGET_SPEEDS` is the subset a strategy may aim for, and it excludes `x0.0`:
+
+- The bottom step does not slow the game, it **stops** it. That has to be
+  *readable*, because `decide()` refuses to act on a widget it cannot read —
+  a bot that read `None` at `x0.0` could never tap its way back out, and would
+  sit on a frozen game for the rest of the run.
+- It must not be *holdable*. A strategy pinned to `x0.0` is a soft hang: no
+  cash accrues, no upgrade becomes affordable, the run never ends, `max_runs`
+  is never reached, and the dashboard reports "running" throughout.
+
+`target_speed` is validated against `TARGET_SPEEDS` by membership, not by
+range, because every legal value needs a readout template to be recognised by.
+A target between two known speeds is one the bot would tap toward forever
+without ever matching. For the same reason `SpeedController` keeps a patience
+budget: a target above the account's unlocked ceiling makes the widget simply
+stop moving, and without a budget the loop would tap `+` at that ceiling for
+the rest of the run. Four taps that leave the reading where it was and it
+stops asking; a reading that *moves* resets the budget, so a long climb never
+exhausts it.
+
+**`x1.5` is this account's ceiling, not the game's** — higher speeds unlock
+with progression. To pick up a newly unlocked one, start a run, turn the speed
+all the way down, and:
+
+```bash
+uv run tools/harvest_speed_glyphs.py
+```
+
+It taps `+` until the readout stops changing — discovering the real ceiling
+rather than guessing it — saves a crop per step, and puts the speed back where
+it found it. It deliberately does not *name* the values: reading the readout
+is the very thing the templates are needed for. Rename the crops to
+`templates/speed/x<value>.png`, list them in `config.SPEED_VALUES`, and:
+
+```bash
+uv run pytest tests/test_speed_loop.py -k template
+```
+
+which fails naming any value whose template is missing. Never add a value by
+hand: one listed without its template is a `FileNotFoundError` out of the scan
+loop the first time the bot reads the widget.
+
+The arrows are tapped at their region's centre rather than at a template
+match — the same call `config.buy_point()` already makes for the price strip.
+The widget does not move relative to the `IN_RUN` anchor, so a match would
+cost a full `matchTemplate` per scan to rediscover a fixed offset. The
+death-modal rule that forces template matching elsewhere is about a screen
+that genuinely shifts. The *readout*, by contrast, is matched inside
+`SPEED_READOUT_REGION` rather than full-frame, and that is not an
+optimisation: `x1.00` (the coins multiplier) and `x1.20` (critical factor) are
+both drawn elsewhere on the same screen, so a full-frame match for `x1.0`
+would happily find the wrong one.
 
 ### Shopping between runs
 

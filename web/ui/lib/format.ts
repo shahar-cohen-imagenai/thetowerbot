@@ -91,6 +91,17 @@ export function splitEvent(event: BotEvent): EventLine {
       };
     case "ShoppingUnavailable":
       return { kind: "SHOP", body: event.reason };
+    case "SpeedAdjusted": {
+      // A manual nudge from the dashboard carries neither reading nor target
+      // - it means "one step from wherever it is now", so it never read the
+      // widget. Rendering the arrow alone is the honest line for that; making
+      // one up so both sources look alike would be the dishonest one.
+      const known = event.reading != null && event.target != null;
+      const journey = known
+        ? ` x${event.reading!.toFixed(1)} -> x${event.target!.toFixed(1)}`
+        : "";
+      return { kind: "SPEED", body: `${event.direction}${journey} (${event.source})` };
+    }
     case "PageChanged":
       return {
         kind: "PAGE",
