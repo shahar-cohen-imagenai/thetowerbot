@@ -24,6 +24,7 @@ class Upgrade:
     category: str
     aliases: tuple[str, ...] = ()
     unlock: bool = False
+    unlocks: tuple[str, ...] = ()
 
 
 def _upgrade(
@@ -32,8 +33,9 @@ def _upgrade(
     category: str,
     *aliases: str,
     unlock: bool = False,
+    unlocks: tuple[str, ...] = (),
 ) -> Upgrade:
-    return Upgrade(upgrade_id, name, category, tuple(aliases), unlock)
+    return Upgrade(upgrade_id, name, category, tuple(aliases), unlock, unlocks)
 
 
 # Order follows each game's tab from the always-visible rows through later
@@ -44,7 +46,13 @@ CATALOG: tuple[Upgrade, ...] = (
     _upgrade("attack_speed", "Attack Speed", "ATTACK", "AS"),
     _upgrade("critical_chance", "Critical Chance", "ATTACK", "Crit Chance"),
     _upgrade("critical_factor", "Critical Factor", "ATTACK", "Crit Factor"),
-    _upgrade("unlock_range_upgrades", "Unlock Range Upgrades", "ATTACK", unlock=True),
+    _upgrade(
+        "unlock_range_upgrades",
+        "Unlock Range Upgrades",
+        "ATTACK",
+        unlock=True,
+        unlocks=("range", "damage_per_meter"),
+    ),
     _upgrade("range", "Range", "ATTACK", "Tower Range"),
     _upgrade(
         "damage_per_meter",
@@ -54,8 +62,24 @@ CATALOG: tuple[Upgrade, ...] = (
         "Damage/Meter",
         "DPM",
     ),
+    _upgrade(
+        "unlock_multishot",
+        "Unlock Multishot",
+        "ATTACK",
+        "Unlock Multi Shot",
+        unlock=True,
+        unlocks=("multishot_chance", "multishot_targets"),
+    ),
     _upgrade("multishot_chance", "Multishot Chance", "ATTACK", "Multi Shot Chance"),
     _upgrade("multishot_targets", "Multishot Targets", "ATTACK", "Multi Shot Targets"),
+    _upgrade(
+        "unlock_rapid_fire",
+        "Unlock Rapid Fire",
+        "ATTACK",
+        "Unlock Rapidfire",
+        unlock=True,
+        unlocks=("rapid_fire_chance", "rapid_fire_duration"),
+    ),
     _upgrade("rapid_fire_chance", "Rapid Fire Chance", "ATTACK"),
     _upgrade("rapid_fire_duration", "Rapid Fire Duration", "ATTACK"),
     _upgrade("bounce_shot_chance", "Bounce Shot Chance", "ATTACK"),
@@ -85,6 +109,7 @@ CATALOG: tuple[Upgrade, ...] = (
         "DEFENSE",
         "Unlock Defence Upgrades",
         unlock=True,
+        unlocks=("defense_percent", "defense_absolute"),
     ),
     _upgrade(
         "defense_percent",
@@ -103,10 +128,43 @@ CATALOG: tuple[Upgrade, ...] = (
         "Def Abs",
         "Absolute Defense",
     ),
+    _upgrade(
+        "unlock_thorns",
+        "Unlock Thorns",
+        "DEFENSE",
+        "Unlock Thorn Damage",
+        "Unlock Thorns Damage",
+        unlock=True,
+        unlocks=("thorns",),
+    ),
     _upgrade("thorns", "Thorns", "DEFENSE", "Thorn Damage", "Thorns Damage"),
+    _upgrade(
+        "unlock_lifesteal",
+        "Unlock Lifesteal",
+        "DEFENSE",
+        "Unlock Life Steal",
+        unlock=True,
+        unlocks=("lifesteal",),
+    ),
     _upgrade("lifesteal", "Lifesteal", "DEFENSE", "Life Steal"),
+    _upgrade(
+        "unlock_knockback",
+        "Unlock Knockback",
+        "DEFENSE",
+        "Unlock Knock Back",
+        unlock=True,
+        unlocks=("knockback_chance", "knockback_force"),
+    ),
     _upgrade("knockback_chance", "Knockback Chance", "DEFENSE", "Knock Back Chance"),
     _upgrade("knockback_force", "Knockback Force", "DEFENSE", "Knock Back Force"),
+    _upgrade(
+        "unlock_orbs",
+        "Unlock Orbs",
+        "DEFENSE",
+        "Unlock Orb Upgrades",
+        unlock=True,
+        unlocks=("orb_speed", "orbs"),
+    ),
     _upgrade("orb_speed", "Orb Speed", "DEFENSE", "Orbs Speed"),
     _upgrade("orbs", "Orbs", "DEFENSE", "Orb Count", "Orbs Count"),
     _upgrade("shockwave_size", "Shockwave Size", "DEFENSE", "Shock Wave Size"),
@@ -128,6 +186,7 @@ CATALOG: tuple[Upgrade, ...] = (
         "UTILITY",
         "Unlock Cash Bonus",
         unlock=True,
+        unlocks=("cash_bonus", "cash_per_wave"),
     ),
     _upgrade("cash_bonus", "Cash Bonus", "UTILITY"),
     _upgrade("cash_per_wave", "Cash / Wave", "UTILITY", "Cash Per Wave", "Cash/Wave"),
@@ -138,6 +197,7 @@ CATALOG: tuple[Upgrade, ...] = (
         "Unlock Coins Bonuses",
         "Unlock Coin Bonus",
         unlock=True,
+        unlocks=("coins_per_kill_bonus", "coins_per_wave"),
     ),
     _upgrade(
         "coins_per_kill_bonus",
@@ -150,6 +210,18 @@ CATALOG: tuple[Upgrade, ...] = (
         "Coins Per Kill",
     ),
     _upgrade("coins_per_wave", "Coins / Wave", "UTILITY", "Coins Per Wave", "Coins/Wave"),
+    _upgrade(
+        "unlock_free_upgrades",
+        "Unlock Free Upgrades",
+        "UTILITY",
+        "Unlock Free Upgrade",
+        unlock=True,
+        unlocks=(
+            "free_attack_upgrade",
+            "free_defense_upgrade",
+            "free_utility_upgrade",
+        ),
+    ),
     _upgrade("free_attack_upgrade", "Free Attack Upgrade", "UTILITY"),
     _upgrade("free_defense_upgrade", "Free Defense Upgrade", "UTILITY", "Free Defence Upgrade"),
     _upgrade("free_utility_upgrade", "Free Utility Upgrade", "UTILITY"),
@@ -192,6 +264,14 @@ if len(_BY_ID) != len(CATALOG):
     raise RuntimeError("upgrade catalog IDs must be unique")
 if any(upgrade.category not in CATEGORIES for upgrade in CATALOG):
     raise RuntimeError("upgrade catalog contains an invalid category")
+if any(upgrade.unlocks and not upgrade.unlock for upgrade in CATALOG):
+    raise RuntimeError("only unlock tiles may declare unlocked upgrades")
+if any(
+    child not in _BY_ID
+    for upgrade in CATALOG
+    for child in upgrade.unlocks
+):
+    raise RuntimeError("upgrade catalog contains an unknown unlocked upgrade ID")
 
 
 def by_id(upgrade_id: str) -> Upgrade | None:
@@ -245,6 +325,7 @@ def catalog_payload() -> list[dict[str, Any]]:
             "category": upgrade.category,
             "aliases": list(upgrade.aliases),
             "unlock": upgrade.unlock,
+            "unlocks": list(upgrade.unlocks),
         }
         for upgrade in CATALOG
     ]

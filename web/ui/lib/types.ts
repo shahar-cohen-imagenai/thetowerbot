@@ -148,6 +148,40 @@ export interface CardPolicy {
   batch: "x1" | "x10";
 }
 
+export interface AdvisorSource {
+  name: string;
+  version: string;
+  account_name: string;
+  exported_at: number;
+  account_snapshot_at: number;
+  url?: string | null;
+}
+export interface AdvisorRecommendation {
+  id: string;
+  path: "health" | "damage" | "economy";
+  system: "workshop" | "lab" | "ultimate_weapon" | "enhancement" | "other";
+  upgrade: string;
+  upgrade_id?: string | null;
+  current_value: number | null;
+  target_value: number | null;
+  value_kind: "level" | "stat";
+  cost: number | null;
+  currency: "coins" | "gems" | "stones" | "medals" | "time" | "other";
+  benefit: number | null;
+  can_stage: boolean;
+  blocked_reason: string | null;
+}
+export interface AdvisorSnapshot {
+  import_id: string | null;
+  profile: string;
+  imported_at: number | null;
+  source: AdvisorSource | null;
+  missing_inputs: string[];
+  stale: boolean;
+  recommendations: AdvisorRecommendation[];
+}
+export interface AdvisorDraftResult { draft: Strategy; added: boolean; message: string }
+
 /** Mirrors strategy.py's Shopping.to_dict(). `enabled` and `armed` are two
  * switches: enabled+unarmed reads and reports without tapping. */
 export interface Shopping {

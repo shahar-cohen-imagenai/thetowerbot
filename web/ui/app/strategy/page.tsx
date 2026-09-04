@@ -6,6 +6,7 @@ import { ShoppingEditor } from "@/components/ShoppingEditor";
 import { StrategyEditor } from "@/components/StrategyEditor";
 import { StrategyNav } from "@/components/StrategyNav";
 import { AutopilotEditor } from "@/components/AutopilotEditor";
+import { AdvisorPanel } from "@/components/AdvisorPanel";
 import { useAutopilot } from "@/lib/useAutopilot";
 import {
   activateStrategy, deleteStrategy, fetchControl, fetchStrategies,
@@ -233,6 +234,7 @@ export default function StrategyPage() {
         disabledReason={shoppingDisabledReason}
         hideWorkshopRows={catalog.length > 0}
       />
+      <AdvisorPanel profile={selected} value={draft} onChange={setDraft} disabled={busy} />
       </div>
     </div>
   );

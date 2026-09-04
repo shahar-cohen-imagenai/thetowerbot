@@ -685,6 +685,27 @@ than the 500-event ring.
 
 ### OCR autopilot
 
+**Strategy → Effective Paths advisor** accepts a local JSON or normalized CSV
+recommendation export. Download an example in the panel, replace its placeholder
+data with your account's results, and import it. The panel separates health,
+damage and economy paths and shows the source version, account, timestamps,
+unknown values and missing inputs. Imports are stored per profile in local
+`advisor.json`, which is excluded from git.
+
+This adapter does not connect to Google Sheets, calculate Effective Paths formulas,
+or accept arbitrary native workbook CSVs. Effective Paths currently excludes a
+standard Workshop path; its lab and other recommendations remain advisory.
+Workshop unlock prerequisites stay in your editable purchase plan. See the
+[import format](docs/advisor-import.md) for the supported normalized fields.
+
+Only recognized Workshop recommendations in coins with improving **displayed stat**
+targets can be added to a Strategy draft. Both source and account data must be
+less than 24 hours old with no reported missing inputs. A Workshop level is never
+converted into a stat target. Required unlocks must already be observed or enabled
+earlier in the draft. Adding a recommendation preserves existing priorities,
+targets, disabled rows, budgets and arming. Save or Revert still controls the draft;
+an import or draft addition never purchases an upgrade.
+
 In **Strategy → Purchases**, choose Battle or Workshop, then Attack, Defense
 or Utility. The catalog supplies upgrade names and aliases; OCR supplies your
 observed values, prices and availability. Unknown means unseen, not locked.

@@ -1,4 +1,6 @@
 import type {
+  AdvisorSnapshot,
+  AdvisorDraftResult,
   AutopilotPreset,
   AutopilotCommand,
   AutopilotSnapshot,
@@ -79,6 +81,12 @@ export const fetchLedger = (
 };
 
 export const fetchControl = () => getJson<ControlPayload>("/api/control");
+export const fetchAdvisor = (profile: string) =>
+  getJson<AdvisorSnapshot>(`/api/advisor?profile=${encodeURIComponent(profile)}`);
+export const importAdvisor = (body: { profile: string; filename: string; content: string }) =>
+  send<AdvisorSnapshot>("/api/advisor/import", "POST", body);
+export const stageAdvisor = (body: { profile: string; import_id: string; recommendation_id: string; draft: Strategy }) =>
+  send<AdvisorDraftResult>("/api/advisor/draft", "POST", body);
 
 /** FastAPI's `detail` is a plain string when our own ControlError becomes a
  * 422 (e.g. an out-of-range interval), but a list of structured items when
