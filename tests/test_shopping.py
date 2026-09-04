@@ -15,6 +15,7 @@ import pytest
 
 import config
 import digits
+import ocr
 import events
 import shopping as shopping_mod
 import vision
@@ -50,7 +51,7 @@ def fake_header(monkeypatch):
     """
     values = {"coins": 1770, "gems": 40}
 
-    def _header(screen, page, top_left, reader):
+    def _header(screen, page, top_left):
         return values["coins"], values["gems"]
 
     monkeypatch.setattr(shopping_mod, "header_numbers", _header)
@@ -181,13 +182,36 @@ def test_disabling_shopping_mid_visit_ends_it_instead_of_continuing(session) -> 
 
 # -- reading the header ----------------------------------------------------
 def test_the_header_reads_coins_and_gems_off_a_workshop_frame() -> None:
-    reader = digits.NumberReader()
+    """Real engine, real fixture. The two balances sit on one header row, so
+    this is also what proves each region keeps to its own number."""
     cache = vision.TemplateCache(config.TEMPLATE_DIR)
     screen = frame("menu_workshop_attack")
     _, top_left = vision.best_score(screen, cache.get(config.PAGE_ANCHORS["WORKSHOP"]))
-    coins, gems = shopping_mod.header_numbers(screen, "WORKSHOP", top_left, reader)
+    coins, gems = shopping_mod.header_numbers(screen, "WORKSHOP", top_left)
     assert coins == 1770
     assert gems == 40
+
+
+def test_the_header_reads_a_balance_the_glyph_atlas_could_not(monkeypatch) -> None:
+    """2, 3 and 5 are glyphs templates/atlas/header/ has never held, so a
+    balance containing them read as None through the atlas and aborted the
+    visit. Reading the header with OCR is what retires that failure - and
+    with it the harvesting session build_shopping() used to demand.
+    """
+    def _read(screen):
+        return (ocr.TextBox(text="2.35K", confidence=0.99, rect=config.Rect(90, 164, 130, 46)),)
+
+    monkeypatch.setattr(shopping_mod.ocr, "read", _read)
+    coins, gems = shopping_mod.header_numbers(None, "WORKSHOP", (32, 244))
+    assert coins == 2350
+    assert gems is None, "nothing was read in the gem region"
+
+
+def test_the_header_reads_nothing_off_a_page_that_has_no_header() -> None:
+    """MISSIONS, or a frame that failed to classify. Returning a pair of
+    Nones rather than raising is what lets the caller treat "no header here"
+    and "unreadable header" as the same refusal."""
+    assert shopping_mod.header_numbers(None, "MISSIONS", (32, 244)) == (None, None)
 
 
 # -- page transitions -------------------------------------------------------

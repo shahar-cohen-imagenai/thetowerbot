@@ -41,6 +41,7 @@ import db
 import digits
 import events
 import jitter
+import ocr
 import screens
 import vision
 from affordability import (
@@ -841,12 +842,6 @@ def build_checks_and_controls(
     return checks, controls
 
 
-# What a header read needs: the ten digits, the decimal point, and the "K"
-# suffix - see config.HEADER_REGIONS and shopping.header_numbers. Not
-# digits.SIZE_CLASSES: that tuple gates the whole bot's affordability (see
-# build_affordability), while an unbuilt header atlas gates shopping alone
-# and nothing else, per digits.ALL_SIZE_CLASSES's own docstring.
-_HEADER_GLYPHS: frozenset[str] = frozenset("0123456789.K")
 
 
 def build_shopping(
@@ -856,7 +851,7 @@ def build_shopping(
     atlas_root: Path | None = None,
 ) -> ShoppingSession:
     """Build the shopping session, disabling it with a reason if this
-    machine's header atlas cannot read a balance yet.
+    machine cannot read the screen at all.
 
     Always returns a *session* - never None. A None return would force
     every call site to branch before it could do anything, and TowerBot
@@ -864,29 +859,32 @@ def build_shopping(
     already degrades, handing back a working object of a lesser kind
     rather than nothing at all.
 
-    The header atlas needs every digit plus "." and "K" (see
-    config.HEADER_REGIONS): a coin or gem balance that cannot be fully read
-    comes back as None from NumberReader.read, and shopping.py treats that
-    as "stop the visit", never "guess". Logging exactly which glyphs are
-    missing - not merely that some are - is what turns "header atlas
-    incomplete" into an actionable "go play a session so the balance passes
-    through 2, 3, 5, 6, 9": see build_atlas.py for the harvesting tool.
+    The gate is the OCR engine (spec §10). Every visit re-reads the coin
+    balance before it considers a row, and that read is OCR's now; a
+    balance that comes back None aborts the visit outright, because
+    shopping.py treats an unread number as "stop", never "guess". So an
+    engine that will not import can never approve a purchase, and saying so
+    once at startup beats a session that looks armed and silently declines
+    forever. Prices still come off the glyph atlas until Phase 2 moves them
+    too, which only widens what a missing engine costs.
+
+    This used to gate on the header glyph atlas instead, which meant
+    shopping stayed off until somebody played a session that pushed every
+    missing digit through the coin balance by hand. Reading the header with
+    OCR retired that requirement along with the harvesting - see
+    shopping.header_numbers().
     """
     cache = digits.AtlasCache(
         atlas_root if atlas_root is not None else config.ATLAS_DIR
     )
-    atlas = cache.get("header")
-    have = atlas.labels if atlas is not None else set()
-    missing = sorted(_HEADER_GLYPHS - have)
     reader = reader if reader is not None else digits.NumberReader(cache)
 
     disabled_reason: str | None = None
-    if missing:
-        disabled_reason = f"header atlas is missing {', '.join(missing)}"
+    if not ocr.available():
+        disabled_reason = "the OCR engine will not load"
         logger.warning(
-            "shopping disabled: %s - play a session so the coin balance "
-            "passes through those glyphs, then rebuild the header atlas "
-            "with build_atlas.py",
+            "shopping disabled: %s - see the traceback logged by tower_bot.ocr, "
+            "and check that rapidocr_onnxruntime installed cleanly",
             disabled_reason,
         )
 

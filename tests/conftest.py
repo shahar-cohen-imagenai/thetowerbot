@@ -155,10 +155,10 @@ def _shopping_bot(
     gets a chance to control it.
 
     The shopping session is built directly, never through
-    tower_bot.build_shopping(): this machine's header atlas is missing
-    2, 3, 5, 6, 9, which would hand back a disabled session that can never
-    begin a visit. The fixtures' balances read correctly against the
-    glyphs that ARE present, so a directly-built session works fine here.
+    tower_bot.build_shopping(): that function's startup gate builds the OCR
+    engine to decide whether to disable buying, and these tests are about
+    the visit loop, not about whether a wheel imports. A directly-built
+    session skips the gate and stays fast.
     """
     device = _FakeDevice()
     bus = _RecordingBus()

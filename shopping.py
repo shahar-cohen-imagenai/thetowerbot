@@ -80,6 +80,7 @@ from typing import Any
 import config
 import events
 import jitter
+import ocr
 import pages
 import tiles
 import vision
@@ -115,17 +116,36 @@ class Step(Enum):
 
 
 def header_numbers(
-    screen: Image, page: str, top_left: tuple[int, int] | None, reader: NumberReader
+    screen: Image, page: str, top_left: tuple[int, int] | None
 ) -> tuple[int | None, int | None]:
     """Coins and gems off the menu header, or (None, None) off a page that
-    has no header regions (MISSIONS, or a page that failed to classify)."""
+    has no header regions (MISSIONS, or a page that failed to classify).
+
+    Read with OCR rather than the glyph atlas. The atlas could only ever
+    read a balance built from glyphs a past play session happened to push
+    through it - templates/atlas/header/ has never held 2, 3, 5 or 9 - and
+    an unreadable balance aborts the visit, so the bot could not shop until
+    somebody harvested them by hand. OCR needs no such session, which is
+    why build_shopping() now gates on the engine instead of on the atlas.
+
+    One whole-frame read serves both regions: the two balances share a
+    header row, and reading twice would pay for the same pixels twice.
+    """
     regions = config.HEADER_REGIONS.get(page)
     if regions is None or top_left is None:
         return None, None
     coins_region, gems_region = regions
-    coins = reader.read(screen, coins_region, top_left, "header")
-    gems = reader.read(screen, gems_region, top_left, "header")
-    return coins, gems
+    boxes = ocr.read(screen)
+    return (
+        ocr.number_in(boxes, _absolute(coins_region, top_left)),
+        ocr.number_in(boxes, _absolute(gems_region, top_left)),
+    )
+
+
+def _absolute(region: config.Region, top_left: tuple[int, int]) -> config.Rect:
+    """A Region is anchor-relative by design (see config.Region); ocr works
+    in frame coordinates. This is the one place the two meet."""
+    return config.Rect(top_left[0] + region.dx, top_left[1] + region.dy, region.w, region.h)
 
 
 # --- Phase 1 A/B scaffolding ---------------------------------------------
@@ -613,7 +633,7 @@ class ShoppingSession:
         # Gems are irrelevant to a workshop row (it spends coins) - see the
         # matching comment in _buy_cards for why the unused half of the pair
         # is discarded rather than stored.
-        coins, _gems = header_numbers(screen, reading.page, reading.top_left, self._reader)
+        coins, _gems = header_numbers(screen, reading.page, reading.top_left)
         if coins is None:
             self._abort(device, shopping, screen, "unreadable balance")
             return
@@ -694,7 +714,7 @@ class ShoppingSession:
         # Coins are irrelevant to a card purchase (it spends gems) - the
         # header is always read as a pair, so the unused half is discarded
         # rather than stored on an attribute nothing ever reads back.
-        _coins, gems = header_numbers(screen, reading.page, reading.top_left, self._reader)
+        _coins, gems = header_numbers(screen, reading.page, reading.top_left)
         if gems is None:
             self._abort(device, shopping, screen, "unreadable balance")
             return

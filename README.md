@@ -324,15 +324,16 @@ the event feed as any other run, not one entry that shows up after the fact.
 
 > **Three things here are still unverified on a live device.**
 >
-> The header glyph atlas is incomplete. `templates/atlas/header/` holds
-> `0 1 4 7 8 . K` — every glyph the committed fixtures happened to contain.
-> `2 3 5 6 9` only show up once a coin balance has actually passed through
-> them, which needs a real play session (see "Known gap" below for the
-> harvesting steps). Until then, `build_shopping()` in `tower_bot.py` logs
-> exactly which glyphs are missing and hands back a permanently disabled
-> session rather than one that might approve a purchase against a balance
-> it half-read. This fails safe on purpose: an unreadable balance can
-> approve no purchase, ever.
+> The coin balance is read with OCR, and has never been read that way on a
+> live device. `shopping.header_numbers()` runs `ocr.read()` over the frame
+> and takes the one number whose box centre lands inside the page's coin
+> region — two numbers in one region is ambiguity and refuses. It reads
+> both balances correctly off all three committed workshop fixtures, and
+> `build_shopping()` gates on `ocr.available()`, so an engine that will not
+> import disables buying loudly at startup instead of silently. What no
+> fixture can prove is that the region keeps to its own number once the
+> balance grows a digit wider. This fails safe the same way the glyph atlas
+> did: an unread balance aborts the visit, and can approve no purchase.
 >
 > The `menu` glyph atlas — the size class every price is read at, in both
 > `_buy_rows` and `_buy_cards` — is incomplete the same way. `templates/atlas/
@@ -447,20 +448,20 @@ fails to read and that scan falls back to brightness. Harvest those two
 classes' suffix glyphs during a session that reaches large enough numbers,
 and label them by hand off the contact sheet.
 
-The header atlas itself is also not yet complete for live play: it is
-missing `2 3 5 6 9 M B`, because none of the fixtures it was built from have
-a balance that passed through those digits or reached the millions/billions
-range. `uv run build_atlas.py --size-class header` during a real play
-session closes that gap; `tests/test_header_digits.py` documents exactly
-which glyphs are still missing via a skipped test that starts passing once
-they are harvested.
+The header atlas is also incomplete - missing `2 3 5 6 9 M B` - but that no
+longer costs anything, and needs no harvesting session to fix. Nothing reads
+a header glyph any more: `shopping.header_numbers()` reads both balances
+with OCR (`ocr.number_in` against `config.HEADER_REGIONS`), and
+`build_shopping()`'s startup gate is `ocr.available()` rather than the
+atlas. The class stays built for the threshold and segmentation
+measurements `tests/test_header_digits.py` still makes against it.
 
 The `menu` atlas - the size class `shopping.py` reads every workshop and
 card price at (`_buy_rows` and `_buy_cards` both pass `"menu"` to
 `NumberReader.read`) - has the same kind of gap: it is missing `1 6 8 9`,
 because none of the committed fixtures happen to show a price containing
-them. Unlike the header atlas, there is no dedicated startup gate for this
-one - `build_shopping()` only checks the header - so the failure shows up
+them. There is no dedicated startup gate for this one - `build_shopping()`
+checks only that the OCR engine loads - so the failure shows up
 per-purchase instead: a price containing one of those four digits reads as
 None, and shopping.py refuses it the same way it refuses any other
 unreadable price (`PurchaseSkipped(reason="unreadable")`, the row marked
