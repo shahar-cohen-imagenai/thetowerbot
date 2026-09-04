@@ -83,6 +83,20 @@ def test_shopping_ended_records_an_abort_with_its_reason() -> None:
     assert event.aborted and event.reason
 
 
+def test_a_skipped_workshop_row_reports_the_coin_balance_that_refused_it() -> None:
+    """An unaffordable row is a balance reading. Without it the ledger only
+    learns a balance on visits that actually bought something, which on this
+    account is the rare visit, not the common one."""
+    event = events.PurchaseSkipped(
+        item="Damage", reason="unaffordable", coins_before=1770
+    )
+
+    assert event.coins_before == 1770
+    # The currency it did NOT spend stays None rather than being reused -
+    # the same rule Purchased already documents.
+    assert event.gems_before is None
+
+
 def test_every_new_event_stores_without_a_migration() -> None:
     """to_row maps the typed columns and JSON-dumps the rest. Nothing here may
     need a column the events table does not already have."""

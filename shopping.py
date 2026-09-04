@@ -647,19 +647,29 @@ class ShoppingSession:
             ab_logger.exception("the OCR comparison itself failed")
 
         if match is None:
-            self._bus.publish(events.PurchaseSkipped(item=rule.name, reason="no_match"))
+            self._bus.publish(
+                events.PurchaseSkipped(
+                    item=rule.name, reason="no_match", coins_before=coins
+                )
+            )
             self._exhausted.add(rule.name)
             return
 
         if price is None:
             self._bus.publish(
-                events.PurchaseSkipped(item=rule.name, reason="unreadable", detail="price")
+                events.PurchaseSkipped(item=rule.name, reason="unreadable", detail="price",
+                    coins_before=coins,
+                )
             )
             self._exhausted.add(rule.name)
             return
 
         if price > coins:
-            self._bus.publish(events.PurchaseSkipped(item=rule.name, reason="unaffordable"))
+            self._bus.publish(
+                events.PurchaseSkipped(
+                    item=rule.name, reason="unaffordable", coins_before=coins
+                )
+            )
             self._exhausted.add(rule.name)
             return
 
@@ -703,23 +713,40 @@ class ShoppingSession:
         template_path = config.CARD_BUTTONS[item]
         match = vision.locate_template(screen, self._templates.get(template_path), self._threshold)
         if match is None:
-            self._bus.publish(events.PurchaseSkipped(item=item, reason="no_match"))
+            self._bus.publish(
+                events.PurchaseSkipped(
+                    item=item, reason="no_match", gems_before=gems,
+                )
+            )
             self._step = Step.RETURN
             return
 
         price = self._reader.read(screen, config.CARD_PRICE_REGION, match.top_left, "menu")
         if price is None:
-            self._bus.publish(events.PurchaseSkipped(item=item, reason="unreadable", detail="price"))
+            self._bus.publish(
+                events.PurchaseSkipped(item=item, reason="unreadable", detail="price",
+                    gems_before=gems,
+                )
+            )
             self._step = Step.RETURN
             return
 
         if price > gems:
-            self._bus.publish(events.PurchaseSkipped(item=item, reason="unaffordable"))
+            self._bus.publish(
+                events.PurchaseSkipped(item=item, reason="unaffordable",
+                    gems_before=gems,
+                )
+            )
             self._step = Step.RETURN
             return
 
         if gems - price < cards.gem_floor:
-            self._bus.publish(events.PurchaseSkipped(item=item, reason="capped", detail="gem floor"))
+            self._bus.publish(
+                events.PurchaseSkipped(
+                    item=item, reason="capped", detail="gem floor",
+                    gems_before=gems,
+                )
+            )
             self._step = Step.RETURN
             return
 
