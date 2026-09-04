@@ -29,6 +29,7 @@ export default function StrategyPage() {
   const [saved, setSaved] = useState<Strategy | null>(null);
   const [draft, setDraft] = useState<Strategy | null>(null);
   const [available, setAvailable] = useState<string[] | undefined>(undefined);
+  const [speedValues, setSpeedValues] = useState<number[] | undefined>(undefined);
   const [shoppingDisabledReason, setShoppingDisabledReason] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -73,6 +74,7 @@ export default function StrategyPage() {
       .then((c) => {
         setAvailable(c.affordability_available);
         setShoppingDisabledReason(c.shopping_disabled_reason);
+        setSpeedValues(c.speed_values);
       })
       .catch(() => setAvailable(undefined));
   }, [load]);
@@ -182,7 +184,10 @@ export default function StrategyPage() {
         }
       />
 
-      <StrategyEditor value={draft} onChange={setDraft} available={available} disabled={busy} />
+      <StrategyEditor
+        value={draft} onChange={setDraft} available={available}
+        speedValues={speedValues} disabled={busy}
+      />
 
       <ShoppingEditor
         shopping={draft.shopping}

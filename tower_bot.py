@@ -44,13 +44,14 @@ import jitter
 import ledger
 import ocr
 import screens
+import speed
 import vision
 from affordability import (
     AffordabilityCheck,
     BrightnessAffordability,
     DigitAffordability,
 )
-from control import Controls
+from control import Controls, Live
 from device import EmulatorError, Image, capture_screen, connect_device, tap
 from frames import FrameBuffer
 from navigate import Navigator
@@ -130,6 +131,7 @@ class TowerBot:
             self.controls.snapshot().strategy.affordability: self.affordability
         }
         self.navigator = Navigator(templates, bus, cooldown=navigation_cooldown)
+        self.speed = speed.SpeedController(bus=bus)
         self.runs = RunTracker(first_run_id)
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
@@ -370,6 +372,56 @@ class TowerBot:
             cap = source.max_runs
         return cap is not None and self.runs.completed >= cap
 
+    def _manage_speed(
+        self,
+        settings: Live,
+        anchor: tuple[int, int] | None,
+        commands: tuple[str, ...],
+    ) -> None:
+        """Drive the in-battle speed widget: browser commands, then policy.
+
+        Both paths are refused off the battle screen and while paused. The
+        arrow coordinates are anchored to the IN_RUN template, so away from
+        that screen they are not "the wrong button" - they are a point on
+        whatever menu happens to be showing, which on the workshop page is a
+        purchase.
+
+        A command SUPPRESSES the target for the rest of this scan, and that is
+        not politeness - it is correctness. settle() decides from
+        `self.screen`, captured before the command's tap landed, so the game
+        has not redrawn the readout yet. Left to run, it would decide from a
+        reading the tap just invalidated and fire a second time, turning one
+        button press into two steps and overshooting the very target it was
+        heading for.
+
+        The suppression lasts exactly one scan. The target is standing policy,
+        so the next pass - working from a fresh frame - takes over again and
+        pulls the speed back. Nothing tries to reconcile the two beyond that:
+        a user who wants a manual speed to stick clears the target.
+        """
+        if anchor is None or settings.paused:
+            return
+
+        for command in commands:
+            self.speed.tap(
+                self.device,
+                "up" if command == "speed_up" else "down",
+                anchor,
+                tuning=settings.strategy,
+                source="web",
+            )
+        if commands:
+            return
+
+        self.speed.settle(
+            self.screen,
+            self.device,
+            self.templates,
+            target=settings.strategy.target_speed,
+            anchor=anchor,
+            tuning=settings.strategy,
+        )
+
     def run_once(self, max_runs: int | None = None) -> bool:
         """One scan pass over the configured actions. True if anything clicked.
 
@@ -420,17 +472,31 @@ class TowerBot:
         # modal. `reading.top_left` is then the GAME_OVER anchor, and the
         # wallet region measured from it lands somewhere else entirely. The
         # anchor and the region have to come from the same frame.
+        in_run_anchor = (
+            reading.top_left
+            if (
+                state is screens.ScreenState.IN_RUN
+                and reading.state is screens.ScreenState.IN_RUN
+                and reading.top_left is not None
+            )
+            else None
+        )
+
         self.wallet = None
-        if (
-            state is screens.ScreenState.IN_RUN
-            and reading.state is screens.ScreenState.IN_RUN
-            and reading.top_left is not None
-        ):
+        if in_run_anchor is not None:
             self.wallet = self.reader.read(
-                self.screen, config.WALLET_REGION, reading.top_left, "wallet"
+                self.screen, config.WALLET_REGION, in_run_anchor, "wallet"
             )
         if isinstance(self.affordability, DigitAffordability):
             self.affordability.wallet = self.wallet
+
+        # Drained every pass, whatever the screen, and deliberately: a
+        # command the loop cannot honour right now is discarded rather than
+        # banked. Holding it would fire the tap the moment the bot next
+        # entered a run - which can be minutes later, long after the user
+        # who pressed the button stopped watching for it.
+        commands = self.controls.drain()
+        self._manage_speed(settings, in_run_anchor, commands)
 
         # A visit owns the frame while it runs. Three things below key off
         # this rather than off the screen state, because the pages a visit

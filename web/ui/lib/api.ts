@@ -133,6 +133,14 @@ export const activateStrategy = (name: string) =>
 export const deleteStrategy = (name: string) =>
   send<StrategyList>(`/api/strategies/${encodeURIComponent(name)}`, "DELETE");
 
+/** Queues one action for the scan loop's next pass - a game-speed nudge, say.
+ *
+ * Not patchControl: a patch is idempotent and a command is not. Retrying a
+ * dropped patch leaves the same settings; retrying a dropped command taps
+ * twice, so the two must not share a route. */
+export const postCommand = (command: string) =>
+  send<{ queued: string }>("/api/control/command", "POST", { command });
+
 /** Starts the bot. A 409 (already running - another tab may have started
  * one) is a normal answer, not swallowed here: it surfaces as an ApiError
  * carrying status 409, which is what lets the control page treat it as a

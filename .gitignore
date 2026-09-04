@@ -25,3 +25,7 @@ strategies/.*.tmp
 # set_active() rewrites it, so it belongs with tower_bot.db* above, not with
 # the profile definitions beside it.
 strategies/.active
+
+# Staging output from tools/harvest_speed_glyphs.py - unlabelled crops that
+# get renamed into templates/speed/ by hand, not artefacts to commit.
+templates/speed/harvest/

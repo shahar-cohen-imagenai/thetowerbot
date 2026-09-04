@@ -261,3 +261,22 @@ class EventBus:
                 with self._lock:
                     self.dropped += 1
         return stamped
+
+
+@dataclass(frozen=True, kw_only=True)
+class SpeedAdjusted(Event):
+    """One arrow tap on the in-battle speed widget.
+
+    Carries the reading it decided from, not just the direction: "tapped up"
+    alone cannot be checked against anything later, whereas "read x1.0,
+    wanted x2.0, tapped up" says whether the tap was the right call even if
+    the next frame shows it did nothing.
+    """
+
+    direction: str  # up | down
+    source: str = "policy"  # policy | web
+    # Both None for a manual nudge from the dashboard: that path deliberately
+    # does not read the widget first, because a button press means "one step
+    # from wherever it is now", not "move toward a value".
+    reading: float | None = None
+    target: float | None = None

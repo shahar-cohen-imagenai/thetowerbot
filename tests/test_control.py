@@ -14,6 +14,7 @@ import threading
 
 import pytest
 
+import control
 from control import ControlError, Controls, Live
 from strategy import ActionRule, Strategy
 
@@ -298,3 +299,49 @@ def test_apply_never_reports_or_reverts_a_field_the_caller_never_patched() -> No
     assert not bad_changes, (
         f"a patch without 'paused' reported it as changed: {bad_changes[:5]}"
     )
+
+
+# -- one-shot commands ------------------------------------------------------
+# Settings are standing policy; a command happens once. The browser must
+# never tap the device itself, so a button press lands here and the scan
+# loop performs it on its next pass.
+
+
+def test_a_requested_command_reaches_the_next_drain() -> None:
+    controls = a_controls()
+    controls.request("speed_up")
+    assert controls.drain() == ("speed_up",)
+
+
+def test_a_command_is_handed_out_exactly_once() -> None:
+    """The scan loop drains every pass. A command that survived its drain
+    would be re-performed on every subsequent scan - one button press
+    walking the speed to the top."""
+    controls = a_controls()
+    controls.request("speed_up")
+    controls.drain()
+    assert controls.drain() == ()
+
+
+def test_commands_drain_in_the_order_they_were_requested() -> None:
+    controls = a_controls()
+    controls.request("speed_up")
+    controls.request("speed_down")
+    assert controls.drain() == ("speed_up", "speed_down")
+
+
+def test_an_unknown_command_is_refused() -> None:
+    """Same rule the rest of this module follows: reject at the boundary,
+    so nothing downstream has to decide what an unrecognised string means."""
+    with pytest.raises(ControlError):
+        a_controls().request("self_destruct")
+
+
+def test_the_queue_is_bounded_so_a_held_button_cannot_bank_taps() -> None:
+    """A browser can post faster than the loop scans. Without a ceiling, ten
+    seconds of impatient clicking becomes a hundred queued taps that all fire
+    long after the user stopped asking for them."""
+    controls = a_controls()
+    for _ in range(500):
+        controls.request("speed_up")
+    assert len(controls.drain()) <= control.MAX_QUEUED_COMMANDS

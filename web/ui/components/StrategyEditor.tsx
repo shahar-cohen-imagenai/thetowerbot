@@ -75,11 +75,17 @@ export function StrategyEditor({
   value,
   onChange,
   available,
+  speedValues,
   disabled = false,
 }: {
   value: Strategy;
   onChange: (next: Strategy) => void;
   available?: string[];
+  /** The in-battle speeds the bot has readout templates for, from
+   * /api/control. Not hardcoded here: the list grows when a template is
+   * harvested, and a copy in the browser would disagree with the validator
+   * the moment it did. */
+  speedValues?: number[];
   disabled?: boolean;
 }) {
   const set = <K extends keyof Strategy>(key: K, v: Strategy[K]) =>
@@ -284,6 +290,35 @@ export function StrategyEditor({
             }
             className="w-24 text-right font-mono"
           />
+        </label>
+        <label className="flex items-center justify-between text-sm">
+          <span>
+            Target speed{" "}
+            <span className="text-xs text-muted-foreground">
+              {value.target_speed == null ? "(leave alone)" : ""}
+            </span>
+          </span>
+          {/* A select, not a number input: every legal value needs a readout
+              template to be recognised by, so this is a closed list rather
+              than a range. An empty option is "leave the speed alone", which
+              is why the page saves the whole profile - PATCH cannot carry a
+              null (see Max runs above). */}
+          <select
+            aria-label="Target speed"
+            value={value.target_speed ?? ""}
+            disabled={disabled}
+            onChange={(e) =>
+              set("target_speed", e.target.value === "" ? null : Number(e.target.value))
+            }
+            className="w-24 rounded-md border bg-transparent px-2 py-1 text-right font-mono text-sm"
+          >
+            <option value="">off</option>
+            {(speedValues ?? []).map((speed) => (
+              <option key={speed} value={speed}>
+                x{speed.toFixed(1)}
+              </option>
+            ))}
+          </select>
         </label>
       </SectionCard>
     </div>

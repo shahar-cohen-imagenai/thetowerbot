@@ -38,6 +38,10 @@ const strategy: Strategy = {
   max_runs: null,
   navigation_cooldown: 3,
   screen_confirmations: 2,
+  tap_jitter_px: 8,
+  timing_jitter: 0.15,
+  tap_delay: 0.12,
+  target_speed: null,
   shopping: {
     enabled: false,
     armed: false,

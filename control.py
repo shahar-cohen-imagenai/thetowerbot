@@ -32,7 +32,22 @@ from strategy import ControlError, Strategy
 # Re-exported so `from control import ControlError` keeps working for every
 # existing caller. It is DEFINED in strategy.py because control.py imports
 # Strategy, and the reverse import would be a cycle.
-__all__ = ["ControlError", "Controls", "Live"]
+__all__ = ["COMMANDS", "ControlError", "Controls", "Live", "MAX_QUEUED_COMMANDS"]
+
+# One-shot actions the browser may ask the scan loop to perform. Distinct
+# from the settings above, and the distinction is the whole reason they are
+# not just more fields: a setting is standing policy the loop reads on every
+# pass, a command happens once and is then gone. Modelling "tap + now" as a
+# setting would mean the loop either re-performed it forever or had to clear
+# a field it does not own.
+COMMANDS = ("speed_up", "speed_down")
+
+# The browser can post faster than the loop scans, and every queued command
+# is a tap that will eventually land. Without a ceiling, a few seconds of
+# impatient clicking becomes a long tail of taps arriving after the user has
+# stopped asking for them - so the queue drops the newest past this point
+# rather than banking them.
+MAX_QUEUED_COMMANDS = 8
 
 
 @dataclass(frozen=True)
@@ -58,6 +73,33 @@ class Controls:
 
     def __post_init__(self) -> None:
         self._lock = threading.Lock()
+        self._commands: list[str] = []
+
+    def request(self, command: str) -> None:
+        """Queue one command for the scan loop's next pass.
+
+        Rejected here rather than downstream, the same way every setting is:
+        the loop should never have to decide what an unrecognised command
+        string means, and the browser should hear about its typo as a 400
+        rather than as silence.
+        """
+        if command not in COMMANDS:
+            raise ControlError("command", f"command must be one of {list(COMMANDS)}")
+        with self._lock:
+            if len(self._commands) >= MAX_QUEUED_COMMANDS:
+                # Drop the newest, not the oldest. The queue is already a
+                # backlog of taps the user asked for first; discarding those
+                # to make room for later ones would reorder their intent.
+                return
+            self._commands.append(command)
+
+    def drain(self) -> tuple[str, ...]:
+        """Take every queued command. Handing one out twice would turn a
+        single button press into a tap on every subsequent scan."""
+        with self._lock:
+            taken = tuple(self._commands)
+            self._commands.clear()
+        return taken
 
     def snapshot(self) -> Live:
         """A frozen view. Safe to hand to the scan loop or a request handler."""
