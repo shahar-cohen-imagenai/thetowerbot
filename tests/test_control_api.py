@@ -204,3 +204,33 @@ def test_control_routes_are_absent_when_no_controls_were_wired(wired) -> None:
         unknown_dir=config.UNKNOWN_DIR, shutdown=threading.Event(),
     )
     assert TestClient(app).get("/api/control").status_code == 404
+
+
+@pytest.mark.parametrize(
+    "field, value",
+    [("tap_jitter_px", 4.0), ("timing_jitter", 0.3), ("tap_delay", 0.4)],
+)
+def test_patching_jitter_reaches_the_strategy(wired, field: str, value: float) -> None:
+    """Each jitter knob must survive the Pydantic model.
+
+    A field missing from ControlPatch is dropped silently rather than
+    rejected, so the dashboard would appear to save while the bot kept the
+    old value - the worst of both outcomes.
+    """
+    client, controls, _, _ = wired
+
+    response = client.patch("/api/control", json={field: value})
+
+    assert response.status_code == 200
+    assert getattr(controls.snapshot().strategy, field) == pytest.approx(value)
+
+
+def test_an_out_of_range_jitter_patch_is_refused(wired) -> None:
+    client, controls, _, _ = wired
+
+    response = client.patch("/api/control", json={"tap_jitter_px": 500.0})
+
+    assert response.status_code == 422
+    assert controls.snapshot().strategy.tap_jitter_px == pytest.approx(
+        Strategy.from_config().tap_jitter_px
+    )

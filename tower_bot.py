@@ -40,6 +40,7 @@ import config
 import db
 import digits
 import events
+import jitter
 import screens
 import vision
 from affordability import (
@@ -60,7 +61,7 @@ from sinks.sse import SseSink
 from sinks.state import BotState, StateSink
 from sinks.store import StoreSink
 from sinks.tui import TuiSink
-from strategy import ControlError, Strategy, StrategyStore
+from strategy import MIN_INTERVAL, ControlError, Strategy, StrategyStore
 
 logger = logging.getLogger("tower_bot")
 
@@ -160,7 +161,7 @@ class TowerBot:
         self,
         action: config.Action,
         boxes: list[dict[str, Any]] | None = None,
-        cooldown: float | None = None,
+        tuning: Strategy | None = None,
     ) -> bool:
         """Find the action's template on the current screen and tap it.
 
@@ -175,13 +176,17 @@ class TowerBot:
         between two such landings would catch the frame's matches only
         partially drawn.
 
-        `cooldown`, when given, is the click_cooldown to gate against -
-        run_once() always passes `settings.strategy.click_cooldown` from the
-        one snapshot it took at the top of the pass. `None` (the default)
-        falls back to a fresh `self.controls.snapshot()` here instead, which
-        is what lets a test or any other direct caller invoke this method
-        without first constructing a settings object of its own. Re-reading
-        per call is exactly what the loop path must NOT do, though: this
+        `tuning`, when given, carries every policy value this method
+        reads - the click_cooldown to gate against and the three jitter
+        numbers - as ONE object, which run_once() takes from the single
+        snapshot at the top of its pass. `None` (the default) falls back to
+        a fresh `self.controls.snapshot()` here instead, which is what lets
+        a test or any other direct caller invoke this method without first
+        constructing a settings object of its own. One object rather than a
+        scalar per field is deliberate: the four values must describe the
+        same instant as each other, and threading them separately is how
+        they would eventually stop doing so. Re-reading per call is exactly
+        what the loop path must NOT do, though: this
         method is called once per matched rule inside run_once()'s action
         loop without a `break`, and a PATCH landing between two of those
         calls (run_forever and serve_web run on different threads) would
@@ -215,7 +220,18 @@ class TowerBot:
         # documents why: the label is itself a button, so a tap there (or a
         # crosshair drawn there) marks the wrong square. Computed once, up
         # front, so the box recorded below and the eventual tap agree.
-        tap_x, tap_y = config.buy_point(match.top_left)
+        #
+        # Jittered HERE, before the box below is recorded and before the
+        # Tapped event is published, rather than inside device.tap(): the
+        # overlay's crosshair and the event's coordinates must be the pixel
+        # actually tapped, not the pixel we would have tapped without
+        # jitter. Putting the offset in tap() would make both lie by up to
+        # tap_jitter_px, on exactly the page you open to find out why a
+        # purchase missed.
+        policy = self.controls.snapshot().strategy if tuning is None else tuning
+        tap_x, tap_y = jitter.point(
+            *config.buy_point(match.top_left), policy.tap_jitter_px
+        )
 
         box: dict[str, Any] | None = None
         if boxes is not None:
@@ -254,14 +270,24 @@ class TowerBot:
             return False
 
         now = time.monotonic()
-        effective_cooldown = (
-            cooldown if cooldown is not None
-            else self.controls.snapshot().strategy.click_cooldown
+        # stretch(), not spread(): click_cooldown is a functional minimum
+        # (see config.CLICK_COOLDOWN_SECONDS), so jitter may only ever make
+        # the gap longer. Jittering it downward would re-admit the burst of
+        # taps on an already-animating button that the cooldown exists to
+        # stop.
+        effective_cooldown = jitter.stretch(
+            policy.click_cooldown, policy.timing_jitter
         )
         if now - self._last_click.get(cooldown_key, 0.0) < effective_cooldown:
             self.bus.publish(events.Skipped(action=name, reason="cooldown"))
             return False
 
+        # The reaction gap. Passing the stop event's wait() as the sleeper
+        # keeps Stop instant: a shutdown ends the pause instead of sleeping
+        # it out.
+        jitter.pause(
+            policy.tap_delay, policy.timing_jitter, sleep=self._stopping.wait
+        )
         tap(self.device, tap_x, tap_y)
         self._last_click[cooldown_key] = now
         self.bus.publish(
@@ -454,7 +480,7 @@ class TowerBot:
                 if not rule.enabled:
                     continue
                 if self.find_and_click_image(
-                    rule.as_action(), boxes, cooldown=settings.strategy.click_cooldown
+                    rule.as_action(), boxes, tuning=settings.strategy
                 ):
                     clicked = True
         else:
@@ -478,7 +504,11 @@ class TowerBot:
             # Navigator taps BATTLE on MAIN_MENU on a cooldown - left alone
             # it would start a run in the middle of a shopping errand.
             self.navigator.maybe_navigate(
-                self.screen, state, self.device, now=time.monotonic()
+                self.screen,
+                state,
+                self.device,
+                now=time.monotonic(),
+                tuning=settings.strategy,
             )
 
         # Checked after navigation, and begin() checked after advance() below:
@@ -498,7 +528,12 @@ class TowerBot:
             # wherever it left off, on the next unpaused scan.
             pass
         elif visiting:
-            self.shopping.advance(self.screen, self.device, settings.strategy.shopping)
+            self.shopping.advance(
+                self.screen,
+                self.device,
+                settings.strategy.shopping,
+                tuning=settings.strategy,
+            )
         elif (
             state is screens.ScreenState.MAIN_MENU
             and not settings.paused
@@ -575,9 +610,22 @@ class TowerBot:
                 break
             # Re-read every iteration (when interval is None) rather than
             # once at the top of the loop - see the docstring above.
-            current_interval = (
-                self.controls.snapshot().strategy.interval if interval is None else interval
-            )
+            if interval is None:
+                live = self.controls.snapshot().strategy
+                # spread(), not stretch(): unlike the cooldowns, the interval
+                # is a target rather than a floor, and a loop that only ever
+                # waited longer than its nominal interval would still be a
+                # metronome - just a slower one. Clamped at MIN_INTERVAL so a
+                # dial already at the floor cannot jitter below it into the
+                # busy loop that floor exists to prevent.
+                current_interval = max(
+                    MIN_INTERVAL, jitter.spread(live.interval, live.timing_jitter)
+                )
+            else:
+                # An explicit override is used exactly as given - see the
+                # docstring. Tests pass 0.0 to run the loop without sleeping,
+                # and jittering that would reintroduce the sleep.
+                current_interval = interval
             try:
                 self.run_once(max_runs=max_runs)
             except EmulatorError as exc:

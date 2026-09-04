@@ -79,11 +79,12 @@ from typing import Any
 
 import config
 import events
+import jitter
 import pages
 import vision
 from device import Image, tap
 from digits import NumberReader
-from strategy import Shopping
+from strategy import Shopping, Strategy
 
 logger = logging.getLogger("tower_bot.shopping")
 
@@ -147,6 +148,10 @@ class ShoppingSession:
         self._bus = bus
         self._reader = reader
         self._threshold = threshold
+        # Set by each advance() from the caller's snapshot. None until then,
+        # and None means "no jitter" - _exit_to_battle can tap via _abort on
+        # a path that never reached advance().
+        self._tuning: Strategy | None = None
         # Set once, by tower_bot.build_shopping(), when this machine's header
         # atlas cannot support reading a balance. A non-empty reason makes
         # begin() decline forever rather than starting a visit that could
@@ -263,13 +268,27 @@ class ShoppingSession:
 
     # -- one step ------------------------------------------------------------
 
-    def advance(self, screen: Image, device: Any, shopping: Shopping) -> None:
+    def advance(
+        self,
+        screen: Image,
+        device: Any,
+        shopping: Shopping,
+        tuning: Strategy | None = None,
+    ) -> None:
         """One step. At most one tap, and only when shopping.armed.
+
+        `tuning` carries the live jitter policy for this pass. Stashed on
+        the session rather than threaded through the eight `_try_tap` call
+        sites between here and `_tap`: those all sit on the step-machine's
+        own paths, and giving each an extra parameter to forward would be
+        eight chances to forget one. `None` leaves taps un-jittered, which
+        is how every direct caller behaved before jitter existed.
 
         Every path through here must either make progress, publish a skip,
         or end the visit. A step that silently does nothing is how a session
         wedges, which is what _off_page_streak exists to catch.
         """
+        self._tuning = tuning
         if self._step is Step.IDLE:
             return
 
@@ -657,10 +676,19 @@ class ShoppingSession:
         tap-budget ceiling a real run would - the whole point of a rehearsal
         is that it behaves exactly like the real thing except for this one
         line.
+
+        Being the only tap site is also what makes jitter here cover every
+        workshop tab, workshop row, card buy and exit-to-battle tap at once.
+        The offset and the pause are applied AFTER the armed check, so a
+        rehearsal stays instant instead of paying a per-tap pause for taps
+        it is not going to send.
         """
         self._taps += 1
         if not shopping.armed:
             return
+        if self._tuning is not None:
+            x, y = jitter.point(x, y, self._tuning.tap_jitter_px)
+            jitter.pause(self._tuning.tap_delay, self._tuning.timing_jitter)
         tap(device, x, y)
 
     def _try_tap(

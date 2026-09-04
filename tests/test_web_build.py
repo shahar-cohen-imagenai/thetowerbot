@@ -116,3 +116,29 @@ def test_dev_proxy_port_matches_web_port() -> None:
         f"config.WEB_PORT in config.py ({config.WEB_PORT}) - "
         "a mismatch makes `npm run dev` proxy into a void with no other symptom"
     )
+
+
+def test_the_tap_jitter_input_cap_matches_the_server_ceiling() -> None:
+    """Same class of invariant as the dev-proxy port, and worse in one way.
+
+    The editor's other bounds (interval, the cooldowns) are literals on both
+    sides, so they drift only if someone edits one of them. MAX_TAP_JITTER_PX
+    is DERIVED from config.PRICE_REGION, so re-measuring that region for a
+    new screen resolution silently moves the server's ceiling while leaving
+    the input's max where it was. The symptom is a dashboard that offers a
+    radius the PATCH then rejects with a 422 - or worse, in the other
+    direction, quietly caps the operator below what is actually safe.
+    """
+    from strategy import MAX_TAP_JITTER_PX
+
+    editor = (
+        Path(__file__).parent.parent / "web" / "ui" / "components" / "StrategyEditor.tsx"
+    ).read_text(encoding="utf-8")
+    match = re.search(r'label="Tap jitter \(px\)".*?max=\{([\d.]+)\}', editor, re.S)
+    assert match, "could not find the Tap jitter field's max in StrategyEditor.tsx"
+
+    assert float(match.group(1)) == MAX_TAP_JITTER_PX, (
+        f"the Tap jitter input caps at {match.group(1)} but strategy."
+        f"MAX_TAP_JITTER_PX is {MAX_TAP_JITTER_PX} - the dashboard would offer "
+        "a radius the server refuses, or cap below what is safe"
+    )

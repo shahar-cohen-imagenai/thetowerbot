@@ -156,6 +156,9 @@ export interface Strategy {
   max_runs: number | null;
   navigation_cooldown: number;
   screen_confirmations: number;
+  tap_jitter_px: number;
+  timing_jitter: number;
+  tap_delay: number;
   shopping: Shopping;
 }
 

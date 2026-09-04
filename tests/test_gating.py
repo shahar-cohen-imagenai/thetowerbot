@@ -43,6 +43,12 @@ def settled_bot(fixture: str, monkeypatch: pytest.MonkeyPatch):
     bot = TowerBot(device=dev, templates=vision.TemplateCache(TEMPLATES), bus=bus)
     bot._screen = frame(fixture)
     monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    # Jitter off for the gating tests, both halves of it deliberately:
+    # several assert the exact buy point a box records, and the cooldown
+    # ones scan twice back to back and need the second scan to land inside
+    # the cooldown window - which a per-tap pause pushes it out of. Neither
+    # is what jitter is for; it has its own tests (test_tap_jitter.py).
+    bot.controls.apply({"tap_jitter_px": 0.0, "tap_delay": 0.0})
     bot.run_once()  # first reading
     bot.run_once()  # confirms the transition
     rec.seen.clear()
@@ -528,7 +534,7 @@ def test_the_loop_taps_in_strategy_order_not_config_order(
         ),
     ))
 
-    def record(action, boxes=None, cooldown=None):
+    def record(action, boxes=None, **_):
         tried.append(action.name)
         return False
 
@@ -554,7 +560,7 @@ def test_a_disabled_row_is_never_tried(
     ))
     monkeypatch.setattr(
         bot, "find_and_click_image",
-        lambda action, boxes=None, cooldown=None: tried.append(action.name),
+        lambda action, boxes=None, **_: tried.append(action.name),
     )
     bot.run_once()
     assert tried == ["Critical Chance"]
@@ -579,7 +585,7 @@ def test_the_per_row_threshold_reaches_the_matcher(
     ))
     monkeypatch.setattr(
         bot, "find_and_click_image",
-        lambda action, boxes=None, cooldown=None: seen_thresholds.append(action.threshold),
+        lambda action, boxes=None, **_: seen_thresholds.append(action.threshold),
     )
     bot.run_once()
     assert seen_thresholds == [0.42]

@@ -23,6 +23,26 @@ SCAN_INTERVAL_SECONDS: float = 2.0
 # animation does not cause a burst of taps on a button that is already pressed.
 CLICK_COOLDOWN_SECONDS: float = 1.0
 
+# --- Jitter ---------------------------------------------------------------
+# Every tap is an `input tap` over ADB: no travel path, no dwell, and a
+# pixel derived by fixed offset from a template match. Left alone, the bot
+# taps the identical pixel every time and scans on a metronome. These three
+# put variance back. Zero means off for all of them - see jitter.py.
+#
+# Radius, in pixels, around the computed tap point. 8 on a 1080-wide
+# capture is ~0.7% of screen width; a real fingertip contact patch is
+# 8-10mm, which is 60-80px at this pixel density, so this is far tighter
+# than genuine human variance. The bound that matters is the other side:
+# the price strip is only PRICE_REGION.h tall, and strategy.MAX_TAP_JITTER_PX
+# derives its ceiling from that.
+TAP_JITTER_PX: float = 8.0
+# Fraction applied to the scan interval (±, symmetric) and to the two
+# cooldowns (+ only - they are functional minimums, see jitter.stretch).
+TIMING_JITTER: float = 0.15
+# Mean pause between finding a match and sending its tap. Without it the
+# tap goes out in the same breath as the scan that decided it.
+TAP_DELAY_SECONDS: float = 0.12
+
 # --- Vision ---------------------------------------------------------------
 TEMPLATE_DIR: Path = Path(__file__).parent / "templates"
 DEFAULT_THRESHOLD: float = 0.8
