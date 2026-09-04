@@ -9,6 +9,8 @@ unknown/
 tower_bot.db
 tower_bot.db-wal
 tower_bot.db-shm
+advisor.json
+.advisor*.tmp
 
 # Next.js UI build artefacts. web/static/ is deliberately NOT ignored - it is
 # the committed build the bot serves with no node installed.
@@ -29,3 +31,7 @@ strategies/.active
 # Staging output from tools/harvest_speed_glyphs.py - unlabelled crops that
 # get renamed into templates/speed/ by hand, not artefacts to commit.
 templates/speed/harvest/
+
+# Generated research captures are local inputs; keep authored summaries trackable.
+/docs/research/wiki-source-*/
+/docs/research/*-runtime-*.json

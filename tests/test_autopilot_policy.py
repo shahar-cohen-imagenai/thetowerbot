@@ -33,9 +33,9 @@ def test_catalog_contains_every_standard_upgrade_and_known_unlock_tile() -> None
         category: [upgrade for upgrade in CATALOG if upgrade.category == category]
         for category in ("ATTACK", "DEFENSE", "UTILITY")
     }
-    assert len(by_category["ATTACK"]) == 18
-    assert len(by_category["DEFENSE"]) == 19
-    assert len(by_category["UTILITY"]) == 15
+    assert len(by_category["ATTACK"]) == 20
+    assert len(by_category["DEFENSE"]) == 23
+    assert len(by_category["UTILITY"]) == 16
     assert by_id("rend_armor_mult") is not None
     assert by_id("wall_rebuild") is not None
     assert by_id("enemy_health_level_skip") is not None
@@ -43,7 +43,14 @@ def test_catalog_contains_every_standard_upgrade_and_known_unlock_tile() -> None
         "unlock_cash_bonuses",
         "unlock_coin_bonuses",
         "unlock_defense_upgrades",
+        "unlock_free_upgrades",
+        "unlock_knockback",
+        "unlock_lifesteal",
+        "unlock_multishot",
+        "unlock_orbs",
         "unlock_range_upgrades",
+        "unlock_rapid_fire",
+        "unlock_thorns",
     }
 
 
@@ -58,6 +65,12 @@ def test_catalog_contains_every_standard_upgrade_and_known_unlock_tile() -> None
         ("Coins Per Wave", "utility", "coins_per_wave"),
         ("Damage/Meter", None, "damage_per_meter"),
         ("Unlock Coin Bonuses", None, "unlock_coin_bonuses"),
+        ("Unlock Thorn Damage", "defense", "unlock_thorns"),
+        ("Unlock Life Steal", None, "unlock_lifesteal"),
+        ("Unlock Knock Back", None, "unlock_knockback"),
+        ("Unlock Free Upgrade", None, "unlock_free_upgrades"),
+        ("Unlock Multi Shot", None, "unlock_multishot"),
+        ("Unlock Rapidfire", None, "unlock_rapid_fire"),
     ],
 )
 def test_resolve_accepts_game_labels_guide_names_and_ocr_variants(
@@ -81,10 +94,42 @@ def test_sequential_cash_and_coin_unlocks_have_distinct_identities() -> None:
     assert coins.id == "unlock_coin_bonuses"
 
 
+@pytest.mark.parametrize(
+    "unlock_id,children",
+    [
+        ("unlock_range_upgrades", ("range", "damage_per_meter")),
+        ("unlock_multishot", ("multishot_chance", "multishot_targets")),
+        ("unlock_rapid_fire", ("rapid_fire_chance", "rapid_fire_duration")),
+        ("unlock_defense_upgrades", ("defense_percent", "defense_absolute")),
+        ("unlock_thorns", ("thorns",)),
+        ("unlock_lifesteal", ("lifesteal",)),
+        ("unlock_knockback", ("knockback_chance", "knockback_force")),
+        ("unlock_orbs", ("orb_speed", "orbs")),
+        ("unlock_cash_bonuses", ("cash_bonus", "cash_per_wave")),
+        ("unlock_coin_bonuses", ("coins_per_kill_bonus", "coins_per_wave")),
+        (
+            "unlock_free_upgrades",
+            ("free_attack_upgrade", "free_defense_upgrade", "free_utility_upgrade"),
+        ),
+    ],
+)
+def test_unlock_tiles_name_the_canonical_stats_they_reveal(
+    unlock_id: str, children: tuple[str, ...]
+) -> None:
+    unlock = by_id(unlock_id)
+    assert unlock is not None
+    assert unlock.unlock is True
+    assert unlock.unlocks == children
+    assert all(by_id(child) is not None for child in children)
+    positions = {upgrade.id: index for index, upgrade in enumerate(CATALOG)}
+    assert all(positions[unlock_id] < positions[child] for child in children)
+
+
 def test_catalog_payload_is_json_ready_and_does_not_expose_mutable_aliases() -> None:
     payload = catalog_payload()
     assert json.loads(json.dumps(payload))[0] == payload[0]
     assert isinstance(payload[0]["aliases"], list)
+    assert isinstance(payload[0]["unlocks"], list)
     assert payload[0]["category"] == "ATTACK"
 
 
