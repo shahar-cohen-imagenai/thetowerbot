@@ -1,0 +1,557 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "BH - Black Hole"
+      ],
+      [
+        "CF - Chrono Field"
+      ],
+      [
+        "CL - Chain Lightning"
+      ],
+      [
+        "DW - Death Wave"
+      ],
+      [
+        "GT - Golden Tower"
+      ],
+      [
+        "ILM - Inner Land Mines"
+      ],
+      [
+        "PS - Poison Swamp"
+      ],
+      [
+        "SL - Spotlight"
+      ],
+      [
+        "SM -  Smart Missiles"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "d - Damage"
+      ],
+      [
+        "dur - Duration"
+      ],
+      [
+        "CD - CoolDown"
+      ],
+      [
+        "b - Bonus"
+      ],
+      [
+        "q - Quantity"
+      ],
+      [
+        "c - Chance"
+      ],
+      [
+        "A - Angle"
+      ],
+      [
+        "SR - Speed Reduction"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "CC - Critical Chance or Critical Coin"
+      ],
+      [
+        "DM - Demon Mode"
+      ],
+      [
+        "DR - Death Ray"
+      ],
+      [
+        "EB - Enemy Balance"
+      ],
+      [
+        "EN - Energy Net"
+      ],
+      [
+        "EO - Extra Orbs"
+      ],
+      [
+        "ES - Energy Shield"
+      ],
+      [
+        "FU - Free Upgrades"
+      ],
+      [
+        "IS - Intro Sprint"
+      ],
+      [
+        "PC - Plasma Cannon"
+      ],
+      [
+        "RPC - Recovery Package Chance"
+      ],
+      [
+        "SA - Slow Aura"
+      ],
+      [
+        "ST - Super Tower"
+      ],
+      [
+        "SW - Second Wind"
+      ],
+      [
+        "UW Crit - Ultimate Crit"
+      ],
+      [
+        "WA - Wave Accelerator"
+      ],
+      [
+        "WS - Wave Skip"
+      ],
+      [
+        "Zerk - Berserker"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "DDR - Double Death Ray"
+      ],
+      [
+        "CFR - Chrono Field Damage Reduction"
+      ],
+      [
+        "SLM - Spotlight Missile"
+      ],
+      [
+        "SPB - Standard Perk Bonus"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "ASPD - Attack Speed"
+      ],
+      [
+        "BSC - Bounce Shot Chance"
+      ],
+      [
+        "BSR - Bounce Shot range"
+      ],
+      [
+        "BST - Bounce Shot Target"
+      ],
+      [
+        "CPK - Coins per Kill"
+      ],
+      [
+        "C%/Crit Chance  - Critical Chance"
+      ],
+      [
+        "CritF - Critical Factor"
+      ],
+      [
+        "DD - Death Defy"
+      ],
+      [
+        "DEF% - Defense $"
+      ],
+      [
+        "DPM (D/M) - Damage Per Meter"
+      ],
+      [
+        "ELS/EALS/EHLS - Enemy (/Attack/Health) Level Skip"
+      ],
+      [
+        "FU - Free Upgrades"
+      ],
+      [
+        "KN - Knockback"
+      ],
+      [
+        "LMC - Land Mine Chance"
+      ],
+      [
+        "LMD - Land Mine Damage"
+      ],
+      [
+        "LMR - Land Mine Radius"
+      ],
+      [
+        "MSC - Multishot Chance"
+      ],
+      [
+        "MST - Multishot Targets"
+      ],
+      [
+        "RFC - Rapid Fire Chance"
+      ],
+      [
+        "SCC - Super Critical Chance"
+      ],
+      [
+        "SCM - Super Critical Multiplier"
+      ],
+      [
+        "SW  - Shock Wave"
+      ],
+      [
+        "SWs - ShockWave size"
+      ],
+      [
+        "SWf - Shockwave frequecy"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "ACP - Anti-Cube Portal"
+      ],
+      [
+        "AD - Astral Deliverance"
+      ],
+      [
+        "AS - Amplifying Strike"
+      ],
+      [
+        "BA - Being Annihilator"
+      ],
+      [
+        "BHD - Black Hole Digestor"
+      ],
+      [
+        "DC - Dimension Core"
+      ],
+      [
+        "DP - Death Penalty"
+      ],
+      [
+        "GComp - Galaxy Compressor"
+      ],
+      [
+        "HB - Havoc Bringer"
+      ],
+      [
+        "HC - Harmony Conductor"
+      ],
+      [
+        "MH - Magnetic Hook"
+      ],
+      [
+        "MVN/MN - Multiverse Nexus"
+      ],
+      [
+        "NMP - Negative Mass Projector"
+      ],
+      [
+        "OC/Om - Om Chip"
+      ],
+      [
+        "PC - Primordial Collapse"
+      ],
+      [
+        "PF - Project Funding"
+      ],
+      [
+        "PH - Pulsar Harvester"
+      ],
+      [
+        "SD - Space Displacer"
+      ],
+      [
+        "SF - Sharp Fortitude"
+      ],
+      [
+        "SH - Singularity Harness"
+      ],
+      [
+        "SR - Shrink Ray"
+      ],
+      [
+        "WR/WHR - Wormhole Redirector"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "BC - Battle Condition"
+      ],
+      [
+        "BW - Bounce Web, a strategy that involves maximizing projectile counts to trigger Pulsar Harvester more frequently."
+      ],
+      [
+        "CB - Coin Bonus"
+      ],
+      [
+        "CC - Crowd Control (anything that hinders enemies from hitting you)"
+      ],
+      [
+        "CPM - Coins per Minute"
+      ],
+      [
+        "CPH - Coins per Hour"
+      ],
+      [
+        "CTO - Coins Trade-off Perk (x1.80 coins, but Tower Max Health -70%)"
+      ],
+      [
+        "Disco - Dissonance"
+      ],
+      [
+        "Devo - Devolve, encompasses strategies that devolve killing power to a specific time or place for coin benefit"
+      ],
+      [
+        "DWEW - Death Wave Effective Wave"
+      ],
+      [
+        "eHP - Effective Health Points. How much damage you can survive, after taking any damage mitigation into account."
+      ],
+      [
+        "ePaths - Effective Paths Collection. A set of Google sheets to help calculate specific ROI of upgrades per player."
+      ],
+      [
+        "F2P - Free to Play"
+      ],
+      [
+        "GC - Glass Cannon"
+      ],
+      [
+        "LTC - Life Time Coins"
+      ],
+      [
+        "LTS - Life Time Stones"
+      ],
+      [
+        "P2P - Pay to Play"
+      ],
+      [
+        "PB - Personal Best"
+      ],
+      [
+        "PWR - Perk Wave Requirement"
+      ],
+      [
+        "RNG - random number generator, refers to random chance"
+      ],
+      [
+        "ROI - Return on Investment"
+      ],
+      [
+        "SMEW - Smart Missile Effective Wave, wave where SM volley stops killing in SMax Devo"
+      ],
+      [
+        "SPB - Standard Perk Bonus a Perk lab"
+      ],
+      [
+        "T(D)C - Tower (Data) Collection, a huge compilation of incredibly useful optimisation tools by Cris and community"
+      ],
+      [
+        "WAWSIS - Wave Accelerator + Wave Skip + Intro Sprint. This used to be a tournament tactic based on running out the clock with high card levels, but is now more commonly a high tier farming tactic using the WAWSIS card masteries."
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Letter(s)",
+      "Name",
+      "Scientific Notation"
+    ],
+    "rows": [
+      [
+        "K",
+        "Thousand",
+        "10 3"
+      ],
+      [
+        "M",
+        "Million",
+        "10 6"
+      ],
+      [
+        "B",
+        "Billion",
+        "10 9"
+      ],
+      [
+        "T",
+        "Trillion",
+        "10 12"
+      ],
+      [
+        "q",
+        "Quadrillion",
+        "10 15"
+      ],
+      [
+        "Q",
+        "Quintillion",
+        "10 18"
+      ],
+      [
+        "s",
+        "Sextillion",
+        "10 21"
+      ],
+      [
+        "S",
+        "Septillion",
+        "10 24"
+      ],
+      [
+        "O",
+        "Octillion",
+        "10 27"
+      ],
+      [
+        "N",
+        "Nonillion",
+        "10 30"
+      ],
+      [
+        "D",
+        "Decillion",
+        "10 33"
+      ],
+      [
+        "aa",
+        "Undecillion",
+        "10 36"
+      ],
+      [
+        "ab",
+        "Duodecillion",
+        "10 39"
+      ],
+      [
+        "ac",
+        "Tredecillion",
+        "10 42"
+      ],
+      [
+        "ad",
+        "Quattuordecillion",
+        "10 45"
+      ],
+      [
+        "ae",
+        "Quindecillion",
+        "10 48"
+      ],
+      [
+        "af",
+        "Sexdecillion",
+        "10 51"
+      ],
+      [
+        "ag",
+        "Septendecillion",
+        "10 54"
+      ],
+      [
+        "ah",
+        "Octodecillion",
+        "10 57"
+      ],
+      [
+        "ai",
+        "Novemdecillion",
+        "10 60"
+      ],
+      [
+        "aj",
+        "Vigintillion",
+        "10 63"
+      ],
+      [
+        "ak",
+        "Unvigintillion",
+        "10 66"
+      ],
+      [
+        "al",
+        "Duovigintillion",
+        "10 69"
+      ],
+      [
+        "am",
+        "Trevigintillion",
+        "10 72"
+      ],
+      [
+        "an",
+        "Quattuorvigintillion",
+        "10 75"
+      ],
+      [
+        "ao",
+        "Quinvigintillion",
+        "10 78"
+      ],
+      [
+        "ap",
+        "Sexvigintillion",
+        "10 81"
+      ],
+      [
+        "aq",
+        "Septemvigintillion",
+        "10 84"
+      ],
+      [
+        "ar",
+        "Octovigintillion",
+        "10 87"
+      ],
+      [
+        "as",
+        "Novemvigintillion",
+        "10 90"
+      ],
+      [
+        "at",
+        "Trigintillion",
+        "10 93"
+      ],
+      [
+        "au",
+        "Untrigintillion",
+        "10 96"
+      ],
+      [
+        "av",
+        "Duotrigintillion",
+        "10 99"
+      ]
+    ]
+  }
+]

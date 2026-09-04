@@ -235,3 +235,132 @@ def test_ambiguous_or_outside_balance_numbers_are_never_guessed(
              ocr.TextBox("40000", .99, config.Rect(500, 500, 50, 20)))
     monkeypatch.setattr(ocr, "read", lambda _: boxes)
     assert shopping.header_numbers(None, "WORKSHOP", anchor) == (None, None)
+
+
+@pytest.mark.parametrize("status", ["available", "maxed"])
+def test_existing_child_proves_its_missing_unlock_is_complete(
+    harness: SimpleNamespace, status: str,
+) -> None:
+    child = row("Range", "range", status=status)
+    harness.state.observation = observation(child)
+    policy = harness.start(workshop=(ShoppingRule("Unlock Range Upgrades", "ATTACK"),))
+    harness.step(policy)
+    assert harness.taps == []
+    assert harness.state.scrolls == []
+    assert "Unlock Range Upgrades" in harness.session._exhausted
+    assert any(r["upgrade_id"] == "unlock_range_upgrades" and r["status"] == "unlocked"
+               for r in harness.session.observations.snapshot()["observations"])
+
+
+def test_previous_workshop_child_observation_proves_unlock_without_current_visibility(
+    harness: SimpleNamespace,
+) -> None:
+    harness.session.observations.observe(observation(row("Range", "range")))
+    harness.state.observation = observation(row())
+    harness.step(harness.start(workshop=(ShoppingRule("Unlock Range Upgrades", "ATTACK"),)))
+    assert harness.state.scrolls == []
+    assert "Unlock Range Upgrades" in harness.session._exhausted
+
+
+@pytest.mark.parametrize("status", ["locked", "unknown", "unreadable"])
+def test_unavailable_child_does_not_prove_unlock(harness: SimpleNamespace, status: str) -> None:
+    harness.state.observation = observation(row("Range", "range", status=status))
+    harness.step(harness.start(workshop=(ShoppingRule("Unlock Range Upgrades", "ATTACK"),)))
+    assert harness.state.scrolls == [False]
+    assert "Unlock Range Upgrades" not in harness.session._exhausted
+
+
+def test_battle_child_does_not_prove_workshop_unlock(harness: SimpleNamespace) -> None:
+    child = replace(row("Range", "range"), context="battle")
+    harness.session.observations.observe(observation(child))
+    harness.step(harness.start(workshop=(ShoppingRule("Unlock Range Upgrades", "ATTACK"),)))
+    assert harness.state.scrolls == [False]
+
+
+def test_unlock_chain_buys_new_child_on_a_later_frame_within_budget(harness: SimpleNamespace) -> None:
+    unlock = row("Unlock Range Upgrades", "unlock_range_upgrades", value=None)
+    harness.state.observation = observation(unlock)
+    policy = harness.start(allow_unlocks=True, coin_budget=65,
+                          workshop=(ShoppingRule("Unlock Range Upgrades", "ATTACK"),
+                                    ShoppingRule("Range", "ATTACK")))
+    harness.step(policy)
+    harness.state.coins = 970
+    child = row("Range", "range", value=1)
+    harness.state.observation = observation(child)
+    harness.step(policy)
+    assert len(harness.taps) == 1, "unlock acknowledgement must not also buy the child"
+    harness.step(policy)
+    assert len(harness.taps) == 2
+    harness.state.coins = 940
+    harness.state.observation = observation(replace(child, value=2, price=35))
+    harness.step(policy)
+    assert harness.session._coin_spent == 60
+    assert [e.item for e in harness.events if isinstance(e, events.Purchased)] == [
+        "Unlock Range Upgrades", "Range"]
+
+
+def test_previously_missing_child_is_reconsidered_after_verified_unlock(harness: SimpleNamespace) -> None:
+    unlock = row("Unlock Range Upgrades", "unlock_range_upgrades", value=None)
+    harness.state.observation = observation(unlock)
+    policy = harness.start(allow_unlocks=True, coin_budget=65,
+                          workshop=(ShoppingRule("Range", "ATTACK"),
+                                    ShoppingRule("Unlock Range Upgrades", "ATTACK")))
+    for _ in range(3):
+        harness.step(policy)
+    assert "Range" in harness.session._exhausted
+    harness.step(policy)
+    assert len(harness.taps) == 1
+    harness.state.coins = 970
+    harness.state.observation = observation(row("Range", "range", value=1))
+    harness.step(policy)
+    assert "Range" not in harness.session._exhausted
+    harness.step(policy)
+    assert len(harness.taps) == 2
+
+
+def test_global_priority_switches_categories_before_lower_priority_economy(
+    harness: SimpleNamespace,
+) -> None:
+    cash = replace(row("Cash / Wave", "cash_per_wave"), category="UTILITY")
+    coin = replace(row("Coins / Wave", "coins_per_wave"), category="UTILITY")
+    harness.state.observation = replace(observation(cash, coin), category="UTILITY")
+    policy = harness.start(armed=False, workshop=(ShoppingRule("Cash / Wave", "UTILITY"),
+                                                 ShoppingRule("Unlock Thorns", "DEFENSE"),
+                                                 ShoppingRule("Coins / Wave", "UTILITY")))
+    harness.step(policy)
+    harness.step(policy)
+    purchases = [e.item for e in harness.events if isinstance(e, events.Purchased)]
+    assert purchases == ["Cash / Wave"], "lower-priority Utility must not run before Defense"
+    assert harness.session._categories[0] == "DEFENSE"
+    assert harness.session._step is shopping.Step.OPEN_TAB
+
+
+@pytest.mark.parametrize("coins,budget,reserve", [(50, 100, 0), (1000, 50, 0), (1000, 100, 950)])
+def test_unaffordable_required_unlock_preserves_coins_instead_of_buying_lower_priority_rows(
+    harness: SimpleNamespace, coins: int, budget: int, reserve: int,
+) -> None:
+    unlock = row("Unlock Range Upgrades", "unlock_range_upgrades", value=None, price=90)
+    harness.state.observation = observation(unlock, row(price=10))
+    harness.state.coins = coins
+    policy = harness.start(allow_unlocks=True, coin_budget=budget, coin_reserve=reserve,
+                          workshop=(ShoppingRule("Unlock Range Upgrades", "ATTACK"),
+                                    ShoppingRule("Damage", "ATTACK")))
+    harness.step(policy)
+    harness.step(policy)
+    assert harness.taps == []
+    assert harness.session._step is shopping.Step.RETURN
+    assert harness.session.observations.snapshot()["phase"] in {"saving", "blocked"}
+    assert any(isinstance(e, events.PurchaseSkipped) and "deferred" in e.detail
+               for e in harness.events)
+
+
+def test_known_unlock_requires_its_own_new_child_for_confirmation(harness: SimpleNamespace) -> None:
+    unlock = row("Unlock Range Upgrades", "unlock_range_upgrades", value=None)
+    harness.state.observation = observation(unlock)
+    policy = harness.start(allow_unlocks=True,
+                          workshop=(ShoppingRule("Unlock Range Upgrades", "ATTACK"),))
+    harness.step(policy)
+    harness.state.coins = 970
+    harness.state.observation = observation(row("Attack Speed", "attack_speed"))
+    harness.step(policy)
+    assert not any(isinstance(e, events.Purchased) for e in harness.events)

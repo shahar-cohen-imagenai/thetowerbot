@@ -1,0 +1,40 @@
+Knockback is a workshop upgrade that gives your tower a chance to push enemies away when you hit them. It is bought with coins and comes in two parts: Knockback Chance, which controls how often the effect triggers, and Knockback Force, which controls how far enemies are pushed.
+On this page
+Descriptions
+Workshop
+Knockback Chance
+Workshop — Knockback Force
+Cost — Knockback Chance
+Cost — Knockback Force
+Knockback Force
+Descriptions
+Knockback gives your tower a chance to push enemies away from it when your shots land. It is a defensive tool, buying you time by keeping enemies at range.
+Workshop
+Knockback is unlocked in the workshop for 5000 coins. It becomes available after you have unlocked Lifesteal. Once unlocked, it gives you access to two separate upgrades: Knockback Chance and Knockback Force.
+Knockback Chance
+Knockback Chance determines how often your shots will knock enemies back. There are 80 upgrades available, each raising the chance by 1%, for a maximum of 80% chance to knockback.
+Workshop — Knockback Force
+Knockback Force controls how strongly enemies are pushed. There are 40 levels in the workshop, starting from a base of 0.4. Each level adds 0.142, reaching a maximum knockback of 6.08.
+There is no unit attached to knockback, so the exact effect of each point is not clearly defined. Enemy mass reduces the effect: heavier enemies are pushed less than lighter ones. Enemy mass increases at higher waves, so knockback becomes weaker the further you progress. When paired with bounce shot, enemies cannot be pushed toward the tower by knockback.
+Cost — Knockback Chance
+The cost table below shows the coin cost for each level of Knockback Chance.
+Show all 80 rows
+Cost — Knockback Force
+The cost table below shows the coin cost for each level of Knockback Force.
+Show all 40 rows
+Knockback Force
+See Knockback.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-23) . Something out of date? Tell us in the Discord .

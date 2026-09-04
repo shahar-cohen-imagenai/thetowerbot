@@ -1,0 +1,58 @@
+Rapid Fire is a workshop upgrade that gives your tower a chance to temporarily fire at four times its normal speed. When it triggers, the effect lasts for a fixed duration before returning to normal. It is a straightforward damage boost that becomes more reliable and longer-lasting as you invest in its two related upgrades.
+On this page
+Overview
+Workshop
+Rapid Fire Chance
+Rapid Fire Duration
+Cost — Rapid Fire Chance
+Cost — Rapid Fire Duration
+Overview
+Rapid Fire gives your tower a chance to fire at four times its normal attack speed for a set period of time. The effect is triggered randomly on each shot, so both the activation chance and the duration can be improved separately through workshop upgrades.
+Workshop
+Rapid Fire is unlocked in the workshop for 1500 coins. It becomes available after you have unlocked Multishot. Once unlocked, it gives you access to two upgrades: Rapid Fire Chance and Rapid Fire Duration.
+Rapid Fire Chance
+Rapid Fire Chance controls how often the effect triggers. There are 85 levels available, with each level increasing the activation chance by 0.40%. At maximum level, the chance to activate Rapid Fire reaches 34.00%.
+Rapid Fire Duration
+Rapid Fire Duration controls how long the effect lasts once it activates. There are 99 levels available in the workshop, and at maximum level the duration reaches 5.55 seconds.
+Cost — Rapid Fire Chance
+The cost table below shows the coin cost for each level of Rapid Fire Chance.
+Level Value Cost Total Cost
+1 0.40% 120.00 0.00
+2 0.80% 183.00 303.00
+3 1.20% 257.00 560.00
+4 1.60% 343.00 903.00
+5 2.00% 444.00 1.35K
+6 2.40% 560.00 1.91K
+7 2.80% 693.00 2.60K
+8 3.2% 845.00 3.45K
+9 3.6% 1.01K 4.46K
+10 4.0% 1.20K 5.66K
+Show all 85 rows
+Cost — Rapid Fire Duration
+The cost table below shows the coin cost for each level of Rapid Fire Duration.
+Level Value Cost Total Cost
+1 0.65s 120.00 0.00
+2 0.70s 183.00 303.00
+3 0.75s 257.00 560.00
+4 0.80s 343.00 903.00
+5 0.85s 444.00 1.35K
+6 0.90s 560.00 1.91K
+7 0.95s 693.00 2.60K
+8 1.00s 845.00 3.45K
+9 1.05s 1.01K 4.46K
+10 1.10s 1.20K 5.66K
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-20) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,47 @@
+Coins drive nearly all of your progression in The Tower, so building a strong coin economy early pays off for the rest of the game. As you unlock more ways to boost coin income, the same core ideas keep applying.
+This guide covers how coins are earned, why coins per kill overtakes coins per wave, and how multipliers and syncing combine to produce huge payouts.
+On this page
+Overview
+Coins/Wave
+Coins/Kill
+Multipliers
+Syncing
+Coins/Kill Sources
+Summary
+Daily Missions
+Overview
+Coins are one of the main engines of progress. If you understand how your coin economy works from the start, everything else in the game moves more smoothly.
+The tools that accelerate coin earning unlock gradually. Once you have them, the concepts here let you scale your income quickly instead of guessing at upgrades.
+Coins/Wave
+Coins per wave (CPW) is the weakest coin source in the game over the long run, simply because fewer multipliers exist to make it grow.
+It still has a place. Very early on, especially in the opening stages of tier 1 and again each time you unlock a higher tier, CPW helps you build up coins quickly.
+Because it falls off, stop upgrading CPW in the lab by level 20. You may not even take it that far, but that level is a safe ceiling.
+Coins/Kill
+Coins per kill (CPK) is where the overwhelming majority of your coins will come from. To understand why CPK gets so large, you need to understand multipliers and syncing.
+Multipliers
+Every coin multiplier in the game multiplies with every other one. Your packs, themes, CPK workshop upgrades, Ultimate Weapon coin bonuses and more all stack multiplicatively when they apply to the same enemy, which is what lets CPK reach extreme values.
+For example, Black Hole maxes out at 11x and Golden Tower at 20.75x. When both are active on the same kill, that enemy drops 228.25x the normal coins.
+Because of this stacking, adding a brand new multiplier usually gains you more than pushing an already well-developed multiplier further. To make these bonuses actually overlap on the same enemies, you need syncing.
+Syncing
+Ultimate Weapon and bot bonuses are not active for the whole round. Syncing means getting your UWs and bots to fire together as often as possible so their coin bonuses combine on the same kills.
+The trick is simple: make the cooldowns multiples of each other, with 1:1 being the most common target. Golden Tower starts at 5:00 (300 seconds) and Black Hole at 3:20 (200 seconds). Lower GT's cooldown to 200 seconds and it will always fire alongside BH. Alternatively, reduce BH to 2:30 (150 seconds) so it triggers twice for every GT activation.
+The Multiverse Nexus armor module can mimic this effect, synchronizing Death Wave, Golden Tower and Black Hole by averaging their cooldowns with a small penalty.
+Ratios above 1:1 come with a cost. At 1:1, you need to save enough stones to upgrade GT and BH once each before touching either cooldown, or the sync breaks. At 2:1, you must fund two GT upgrades and one BH upgrade at the same time. If you spend the stones early, the sync breaks and your combined activations become less frequent.
+Coins/Kill Sources
+Several unlocks raise your coin income. Some boost your overall coin bonus, while others raise the Coins/Kill stat in the workshop directly.
+- Packs: bought with real money (starter pack, epic pack, disable ads). Also raise CPW. - Coin Card: scales with card level. Also raises CPW. - Enemy Balance: indirectly adds coins by spawning more enemies that drop them. - Tier: coin value rises with each tier. Also raises CPW. - Themes: unlocked with medals. Also raise CPW. - Relics: certain relics increase coins; see the relics page for specifics. Also raise CPW. - Coins/Kill: upgraded through the workshop and the lab. - Golden Tower: an Ultimate Weapon, with a supporting lab. - Black Hole: an Ultimate Weapon; its coin bonus requires the lab. - Spotlight: an Ultimate Weapon; its coin bonus requires the lab. - Death Wave: an Ultimate Weapon; its coin bonus requires the lab. - Coin Bot: a bot from the event shop, upgraded with medals.
+Summary
+The bulk of your economy will come from coins per kill. Focus on syncing your Ultimate Weapons and stacking multipliers on the same enemies to squeeze the most coins out of every run.
+Daily Missions
+Daily missions are one last coin source. Early on, the rewards can make up a meaningful chunk of your income, and since the payout scales with tiers unlocked, pushing to unlock more tiers is a legitimate way to raise it.
+The rewards cap out in the tens of millions, so as your economy grows, daily missions shrink into a minor slice of your total coins.
+Related pages
+Black Hole
+Coins Per Kill Bonus
+Death Wave
+Golden Bot
+Golden Tower
+Relics
+Spotlight
+Themes Menu
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-01-06) . Something out of date? Tell us in the Discord .

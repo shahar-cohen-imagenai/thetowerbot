@@ -1,0 +1,32 @@
+Version 0.12 added the Recovery Package utility upgrades and the Intro Sprint card, along with a new Tier 4 lab research for respeccing the workshop. The end-of-round stats panel was expanded to track things like death wave bonuses, golden tower gains, waves skipped, and real round time. Smaller fixes included the demon mode duration display, workshop buy multiplier support, and wave-skip coins no longer inflating the round-end coin stat.
+Change list
+Reproduced from the developer's release notes.
+New Utility Upgrades - Recovery Package
+New Card - Intro Sprint
+Duration of demon mode shown on the symbol now
+Gameplay Time
+Bonus coins from death wave
+HP gained from death wave
+Coins from golden tower
+Cash from golden tower Waves Skipped
+Recovery Packages collected
+Wave skip not counted into round end coin stat (coins were being earned before though)
+New Lab Research - Workshop Respec (Tier 4)
+Buy multiplier works for the workshop now
+Round real time added to end round stats panel
+Intro sprint card doesn't affect tap and hold time on card panel now
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

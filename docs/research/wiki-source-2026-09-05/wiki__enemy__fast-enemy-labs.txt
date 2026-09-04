@@ -1,0 +1,43 @@
+Fast Enemy Labs are a set of milestone-unlocked lab researches that weaken fast enemies during rounds. Each lab targets one stat — health, attack, or speed — and applies its reduction at every wave, making fast enemies easier to manage as you progress.
+On this page
+Description — Fast Enemy Health
+Description — Fast Enemy Attack
+Description — Fast Enemy Speed
+Description
+Description — Fast Enemy Health
+This lab becomes available through Milestones once you reach tier 9 wave 20. Researching it lowers the health of fast enemies across all waves, so they take fewer hits to kill. It has 30 levels, and the per-level costs and effects are shown in the table below.
+Level Time Cost Value
+1 2d 7h 33m 30,000,000,000 -0.40%
+2 2d 15h 54m 60,010,000,000 -0.80%
+3 3d 0h 27m 90,070,000,000 -1.20%
+4 3d 9h 34m 120,330,000,000 -1.60%
+5 3d 19h 44m 150,970,000,000 -2.00%
+6 4d 7h 36m 182,260,000,000 -2.40%
+7 4d 21h 51m 214,530,000,000 -2.80%
+8 5d 15h 19m 248,130,000,000 -3.20%
+9 6d 12h 53m 283,510,000,000 -3.60%
+10 7d 15h 31m 321,140,000,000 -4.00%
+Show all 30 rows
+Description — Fast Enemy Attack
+Unlocked in Milestones at tier 9 wave 20, this lab reduces how much damage fast enemies deal at every wave. It has 30 levels, letting you steadily chip away at the threat fast enemies pose to your tower.
+Description — Fast Enemy Speed
+This lab unlocks later than the other two, at tier 9 wave 300 in Milestones. Each level slows fast enemies down at all waves, giving your tower more time to hit them before they reach it. It has 30 levels, with details in the table below.
+Level Time Cost Value
+1 2d 18h 39m 60,000,000,000 -0.40%
+2 3d 3h 1m 120,010,000,000 -0.80%
+3 3d 11h 34m 180,070,000,000 -1.20%
+4 3d 20h 40m 240,330,000,000 -1.60%
+5 4d 6h 51m 300,970,000,000 -2.00%
+6 4d 18h 43m 362,260,000,000 -2.40%
+7 5d 8h 58m 424,530,000,000 -2.80%
+8 6d 2h 26m 488,130,000,000 -3.20%
+9 7d 0h 0m 553,510,000,000 -3.60%
+10 8d 2h 38m 621,140,000,000 -4.00%
+Show all 30 rows
+Description
+Fast Enemy labs directly alter fast enemy stats while a round is running. Keep in mind that researching these labs breaks the default stat relationships between enemy types — for example, boss health is normally a fixed multiple of basic enemy health, but once you start modifying one type's stats, those built-in ratios no longer hold.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-05-01) . Something out of date? Tell us in the Discord .

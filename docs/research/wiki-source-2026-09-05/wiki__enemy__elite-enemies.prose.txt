@@ -1,0 +1,19 @@
+Elite enemies are a special class of foe made up of three types: Vampire, Ray and Scatter. They are far tougher than regular enemies, come with built-in immunities to several of your tools, and are the source of Elite Cells when you kill them.
+How many elites appear on a wave depends on your wave number. Early on you can only see one per wave, while higher waves can roll up to two. The tables below break down the exact spawn chances for each case.
+On this page
+Elite Enemies
+Single Elite Enemy spawns
+Double Elite Enemy Spawns
+Elite Enemies
+The three elite types are Vampire, Ray and Scatter. A wave can spawn at most one elite until you reach higher waves, where a second spawn becomes possible. Every elite is immune to Orbs, Death Ray, Shockwave and Black Hole, so you cannot rely on those to clear them.
+Defeating an elite rewards you with Elite Cells. Each elite type is also capped at 8 on screen at once, though Scatter children are not counted towards that cap.
+The three types share a single spawn chance that is split between them. The underlying chance climbs through fixed steps as waves increase: 1%, 4%, 9%, 16%, 25%, 36%, 49%, 64%, 81% and finally 100%. The in-game display divides this across the three elites, and when the total is not divisible by three a hidden repeating 0.33 is tucked into the split, which is why the shown values do not always add up cleanly.
+The displayed chance behaves a little differently once double spawns enter the picture. When the background chance of a second elite reaches 100%, the number you see jumps straight from 33% to 100%. In practice, a displayed 33% means you are guaranteed at least one elite that wave with a chance of a second, while a displayed 100% means you are guaranteed two elites.
+Single Elite Enemy spawns
+The table below lists the spawn rate for each elite type during the waves where only a single elite can appear. Use it to see how likely each of the three types is on a given wave before double spawns unlock.
+Show all 11 rows
+Double Elite Enemy Spawns
+Once you reach waves where a second elite can spawn, the odds change. The table below shows the spawn rate per elite type when two elites are possible on a wave, so you can see how the split shifts compared to the single-spawn table.
+Related pages
+Elite Cells
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-13) . Something out of date? Tell us in the Discord .

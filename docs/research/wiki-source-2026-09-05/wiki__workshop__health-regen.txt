@@ -1,0 +1,91 @@
+Health Regen is the amount of tower health you recover every second. It works alongside your Max Health: the bigger your pool and the faster you refill it, the longer you survive chip damage between kills.
+Because so many separate systems multiply it, Health Regen scales from a minor early-game stat into one of the strongest defensive tools in the game once your workshop, lab and card multipliers are all online.
+On this page
+Description
+Workshop
+Cost
+Cards
+Workshop Enhancement — Health Regen
+Lab — Health Regen
+Perks
+Relics
+Description
+Health Regen is the amount of tower health regenerated per second. It only matters while your tower is below full health, so it pairs naturally with a large Max Health pool — regen refills what enemies manage to take off.
+Workshop
+Health Regen is unlocked in the workshop for free once you have Health. The workshop line has 6000 upgrades, giving it a very long upgrade path compared to most stats.
+Cost
+Workshop levels are bought with coins, and the price rises with each upgrade. The cost table below lists the price per level across the full 6000-level track.
+Level Value Cost Total Cost
+1 0 30 0
+100 269 77.22K 2.40M
+200 1.41K 610.35K 31.28M
+300 3.87K 1.50M 133.83M
+400 9.02K 2.86M 348.62M
+500 17.68K 4.70M 723.02M
+600 40.56K 7.05M 1.31B
+700 120.37K 9.94M 2.15B
+800 300.09K 13.39M 3.32B
+900 619.26K 17.41M 4.86B
+Show all 61 rows
+Cards
+Equipping the Health Regen card multiplies your workshop Health Regen value, and this card multiplier stacks multiplicatively with the lab bonus. There are three card-based ways to multiply Health Regen:
+- Health Regen Card (common): x2.6 - Health Regen Card (mastery): x5 - Second Wind (mastery): x10 for 400 waves
+Workshop Enhancement — Health Regen
+The Health Regen workshop enhancement unlocks after you have spent 50 billion coins on defense enhancements. Unlocking it applies a x1 multiplier to Health Regen, and each level adds 0.01x on top. It caps at level 400, which brings the total bonus to x5. Level costs are shown in the table below.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 6.53B 55.54B
+20 1.20x 48.30B 217.10B
+30 1.30x 313.07B 1.95T
+40 1.40x 2.54T 14.48T
+50 1.50x 9.59T 73.23T
+60 1.60x 60.08T 385.56T
+70 1.70x 216.08T 1.72q
+80 1.80x 580.27T 5.66q
+90 1.90x 1.31q 15.10q
+Show all 41 rows
+Lab — Health Regen
+The Health Regen lab is available from the start. Researching it increases the increment each workshop level provides and also raises the maximum workshop value, so it makes every future workshop purchase stronger rather than just adding a flat bonus. The lab has 100 levels; the per-level values are listed in the table below.
+Level Time Cost Value
+1 0d 0h 0m 30 1.03
+2 0d 0h 6m 71 1.06
+3 0d 0h 16m 178 1.09
+4 0d 0h 31m 398 1.12
+5 0d 0h 52m 772 1.15
+6 0d 1h 20m 1,340 1.18
+7 0d 1h 56m 2,120 1.21
+8 0d 2h 39m 3,170 1.24
+9 0d 3h 31m 4,510 1.27
+10 0d 4h 32m 6,170 1.30
+Show all 100 rows
+Perks
+With the labs for +25% standard perks, +10% trade-off perks and unlock-all-perks in a round already researched, perks can supply the following Health Regen bonuses:
+- Health Regen x8.8, at the cost of Max Health -60% - Health Regen x5.94
+The trade-off option gives the larger multiplier but shrinks your health pool, so weigh it against how much Max Health you rely on.
+Relics
+Certain relics grant an additional bonus to your Health Regen bonuses, stacking with everything above. The relic table below shows which relics apply and the bonus each one gives.
+# Rarity Relic Value Source Event / Type
+55 Rare Coral Crown 2% Event Deep Blue Sea II (Standard)
+65 Rare Fancy Wires 2% Guild Season 2
+71 Epic Retro Camera 5% Event Retrowave II (Standard)
+80 Epic Cosmic Freedom 5% Event Cthulhu (Standard)
+95 Epic Star Planet 5% Guild Season 6
+98 Rare To Infinity 2% Event Retro Arcade III (Premium)
+111 Rare Sudden Attack 2% Event Aliens III (Standard)
+118 Epic Natural Fire 5% Event Into the Storm II (Standard)
+120 Rare Broken Security 2% Event Glitch (Standard)
+278 Epic Asteroid Belt 5% Event Meteor Shower (Premium)
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-23) . Something out of date? Tell us in the Discord .

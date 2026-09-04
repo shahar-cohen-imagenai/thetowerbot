@@ -1,0 +1,7 @@
+Battle Condition
+Battle Condition Reduction Max Lv 10 Battle Condition Reduction Group 1 Max Lv 20
+Battle Condition Reduction Group 2 Max Lv 20 Battle Condition Reduction Group 3 Max Lv 10
+Battle Condition Reduction Group 4 Max Lv 10
+Related pages
+Tournaments
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-16) . Something out of date? Tell us in the Discord .

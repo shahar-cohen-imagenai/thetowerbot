@@ -1,0 +1,66 @@
+Version 0.3 introduced Ultimate Upgrades, a new tier of permanent tower improvements unlocked with power stones earned through tournament participation. The update brought five ultimate weapons (Smart Missiles, Land Mines, Chain Lightning, Chrono Field, and Death Field) and included multiple rounds of balance adjustments to their damage, range, and mechanics. Enemy health and attack damage scaling were modified at higher tiers, and several calculation errors affecting lab and card bonuses were corrected. The Tower also launched on iOS with this version, alongside quality-of-life improvements like tournament history tracking and better mobile UI adaptation.
+Change list
+Reproduced from the developer's release notes.
+Ultimate Upgrades - earn power stones by participating in tournaments (still earn gems too). Use power stones to unlock powerful permanent upgrades for your tower. Current ultimate tower upgrades include
+Smart Missiles
+Land Mines
+Chain Lightning
+Chrono Field
+Death Field
+Projectiles disappearing at higher rates of fire mostly fixed
+Inner orb sometimes freezing on activating card fixed
+Interest per wave max text corrected when opening upgrade description panel
+If free upgrade upgrades tower max health, it now increases current health with it like the normal upgrade does
+Enemy health very slightly increased for higher tiers
+All damage based ultimate weapons now take critical mult and critical chance into account which increases their damage a lot
+Land Mines base damage increased from 150% to 250%. Increase per upgrade from 8 to 15%
+Smart missiles range away from tower increased
+Smart missiles deactivate after not hitting a target for 25 seconds
+Smart missiles damage per upgrade increased from 6% to 8%
+Max number of smart missiles active increased from 20 to 25
+Chain lightning base chance reduced from 25 to 10%. Increase per upgrade from 5 to 3%
+Chain lightning damage fixed
+Chain lightning base damage increased from 30 to 40%, increase per upgrade from 3 to 5%
+Death wave base damage increased from 80 to 100%, increase per upgrade from 4 to 6%
+Costs of some ultimate weapons slightly adjusted
+Gold league tier increased from 4 to 5
+Platinum league tier increased from 7 to 8
+Power stones earned for 1st place gold league increased from 80 to 90
+Enemy attack damage exponential factor decreased
+Defense Absolute exponential factor increased
+Formatting for ultimate weapons damage fixed
+Lab and card bonus calc errors for Health, Health Regen, Defense Absolute, Crit Factor, and Damage/Meter fixed (buffed)
+Lab and card bonus calc errors for cash and coin bonus fixed (nerfed)
+Max range calc with card fixed
+Health regen card bonus corrected (buffed)
+Enemy attack damage growth per wave decreased Attack speed projectile problem fix tried again
+Land mines area of affect increased by 50%
+Land mines base damage increased from 250 to 350%, increase per level from 15 to 25%
+Smart missiles base damage increased from 120 to 140%, increase per level from 8 to 10%
+Tournaments updating with max wave outside tournament round fixed
+Tournament leaderboard layout for longer phone screens fixed
+Projectile sometimes targeting further enemy instead of closer fixed
+Enemy attack damage reduced for higher tiers
+The Tower is finally out for iOS
+Tournament info is now always accessible even when not active
+Tournament history panel added
+Subreddit button added to settings panel
+Land mines base damage increased from 350 to 500%, damage per level from 25 to 40%
+Smart Missiles Base damage increased from 140 to 200%, damage per level from 10 to 20%
+Smart missiles range increases as tower range increases now, slightly
+All home panels adapt better to device sizes, not blocking the scroll window anymore
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

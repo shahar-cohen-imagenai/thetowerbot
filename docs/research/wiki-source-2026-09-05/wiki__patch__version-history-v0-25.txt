@@ -1,0 +1,178 @@
+Version 0.25 introduced Card Mastery, a stone-based upgrade system for fully collected cards that unlocks new labs, gated behind the T16W100 milestone. Tournaments were heavily reworked with a new Legends league, Keys currency and Vault upgrade trees, protected lower tiers, adjusted promotion and demotion rules, and mailed unclaimed rewards. Labs received broad quality-of-life improvements including search, favorites, history, and auto-research, alongside a new Cinematic Mode and more forgiving round resume rules. The update also delivered a long list of balance changes and bug fixes across cards, perks, modules, and Ultimate Weapons.
+Change list
+Reproduced from the developer's release notes.
+After years of research, our top scientists have finally made a breakthrough in the card system. Each card has a unique “Mastery” that can be unlocked using stones. This Mastery will add an immediate benefit to your card, and it will unlock a new lab that will let you level up the effect even more. These new upgrades are very expensive but will allow for a wider variety of strategies. Card Mastery can be accessed once the milestone for T16W100 is claimed and a player owns all copies of every card.
+Search has been added to the labs
+History tab has been added to the labs (it will not contain labs researched before v25)
+Lab sections can be collapsed
+Individual labs can be favorited
+Favorited labs show up even if they are complete
+The number of levels in the lab can be seen on the Lab Info panel
+A new toggle exists to auto research labs. If you have enough coins to research the next level, it will automatically start once the previous level finishes.
+Labs with partial progress will have their time remaining highlighted in green
+Labs with an adjustable level have a slightly more intuitive UX
+Labs with at least 1 level researched will stay visible - even if the underlying mechanic is lost (through respec)
+A round can now be resumed 25 times
+The Resume Round option will now tell you the number of resumes remaining
+The 10 wave limit for resumes has been removed
+Tournaments can only be resumed while online
+You can now close out of the Resume Round pop up without losing your run (various screens will be locked)
+Closing the app twice in a row without resuming will no longer end your run
+Added a new “Cinematic Mode” that removes all the elements from the UI except the tower. It can be toggled on in the Settings Menu. Cinematic mode can also be manually activated by pinching the screen during a round. What a beautiful screensaver!
+The full info panels for Ultimate Weapons and Bots now show the value of the next level.
+In many out-of-round views, a dropdown arrow has been added to the header that will show a list of all current currencies
+We have heard all the feedback about tournaments and made several small changes that will hopefully fix many of the existing problems - without changing how players think about tournaments.
+We have added a Legends league (T14+)
+We have changed the rewards for almost every rank such that doing better will always net more (or the same amount) of stones. To do this some individual ranks were lowered, but it is an explicit increase in stones - especially with Legends expanding the ceiling.
+Copper and Silver are now “protected” tiers. Once a player is promoted out of them, they can never be demoted back into them.
+The Boss Bottle Condition is permanent (without heat up) in all leagues. 1 boss for every 10 waves in Copper, 1 boss for every 9 waves in Silver, … , 1 boss for every 5 waves in Legends
+The Death Defy OR Energy Shield Battle Condition is permanent for all leagues Platinum and up
+Battle Conditions have been adjusted such that there is 1 in Silver, 2 in Gold, 3 in Platinum, 4 in Champion, and 5 in Legends. This does not count the previous two special exceptions for tournament Battle Conditions.
+The limit on boss drops of Modules and Reroll dice have been removed
+Ties will give both players the better reward
+Only the top 4 players in a bracket will be promoted. Only the bottom 6 will be demoted.
+Tournament relics have been changed to reflect the new tournament league. Existing relics will be grandfathered in.
+Tournament tickets will now start to increase in price after the first one is purchased with gems
+Unclaimed tournament rewards will be mailed to players after the window to claim ends (this includes corresponding promotion and demotion)
+Tournaments will extend for an additional 4 hours past the time to join a bracket. This time will allow for players to finish any active runs, but they will not be able to join a new bracket or start a new run.
+Legends introduces a new currency: Keys. Keys can be used in a one of two new upgrade tree - Power (tower related buffs) and Harmony (non tower related buffs and QoL)
+The Vault (where the above trees are located) is hidden until a player obtains at least one key.
+Daily Reward boxes have a level 30 and level 35 added
+New missions have been added to the pool
+The first day of the event will now always have 7 missions (5 set + 2 random)
+Module Effect reroll costs have been decreased slightly
+Module Effects now require being online to reroll
+Poison Swamp animation changed to be more subtle
+GT+ counter no longer grows so absurdly
+ILM explosion animation is more subtle
+Scatter children can no longer phase through the Wall
+Purchased songs now give a coin bonus. One song was added to main soundtrack; one more was added to the events store
+Reroll dice earned in run added to the Round Stats
+Vampire drain no longer resets the “Take no damage” event mission
+Rend Enhancement now affects not only the maximum multiplier, but also chance and multiplier increase per hit.
+Wave Skip applies the DW cell bonus if the DW ring is active while skipping
+Enemy Attack/Health Level Skip is now deterministic
+Crit Chance over 100% is now allowed and will impact UW damage
+Super Tower and Ultimate Tower will both show in the affected stats when they are active
+If a user has already unlocked every upgrade in a certain workshop tab (attack, defense, utility), the info popups about each upgrade no longer appear when they are unlocked after a respec.
+Two new card slots are available
+Intro sprint now gives you a wave at regular speed but skips 10 levels at a time. Bosses can’t drop modules or reroll dice while it is running. Wave Skip will not activate. Demon Mode, Nuke, and Missile Barrage can not be used.
+Cards have an option to be bought ten at a time
+Chain Thunder has been fixed to work correctly with CL+
+Chain Thunder has been changed to “Enemy damage is reduced by 10% for every 6% of health lost from Chain Lightning”
+The Cash and Defense Absolute perks are now correctly boosted by the Standard Perk Bonus
+The skip button on the "Module Shattering Animation" screen will always appear
+Ranged Enemy Tradeoff perk no longer buffs protectors
+Protector Health lab will now correctly be applied to protector health
+Black Hole animations are now tied to game speed
+Black Hole animations will be completely skipped if there is a queued activation ready
+Researching Auto Pick Perks will no longer (occasionally) incorrectly show the “First Perk” option in the Perks menu
+Copy fixes
+Translation fixes
+Fixed an issue that wasn't allowing to collect floating gems
+Fixed UW+ toggles not working
+Fixed an issue where if some specific lab was fully researched it would put the game in a corrupted state
+Vault now accessible for players promoted to Legends League
+Super Tower Card Mastery was reduced to 35% of the bonus applying to UW damage
+Intro Sprint has had a few adjustments
+Getting hit no longer ends the effect
+Intro Sprint can not take you higher than the highest wave you have achieved on a given tier
+Description updated
+Base card now maxes at 100 waves
+Card Mastery now maxes at 1800 waves
+Intro Sprint has been changed to act as 10 waves skips, which will provide cash and Free Upgrades
+Intro Sprint not allow coins to be earned while it is active
+Multiverse Nexus once again starts all three affected UWs with the correct cooldown
+Lab sections minimized before a run are now no longer hidden during the run
+All tournament relics had their description changed form “top 6” to “top 4”
+Cinematic Mode will end when your tower dies
+Card Mastery will be blocked if you haven't unlocked and maxed all milestone based cards
+24th place will no longer demote
+Fixed an issue introduced at v25.3 that makes thorn damage 0%
+Ties will now equally share all the awards the players are tied for. So if two people are tied for 1st, they will take the average of the 1st and 2nd place rewards. If 30 people are tied, they will take the average of all rewards from a bracket.
+6x lab boost has been added as a lab speed up option
+The cost of lab speed ups is no longer increased by 20% for every other lab being boosted. To account for this, the cost of boosting a lab 3x and higher has been raised to the average cost of running all 5 labs (net neutral). The cost of boosting a lab 2x has been increased a lesser amount (slight buff). The cost of boosting a lab 1.5x has not been increased (buff).
+Intro Sprint can be ended early by clicking the icon while it is active
+Free Upgrades are allowed to go over 100% and they additional percentage works for both Upgrades as well as Black Hole Digestor
+Crit Chance Card Mastery is expanded to also "Boost Crit Chance, Super Crit Chance, and Super Crit Factor"
+The spawn cap for elites has been raised
+The floating gem limit has increased from 5 to 10
+Slightly changed the order that Damage / Meter buffs are applied
+Extra Orb positioning has changed slightly. By default, they will be at tower range. Extra Orb Adjuster has a new minimum of: min(tower range, 60m). The granularity of the steps has changed.
+25th place should correctly demote
+Free Upgrade locks will correctly persist through app restarts
+Cinematic mode can be entered even with the top right menu open
+One of the Power Vault Upgrades for bot range was too cheap. Price was increased.
+Ending a tournament run no longer shows your place at -1
+Lab speed completing no longer occasionally removes lab speed ups
+You can no longer die with Energy Shield active
+Multiverse Nexus again correctly starts with the right cooldown
+Death Wave Ring again adjusts outwards as range increases
+Wave Accelerator Card Mastery should now also increases the spawn ratios (special enemies v basic). It doesn’t impact elite spawn rate
+Enemy Balance Card Mastery should now be reflected in wave skip cell counts
+Displayed prizes on the tournament panel correctly correspond to the league you are in.
+Perk bar will no longer occasionally appear on tournament end screens
+Text will no longer appear on top of the gameplay UI
+Fixed not being able to exit cinematic mode in iOS
+Changed wave skip cells to be based on cell earned last wave + 10%, like cash and coins
+Researching lab speed wasn't correctly updating current active researches, working properly now
+Fixed Multiverse Nexus not correctly syncing the Ultimate Weapons
+Modules Effects can be auto rerolled until certain selectable conditions are met
+4 new labs have been added to allow banning of certain module effects
+Tower Range has been reworked to be more in line with other range calculations - it is now a more consistent value throughout the game
+Zoom thresholds have changed
+Several graphics throughout the game have been reworked to be more clear
+Poison Swamp’s previous animation has returned but now merges into a single giant swamp
+Enemy skins have increased brightness, elites and bosses stand out more, Ultimate enemy graphics have changed
+Wall graphics have changed
+Collecting the floating gem in Cinematic Mode will no longer kick you from Cinematic Mode
+Death Wave’s Damage Wave can deal damage through armored enemies
+Only 20% of the cells are awarded during Intro Sprint
+Inner Orb positioning changed to exactly match tower range
+Lab Speed Ups are consumed at the correct rate
+The Wall has been reworked to more fully stop enemies from quantum tunneling
+Death Wave hits missions will count enemies hit by both the Damage Wave and the Effect Waves
+Snowstorm Background Performance has been greatly improved
+Energy Shield Battle Condition is no longer removed on death
+Random loss of module shards when changing modules has been fixed
+Orb mastery coin bonus is given on hit
+Wave skip no longer underperforms after a personal record
+Potential fix for Ranged shooting from inside a Black Hole
+Rend hit text should show up normally now
+Fixed module reroll not allowed if the module had all effects locked previously
+Fixed tower firing at enemies outside of range
+Fixed Wall with wrong color while invincible
+Target priority now have the updated enemy graphics
+Fixed themes panel not opening properly in some situations
+Unfavorited labs should not vanish at game restart anymore
+Wave skip after highest wave should work properly now
+Labs that finish while the game is offline will not auto unqueue anymore
+Lab speed ups should last the full 24 hours now (hopefully)
+Ranged hits on wall will properly charge Berserker now
+Rays now have glasses to see where they should stop
+Module merge mission requirements reduced to (10/20/40)
+If "Auto Shatter Rare Modules" from the Harmony Vault is enabled, the module merge mission will autocomplete.
+Decreased the spotlight mission requirements to (5,000/50,000/500,000)
+Buy cards is a fixed mission now, not sharing a slot with "Obtain x modules" mission.
+"Hit x enemies with an ultimate critical" mission is removed and will not show up anymore from the next event onwards
+A change was made related with ELS chance to help put it near the expected value.
+Multiple adjustments were made related with login and cloud save to help with the "not logged in" , "time out" and profile not updating issues.
+Changed Black Cat tower skin Super Tower visual effect.
+Fixed the login time out issue that still is happening after last patch adjustments.
+Fixed an internal server issue.
+A small patch to fix the issue that some new players aren't receiving a Player ID.
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

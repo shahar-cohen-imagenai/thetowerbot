@@ -1,0 +1,10 @@
+Land Mine Stun is a rare card in The Tower: Idle Tower Defense. It adds a crowd-control effect to your land mines, giving each mine a chance to briefly stop enemies in their tracks.
+Land Mine Stun
+With Land Mine Stun equipped, your land mines have a 40% chance to stun enemies they hit. The stun lasts for a set number of seconds, shown as [x] on the card, and the duration table below lists the values at each level.
+The stun does not work on bosses, so its value is in controlling regular waves. It is most useful if your build already relies on land mines as a meaningful part of your defence, since the card does nothing without them.
+Land Mine Stun value per card level
+Card Mastery
+Unlocking the Land Mine Stun mastery costs 1000 stones. Once unlocked, it gives stunned enemies a chance to miss their attacks, adding a layer of damage avoidance on top of the stun itself.
+The mastery only functions while Land Mine Stun is in your active loadout. If you unequip the card, you lose the miss chance as well, so it is only worth the stones if the card is a permanent part of your setup. The table below shows how the effect scales.
+Land Mine Stun mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

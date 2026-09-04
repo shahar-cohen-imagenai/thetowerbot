@@ -881,11 +881,11 @@ def test_arrival_is_judged_by_the_page_heading_not_a_row_template(
         session.advance(frame("menu_workshop_utility_restocked"), device, policy)
 
     skips = session._bus.of_type("PurchaseSkipped")
-    assert any(s.reason == "no_match" for s in skips), (
-        "never reached the rows - still waiting to arrive on a tab it is on"
+    assert any(s.reason == "already_unlocked" for s in skips), (
+        "visible Cash upgrades should prove their vanished prerequisite complete"
     )
     assert "Unlock Cash Bonuses" in session._exhausted, (
-        "a row genuinely gone from the page must be given up on, once"
+        "a completed prerequisite must not be searched or bought again"
     )
 
 
@@ -906,7 +906,7 @@ def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
     """
     device = FakeDevice()
     policy = a_policy(armed=True, workshop=(
-        ShoppingRule(name="Unlock Cash Bonuses",
+        ShoppingRule(name="Unlock Free Upgrades",
                      category="UTILITY"),
     ))
     session.begin(policy, run_count=1)
@@ -916,7 +916,7 @@ def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
 
     unmatched = session._bus.of_type("RowUnmatched")
     assert unmatched, "nothing said why the row was never bought"
-    assert unmatched[0].item == "Unlock Cash Bonuses"
+    assert unmatched[0].item == "Unlock Free Upgrades"
     assert unmatched[0].read == (
         "Cash Bonus", "Cash / Wave", "Unlock Coin Bonuses",
     )

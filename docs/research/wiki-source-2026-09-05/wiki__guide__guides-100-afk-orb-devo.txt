@@ -1,0 +1,4 @@
+100% AFK Orb Devo is a farming setup for The Tower: Idle Tower Defense, designed by Yugiohcd10. The goal is a run you can leave fully unattended while using orbs in a devo-style build.
+100% AFK Orb Devo
+Because this setup is very sensitive to patch changes, the written details can go out of date quickly. A live, continuously updated version of the guide is maintained on Yugi Tower, so check there for the current state of the build before copying anything.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-07-23) . Something out of date? Tell us in the Discord .

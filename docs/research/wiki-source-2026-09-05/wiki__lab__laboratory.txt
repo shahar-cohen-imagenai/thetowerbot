@@ -1,0 +1,44 @@
+The Laboratory, often called the labs, is where you buy upgrades that are separate from those in the Workshop. These include scaling upgrades, maximum cap increases, and other improvements. Every lab upgrade costs coins and takes time to finish, and while it is running it occupies one of your labs. Because of this, time becomes a major limit on progress later in the game, so keeping your labs busy is important.
+On this page
+Description
+Amount Of Labs
+Cost
+Rushing Labs
+Lab Upgrades
+Description
+The Laboratory, often called the labs, is where you buy upgrades that are separate from those in the Workshop. These include scaling upgrades, maximum cap increases, and other improvements. Every lab upgrade costs coins and takes time to finish, and while it is running it occupies one of your labs. Because of this, time becomes a major limit on progress later in the game, so keeping your labs busy is important.
+Amount Of Labs
+You can have a maximum of 5 labs.
+Cost
+Unlocking all 5 labs costs 4900 Gems in total. Even though this is expensive if you are not spending real money, it is still worth unlocking them over time, or at least getting 4. The cost table below shows the full breakdown.
+Lab 1 unlocked for free upon reaching wave 30 in T1 for the first time.
+Lab 2 100 gems
+Lab 3 400 gems
+Lab 4 1400 gems
+Lab 5 3000 gems
+Rushing Labs
+You can rush labs with Gems to finish them sooner. Before version 0.17, rushing cost 1 Gem for every 8 minutes skipped. In version 0.17, the developers changed the system and greatly lowered the cost for longer rush times. The tables below show the old and updated costs, with bold values marking the changed prices.
+Version 0.16
+Time Time (in seconds) Cost (in gems)
+0 seconds 0 0
+1 second 1 0.0020833
+1 minute 60 0.125
+1 hour 3600 7.5
+1 day 86400 180
+1 week 604800 1260
+30 days 2592000 5400
+Version 0.17
+Time Time (in seconds) Cost (in gems) Discount applied
+0 seconds 0 0 0.00
+1 second 1 0.002083 1.00
+1 minute 60 0.125 1.00
+1 hour 3600 7.5 1.00
+1 day 86400 163 0.91
+1 week 604800 1000 0.79
+30 days 2592000 3550 0.66
+Lab Upgrades
+For the full list of lab upgrades, see the linked lab upgrades page.
+Related pages
+Gems
+Lab Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-10-27) . Something out of date? Tell us in the Discord .

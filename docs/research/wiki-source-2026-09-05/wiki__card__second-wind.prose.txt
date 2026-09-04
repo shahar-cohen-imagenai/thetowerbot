@@ -1,0 +1,29 @@
+Second Wind is a card that brings your tower back from death once per round. When lethal damage would destroy you, the tower revives at half health and gains a temporary invincible shield, with the shield duration scaling from 10 up to 40 seconds depending on the card's level.
+On this page
+Description
+Use
+Labs — Second Wind Blast
+Labs — Recharge Second Wind
+Description
+Second Wind revives your tower at half health a single time per round when it would otherwise be destroyed. On top of the revive, it wraps the tower in an invincible shield lasting 10/15/20/25/30/35/40 seconds, with the duration tied to the card's level.
+That invulnerability window is a large part of the card's value: the revive alone would often just delay death by a moment, but the shield gives your defences time to stabilise while nothing can hurt you.
+Use
+Second Wind sits inside a priority order of death-prevention effects. When your tower takes lethal damage, the game checks each available effect in sequence and only one of them fires:
+1. **Death Defy** — checked first; if it triggers, nothing else is needed. 2. **Energy Shield** — if Death Defy did not trigger, an Energy Shield charge is spent to absorb the hit. 3. **Second Wind** — only activates if no higher-priority protection was available. 4. **Demon Mode** — with Smart Demon Mode Automation, it activates if nothing above it did. 5. **Nuke** — with Smart Nuke Automation, it fires as the last resort. It does not clear projectiles already in flight, but as of v27.3 (18 Dec, 2025) Smart Nuke Automation also grants 15 seconds of invulnerability.
+The practical takeaway: Second Wind only fires when Death Defy and Energy Shield have both failed or run out, so it functions as your mid-tier safety net rather than your first line of defence.
+Labs — Second Wind Blast
+Second Wind Blast is a lab unlocked through Milestones at tier 3 wave 150. Once researched, triggering Second Wind also wipes out a percentage of the enemies currently spawned, softening the wave that killed you so the invincibility window is less likely to be overwhelmed the moment it ends.
+The lab has 4 levels, each raising the percentage of spawned enemies cleared. See the level table below for the exact values.
+Labs — Recharge Second Wind
+Recharge Second Wind is a lab unlocked through Milestones at tier 14 wave 60. It removes the card's once-per-round limit by letting Second Wind recharge after a set number of waves once it has been used, so it can save you more than once in a long run.
+The lab has 7 levels, with higher levels reducing how many waves you must wait before Second Wind is ready again. The level table below lists the recharge times.
+Related pages
+Cards
+Death Defy
+Demon Mode
+Energy Shield
+Lab Upgrades
+Milestones
+Nuke
+The Vault
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-01-20) . Something out of date? Tell us in the Discord .

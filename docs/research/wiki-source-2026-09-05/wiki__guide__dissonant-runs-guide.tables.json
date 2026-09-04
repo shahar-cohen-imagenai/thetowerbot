@@ -1,0 +1,868 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Attack Dissonant (no Attack stats)",
+      "Defense/Health Dissonant (no Defense stats)",
+      "Utility Dissonant (no Utility stats)",
+      "UW Dissonant (no Ultimate Weapons)"
+    ],
+    "rows": [
+      [
+        "Damage Attack Speed Critical Chance Critical Factor Range Damage Per Meter Multishot Chance Multishot Targets Rapid Fire Chance Rapid Fire Duration Bounce Shot Chance Bounce Shot Targets Bounce Shot Range Super Crit Chance Super Crit Multiplier Rend Armor Chance Rend Armor Multiplier",
+        "Health Health Regen Defense\u00a0% Defense Absolute Thorn Damage Lifesteal Knockback Chance Knockback Force Orb Speed Orbs Max Shockwave Size Shockwave Frequency Land Mine Chance Land Mine Damage Land Mine Radius Death Defy Wall Health",
+        "Cash Bonus Cash / Wave Coins / Kill Bonus Coins Per Wave Free Attack Upgrade Free Defense Upgrade Free Utility Upgrade Interest / Wave Recovery Amount Max Recovery Package Chance Enemy Attack Level Skip Enemy Health Level Skip",
+        "Chain Lightning Smart Missiles Death Wave Chrono Field Inner Land Mines Golden Tower Poison Swamp Black Hole Spotlight"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Slot",
+      "Main",
+      "Sub / Notes"
+    ],
+    "rows": [
+      [
+        "Cannon",
+        "AD (Astral Deliverance)",
+        "AS (Amplifying Strike) in the secondary slot \u2014 or possibly Havoc Bringer (untested, but since enemies die very fast, instantly maxing Rend might be very strong). Substats: max Bounce Chance and Bounce Targets first, then whatever adds the most damage elsewhere."
+      ],
+      [
+        "Armor",
+        "SD (Space Displacer)",
+        "ACP in the sub slot. Substats: prioritize Shockwave Cooldown and Shockwave Size \u2014 aim for 200+ range and 4+ shockwave size. Round out with Death Defy and orb-related substats."
+      ],
+      [
+        "Generator",
+        "PF (Project Funding)",
+        "Either SH or PH depending on bot quality \u2014 PH is excellent in tournaments, but here you have little time to land shots, so SH (max bot coverage) is generally the better pick unless your bots aren't strong."
+      ],
+      [
+        "Core",
+        "Magnetic Hook",
+        "Substats don't matter for this slot."
+      ],
+      [
+        "Chip",
+        "Scout",
+        "Boosts damage substantially."
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Symbol",
+      "Meaning"
+    ],
+    "rows": [
+      [
+        "\u2717",
+        "Useless for this run type"
+      ],
+      [
+        "?",
+        "Depends on your setup / not confirmed"
+      ],
+      [
+        "\u2713",
+        "Probably helpful"
+      ],
+      [
+        "\u2713\u2713",
+        "Recommended"
+      ],
+      [
+        "\u2713\u2713\u2713",
+        "Use this for advanced/super tactics (e.g. priesten's build above)"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Card",
+      "Attack",
+      "Defence",
+      "Utility",
+      "UW"
+    ],
+    "rows": [
+      [
+        "",
+        "Card",
+        "+Mastery",
+        "Card",
+        "+Mastery",
+        "Card",
+        "+Mastery",
+        "Card",
+        "+Mastery"
+      ],
+      [
+        "Damage",
+        "X",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Attack Speed",
+        "X",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Health",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X",
+        "X",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Health Regen",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X",
+        "X",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Range",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713\u2713\u2713",
+        "\u2713\u2713\u2713"
+      ],
+      [
+        "Cash",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?"
+      ],
+      [
+        "Coins",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "Slow Aura",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Critical Chance",
+        "X",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Enemy Balance",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "Extra Defense",
+        "\u2713",
+        "\u2713",
+        "X",
+        "X",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Fortress",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "Free Upgrades",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "X",
+        "X",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Extra Orbs",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Plasma Cannon",
+        "\u2713\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Critical Coin",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "Wave Skip",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Intro Sprint",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Land Mine Stun",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713\u2713",
+        "\u2713\u2713\u2713"
+      ],
+      [
+        "Recovery Package Chance",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "X",
+        "X",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Death Ray",
+        "\u2713\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Energy Net",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Super Tower",
+        "X",
+        "X",
+        "\u2713",
+        "\u2713\u2713",
+        "\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Second Wind",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Demon Mode",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Energy Shield",
+        "\u2713",
+        "\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Wave Accelerator",
+        "\u2713",
+        "X",
+        "\u2713",
+        "X",
+        "\u2713",
+        "X",
+        "\u2713",
+        "X"
+      ],
+      [
+        "Berserker",
+        "X",
+        "X",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "?",
+        "?"
+      ],
+      [
+        "Ultimate Crit",
+        "X",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X",
+        "X"
+      ],
+      [
+        "Nuke",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Area of Effect",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "\u2713",
+        "\u2713"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "",
+      "Module",
+      "Attack",
+      "Defense",
+      "Utility",
+      "UW"
+    ],
+    "rows": [
+      [
+        "Cannon",
+        "AD",
+        "\u2713",
+        "?",
+        "\u2713",
+        "\u2713\u2713\u2713"
+      ],
+      [
+        "BA",
+        "X",
+        "?",
+        "?",
+        "?"
+      ],
+      [
+        "DP",
+        "\u2713\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "HB",
+        "X",
+        "?",
+        "?",
+        "?"
+      ],
+      [
+        "SR",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "AS",
+        "X",
+        "\u2713",
+        "\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Armor",
+        "ACP",
+        "X",
+        "\u2713",
+        "\u2713",
+        "\u2713\u2713\u2713"
+      ],
+      [
+        "NMP",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "WR",
+        "?",
+        "?",
+        "X",
+        "?"
+      ],
+      [
+        "SD",
+        "\u2713\u2713",
+        "X",
+        "\u2713",
+        "\u2713\u2713\u2713"
+      ],
+      [
+        "SF",
+        "\u2713\u2713",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "OA",
+        "\u2713\u2713\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Generator",
+        "SH",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "GC",
+        "\u2713",
+        "\u2713",
+        "X",
+        "X"
+      ],
+      [
+        "PH",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "BHD",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "PF",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713\u2713"
+      ],
+      [
+        "RB",
+        "X",
+        "\u2713",
+        "X",
+        "\u2713"
+      ],
+      [
+        "Core",
+        "OC",
+        "X",
+        "\u2713",
+        "\u2713",
+        "X"
+      ],
+      [
+        "HC",
+        "\u2713",
+        "X",
+        "\u2713",
+        "X"
+      ],
+      [
+        "DC",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ],
+      [
+        "MN",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "MH",
+        "",
+        "",
+        "",
+        "?"
+      ],
+      [
+        "PC",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Perk",
+      "Attack",
+      "Defense",
+      "Utility",
+      "UW"
+    ],
+    "rows": [
+      [
+        "x1.20 Max Health",
+        "\u2713\u2713",
+        "X",
+        "\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "x1.15 Damage",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "?"
+      ],
+      [
+        "x1.15 All Coin Bonuses",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "x1.15 Defense Absolute",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "x1.15 Cash Bonus",
+        "?",
+        "?",
+        "X",
+        "?"
+      ],
+      [
+        "x1.75 Health Regen",
+        "\u2713\u2713",
+        "X",
+        "\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Interest x1.50",
+        "X",
+        "X",
+        "X",
+        "X"
+      ],
+      [
+        "Land Mine Damage x3.50",
+        "?",
+        "X",
+        "?",
+        "\u2713\u2713"
+      ],
+      [
+        "Free Upgrade Chance for All +5.0%",
+        "?",
+        "?",
+        "X",
+        "?"
+      ],
+      [
+        "Defense Percent +4.00",
+        "\u2713\u2713",
+        "X",
+        "\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Bounce Shot +2",
+        "X",
+        "\u2713",
+        "\u2713",
+        "\u2713"
+      ],
+      [
+        "Perk Wave Requirement \u221220.00%",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Orbs +1",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "Unlock a Random Ultimate Weapon",
+        "?",
+        "?",
+        "?",
+        "X"
+      ],
+      [
+        "Increase Max Game Speed +1.00",
+        "\u2713",
+        "\u2713",
+        "\u2713",
+        "\u2713\u2713"
+      ],
+      [
+        "4 More Smart Missiles",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ],
+      [
+        "Swamp Radius x1.5",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ],
+      [
+        "+1 Wave on Death Wave",
+        "?",
+        "?",
+        "?",
+        "X"
+      ],
+      [
+        "Extra Set of Inner Mines",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ],
+      [
+        "Golden Tower Bonus x1.5",
+        "?",
+        "?",
+        "?",
+        "X"
+      ],
+      [
+        "Chain Lightning Damage x2",
+        "X",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ],
+      [
+        "Chrono Field Duration +5s",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ],
+      [
+        "Black Hole Duration +12.0s",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ],
+      [
+        "Spotlight Damage Bonus x1.5",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "\u2713\u2713",
+        "X"
+      ],
+      [
+        "x1.50 Tower Damage, but Bosses Have 8x More Health ||?|| \u2713||?||?"
+      ],
+      [
+        "x1.80 Coins, but Tower Max Health \u221270%",
+        "X",
+        "?",
+        "X",
+        "X"
+      ],
+      [
+        "Enemies Have -50% Health, but Tower Health Regen and Lifesteal -90% || X|| \u2713\u2713|| \u2713||?"
+      ],
+      [
+        "Enemies Damage -50%, but Tower Damage -50%",
+        "\u2713\u2713",
+        "X",
+        "?",
+        "?"
+      ],
+      [
+        "Ranged Enemies Attack Distance Reduced, but Tower Ranged Enemies Damage x3 ||?||?||?||?"
+      ],
+      [
+        "Enemies Speed -40%, But Enemies Damage x2.5",
+        "?",
+        "X",
+        "?",
+        "?"
+      ],
+      [
+        "x12.00 Cash Per Wave, but Enemy Kill Don't Give Cash || X|| X||?|| X"
+      ],
+      [
+        "Tower Health Regen x8.00, but Tower Max Max Health -60% ||?|| X||?||?"
+      ],
+      [
+        "Boss Health -70%, But Boss Speed +50%",
+        "?",
+        "?",
+        "?",
+        "?"
+      ],
+      [
+        "Lifesteal x2.50, But Knockback force -70%",
+        "?",
+        "X",
+        "?",
+        "?"
+      ]
+    ]
+  }
+]

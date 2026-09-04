@@ -1,0 +1,63 @@
+This guide covers how to push past wave milestones on tiers your regular build cannot handle. It assumes you have the standard 99% thorns cap.
+Rushing means abandoning your normal setup for one built purely to survive a handful of boss waves, and it rewards repetition more than raw stats.
+On this page
+Overview
+Death defy
+Energy shield
+Plasma cannon
+Second wind
+Demon mode
+Nuke
+Missile barrage
+Intro sprint
+Wave accelerator
+Slow aura/chrono field
+Wave Skip
+Modules
+Extra Orb
+Health Card
+Black Hole
+What a rush might look like
+Tier 14
+This guide exists to help you claim tier milestones that would otherwise be out of reach. Everything here is written with the standard 99% thorns maximum in mind.
+Overview
+A tier rush means swapping your everyday build for one tuned to squeeze extra waves out of a tier that is too strong for ordinary progression. The payoff is concentrated in very early milestones, roughly the first 100 waves, and the strategy loses nearly all value beyond that. It shines most on low tiers where enemy scaling is still mild. With some fortune it can even work on Tier 14, though the Heat mechanic blunts it there. Tier 15 is the hard cutoff: plasma cannon and thorn damage are weakened further, and the waves needed to unlock the next tier rise from 100 to 300, so the approach stops paying off.
+Death defy
+This upgrade gives you up to a 30% chance to shrug off a killing blow. The percentage is unreliable on its own, but because it resolves before every other death-prevention effect, it strengthens nearly all of them — demon mode, missile barrage and nuke being the exceptions.
+Energy shield
+This card soaks up a single hit, or as many as three once lab upgrades are in, before entering a lengthy recharge. Expect it to fire only once during a rush that uses wave accelerator. Paired with plasma cannon, a blocked hit can secure a boss kill and buy you roughly ten more waves. A Death Defy proc leaves the shield's charge intact.
+Plasma cannon
+It is easy to dismiss this card, but at max level it deals enough damage that your 99% thorns can finish a boss in one hit, taking a lot of pressure off death defy and energy shield. If you push thorns to 100% through a relic or substat, even the second-to-last level is enough.
+Second wind
+The most obviously useful card here: it effectively guarantees you live through one attack. The catch is that it only works once per rush, since its cooldown runs for hundreds of waves and is unavailable while rushing is still viable. Because the card grants invulnerability for a while, you do not need plasma cannon to survive the hit. A nearly maxed second wind, combined with friendly boss spawn timing, can carry you about 20 extra waves under intro sprint, and it always secures at least 10. The blast lab upgrade adds value by clearing more enemies, and a Death Defy trigger keeps the card available.
+Demon mode
+Think of this as a manually triggered second wind that lasts longer. The limitation is that it cannot be turned on while intro sprint is running, so save it for the end of the sequence — either once intro sprint has ended or after you cancel it early.
+Nuke
+A manual boss-killing option that forgives sloppy timing far more than missile barrage does, though its damage is unreliable when the card is underleveled. A successful kill earns you about ten more waves. Keep it as your final manual play, and note that it cannot be fired during intro sprint.
+Missile barrage
+If you have this unlocked, it can take out an early-wave boss, especially with missile amplifier researched. The best use is on the wave 10 or 20 boss, sparing an energy shield charge for later. Like the other manual cards, it is unavailable while intro sprint is active.
+Intro sprint
+This card shortens the climb back to your previous best wave and beyond. Because non-maxed nukes, boss spawn timing and death defy are all random, faster runs mean faster retries until the dice land your way. It also gives a high-level second wind room to cover a second boss wave.
+Wave accelerator
+A niche pick. At high levels it can stretch second wind across two bosses, or let demon mode run long enough to reach a second boss wave.
+Slow aura/chrono field
+Both of these let you fine-tune boss timing by holding a boss back for a moment. One approach: equip slow aura to delay a boss so second wind triggers later or so you can start demon mode later, then remove it before the next spawn so the following boss arrives sooner and lands inside your protection window. Chrono field works similarly — time it to be up for the first boss and down for the second, or just toggle it off once the first boss is dealt with.
+Wave Skip
+When a boss wave is skipped, the boss simply never spawns, which can buy a little breathing room if luck is on your side. At max level (19% chance) it serves as useful counterplay on Tier 14 against the Heat reductions to plasma cannon and thorn damage. It does nothing while intro sprint is active.
+Modules
+Death penalty outright kills a percentage of enemies with the first shot, bosses included, while harmony conductor gives enemies caught in poison swamp a chance to deal no damage yet still take a thorns tick. Slotting either can hand you a few extra waves for free.
+Extra Orb
+This card adds more orbs circling your tower, which helps when ranged enemies are the problem — sniping you in one hit or stripping away your Second Wind or Energy Shield before a boss arrives.
+Health Card
+Straightforward: extra health means a better chance of simply tanking boss hits, reducing how heavily you lean on everything else listed here.
+Black Hole
+Use this to thin out the enemies between bosses, particularly once it deals 2% of an enemy's max HP per second.
+What a rush might look like
+Tank the first boss through eHP if you can; fall back on missile barrage if you cannot. Let energy shield handle the next boss, or several if you have multiple charges unlocked. Once the shield is spent, second wind takes over and clears one or two bosses — this is the point to switch intro sprint off. Trigger demon mode right as the following boss connects so the duration might carry into the next boss wave. Close out with nuke for one more kill. Death Defy procs, Wave Skip and boss spawn timing will swing the outcome heavily, so run the attempt repeatedly until you hit your target wave.
+Tier 14
+Tier 14 is where the heat conditions kick in, and they change how several of your tools behave. The unlock requirement for Tier 15 is still wave 100, but Plasma Cannon and thorn damage drop to 80% effectiveness, orbs and Death Ray lose their one-shot ability and deal 50% damage instead, and bosses arrive every 9 waves rather than every 10. That means you face 11 bosses on the way to wave 100, with the final one at wave 99.
+Death Defy and Wave Skip are central to this run, and you want to hold Nuke, Second Wind, Demon Mode and your Energy Shield charges in reserve for as long as you can. The baseline requirements are at least 1.4B health, two Energy Shield charges, and every card at level 7 — the card levels genuinely matter here. Your equipped cards should be Demon Mode, Nuke, Second Wind, Energy Shield, Energy Net, Extra Orb, Recovery Package Chance, Cash, Plasma Cannon, Extra Defense, Death Ray, Slow Aura, Health and Attack Speed.
+For waves 1 to 36, the bosses at 9, 18 and 27 are manageable: wave 9 will burn both Energy Shield charges, wave 18 can be tanked directly, and wave 27 costs one charge but can also be tanked. Once wave 27 is active, swap in Wave Skip. If wave 36 is not skipped, restart the run, because that boss will eat your Second Wind.
+From waves 37 to 90, once wave 36 is skipped, drop Wave Skip and put Cash back in. The sequence then runs as follows: Nuke on wave 45, both Energy Shield charges spent on wave 54, Second Wind consumed on wave 63, Demon Mode on wave 72 with Wave Skip re-equipped until wave 81, and both Energy Shields used again on wave 90. Each of these can shift 9 waves later if Death Defy triggers, so be ready to adapt.
+For waves 91 to 100 there is a single boss left, at wave 99. Focus on surviving the regular enemies and let Energy Net pin the boss in place long enough for the wave counter to tick over to 100. Once it does, Tier 15 is unlocked.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-28) . Something out of date? Tell us in the Discord .

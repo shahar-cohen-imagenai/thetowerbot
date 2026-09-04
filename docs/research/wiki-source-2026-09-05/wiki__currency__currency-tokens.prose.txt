@@ -1,0 +1,6 @@
+Tokens are one of the currencies you can collect in The Tower: Idle Tower Defense. They come from group activities and are spent on guild-related rewards.
+You earn Tokens from two sources: boxes given out through Weekly Challenges and Guild Reward Chests. Once you have some, you can spend them in the Guild shop to pick up items offered there.
+Related pages
+Daily Missions
+Guilds
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-10) . Something out of date? Tell us in the Discord .

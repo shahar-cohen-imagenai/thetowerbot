@@ -1,0 +1,121 @@
+Attack upgrades are a category of Workshop upgrades that directly improve your tower's offensive capabilities. They can be purchased with coins outside of a round or with cash during a round, and they form the foundation of your damage output throughout the game.
+These upgrades cover everything from raw projectile damage and fire rate to critical hits, multishot, bounce mechanics, and armor rending. Understanding how each one works — and how they interact with each other — is essential for building an effective tower.
+On this page
+Description — Damage
+Description — Attack Speed
+Description — Critical Hit — Critical Chance
+Description — Critical Hit — Critical Factor
+Description — Critical Hit
+Description — Multishot
+Description — Rapid Fire
+Description — Bounce Shot — Multishot Chance
+Description — Bounce Shot — Multishot Targets
+Description — Bounce Shot
+Description — Critical Chance — Rapid Fire Chance
+Description — Critical Chance — Rapid Fire Duration
+Description — Critical Chance
+Description — Multishot Targets — Bounce Shot Chance
+Description — Multishot Targets — Bounce Shot Targets
+Description — Multishot Targets — Bounce Shot Range
+Description — Multishot Targets
+Description — Bounce Shot Targets — Super Critical Chance
+Description — Bounce Shot Targets — Super Critical Multi
+Description — Bounce Shot Targets
+Description — Super Critical Multi — Rend Armor Chance
+Description — Super Critical Multi — Rend Armor Mult
+Description — Super Critical Multi
+Description
+Description — Damage
+Damage determines how much each projectile deals to enemies on hit. It also serves as the base value used when calculating damage for other abilities, including land mines and Ultimate Weapons.
+This upgrade is available in the Workshop from the very start of the game and can be raised through 6000 levels. Beyond the Workshop, you can push your damage further using cards, relics, Modules, and Workshop Enhancements.
+Show all 61 rows
+Description — Attack Speed
+Attack Speed controls how many projectiles your tower fires over a given period. It also increases the travel speed of those projectiles, at least until you research the "Light Speed Shots" lab, which changes how that interaction works.
+This upgrade is free to unlock in the Workshop. It has 99 levels, starting at a base of 1.00 and gaining 0.05 per level, reaching a maximum of 5.95.
+Show all 99 rows
+Description — Critical Hit — Critical Chance
+See the critical hit data table below for level-by-level values on Critical Chance.
+Show all 79 rows
+Description — Critical Hit — Critical Factor
+See the critical hit data table below for level-by-level values on Critical Factor.
+Show all 16 rows
+Description — Critical Hit
+The Critical Workshop adds bonus damage to your tower's projectiles through two related upgrades: Critical Chance and Critical Factor. Both are unlocked for free at the start of the game, and both feed into the calculations for Ultimate Weapon and Land Mine damage.
+Critical Chance is the probability that any given projectile will deal critical damage. It has 79 levels in the Workshop, with each level adding 1% to the chance, capping at 80% from the Workshop alone. You can push this higher with the Critical Chance Card — which adds up to 11% — and the Critical Chance Cannon Module Effect.
+Critical Factor is the damage multiplier applied when a critical hit lands. It starts at a base of 1.2 and has 150 levels, each adding 0.1 to the multiplier, for a maximum of 16.2. Critical Factor also plays a role in Ultimate Weapon critical hits when the Ultimate Crit card is active. The cap can be raised further through the Critical Factor Lab, the Critical Factor Cannon Module Effect, and Critical Factor Enhancement.
+Description — Multishot
+Range increases how far your tower can fire projectiles. It also sets the firing distance for enemies that deal ranged damage, making it relevant both offensively and defensively.
+Range is unlocked in the Workshop for 50 coins after Critical Factor. It has 79 levels, starting at 30m and gaining 0.5m per level, reaching a maximum of 69.5m.
+Show all 79 rows
+Description — Rapid Fire
+Damage/Meter increases your projectile damage based on how far an enemy is from the tower. The bonus is calculated per full meter of distance — it does not scale fractionally, and the value rounds down. For example, an enemy 51.9 meters away takes the same bonus damage as one exactly 51 meters away.
+This upgrade is unlocked in the Workshop for 50 coins alongside Range. It has 200 levels with a base of 0%. The per-level increase shrinks over the early levels, then from level 70 onward each level adds a flat 0.0002%, reaching a maximum of 5.9%.
+Show all 21 rows
+Description — Bounce Shot — Multishot Chance
+See the multishot data table below for level-by-level values on Multishot Chance.
+Show all 99 rows
+Description — Bounce Shot — Multishot Targets
+See the multishot data table below for level-by-level values on Multishot Targets.
+Description — Bounce Shot
+Multishot gives your tower a chance to fire at more than one target each time it shoots. It is unlocked in the Workshop for 400 coins after Damage/Meter, and it opens up two sub-upgrades: Multishot Chance and Multishot Targets.
+Multishot Chance is the probability of firing multiple projectiles on any given shot. It has 99 levels, each adding 0.50%, for a maximum activation chance of 49.50%.
+Multishot Targets sets how many projectiles are fired when Multishot activates, provided enough enemies are in range. It has 7 levels, starting at 2 targets and gaining 1 target per level, for a maximum of 9 targets.
+Description — Critical Chance — Rapid Fire Chance
+See the rapid fire data table below for level-by-level values on Rapid Fire Chance.
+Show all 85 rows
+Description — Critical Chance — Rapid Fire Duration
+See the rapid fire data table below for level-by-level values on Rapid Fire Duration.
+Show all 99 rows
+Description — Critical Chance
+Rapid Fire gives your tower a chance to fire at four times its normal speed for a limited window. It is unlocked in the Workshop for 1500 coins after Multishot, and it opens up two sub-upgrades: Rapid Fire Chance and Rapid Fire Duration.
+Rapid Fire Chance is the probability of triggering the effect on any given shot. It has 85 levels, each adding 0.40%, for a maximum activation chance of 34.00%.
+Rapid Fire Duration controls how long the effect lasts once triggered. It has 99 levels and reaches a maximum duration of 5.55 seconds.
+Description — Multishot Targets — Bounce Shot Chance
+See the bounce shot data table below for level-by-level values on Bounce Shot Chance.
+Show all 85 rows
+Description — Multishot Targets — Bounce Shot Targets
+See the bounce shot data table below for level-by-level values on Bounce Shot Targets.
+Description — Multishot Targets — Bounce Shot Range
+See the bounce shot data table below for level-by-level values on Bounce Shot Range.
+Show all 60 rows
+Description — Multishot Targets
+Bounce Shot gives your projectiles a chance to ricochet to another enemy after landing a hit, provided there are enemies within range. It is unlocked in the Workshop for 10,000 coins after Rapid Fire, and it opens up three sub-upgrades: Bounce Shot Chance, Bounce Shot Targets, and Bounce Shot Range.
+Bounce Shot Chance is the probability that a projectile will bounce after hitting. It has 85 levels, each adding 0.80%, for a maximum of 68.00%.
+Bounce Shot Targets sets how many times a single projectile can bounce between enemies. It has 7 levels, starting at 1 target and gaining 1 per level, for a maximum of 8. The Bounce Shot perk can raise that ceiling to 14. One important interaction to note: enemies that have been targeted by a bounce cannot be knocked back toward the tower.
+Bounce Shot Range determines how far a projectile can travel between bounces. It has 60 levels, starting at 2.0m and gaining 0.1m per level, for a maximum of 8.0m. Once a bounce target has been selected, the projectile will track that enemy even if it gets knocked beyond the maximum bounce range.
+Description — Bounce Shot Targets — Super Critical Chance
+See the super critical data table below for level-by-level values on Super Crit Chance.
+Show all 100 rows
+Description — Bounce Shot Targets — Super Critical Multi
+See the super critical data table below for level-by-level values on Super Crit Mult.
+Show all 13 rows
+Description — Bounce Shot Targets
+Super Criticals give your tower a chance to deal an additional layer of critical damage whenever a standard critical hit lands. This upgrade is unlocked in the Workshop for 100 million coins after Bounce Shot, and it opens up two sub-upgrades: Super Crit Chance and Super Crit Mult.
+Super Crit Chance is the probability of a super critical occurring, but only when a normal critical hit has already succeeded. It has 100 levels, each adding 0.2%, for a maximum of 20.00% from the Workshop.
+Super Crit Mult is the damage multiplier applied on a super critical hit. It has 120 levels, starting at a base of 1.2 and gaining 0.1 per level, for a maximum of 13.2. When a super critical lands, your total critical multiplier is calculated as Critical Factor multiplied by Super Crit Mult.
+Description — Super Critical Multi — Rend Armor Chance
+See the rend armor data table below for level-by-level values on Rend Armor Chance.
+Show all 31 rows
+Description — Super Critical Multi — Rend Armor Mult
+See the rend armor data table below for level-by-level values on Rend Armor Mult.
+Show all 31 rows
+Description — Super Critical Multi
+Rend Armor gives your tower a chance to permanently increase the damage a specific enemy takes from tower projectiles. It is unlocked in the Workshop for 500 billion coins after Super Critical, and it opens up two sub-upgrades: Rend Armor Chance and Rend Armor Mult. The effect can stack on a single enemy up to a ceiling of 800% of normal damage.
+Rend Armor Chance is the probability of applying the effect on each enemy hit. It has 299 levels, starting at 0.10% and gaining 0.10% per level, for a maximum of 30.00%.
+Rend Armor Mult is the amount of additional damage the enemy takes per stack. It also has 299 levels, starting at 0.0010X and gaining 0.0010X per level, for a maximum of 0.3000X. This multiplier applies only to tower projectile damage — damage from other sources is not affected by Rend Armor.
+Description
+Attack upgrades are Workshop upgrades that improve your tower's ability to deal damage. They can be purchased with coins outside of a round or with cash during a round, giving you flexibility in when and how you invest in your offense.
+Related pages
+Attack Speed
+Bounce Shot
+Cards
+Critical Hits
+Damage
+Damage Per Meter
+Knockback
+Multishot
+Perks
+Range
+Rapid Fire
+Rend Armor
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-20) . Something out of date? Tell us in the Discord .

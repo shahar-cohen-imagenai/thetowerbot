@@ -1,0 +1,90 @@
+[
+  {
+    "type": "table",
+    "caption": "Intro Sprint value per card level",
+    "headers": [
+      "Card Level",
+      "Effect"
+    ],
+    "rows": [
+      [
+        "1",
+        "20"
+      ],
+      [
+        "2",
+        "30"
+      ],
+      [
+        "3",
+        "40"
+      ],
+      [
+        "4",
+        "50"
+      ],
+      [
+        "5",
+        "60"
+      ],
+      [
+        "6",
+        "80"
+      ],
+      [
+        "7",
+        "100"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Intro Sprint mastery value per lab level",
+    "headers": [
+      "Mastery Level",
+      "Value"
+    ],
+    "rows": [
+      [
+        "0",
+        "x1.8"
+      ],
+      [
+        "1",
+        "x3.6"
+      ],
+      [
+        "2",
+        "x5.4"
+      ],
+      [
+        "3",
+        "x7.2"
+      ],
+      [
+        "4",
+        "x9"
+      ],
+      [
+        "5",
+        "x10.8"
+      ],
+      [
+        "6",
+        "x12.6"
+      ],
+      [
+        "7",
+        "x14.4"
+      ],
+      [
+        "8",
+        "x16.2"
+      ],
+      [
+        "9",
+        "x18"
+      ]
+    ]
+  }
+]

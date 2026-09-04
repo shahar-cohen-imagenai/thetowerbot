@@ -1,0 +1,89 @@
+Attack Speed determines how many projectiles your tower fires over time. It also raises the travel speed of those projectiles, including Energy Net and Plasma Cannon shots, until you complete the Light Speed Shots lab research.
+The value shown in game is not a straight shots-per-second figure. At low values it roughly matches projectiles per second before rapid fire, multishot and bounce shot are counted, but each point contributes less as the value climbs, and above 40 the returns diminish further. Attack Speed received performance changes in V27 and its exact behaviour is still being analysed by the community.
+On this page
+Description
+Workshop
+Formula
+Cost
+Cards
+Attack Speed
+Lab Upgrades — Attack Speed
+Lab Upgrades — Light Speed Shots
+Lab Upgrades
+Description (2)
+Description
+Attack Speed is the number of projectiles fired from your tower, and it also increases how quickly those projectiles travel to their target, including Energy Net and Plasma Cannon shots.
+At very low values the stat is close to shots fired per second, before rapid fire, multishot and bounce shot are factored in. At medium values it behaves more like shots per two seconds, and once the value passes 40 each additional point gives even less. The stat changed in V27 for performance reasons and is still under analysis, so displayed values may not perfectly match real fire rates.
+Once you finish the Light Speed Shots lab research, your projectiles move at the maximum possible speed and their travel time is no longer tied to Attack Speed. Energy Net and Plasma Cannon are unaffected by this change.
+Workshop
+Attack Speed is available in the workshop for free from the start. It has 99 levels, beginning at a base of 1.00 and gaining 0.05 per level, for a maximum workshop value of 5.95.
+Formula
+The game uses the unrounded result of this calculation, so avoid rounding any intermediate values.
+Displayed Attack Speed = (Workshop x Lab x Card + Module Sub Effect) x Enhancement
+Cost
+The cost table below lists the price of each workshop level for Attack Speed.
+Level Value Cost Total Cost
+1 1.05 30 0
+2 1.1 56 86
+3 1.15 92 178
+4 1.2 140 318
+5 1.25 200 518
+6 1.3 274 792
+7 1.35 363 1.16K
+8 1.4 467 1.62K
+9 1.45 588 2.21K
+10 1.5 725 2.94K
+Show all 99 rows
+Cards
+The Attack Speed card is a common card available from the start of the game. When equipped, its multiplier applies to the workshop value only. It does not multiply module sub effects.
+Attack Speed
+The Attack Speed enhancement unlocks after you have spent 500 trillion coins on enhancements in total. It starts at x1.0 when unlocked and gains 0.01 per level across 75 levels, reaching a maximum of x1.75. The per-level costs are shown in the table below.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+2 1.02x 6.10B 11.10B
+3 1.03x 23.58B 34.68B
+4 1.04x 106.20B 140.88B
+5 1.05x 343.19B 484.08B
+6 1.06x 867.83B 1.35T
+7 1.07x 1.86T 3.21T
+8 1.08x 3.55T 6.76T
+9 1.09x 6.21T 12.98T
+10 1.10x 10.19T 23.16T
+Show all 75 rows
+Lab Upgrades — Attack Speed
+The Attack Speed lab is unlocked through Milestones at tier 1 wave 30. It has 99 levels, and each level raises the increment provided by every workshop level as well as the maximum workshop value. Level costs are listed in the table below.
+Level Time Cost Value
+1 0d 0h 0m 30 1.02
+2 0d 0h 6m 71 1.04
+3 0d 0h 16m 178 1.06
+4 0d 0h 31m 398 1.08
+5 0d 0h 52m 772 1.10
+6 0d 1h 20m 1,340 1.12
+7 0d 1h 56m 2,120 1.14
+8 0d 2h 39m 3,170 1.16
+9 0d 3h 31m 4,510 1.18
+10 0d 4h 32m 6,170 1.2
+Show all 99 rows
+Lab Upgrades — Light Speed Shots
+Light Speed Shots is unlocked through Milestones at tier 7 wave 10. Once researched, your projectiles travel to their target instantly after being fired.
+A shot can still be intercepted: if an untargeted enemy sits between your tower and the target, that enemy blocks the shot and takes the damage instead. Research costs are shown in the table below.
+Level Time Cost Value
+1 0d 19h 59m 3,000,000 Unlocked
+Lab Upgrades
+Two labs affect Attack Speed: Attack Speed and Light Speed Shots. Both are unlocked through Milestones.
+Description (2)
+Attack Speed is the number of projectiles your tower fires over time. It also increases projectile movement speed until you research the Light Speed Shots lab, after which travel speed is fixed at the maximum.
+Related pages
+Amplify Bot
+Attack Upgrades
+Black Hole
+Boss Labs
+Bot Bot
+Bounce Shot
+Buy multiplier
+Card Presets
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-14) . Something out of date? Tell us in the Discord .

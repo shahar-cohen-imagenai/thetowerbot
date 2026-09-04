@@ -1,0 +1,60 @@
+Version 0.5 expanded the game with translations into 8 new languages, four new cards (Enemy Balance, Critical Coin, Super Tower, and Second Wind), and new defense upgrades including Land Mines and Death Defy. It also delivered a broad balance pass: high-tier enemy attack damage was reduced, Smart Missiles became cheaper to upgrade with a higher cap, and ultimate weapons gained higher max damage levels alongside buffs to chain lightning, death wave, and inner land mines. Golden Tower and chain lightning proc chance were nerfed to compensate. Numerous bug fixes addressed pause-related issues, UI overflows, and lab research problems, plus confirmation prompts for gem spending and research swaps.
+Change list
+Reproduced from the developer's release notes.
+Translated into 8 new languages - check settings panel to switch to your native language
+New Card (common) - Enemy Balance
+New Card (rare) - Critical Coin
+New Card (epic) - Super Tower
+New Card (epic) - Second Wind
+New Defense Upgrades - Land Mines
+New Defense Upgrade - Death Defy
+Enemy base attack damage for higher tiers decreased, decreased more for highest tiers
+Smart Missiles: Cost of upgrading number of missiles reduced a lot
+Smart Missiles: Max missiles increased from 10 to 14
+Golden tower base cool down increased from 180 to 270 seconds, max level increased from 12 to 15
+Chain lightning base chance reduced from 10 to 5%, increase per level decreased from 3.0 to 1.5%
+Chain lightning Base damage increased from 40 to 70%, damage per level increased from 5 to 10%
+Ultimate weapon Land Mines renamed to Inner Land Mines
+Inner land mines explosion radius increased from .75 to .90
+Inner land mines base damage increased from 600 to 800%, increase per level from 40 to 50%
+Inner land mine contact size increased slightly
+Death Wave base damage increased from 120 to 150%, upgrade per level from 10 to 15%
+Lifesteal increase per upgrade decreased from .15 to .14%
+Shockwave size increase per upgrade increased from .04 to .05
+Projectiles sometimes affecting the incorrect enemies when a block intercepts a shot
+Total coins on Battle panel not fitting in text box
+Notification for lab research completing firing by mistake
+Many other small bugs
+All ultimate weapons max damage level increased from 10 to 15
+Chain lightning base damage increased from 70 to 75%
+Chain lightning damage per level increased from 10 to 15%
+Death wave damage per level increased from 15 to 20%
+Inner land mines damage per level increased from 50 to 60%
+iOS home panel avoid top notch of devices
+Added a confirmation window when rushing lab research that costs more than 20 gems.
+Added a confirmation window when swapping an unfinished research on the lab.
+Tournament Claim window is now automatically opened when the game is open and claim is available.
+Added Death defy count on game over screen
+Second wind wings are now visible until triggered in the round, to make clear that it is still available.
+Fixed an issue where Super Tower timer was still counting while the game is paused.
+Fixed an issue where swamps could disappear while the game was paused.
+Fixed an issue where land mines could immediately auto explode as soon the game was unpaused
+Fixed an issue where second wind invincible durations was still counting while the game was paused.
+Translations fixed
+Labs fixed for those it was broken for
+Other minor stuff
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

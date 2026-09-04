@@ -1,0 +1,21 @@
+Protector labs are a set of three lab researches that weaken protector enemies during your rounds. Each one targets a different protector stat, and all three apply at every wave once researched.
+On this page
+Description — Protector Health
+Description — Protector Radius
+Description — Protector Damage Reduction
+Description
+Description — Protector Health
+Protector Health is a lab unlocked through Milestones at tier 9 wave 20. Each level lowers the health of protector enemies on all waves, making them easier to kill before they can shield other enemies. The lab has 30 levels, and the per-level values are listed in the cost table below.
+Show all 30 rows
+Description — Protector Radius
+Protector Radius is unlocked through Milestones at tier 9 wave 20, the same requirement as the other protector labs. Researching it shrinks the radius of protector enemies at all waves, which reduces the area their protection covers. It has 30 levels.
+Description — Protector Damage Reduction
+Protector Damage Reduction is also unlocked at tier 9 wave 20 in Milestones. Its levels cut the damage reduction that protector enemies have on all waves, so your damage dealers lose less output when hitting them. Unlike the other two protector labs, this one has 20 levels. The cost table below shows the values per level.
+Show all 20 rows
+Description
+Protector labs modify the stats of protector enemies while a round is running. One side effect worth knowing: once you start researching enemy-stat labs, the usual base ratios between enemy types stop holding true. For example, boss health is normally a fixed multiple of basic enemy health, but if you have researched basic health reduction, that multiple no longer applies. Keep this in mind when comparing enemy stats or planning around specific breakpoints.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-05-02) . Something out of date? Tell us in the Discord .

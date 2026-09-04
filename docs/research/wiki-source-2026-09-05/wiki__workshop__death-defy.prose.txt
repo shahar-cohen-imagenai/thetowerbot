@@ -1,0 +1,30 @@
+Death Defy is a Workshop upgrade that gives your tower a chance to survive a hit that would otherwise kill it. When lethal damage lands, the game rolls against your Death Defy chance, and if it succeeds the hit is ignored entirely.
+On this page
+Description
+Activation Priority
+Workshop
+Cost
+Description
+Death Defy gives your tower a flat chance to ignore any hit that would have destroyed it. Each point of chance is an independent roll whenever lethal damage is taken, so a higher percentage means more frequent saves over a run.
+Activation Priority
+Death Defy sits at the top of the death-prevention chain. When you take lethal damage, the game checks Death Defy first, and if it triggers nothing else needs to happen.
+If Death Defy fails or is unavailable, the remaining protections are checked in order: Energy Shield spends a charge to absorb any incoming damage, then Second Wind, then Demon Mode (with Smart Demon Mode Automation), and finally Nuke (with Smart Nuke Automation). Smart Nuke Automation does not clear projectiles already in flight, but since v27.3 (18 Dec, 2025) it also grants 15 seconds of invulnerability when it fires.
+Workshop
+Death Defy is bought in the Workshop for 1,500,000 coins once you have unlocked Land Mine Chance, Damage and Radius. It has 75 upgrade levels, each adding 0.4% chance, for a maximum of 30.00% at full investment.
+Cost
+The cost of each of the 75 levels is listed in the cost table below.
+Show all 75 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-01-20) . Something out of date? Tell us in the Discord .

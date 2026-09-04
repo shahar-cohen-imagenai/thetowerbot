@@ -1,0 +1,48 @@
+Damage is the amount each of your tower's projectiles deals to enemies. It also feeds into other abilities: land mines and Ultimate Weapons are calculated from it, so raising your damage stat improves far more than just your bullets.
+You increase damage through the workshop, cards, relics, Modules, Workshop Enhancements and lab research, all of which combine in the damage formula.
+On this page
+Description
+Workshop
+Damage Formula
+Workshop Costs
+Damage
+Cards — Berserker
+Cards
+Labs — Damage Research
+Description
+Damage is the amount each projectile deals to enemies. It is the base stat used to calculate not only your tower's bullets but also other abilities such as land mines and Ultimate Weapons.
+Workshop
+Damage is available in the workshop from the start of the game and can be raised up to a maximum of 6000 levels. On top of workshop levels, you can push damage higher with cards, relics, Modules and Workshop Enhancements.
+Damage Formula
+To match the value shown in game, do not round at any step. The displayed damage is: Workshop x Lab x Damage Card x (1 + Relics) x (1 + Cannon Module %) x Enhancements x Perk 1 + Berserker 2.
+The Perk term is (1 + 0.15 x Quantity) x (1 + Standard Perk Bonus), again without rounding. Berserker's contribution caps at +700% damage once all other bonuses in the formula are accounted for.
+Workshop Costs
+The full level-by-level cost table for workshop damage is shown below.
+Show all 61 rows
+Damage
+The damage enhancement is unlocked for free once you research Workshop Enhancements. It starts at 1x and gains 0.01x per level, with a maximum of 400 levels for a total of x5. The cost table below lists the per-level costs.
+Show all 41 rows
+Cards — Berserker
+The Berserker card is an epic card that works as an addition, not a multiplier. It stores the total damage you take, without any reductions, multiplies that stored amount by a percentage based on card level, and adds the result to your total damage. The bonus is limited to +700%, or 8x your base damage.
+Because the bonus is added rather than multiplied, raising your base damage can push you below the cap. For example, if you take 1,000,000 damage with a 1% Berserker, the stored bonus is 10,000. If your tower damage after multipliers is 1,000, the cap is 7,000, so only 7,000 is added and the remaining 3,000 goes unused.
+Cards
+Three cards modify damage: Damage, Berserker and Super Tower. Card multipliers stack multiplicatively with other multipliers, including other cards. Damage and Berserker change the displayed workshop value, which means they also increase Ultimate Weapon damage. Super Tower instead modifies bullet damage on hit, so it does not change the workshop value and does not boost Ultimate Weapons. Card masteries add further ways to raise tower damage, and cards like UW Crit and Crit Chance can increase Ultimate Weapon damage.
+Labs — Damage Research
+The damage lab is unlocked through Milestones at tier 1. It increases the increment each workshop level gives and raises the workshop's maximum value.
+The Super Tower Bonus lab unlocks in Milestones at tier 8 wave 300 and increases the multiplier on the Super Tower card. It has 30 levels. The tables below show the per-level values for both labs.
+Show all 100 rows
+Show all 30 rows
+Related pages
+Amplify Bot
+Attack Speed
+Attack Upgrades
+Black Hole
+Boss Labs
+Bot Bot
+Bounce Shot
+Buy multiplier
+Card Presets
+Cards
+Cash Bonus
+Cash Per Wave
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-18) . Something out of date? Tell us in the Discord .

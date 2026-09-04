@@ -1,0 +1,57 @@
+The Tower is the blue hexagon sitting at the centre of your screen, and it is the thing every system in the game exists to support. It fights through waves of enemies, and your goal is to carry it as far as possible, whether that means reaching a higher tier or placing well in a tournament.
+To do that, you strengthen the tower in several different ways: upgrading its core stats like damage and defence, buying Ultimate Weapons, and picking up Perks. Each of these systems feeds into the others, so understanding how they fit together is the foundation of progressing in the game.
+On this page
+Description
+Upgrading The Tower
+Workshop Upgrades
+Lab Upgrades
+Cards
+Ultimate Weapons
+Perks
+Lab: Super Tower Bonus
+Description
+The Tower is the blue hexagon in the middle of the screen, and it is the unit everything else revolves around. It has to survive and clear waves of enemies, and how far it gets determines your progress, whether you are climbing tiers or competing for a tournament ranking.
+The tower grows stronger through several distinct systems rather than a single upgrade path. You can raise its combat stats such as damage and defence, purchase Ultimate Weapons, and gain Perks, and each of these is covered in its own section below.
+Upgrading The Tower
+Upgrading your tower is what lets you push deeper into tiers and climb higher in rankings. A run only goes as far as your tower's stats allow, so investing in its strength is not optional if you want better results.
+That investment is split across multiple systems. Some upgrades are bought in the workshop, others are researched in the lab, and further power comes from cards, Ultimate Weapons and Perks. The sections that follow explain what each one does.
+Workshop Upgrades
+Workshop Upgrades are bought in the workshop, and they mirror the upgrades you can purchase during a run itself. Each workshop upgrade raises the minimum level of the corresponding in-run upgrade, so your tower starts every run from a stronger baseline instead of from zero.
+This means the workshop is where your long-term, persistent power comes from. The higher your workshop levels, the less ground you need to make up with in-run purchases before your tower becomes effective.
+Lab Upgrades
+Lab Upgrades are researched in the lab rather than bought in the workshop. They work alongside workshop upgrades in two ways: some improve the scaling of a workshop upgrade, such as how much value each level of Damage gives you, while others raise the maximum of an upgrade, such as increasing the cap on Max Interest.
+Because of this, the lab does not replace the workshop but multiplies its value. A workshop upgrade with strong lab research behind it performs far better than the same upgrade researched on its own.
+Cards
+Cards are items you obtain with Gems, and each one gives your tower an additional boost on top of its regular upgrades. You cannot equip all of them at once, though: the number you can bring into a run is limited by your maximum card slots.
+Cards also differ in how flexible they are during a run. Some are locked in once equipped and cannot be swapped out mid-run, while others can be changed freely, so it is worth knowing which is which before you commit to a setup.
+Ultimate Weapons
+Ultimate Weapons are powerful additions to your tower that you buy with Power Stones. Despite the name, they are not all strictly weapons: each one grants a distinct advantage, such as generating extra cash or firing missiles at your enemies.
+Because they cost Power Stones rather than coins or gems, they sit on their own progression track and are typically a longer-term investment than standard upgrades.
+Perks
+Perks are another source of extra advantages for your tower, but they are earned through play rather than bought. You receive one every 200 rounds during a run.
+Before perks can appear at all, they have to be researched in the lab first, so unlocking them is a lab priority if you want access to this steady stream of bonuses on longer runs.
+Lab: Super Tower Bonus
+Super Tower Bonus is a lab upgrade that becomes available through Milestones once you reach tier 8 wave 300. It raises the multiplier on the Super Tower card, making that card noticeably stronger once the research is underway.
+The lab has 30 levels in total, so it is a long research project rather than a quick unlock. The per-level values are listed in the table below.
+Level Time Cost Value
+1 0d 4h 59m 2.00B 1.03
+2 0d 13h 21m 3.01B 1.06
+3 0d 21h 53m 4.07B 1.09
+4 1d 6h 54m 5.33B 1.12
+5 1d 16h 49m 6.97B 1.15
+6 2d 4h 6m 9.26B 1.18
+7 2d 17h 17m 12.53B 1.21
+8 3d 8h 58m 17.13B 1.24
+9 4d 3h 49m 23.51B 1.27
+10 5d 2h 31m 32.14B 1.30
+Show all 30 rows
+Related pages
+Cards
+Gems
+Enemies
+Lab Upgrades
+Perks
+Tiers
+Ultimate Weapons
+Workshop Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-18) . Something out of date? Tell us in the Discord .

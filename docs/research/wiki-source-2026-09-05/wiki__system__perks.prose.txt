@@ -1,0 +1,84 @@
+Perks are temporary advantages you earn during a round. They are one of the main ways your tower grows stronger as a run progresses, offering bonuses to damage, health, coins, game speed, and more. Some perks come with trade-offs, while others can unlock entirely new ultimate weapons mid-run.
+On this page
+Description
+Unlocking Perks
+Waves Required
+Perk Choice
+Standard Perk Math
+List of Perks
+Standard Perks
+Ultimate Weapon Perks
+Random ultimate weapon stats
+Trade-off Perks
+Perk Labs — Unlock Perks
+Perk Labs — Waves Required
+Perk Labs — Standard Perk Bonus
+Perk Labs — First Perk Choice
+Perk Labs — Improve Trade-Off Perks
+Perk Labs — Auto Perk Pick
+Perk Labs — Perk Option Quantity
+Perk Labs — Ban Perks
+Perk Labs — Auto Pick Ranking
+Perk Labs
+Description
+Perks are advantages earned during a round. They provide bonuses that last for the rest of that run and are lost when the round ends.
+Unlocking Perks
+Before you can earn perks, you need to unlock them through the lab system. The first step is completing the Unlock Perks lab, which becomes available in Milestones at tier 2 wave 150. Once that lab is finished, perks will start appearing during your rounds.
+Waves Required
+Your first perk becomes available at wave 200. The wave requirement increases as you pick more perks: after selecting 20 perks the base rises to 250, after 30 perks it goes to 300, and after 40 perks it reaches 350.
+You can lower the base requirement by upgrading the Waves Required lab and by picking the Perk Wave Requirement perk during a run. The formula for calculating the first perk at each base wave count is:
+Waves Required = (Base Waves Required - Waves Required lab) × (1 - (Perk Wave Required Perk × (1 + Standard Perk Bonus / 100)))
+If the result is a decimal, round down. You can then multiply that rounded number by the number of perks to find later thresholds. For example, with 8% Standard Perk Bonus and 3 PWR lab levels giving 64.8% reduction: (200 - 3) × (1 - 0.648) = 69.344, which rounds down to 69 waves required.
+Perk Choice
+When a perk is offered, you initially choose between 2 randomly generated options. The Perk Option Quantity lab can raise this to a maximum of 4 choices. It is possible for every option in a set to be a trade-off perk, even when other perk types are still available.
+The First Perk Choice lab lets you guarantee a specific standard perk appears as the top option in your first set of choices each round. When Auto Pick Perk is active, it always selects the top option from the list, which means it will pick your First Perk Choice if one is set.
+Standard Perk Math
+Most standard perks can be picked multiple times in a single round. The game uses two different formulas depending on whether the perk is additive or multiplicative.
+For additive perks (such as Def % and Perk Wave Required): Total Bonus = Base Value × Quantity × (1 + Standard Perk Bonus)
+For multiplicative perks (such as Coin Bonus, Health, and Damage): Total Bonus = (1 + Base Value × Quantity) × (1 + Standard Perk Bonus)
+List of Perks
+There are three categories of perks. Standard perks have a 65% chance of appearing, ultimate weapon perks have a 20% chance, and trade-off perks have a 15% chance.
+Standard Perks
+Standard perks are the most common type. The Bounce Shot perk will not appear unless you have already unlocked Bounce Shot. The strength of standard perks can be increased through the Standard Perk Bonus lab.
+When the Standard Perk Bonus lab is maxed, the Game Speed perk increases to 1.25, bringing the maximum game speed to 6.25. The game displays this as 6.3 because game speed visually rounds to the tenths place.
+Show all 15 rows
+Ultimate Weapon Perks
+Ultimate weapon perks only appear if you have the corresponding ultimate weapon unlocked. If you unlock an ultimate weapon mid-run through the random ultimate weapon perk, its related perks become available for the rest of that run.
+The Golden Tower Bonus perk does not apply to the GT bonus submodule effect.
+Random ultimate weapon stats
+When you pick the random ultimate weapon perk, the game selects one ultimate weapon you do not currently own and gives you a semi-upgraded version for the rest of the run. Unlocking a weapon this way does not let you research labs for that weapon. For example, getting Poison Swamp from this perk will not let you research Swamp Stun or Swamp Radius.
+Module sub-stats that apply to the chosen weapon will still affect it. For instance, a +damage multiplier ILM sub-stat will increase the weapon's multiplier by the listed amount. Once you own every ultimate weapon, this perk is removed from the perk pool.
+Trade-off Perks
+Trade-off perks give a strong benefit at the cost of a penalty. The benefit side can be increased by upgrading the Improve Trade-off Perks lab. This lab does not affect the ranged enemy distance perk.
+Perk Labs — Unlock Perks
+This is the entry point for the entire perk system. It has 1 level and unlocks access to perks during rounds. Completing it also opens up all other perk-related labs.
+Perk Labs — Waves Required
+Available after finishing Unlock Perks. This lab reduces the base number of waves needed before your next perk is offered. It has 100 levels. See the Waves Required section above for the full calculation.
+Show all 100 rows
+Perk Labs — Standard Perk Bonus
+Available after finishing Unlock Perks. This lab adds a multiplier that increases the strength of all standard perks. The bonus is applied differently depending on whether the perk is additive or multiplicative.
+Multiplicative: (1 + perk base × quantity) × (1 + standard perk bonus) Additive: perk base × quantity × (1 + standard perk bonus)
+Show all 25 rows
+Perk Labs — First Perk Choice
+Unlocked in Milestones at tier 2 wave 250 after completing Unlock Perks. This lab lets you pick a standard perk that is guaranteed to appear as the top option in your first perk selection each round. You can only set this outside of a run, from the top right corner of the home screen. It has 1 level.
+Perk Labs — Improve Trade-Off Perks
+Unlocked in Milestones at tier 2 wave 400 after completing Unlock Perks. This lab adds a multiplier that improves the benefit portion of trade-off perks. It does not improve the ranged enemy distance trade-off. It has 10 levels.
+Perk Labs — Auto Perk Pick
+Unlocked in Milestones at tier 4 wave 50 after completing Unlock Perks. This is a toggleable ability that automatically selects the first available perk when a new set is offered. You can toggle it during a run by tapping the perk bar at the top of the screen. If none of the offered perks are in your auto pick ranking, the first perk in the list is chosen. It has 1 level.
+Perk Labs — Perk Option Quantity
+Unlocked in Milestones at tier 4 wave 80 after completing Unlock Perks. Each level of this lab increases the number of perk choices you see when a new set is offered. It has 2 levels, bringing the maximum to 4 options at a time.
+Perk Labs — Ban Perks
+Unlocked in Milestones at tier 5 wave 40 after completing Unlock Perks. This lab lets you ban specific perks from appearing during your rounds. Bans are set from the home screen while you are not in a run. It has 8 levels.
+Perk Labs — Auto Pick Ranking
+Unlocked in Milestones at tier 6 wave 10 after completing Auto Pick Perks. This lab lets you set a priority order for which perks Auto Pick Perks will select. Each lab level allows you to rank one additional perk. It has 32 levels.
+Auto Pick Ranking takes priority over First Perk Choice. For example, if your first choice is Perk Wave Required but Golden Tower is ranked higher in your auto pick ranking and both appear in the first set, Golden Tower will be picked instead.
+Show all 32 rows
+Perk Labs
+Perk labs control every aspect of the perk system, from unlocking perks in the first place to improving their strength, increasing your choices, automating picks, and banning unwanted options. Investing in these labs is essential for getting the most out of perks during your runs.
+Related pages
+Bounce Shot
+Lab Upgrades
+Milestones
+Perk Labs
+Ultimate Weapons
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-16) . Something out of date? Tell us in the Discord .

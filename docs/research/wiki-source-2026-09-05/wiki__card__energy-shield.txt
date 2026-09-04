@@ -1,0 +1,29 @@
+Energy Shield is a defensive card that gives your tower a shield able to completely ignore a single attack. Once the shield absorbs a hit, it goes down and begins recharging, coming back after a set number of minutes that shortens as you upgrade the card.
+Because it negates an entire hit rather than reducing damage, it stays relevant at every stage of the game, and it sits within a wider chain of death-prevention effects that decide which ability saves you first.
+On this page
+Description
+Use
+Energy Shield Extra Hit
+Description
+Energy Shield creates a shield around your tower that ignores one attack entirely, no matter how much damage that attack would have dealt. After absorbing a hit, the shield is consumed and recharges over time, with the recharge period shrinking at higher card levels — from 20 minutes at the base level down to 8 minutes when maxed.
+Use
+The recharge runs on game time, not on waves. Wave Skip does not adjust the timer when it skips a level, and Wave Accelerator shortens the game time between waves, so more waves pass during each recharge. Raising Game Speed makes the shield recharge faster in real time, but it does not change how many waves elapse per recharge. Even at maximum level, each recharge spans more than 10 waves, so treat the shield as an occasional save rather than constant protection.
+Energy Shield is one of several effects that can prevent death, and they resolve in a set order. If lethal damage would be taken, Death Defy may activate first. If it does not, and any damage would be taken, Energy Shield spends a charge instead. If lethal damage would be taken and no higher-priority protection is available, Second Wind activates, followed by Demon Mode with Smart Demon Mode Automation, and finally Nuke with Smart Nuke Automation. Smart Nuke does not destroy projectiles already in flight, but as of v27.3 (18 Dec, 2025) it also grants 15 seconds of invulnerability.
+Energy Shield Extra Hit
+Energy Shield Extra Hit is a lab unlocked through Milestones at tier 4 wave 300, and it has 2 levels. Each extra hit adds another charge to the shield, letting it absorb multiple attacks before running dry.
+Charges recover one at a time. If you have lost 2 or more charges, the next charge cannot start recharging until the previous one is fully restored. A charge becomes active as soon as it is ready, even while other charges are still recovering. The per-level details are listed in the table below.
+Level Time Cost Value
+1 11d 13h 46m 40,000,000,000 1
+2 32d 9h 46m 850,000,000,000 2
+Related pages
+Death Defy
+Demon Mode
+Game Speed
+Lab Upgrades
+Milestones
+Nuke
+Second Wind
+The Vault
+Wave Accelerator
+Wave Skip
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-01) . Something out of date? Tell us in the Discord .

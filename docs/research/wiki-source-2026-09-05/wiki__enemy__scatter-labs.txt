@@ -1,0 +1,41 @@
+Scatter Labs are a set of lab researches that target Scatter enemies, one of the enemy types you face during rounds. By investing in these labs, you can directly reduce how hard Scatters hit, lower how much health they have, and make your Chain Lightning progressively stronger against them.
+On this page
+Description — Scatter Enemy Attack
+Description — Scatter Enemy Health
+Description — Lightning Amplifier - Scatter
+Description
+Description — Scatter Enemy Attack
+This lab becomes available once you reach Tier 19 Wave 60. Each level researched reduces the attack stat of Scatter enemies by a percentage, so they deal less damage to your tower. The lab has 30 levels in total; the per-level values are listed in the cost table below.
+Level Time Cost(Q) Value
+1 10d 19h 11m 0.25 -0.40%
+2 21d 14h 22m 0.50 -0.80%
+3 32d 9h 33m 0.75 -1.20%
+4 43d 4h 45m 1.00 -1.60%
+5 53d 23h 56m 1.25 -2.00%
+6 64d 19h 7m 1.50 -2.40%
+7 75d 14h 19m 1.75 -2.80%
+8 86d 9h 30m 2.00 -3.20%
+9 97d 4h 41m 2.25 -3.60%
+10 107d 23h 53m 2.50 -4.00%
+Show all 30 rows
+Description — Scatter Enemy Health
+Unlocked at Tier 19 Wave 60, this lab cuts the health of Scatter enemies by a percentage per level, letting you kill them faster. It has 30 levels to research.
+Description — Lightning Amplifier - Scatter
+You unlock this lab through Milestones at Tier 16 Wave 60. It increases the damage Chain Lightning deals to Scatter enemies with each consecutive hit on them. The bonus is additive, meaning every extra hit adds its value on top of the original damage from the first hit rather than multiplying it. See the table below for the values per level.
+level Time Cost Value
+1 8d 8h 0m 100.00B x1.25
+2 9d 8h 0m 150.00B x2.5
+3 10d 10h 52m 225.00B x3.75
+4 11d 16h 59m 337.50B x5
+5 13d 2h 42m 506.25B x6.25
+6 14d 16h 28m 759.38B x7.5
+7 16d 10h 45m 1.14T x8.75
+8 18d 10h 8m 1.71T x10
+9 20d 15h 11m 2.56T x11.25
+10 23d 2h 36m 3.84T x12.5
+Show all 30 rows
+Description
+Scatter labs change how Scatter enemies behave and interact with your defences during rounds. One side effect to be aware of: once you start researching enemy stat labs, the usual base relationships between enemy types stop holding true. For example, a Boss will no longer always have exactly 20 times the health of a Basic if you have researched Basic health reduction.
+Related pages
+Enemies
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

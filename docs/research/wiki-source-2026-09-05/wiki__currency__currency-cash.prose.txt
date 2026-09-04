@@ -1,0 +1,43 @@
+Cash is the currency you spend inside a run on temporary upgrades. Unlike Coins, it resets between runs, so everything you earn and spend only matters for the attempt you're currently playing.
+On this page
+Cash
+Earning Cash
+Cash Flow + How to Improve it
+Cash per Wave
+Interest
+Improving Cash Flow
+Cash Bonus
+Cash
+Cash is the in-run currency used to buy temporary upgrades while a run is active. It doesn't carry over between runs — you earn it, spend it, and start fresh next time.
+Earning Cash
+You earn Cash during a run from several sources: defeating enemies, completing waves, the Cash / Wave upgrade, and Interest as a form of passive income.
+Each enemy has a base value of $1. That value rises by $1 every 10 waves up to wave 200, then the growth slows to $1 every 20 waves. The table below shows how enemy value scales.
+Enemy Value Breakdown
+Show all 16 rows
+Cash Flow + How to Improve it
+At the end of every wave, two systems pay out Cash automatically: Cash per Wave and Interest. Understanding how they interact is key to keeping your upgrades funded in longer runs.
+Cash per Wave
+Cash per Wave is a flat payout you receive automatically when a wave ends. It scales with your upgrades and how far you've progressed, and it's always applied first at the end of a wave — before Interest is calculated.
+Interest
+Interest pays you a percentage of the Cash you're currently holding, rewarding you for keeping unspent Cash on hand. There's a cap on how much Interest you can gain per wave, so hoarding past that point earns you nothing extra.
+Because Cash per Wave is added before Interest is worked out, the flat payout can push your balance up into a higher Interest payout if you were sitting below the cap.
+Improving Cash Flow
+How much Cash you have depends heavily on how deep into a run you get, so investing in Cash Flow early pays off later. You can improve it through:
+- Cash Bonus upgrades (Workshop and Lab) - Cash / Wave upgrades (Workshop and Lab) - Interest / Wave upgrades (Workshop and Lab) - Max Interest upgrades (Lab) - The Cash card (Cards) - The Enemy Balance card (Cards) - Golden Tower (Ultimate Weapon) - Cash Bonus or Cash/Wave sub-module effects (modules)
+Cash Bonus
+The Cash Bonus enhancement unlocks for free once you complete the Workshop Enhancement Labs. Unlocking it raises your Cash Bonus multiplier by x1, and each level after that adds 0.01x. The enhancement also boosts Cash per Wave, Interest percentage, and Max Interest per wave by 1% per upgrade. It caps at level 400, giving a 5x bonus — see the level table below for the full progression.
+Show all 41 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Cards
+Cash Bonus
+Cash Per Wave
+Critical Hits
+Currency
+Damage
+Damage Per Meter
+Defense Absolute
+Defense Upgrades
+Enemy Balance
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-08) . Something out of date? Tell us in the Discord .

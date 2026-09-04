@@ -1,0 +1,10 @@
+Extra Orb is a rare card in The Tower: Idle Tower Defense. It adds another orbiting orb to your defence, giving you an extra way to kill enemies before they reach your tower.
+Extra Orb
+When equipped, Extra Orb gives you a spinning orb that destroys enemies on contact. Bosses are the exception — the orb does not destroy them, so it will not carry you through boss waves on its own.
+The card's listed speed value determines how fast the orb spins. Check the table below for the exact values at each level.
+Extra Orb value per card level
+Card Mastery
+Unlocking the Extra Orb card mastery costs 750 stones. Once unlocked, it grants an orb coin bonus, increasing the coins you earn through your orbs.
+The bonus is only active while Extra Orb is equipped in your active loadout, so you need to keep the card slotted to benefit from it.
+Extra Orb mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

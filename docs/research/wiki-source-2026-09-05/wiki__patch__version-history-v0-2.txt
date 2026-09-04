@@ -1,0 +1,48 @@
+Version 0.2 introduced tournaments, a twice-weekly competition where groups of 30 players race for the highest wave over 24 hours to earn ranked prizes. The update also added three new cards—Death Ray, Plasma Cannon, and Energy Net—along with a Buy Multiplier lab research. Players benefited from a long list of fixes covering lab timers, orb upgrades, coin calculations, and pause-related freezes, plus small quality-of-life touches like upgrade descriptions in the workshop and harder higher tiers.
+Change list
+Reproduced from the developer's release notes.
+Tournaments: Compete with groups of 30 other players every Wednesday and Saturday (UTC Time) to see who can achieve the highest wave in 24 hours. Earn prizes based on your ranking. First tournament is 8/11 (Wednesday)
+New Epic Card: Death Ray
+Lab timer shows correct number of days for research to complete now
+New Lab Research - Buy Multiplier
+Tournament bug fixes - such as the tournament button not working before tournament is active
+Lab unlock prices corrected
+Notification for tournament start time
+Defense (rel) and Defense(abs) renamed for clarity
+New Rare Card: Plasma Cannon - Fires at a boss dealing a percent of it's max health in damage. First card that locks in for a round and can only be changed outside of a round
+Fixed bug where a block hugs the tower and becomes untargetable
+New Epic Card: Energy Net - Shoots a net at bosses stunning them for x number of seconds
+Tournament leaderboard can be accessed from a normal round now to check standings
+Tournament button during gameplay is now in top right similar to other panels
+Death ray not stopping sometimes fixed
+Range card not activating instantly when slotted in mid round
+Icons sorted better in top left corner of home page
+Issues around pausing the game causing freezes and orbs to act funky fixed
+Panels can be closed by tapping outside of them
+Added animations to some panels
+Other bugs squashed
+Upgrading orbs from 3 to 4 sometimes not working
+Coins calculation for coins/wave being incorrect sometimes
+Slight tier difficulty balancing (harder for higher tiers)
+Lab timers for days and hours fixed
+Enemies killed by orbs and death ray now display correct cash for the kill
+Platinum tournament tier raised from 6 to 7
+Description for upgrades shown when first unlocking them in the workshop
+Tapping the name of any upgrade in the upgrade or workshop panels now shows the description for the upgrade
+Lab research for attack upgrades in the workshop effecting some defense ones fixed
+Epic pack title in the pop up fixed
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

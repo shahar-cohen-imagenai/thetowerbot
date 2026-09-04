@@ -1,0 +1,4130 @@
+[
+  {
+    "id": "cards.damage",
+    "name": "Damage",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.attack-speed",
+    "name": "Attack Speed",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.health",
+    "name": "Health",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.health-regen",
+    "name": "Health Regen",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.range",
+    "name": "Range",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.cash",
+    "name": "Cash",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.coins",
+    "name": "Coins",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.slow-aura",
+    "name": "Slow Aura",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.critical-chance",
+    "name": "Critical Chance",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.enemy-balance",
+    "name": "Enemy Balance",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.extra-defense",
+    "name": "Extra Defense",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.fortress",
+    "name": "Fortress",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.free-upgrades",
+    "name": "Free Upgrades",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.extra-orb",
+    "name": "Extra Orb",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.plasma-canon",
+    "name": "Plasma Canon",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.critical-coin",
+    "name": "Critical Coin",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.wave-skip",
+    "name": "Wave Skip",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.intro-sprint",
+    "name": "Intro Sprint",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.land-mine-stun",
+    "name": "Land Mine Stun",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.recovery-package-chance",
+    "name": "Recovery Package Chance",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.death-ray",
+    "name": "Death Ray",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.energy-net",
+    "name": "Energy Net",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.super-tower",
+    "name": "Super Tower",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.second-wind",
+    "name": "Second Wind",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.demon-mode",
+    "name": "Demon Mode",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.energy-shield",
+    "name": "Energy Shield",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.wave-accelerator",
+    "name": "Wave Accelerator",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.berserker",
+    "name": "Berserker",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.ultimate-crit",
+    "name": "Ultimate Crit",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.nuke",
+    "name": "Nuke",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "cards.area-of-effect",
+    "name": "Area of Effect",
+    "domain": "cards",
+    "kind": "card",
+    "source_url": "https://www.tower-hub.com/wiki/card/cards",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.damage-mastery",
+    "name": "Damage Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.attack-speed-mastery",
+    "name": "Attack Speed Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.health-mastery",
+    "name": "Health Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.health-regen-mastery",
+    "name": "Health Regen Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.range-mastery",
+    "name": "Range Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.cash-mastery",
+    "name": "Cash Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.coins-mastery",
+    "name": "Coins Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.slow-aura-mastery",
+    "name": "Slow Aura Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.critical-chance-mastery",
+    "name": "Critical Chance Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.enemy-balance-mastery",
+    "name": "Enemy Balance Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.extra-defense-mastery",
+    "name": "Extra Defense Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.fortress-mastery",
+    "name": "Fortress Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.free-upgrades-mastery",
+    "name": "Free Upgrades Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.extra-orb-mastery",
+    "name": "Extra Orb Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.plasma-cannon-mastery",
+    "name": "Plasma Cannon Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.critical-coin-mastery",
+    "name": "Critical Coin Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.wave-skip-mastery",
+    "name": "Wave Skip Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.intro-sprint-mastery",
+    "name": "Intro Sprint Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.land-mine-stun-mastery",
+    "name": "Land Mine Stun Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.package-chance-mastery",
+    "name": "Package Chance Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.death-ray-mastery",
+    "name": "Death Ray Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.energy-net-mastery",
+    "name": "Energy Net Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.super-tower-mastery",
+    "name": "Super Tower Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.second-wind-mastery",
+    "name": "Second Wind Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.demon-mode-mastery",
+    "name": "Demon Mode Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.energy-shield-mastery",
+    "name": "Energy Shield Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.wave-accelerator-mastery",
+    "name": "Wave Accelerator Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.berserker-mastery",
+    "name": "Berserker Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.ultimate-crit-mastery",
+    "name": "Ultimate Crit Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.nuke-mastery",
+    "name": "Nuke Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "mastery.area-of-effect-mastery",
+    "name": "Area of Effect Mastery",
+    "domain": "mastery",
+    "kind": "card-mastery",
+    "source_url": "https://www.tower-hub.com/wiki/card/card-masteries",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.astral-deliverance",
+    "name": "Astral Deliverance",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.being-annihilator",
+    "name": "Being Annihilator",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.death-penalty",
+    "name": "Death Penalty",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.havoc-bringer",
+    "name": "Havoc Bringer",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.shrink-ray",
+    "name": "Shrink Ray",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.amplifying-strike",
+    "name": "Amplifying Strike",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.anti-cube-portal",
+    "name": "Anti-Cube Portal",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.negative-mass-projector",
+    "name": "Negative Mass Projector",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.wormhole-redirector",
+    "name": "Wormhole Redirector",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.space-displacer",
+    "name": "Space Displacer",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.sharp-fortitude",
+    "name": "Sharp Fortitude",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.orbital-augment",
+    "name": "Orbital Augment",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.singularity-harness",
+    "name": "Singularity Harness",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.galaxy-compressor",
+    "name": "Galaxy Compressor",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.pulsar-harvester",
+    "name": "Pulsar Harvester",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.black-hole-digestor",
+    "name": "Black Hole Digestor",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.project-funding",
+    "name": "Project Funding",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.restorative-bonus",
+    "name": "Restorative Bonus",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.om-chip",
+    "name": "Om Chip",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.harmony-conductor",
+    "name": "Harmony Conductor",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.dimension-core",
+    "name": "Dimension Core",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.multiverse-nexus",
+    "name": "Multiverse Nexus",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.magnetic-hook",
+    "name": "Magnetic Hook",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "modules.primordial-collapse",
+    "name": "Primordial Collapse",
+    "domain": "modules",
+    "kind": "unique-module",
+    "source_url": "https://www.tower-hub.com/wiki/module/epic-module-unique-effect",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.attack-speed",
+    "name": "Attack Speed",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.crit-chance",
+    "name": "Crit Chance [%]",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.crit-factor",
+    "name": "Crit Factor",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.attack-range-m",
+    "name": "Attack Range [m]",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.damage-meter-m",
+    "name": "Damage / Meter [m]",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.multishot-chance",
+    "name": "Multishot Chance [%]",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.multishot-targets",
+    "name": "Multishot Targets",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.rapid-fire-chance",
+    "name": "Rapid Fire Chance [%]",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.rapid-fire-duration",
+    "name": "Rapid Fire Duration",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.bounce-shot-chance",
+    "name": "Bounce Shot Chance",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.bounce-shot-targets",
+    "name": "Bounce Shot Targets",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.bounce-shot-range",
+    "name": "Bounce Shot Range",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.super-crit-chance",
+    "name": "Super Crit Chance",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.super-crit-multi",
+    "name": "Super Crit Multi",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.rend-armor-chance",
+    "name": "Rend Armor Chance",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.rend-armor-multi",
+    "name": "Rend Armor Multi",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "cannon-substats.max-rend-armor-multi",
+    "name": "Max Rend Armor Multi",
+    "domain": "cannon-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.health-regen",
+    "name": "Health Regen [%]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.defense",
+    "name": "Defense [%]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.defense-absolute",
+    "name": "Defense Absolute [%]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.thorns-damage",
+    "name": "Thorns Damage",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.lifesteal",
+    "name": "Lifesteal [%]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.knockback-chance",
+    "name": "Knockback Chance [%]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.knockback-force",
+    "name": "Knockback Force",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.orb-speed",
+    "name": "Orb Speed",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.orbs",
+    "name": "Orbs",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.shockwave-size",
+    "name": "Shockwave Size",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.shockwave-frequency-s",
+    "name": "Shockwave Frequency [s]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.land-mine-damage",
+    "name": "Land Mine Damage [%]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.land-mine-chance",
+    "name": "Land Mine Chance [%]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.land-mine-radius",
+    "name": "Land Mine Radius",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.death-defy",
+    "name": "Death Defy",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.wall-health",
+    "name": "Wall Health [%]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "armor-substats.wall-rebuild-s",
+    "name": "Wall Rebuild [s]",
+    "domain": "armor-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.cash-bonus",
+    "name": "Cash Bonus",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.cash-wave",
+    "name": "Cash / Wave",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.coins-kill-bonus",
+    "name": "Coins / Kill Bonus",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.coins-wave",
+    "name": "Coins / Wave",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.free-attack-upgrade",
+    "name": "Free Attack Upgrade [%]",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.free-defense-upgrade",
+    "name": "Free Defense Upgrade [%]",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.free-utility-upgrade",
+    "name": "Free Utility Upgrade [%]",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.interest-wave",
+    "name": "Interest / Wave [%]",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.recovery-amount",
+    "name": "Recovery Amount  [%]",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.max-recovery",
+    "name": "Max Recovery",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.package-chance",
+    "name": "Package Chance [%]",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.enemy-attack-level-skip",
+    "name": "Enemy Attack Level Skip [%]",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "generator-substats.enemy-health-level-skip",
+    "name": "Enemy Health Level Skip [%]",
+    "domain": "generator-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.golden-tower-bonus",
+    "name": "Golden Tower - Bonus",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.golden-tower-duration-s",
+    "name": "Golden Tower - Duration [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.golden-tower-cooldown-s",
+    "name": "Golden Tower - Cooldown [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.black-hole-size-m",
+    "name": "Black Hole - Size [m]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.black-hole-duration-s",
+    "name": "Black Hole - Duration [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.black-hole-cooldown-s",
+    "name": "Black Hole - Cooldown [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.spotlight-bonus",
+    "name": "Spotlight - Bonus",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.spotlight-angle",
+    "name": "Spotlight - Angle*",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.chrono-field-duration-s",
+    "name": "Chrono Field - Duration [s]*",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.chrono-field-speed-reduction",
+    "name": "Chrono Field - Speed Reduction [%]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.chrono-field-cooldown-s",
+    "name": "Chrono Field - Cooldown [s]*",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.death-wave-damage-x",
+    "name": "Death Wave - Damage [x]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.death-wave-quantity",
+    "name": "Death Wave -  Quantity",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.death-wave-cooldown-s",
+    "name": "Death Wave - Cooldown [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.smart-missiles-damage",
+    "name": "Smart Missiles - Damage",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.smart-missiles-quantity",
+    "name": "Smart Missiles - Quantity",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.smart-missiles-cooldown-s",
+    "name": "Smart Missiles - Cooldown [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.inner-land-mines-damage-x",
+    "name": "Inner Land Mines - Damage [x]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.inner-land-mines-quantity",
+    "name": "Inner Land Mines - Quantity",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.inner-land-mines-cooldown-s",
+    "name": "Inner Land Mines - Cooldown [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.poison-swamp-damage-x",
+    "name": "Poison Swamp - Damage [x]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.poison-swamp-duration-s",
+    "name": "Poison Swamp - Duration [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.poison-swamp-cooldown-s",
+    "name": "Poison Swamp - Cooldown [s]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.chain-lightning-damage-x",
+    "name": "Chain Lightning - Damage [x]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.chain-lightning-quantity",
+    "name": "Chain Lightning - Quantity",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "core-substats.chain-lightning-chance",
+    "name": "Chain Lightning - Chance [%]",
+    "domain": "core-substats",
+    "kind": "module-substat",
+    "source_url": "https://www.tower-hub.com/wiki/module/sub-module-effects",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-damage",
+    "name": "Attack: Damage",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-attack-speed",
+    "name": "Attack: Attack Speed",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-critical-chance",
+    "name": "Attack: Critical Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-crit-factor",
+    "name": "Attack: Crit Factor",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-damage-meter",
+    "name": "Attack: Damage / Meter",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-multishot-chance",
+    "name": "Attack: Multishot Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-rapid-fire-chance",
+    "name": "Attack: Rapid Fire Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-bounce-shot-chance",
+    "name": "Attack: Bounce Shot Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-super-crit-chance",
+    "name": "Attack: Super Crit Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-super-crit-mult",
+    "name": "Attack: Super Crit Mult",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-rend-armor-chance",
+    "name": "Attack: Rend Armor Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.attack-rend-armor-mult",
+    "name": "Attack: Rend Armor Mult",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-health",
+    "name": "Defense: Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-health-regen",
+    "name": "Defense: Health Regen",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-defense",
+    "name": "Defense: Defense %",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-defense-absolute",
+    "name": "Defense: Defense Absolute",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-thorn-damage",
+    "name": "Defense: Thorn Damage",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-knockback-chance",
+    "name": "Defense: Knockback Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-knockback-force",
+    "name": "Defense: Knockback Force",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-orb-speed",
+    "name": "Defense: Orb Speed",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-orbs",
+    "name": "Defense: Orbs",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-shockwave-size",
+    "name": "Defense: Shockwave Size",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-shockwave-frequency",
+    "name": "Defense: Shockwave Frequency",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-death-defy",
+    "name": "Defense: Death Defy",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-wall-health",
+    "name": "Defense: Wall Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.defense-wall-rebuild",
+    "name": "Defense: Wall Rebuild",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-cash-bonus",
+    "name": "Utility: Cash Bonus",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-cash-wave",
+    "name": "Utility: Cash / Wave",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-coins-kill",
+    "name": "Utility: Coins / Kill",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-coins-wave",
+    "name": "Utility: Coins / Wave",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-free-attack-upgrade",
+    "name": "Utility: Free Attack Upgrade",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-free-defense-upgrade",
+    "name": "Utility: Free Defense Upgrade",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-free-utility-upgrade",
+    "name": "Utility: Free Utility Upgrade",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-interest-wave",
+    "name": "Utility: Interest / Wave",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-recovery-amount",
+    "name": "Utility: Recovery Amount",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-max-recovery",
+    "name": "Utility: Max Recovery",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-enemy-attack-skip",
+    "name": "Utility: Enemy Attack Skip",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.utility-enemy-health-skip",
+    "name": "Utility: Enemy Health Skip",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-ultimate-damage",
+    "name": "Ultimate Weapons: Ultimate Damage",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-chain-lightning-damage",
+    "name": "Ultimate Weapons: Chain Lightning Damage",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-smart-missile-damage",
+    "name": "Ultimate Weapons: Smart Missile Damage",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-death-wave-damage",
+    "name": "Ultimate Weapons: Death Wave Damage",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-inner-land-mine-damage",
+    "name": "Ultimate Weapons: Inner Land Mine Damage",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-golden-tower-bonus",
+    "name": "Ultimate Weapons: Golden Tower Bonus",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-swamp-damage",
+    "name": "Ultimate Weapons: Swamp Damage",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-spotlight-bonus",
+    "name": "Ultimate Weapons: Spotlight Bonus",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-black-hole-size",
+    "name": "Ultimate Weapons: Black Hole Size",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.gameplay-auto-restart-run",
+    "name": "Gameplay: Auto Restart Run",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.gameplay-ad-gem-stack",
+    "name": "Gameplay: Ad Gem Stack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.gameplay-damage-cap-slider",
+    "name": "Gameplay: Damage Cap Slider",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.gameplay-global-presets",
+    "name": "Gameplay: Global Presets",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-additional-card-slot",
+    "name": "Cards: Additional Card Slot",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-charge-berserker",
+    "name": "Cards: Charge Berserker",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-demon-mode-automation",
+    "name": "Cards: Demon Mode Automation",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-smart-demon-mode-automation",
+    "name": "Cards: Smart Demon Mode Automation",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-nuke-automation",
+    "name": "Cards: Nuke Automation",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-smart-nuke-automation",
+    "name": "Cards: Smart Nuke Automation",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-death-ray-toggle",
+    "name": "Cards: Death Ray Toggle",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-spawn-accelerator-toggle",
+    "name": "Cards: Spawn Accelerator Toggle",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-life-saving-ordering",
+    "name": "Cards: Life Saving Ordering",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.cards-energy-shield-restriction",
+    "name": "Cards: Energy Shield Restriction",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-missile-barrage-automation",
+    "name": "Ultimate Weapons: Missile Barrage Automation",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-smart-missile-barrage-automation",
+    "name": "Ultimate Weapons: Smart Missile Barrage Automation",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-black-hole-size-slider",
+    "name": "Ultimate Weapons: Black Hole Size Slider",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.ultimate-weapons-swamp-range-slider",
+    "name": "Ultimate Weapons: Swamp Range Slider",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.modules-auto-shatter-rare-modules",
+    "name": "Modules: Auto Shatter Rare Modules",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.modules-daily-mission-shard-type",
+    "name": "Modules: Daily Mission Shard Type",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.modules-free-mission-reroll",
+    "name": "Modules: Free Mission Reroll",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.modules-module-reroll-discount",
+    "name": "Modules: Module Reroll Discount",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.modules-module-presets",
+    "name": "Modules: Module Presets",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.bots-bot-respec-discount",
+    "name": "Bots: Bot Respec Discount",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.bots-bot-presets",
+    "name": "Bots: Bot Presets",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.bots-bot-range",
+    "name": "Bots: Bot Range",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.bots-bot-cooldown-sliders",
+    "name": "Bots: Bot Cooldown Sliders",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.workshop-workshop-respec-discount",
+    "name": "Workshop: Workshop Respec Discount",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.workshop-workshop-presets",
+    "name": "Workshop: Workshop Presets",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.workshop-enhancements-discount",
+    "name": "Workshop: Enhancements Discount",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.workshop-workshop-orb-adjuster",
+    "name": "Workshop: Workshop Orb Adjuster",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.guardian-guardian-respec-discount",
+    "name": "Guardian: Guardian Respec Discount",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.guardian-guardian-presets",
+    "name": "Guardian: Guardian Presets",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-basic-attack",
+    "name": "Simple: Basic Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-basic-health",
+    "name": "Simple: Basic Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-basic-coin-bonus",
+    "name": "Simple: Basic Coin Bonus",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-fast-attack",
+    "name": "Simple: Fast Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-fast-health",
+    "name": "Simple: Fast Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-fast-speed",
+    "name": "Simple: Fast Speed",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-tank-attack",
+    "name": "Simple: Tank Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-tank-health",
+    "name": "Simple: Tank Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.simple-tank-mass",
+    "name": "Simple: Tank Mass",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-boss-attack",
+    "name": "Advanced: Boss Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-boss-health",
+    "name": "Advanced: Boss Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-boss-common-drop-chance",
+    "name": "Advanced: Boss Common Drop Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-ranged-attack",
+    "name": "Advanced: Ranged Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-ranged-health",
+    "name": "Advanced: Ranged Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-ranged-attack-range",
+    "name": "Advanced: Ranged Attack Range",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-protector-attack",
+    "name": "Advanced: Protector Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-protector-health",
+    "name": "Advanced: Protector Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.advanced-protector-radius",
+    "name": "Advanced: Protector Radius",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-vampire-attack",
+    "name": "Elites: Vampire Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-vampire-health",
+    "name": "Elites: Vampire Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-vampire-attack-speed",
+    "name": "Elites: Vampire Attack Speed",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-scatter-attack",
+    "name": "Elites: Scatter Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-scatter-health",
+    "name": "Elites: Scatter Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-scatter-attack-speed",
+    "name": "Elites: Scatter Attack Speed",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-ray-attack",
+    "name": "Elites: Ray Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-ray-health",
+    "name": "Elites: Ray Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.elites-ray-attack-speed",
+    "name": "Elites: Ray Attack Speed",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-saboteur-attack-speed",
+    "name": "Fleets: Saboteur Attack Speed",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-saboteur-health",
+    "name": "Fleets: Saboteur Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-saboteur-miss-chance",
+    "name": "Fleets: Saboteur Miss Chance",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-commander-pulse-effect",
+    "name": "Fleets: Commander Pulse Effect",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-commander-health",
+    "name": "Fleets: Commander Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-commander-pulse-speed",
+    "name": "Fleets: Commander Pulse Speed",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-overcharge-attack",
+    "name": "Fleets: Overcharge Attack",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-overcharge-health",
+    "name": "Fleets: Overcharge Health",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "vault.fleets-overcharge-attack-exponent",
+    "name": "Fleets: Overcharge Attack Exponent",
+    "domain": "vault",
+    "kind": "vault-node",
+    "source_url": "https://www.tower-hub.com/wiki/system/the-vault",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x1-20-max-health",
+    "name": "x1.20 Max Health",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x1-15-damage",
+    "name": "x1.15 Damage",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x1-15-all-coin-bonuses",
+    "name": "x1.15 All Coin Bonuses",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x1-15-defense-absolute",
+    "name": "x1.15 Defense Absolute",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x1-15-cash-bonus",
+    "name": "x1.15 Cash Bonus",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x1-75-health-regen",
+    "name": "x1.75 Health Regen",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.interest-x1-50",
+    "name": "Interest x1.50",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.land-mine-damage-x3-50",
+    "name": "Land Mine Damage x3.50",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.free-upgrade-chance-for-all-5-0",
+    "name": "Free Upgrade Chance for All +5.0%",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.defense-percent-4-00",
+    "name": "Defense Percent +4.00",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.bounce-shot-2",
+    "name": "Bounce Shot +2",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.perk-wave-requirement-20-00",
+    "name": "Perk Wave Requirement -20.00%",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.orbs-1",
+    "name": "Orbs +1",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.unlock-a-random-ultimate-weapon",
+    "name": "Unlock a Random Ultimate Weapon",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.increase-max-game-speed-by-1-00",
+    "name": "Increase Max Game Speed by +1.00",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.4-more-smart-missiles",
+    "name": "4 More Smart Missiles",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.swamp-radius-x1-5",
+    "name": "Swamp Radius x1.5",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.1-wave-on-death-wave",
+    "name": "+1 Wave on Death Wave",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.extra-set-of-inner-mines",
+    "name": "Extra Set of Inner Mines",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.golden-tower-bonus-x1-5",
+    "name": "Golden Tower Bonus x1.5",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.chain-lightning-damage-x2",
+    "name": "Chain Lightning Damage x2",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.chrono-field-duration-5s",
+    "name": "Chrono Field Duration +5s",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.black-hole-duration-12-0s",
+    "name": "Black Hole Duration +12.0s",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.spotlight-damage-bonus-x1-5",
+    "name": "Spotlight Damage Bonus x1.5",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x1-50-tower-damage-but-bosses-have-8x-health",
+    "name": "x1.50 Tower Damage, but Bosses Have 8x Health",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x1-80-coins-but-tower-max-health-70",
+    "name": "x1.80 coins, but Tower Max Health -70%",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.enemies-have-50-health-but-tower-health-regen-and-lifesteal-90",
+    "name": "Enemies Have -50% Health, but Tower Health Regen and Lifesteal  -90%",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.enemies-damage-50-but-tower-damage-50",
+    "name": "Enemies Damage -50%, but Tower Damage -50%",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.ranged-enemies-attack-distance-reduced-but-tower-ranged-enemies-damage-x3",
+    "name": "Ranged Enemies Attack Distance Reduced, But Tower Ranged Enemies Damage x3",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.enemies-speed-40-but-enemies-damage-x2-5",
+    "name": "Enemies Speed -40%, But Enemies Damage x2.5",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.x12-00-cash-per-wave-but-enemy-kill-don-t-give-cash",
+    "name": "x12.00 Cash Per Wave, But Enemy Kill Don't Give Cash",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.tower-health-regen-x8-00-but-tower-max-max-health-60",
+    "name": "Tower Health Regen x8.00, But Tower Max Max Health -60%",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.boss-health-70-but-boss-speed-50",
+    "name": "Boss Health -70%, But Boss Speed +50%",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "perks.lifesteal-x2-50-but-knockback-force-70",
+    "name": "Lifesteal x2.50, But Knockback force -70%",
+    "domain": "perks",
+    "kind": "perk",
+    "source_url": "https://www.tower-hub.com/wiki/system/perks",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.log-in-for-x-days",
+    "name": "Log in for X days",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.participate-in-x-tournaments",
+    "name": "Participate in X tournaments",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.buy-x-cards",
+    "name": "Buy X cards",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.get-the-free-gem-reward-in-store-x-times",
+    "name": "Get the free gem reward in store X times",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.have-a-total-research-time-of-x-rushed-labs-count",
+    "name": "Have a total research time of X (rushed labs count)",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-common-enemies",
+    "name": "Kill X Common Enemies",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-fast-enemies",
+    "name": "Kill X fast enemies",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-ranged-enemies",
+    "name": "Kill X ranged enemies",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-bosses",
+    "name": "Kill X Bosses",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-vampire-enemies",
+    "name": "Kill X vampire enemies",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-scatter-enemies",
+    "name": "Kill X Scatter enemies",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-ray-enemies",
+    "name": "Kill X ray enemies",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.reach-wave-x-on-any-tier",
+    "name": "Reach wave X on any tier",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.tap-x-floating-gems",
+    "name": "Tap X Floating Gems",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.buy-x-workshop-upgrades",
+    "name": "Buy X Workshop Upgrades",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.reach-wave-x-without-any-card-equiped-on-tier-y-or-above",
+    "name": "Reach wave X without any card equiped on tier Y or above",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.take-no-damage-for-x-consecutive-waves",
+    "name": "Take no damage for X consecutive waves",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-bosses-outside-of-tower-range",
+    "name": "Kill X Bosses outside of Tower range",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.obtain-x-modules",
+    "name": "Obtain X Modules",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.obtain-x-modules-by-merging",
+    "name": "Obtain X modules by merging",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.earn-x-reroll-dice",
+    "name": "Earn X reroll dice",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.claim-ad-gems-x-times",
+    "name": "Claim Ad Gems X times",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.hit-x-enemies-with-critical-hits",
+    "name": "Hit X enemies with critical hits",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.get-x-free-upgrades",
+    "name": "Get X free upgrades",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.keep-x-consecutive-waves-getting-max-interest",
+    "name": "Keep X consecutive waves getting max Interest",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.hit-x-enemies-with-workshop-land-mines",
+    "name": "Hit X enemies with workshop Land Mines",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-with-workshop-land-mines",
+    "name": "Kill X enemies with workshop Land Mines",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-with-orbs",
+    "name": "Kill X Enemies with orbs",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.obtain-x-recovery-packages",
+    "name": "Obtain X Recovery Packages",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.stun-x-enemies-using-land-mine-stun-card",
+    "name": "Stun X enemies using land mine stun card",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-with-death-ray",
+    "name": "Kill X enemies with Death Ray",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-using-nuke",
+    "name": "Kill X enemies using nuke",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.hit-a-boss-with-energy-net-x-times",
+    "name": "Hit a boss with energy net X times",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.let-energy-shield-save-you-from-an-attack-x-times",
+    "name": "Let Energy Shield save you from an attack X times",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-while-in-demon-mode",
+    "name": "Kill X enemies while in Demon Mode",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.skip-a-total-of-x-waves",
+    "name": "Skip a total of X waves",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.hit-the-same-enemy-with-x-smart-missiles",
+    "name": "Hit the same enemy with X Smart Missiles",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-in-spotlight",
+    "name": "Kill X Enemies in Spotlight",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-while-golden-tower-is-active",
+    "name": "Kill X enemies while Golden Tower is active",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-with-inner-land-mines",
+    "name": "Kill X enemies with Inner Land Mines",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-with-death-wave",
+    "name": "Kill X enemies with Death Wave",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-slowed-down-by-chrono-field",
+    "name": "Kill X enemies slowed down by Chrono Field",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.have-x-enemies-in-the-same-black-hole",
+    "name": "Have X enemies in the same Black Hole",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.poison-x-enemies-with-poison-swamp",
+    "name": "Poison X enemies with Poison Swamp",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.hit-x-enemies-with-inner-land-mines",
+    "name": "Hit X enemies with Inner Land Mines",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.kill-x-enemies-with-smart-missiles",
+    "name": "Kill X enemies with Smart Missiles",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.hit-x-enemies-with-chain-lightning",
+    "name": "Hit X enemies with Chain Lightning",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.hit-x-enemies-with-death-wave",
+    "name": "Hit X enemies with Death Wave",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "missions.death-defy-at-least-x-times-on-the-same-round",
+    "name": "Death Defy at least X times on the same round",
+    "domain": "missions",
+    "kind": "event-mission",
+    "source_url": "https://www.tower-hub.com/wiki/system/events",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.damage",
+    "name": "Damage",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.attack-speed",
+    "name": "Attack Speed",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.critical-factor",
+    "name": "Critical Factor",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.range",
+    "name": "Range",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.damage-meter",
+    "name": "Damage/Meter",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.super-crit-chance",
+    "name": "Super Crit Chance",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.super-crit-mult",
+    "name": "Super Crit Mult",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.max-rend-armor-multiplier",
+    "name": "Max Rend Armor Multiplier",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.light-speed-shots",
+    "name": "Light Speed Shots",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-attack-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.battle-condition-reduction",
+    "name": "Battle Condition Reduction",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-battle-condition",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.battle-condition-reduction-group-1",
+    "name": "Battle Condition Reduction Group 1",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-battle-condition",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.battle-condition-reduction-group-2",
+    "name": "Battle Condition Reduction Group 2",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-battle-condition",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.battle-condition-reduction-group-3",
+    "name": "Battle Condition Reduction Group 3",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-battle-condition",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.battle-condition-reduction-group-4",
+    "name": "Battle Condition Reduction Group 4",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-battle-condition",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.flame-bot-cooldown",
+    "name": "Flame Bot Cooldown",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.thunder-bot-cooldown",
+    "name": "Thunder Bot Cooldown",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.golden-bot-cooldown",
+    "name": "Golden Bot Cooldown",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.amplify-bot-cooldown",
+    "name": "Amplify Bot Cooldown",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.flame-bot-burn-stacks",
+    "name": "Flame Bot - Burn Stacks",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.thunder-bot-linger-time",
+    "name": "Thunder Bot - Linger Time",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.golden-bot-duration",
+    "name": "Golden Bot - Duration",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.amplify-bot-duration",
+    "name": "Amplify Bot - Duration",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-bot-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.second-wind-blast",
+    "name": "Second Wind Blast",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.double-death-ray",
+    "name": "Double Death Ray",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.extra-orb-adjuster",
+    "name": "Extra Orb Adjuster",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.extra-extra-orbs",
+    "name": "Extra Extra Orbs",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.energy-shield-extra-hit",
+    "name": "Energy Shield Extra Hit",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.super-tower-bonus",
+    "name": "Super Tower Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.recharge-second-wind",
+    "name": "Recharge Second Wind",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.recharge-demon-mode",
+    "name": "Recharge Demon Mode",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.recharge-nuke",
+    "name": "Recharge Nuke",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.card-mastery-1-lab-per-card",
+    "name": "Card Mastery (1 lab per card)",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-card-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.health",
+    "name": "Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.health-regen",
+    "name": "Health Regen",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.defense-absolute",
+    "name": "Defense Absolute",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.defense",
+    "name": "Defense\u00a0%",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.orb-speed",
+    "name": "Orb Speed",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.land-mine-damage",
+    "name": "Land Mine Damage",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.land-mine-decay",
+    "name": "Land Mine Decay",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.shockwave-size",
+    "name": "Shockwave Size",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.orb-boss-hit",
+    "name": "Orb Boss Hit",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.wall-health",
+    "name": "Wall Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.wall-rebuild",
+    "name": "Wall Rebuild",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.wall-regen",
+    "name": "Wall Regen",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.wall-thorn",
+    "name": "Wall Thorn",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.wall-invincibility",
+    "name": "Wall Invincibility",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.wall-fortification",
+    "name": "Wall Fortification",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.garlic-thorns",
+    "name": "Garlic Thorns",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-defense-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.common-enemy-health",
+    "name": "Common Enemy Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.common-enemy-attack",
+    "name": "Common Enemy Attack",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.fast-enemy-health",
+    "name": "Fast Enemy Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.fast-enemy-attack",
+    "name": "Fast Enemy Attack",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.fast-enemy-speed",
+    "name": "Fast Enemy Speed",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.tank-enemy-health",
+    "name": "Tank Enemy Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.tank-enemy-attack",
+    "name": "Tank Enemy Attack",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.ranged-enemy-health",
+    "name": "Ranged Enemy Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.ranged-enemy-attack",
+    "name": "Ranged Enemy Attack",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.boss-health",
+    "name": "Boss Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.boss-attack",
+    "name": "Boss Attack",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.protector-health",
+    "name": "Protector Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.protector-radius",
+    "name": "Protector Radius",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.protector-damage-reduction",
+    "name": "Protector Damage Reduction",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.ranged-enemy-range",
+    "name": "Ranged Enemy Range",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.vampire-enemy-attack",
+    "name": "Vampire Enemy Attack",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.vampire-enemy-health",
+    "name": "Vampire Enemy Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.ray-enemy-attack",
+    "name": "Ray Enemy Attack",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.ray-enemy-health",
+    "name": "Ray Enemy Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.scatter-enemy-attack",
+    "name": "Scatter Enemy Attack",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.scatter-enemy-health",
+    "name": "Scatter Enemy Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-enemy-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.game-speed",
+    "name": "Game Speed",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.starting-cash",
+    "name": "Starting Cash",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.workshop-attack-discount",
+    "name": "Workshop Attack Discount",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.workshop-defense-discount",
+    "name": "Workshop Defense Discount",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.workshop-utility-discount",
+    "name": "Workshop Utility Discount",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.labs-coin-discount",
+    "name": "Labs Coin Discount",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.labs-speed",
+    "name": "Labs Speed",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.buy-multiplier",
+    "name": "Buy multiplier",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.more-round-stats",
+    "name": "More Round Stats",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.target-priority",
+    "name": "Target Priority",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.card-presets",
+    "name": "Card Presets",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.workshop-respec",
+    "name": "Workshop Respec",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.reroll-daily-missions",
+    "name": "Reroll Daily Missions",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.workshop-enhancement",
+    "name": "Workshop Enhancement",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.enhancment-coin-discount",
+    "name": "Enhancment Coin Discount",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-main-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.common-drop-chance",
+    "name": "Common Drop Chance",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.reroll-shards",
+    "name": "Reroll Shards",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.daily-mission-shards",
+    "name": "Daily Mission Shards",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.module-shard-costs",
+    "name": "Module Shard Costs",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.module-coin-cost",
+    "name": "Module Coin Cost",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.rare-drop-chance",
+    "name": "Rare Drop Chance",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.unmerge-module",
+    "name": "Unmerge Module",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.shatter-shards",
+    "name": "Shatter Shards",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.cannon-effect-bans",
+    "name": "Cannon Effect Bans",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.armor-effect-bans",
+    "name": "Armor Effect Bans",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.generator-effect-bans",
+    "name": "Generator Effect Bans",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.core-effect-bans",
+    "name": "Core Effect Bans",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.assist-module-substats",
+    "name": "Assist Module Substats",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.assist-module-bonus",
+    "name": "Assist Module Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-module-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.unlock-perks",
+    "name": "Unlock Perks",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.waves-required",
+    "name": "Waves Required",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.auto-pick-perks",
+    "name": "Auto Pick Perks",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.standard-perks-bonus",
+    "name": "Standard Perks Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.perk-option-quantity",
+    "name": "Perk Option Quantity",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.first-perk-choice",
+    "name": "First Perk Choice",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.ban-perks",
+    "name": "Ban Perks",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.improve-trade-off-perks",
+    "name": "Improve Trade-Off Perks",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.auto-pick-ranking",
+    "name": "Auto Pick Ranking",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-perk-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.missiles-despawn-time",
+    "name": "Missiles Despawn Time",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.missiles-explosion",
+    "name": "Missiles Explosion",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.missiles-radius",
+    "name": "Missiles Radius",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.chrono-field-duration",
+    "name": "Chrono Field Duration",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.chrono-field-damage-reduction",
+    "name": "Chrono Field Damage Reduction",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.chrono-field-reduction",
+    "name": "Chrono Field Reduction\u00a0%",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.swamp-radius",
+    "name": "Swamp Radius",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.swamp-stun",
+    "name": "Swamp Stun",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.swamp-stun-chance",
+    "name": "Swamp Stun Chance",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.swamp-stun-time",
+    "name": "Swamp Stun Time",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.golden-tower-bonus",
+    "name": "Golden Tower Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.golden-tower-duration",
+    "name": "Golden Tower Duration",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.chain-lightning-shock",
+    "name": "Chain Lightning Shock",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.shock-chance",
+    "name": "Shock Chance",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.shock-multiplier",
+    "name": "Shock Multiplier",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.death-wave-health",
+    "name": "Death Wave Health",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.death-wave-coin-bonus",
+    "name": "Death Wave Coin Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.inner-mine-blast-radius",
+    "name": "Inner Mine Blast Radius",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.inner-mine-rotation-speed",
+    "name": "Inner Mine Rotation Speed",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.chrono-field-range",
+    "name": "Chrono Field Range",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.missle-amplifier",
+    "name": "Missle Amplifier",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.missile-barrage",
+    "name": "Missile Barrage",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.missile-barrage-quantity",
+    "name": "Missile Barrage Quantity",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.inner-mine-stun",
+    "name": "Inner Mine Stun",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.black-hole-damage",
+    "name": "Black Hole Damage",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.extra-black-hole",
+    "name": "Extra Black Hole",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.black-hole-coins-bonus",
+    "name": "Black Hole Coins Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.spotlight-coin-bonus",
+    "name": "Spotlight Coin Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.spotlight-missiles",
+    "name": "Spotlight Missiles",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.black-hole-disable-ranged-enemies",
+    "name": "Black Hole Disable Ranged Enemies",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.recharge-missile-barrage",
+    "name": "Recharge Missile Barrage",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.swamp-rend-basic-enemies",
+    "name": "Swamp Rend - Basic Enemies",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.swamp-rend-additional-enemies",
+    "name": "Swamp Rend - Additional Enemies",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.chain-thunder",
+    "name": "Chain Thunder",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.lightning-amplifier",
+    "name": "Lightning Amplifier",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.death-wave-cell-bonus",
+    "name": "Death Wave Cell Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.death-wave-damage-amplifier",
+    "name": "Death Wave Damage Amplifier",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.death-wave-armor-stripping",
+    "name": "Death Wave Armor Stripping",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.inner-land-mine-chrono-jump",
+    "name": "Inner Land Mine - Chrono Jump",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-ultimate-weapon-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.cash-bonus",
+    "name": "Cash Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.cash-wave",
+    "name": "Cash / Wave",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.coins-kill-bonus",
+    "name": "Coins / Kill Bonus",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.coins-wave",
+    "name": "Coins/wave",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.interest",
+    "name": "Interest",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.max-interest",
+    "name": "Max Interest",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.package-after-boss",
+    "name": "Package After Boss",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.recovery-package-amount",
+    "name": "Recovery Package Amount",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.recovery-package-max",
+    "name": "Recovery Package Max",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.recovery-package-chance",
+    "name": "Recovery Package Chance",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.enemy-attack-level-skip",
+    "name": "Enemy Attack Level Skip",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  },
+  {
+    "id": "labs.enemy-health-level-skip",
+    "name": "Enemy Health Level Skip",
+    "domain": "labs",
+    "kind": "research",
+    "source_url": "https://www.tower-hub.com/wiki/lab/lab-category-utility-research",
+    "rule_verified": false
+  }
+]

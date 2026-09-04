@@ -1,0 +1,25 @@
+Gems are a premium currency that you accumulate gradually, and there are very few ways to speed up how many you earn. That scarcity means spending them well matters more than almost any other resource decision you make. This guide lays out a sensible order of priorities so your gems go where they will do the most for your progression.
+Overview
+Gems are one of the most important currencies in the game, earned slowly over time with limited options for acquiring them faster. Because of this, efficient spending is a constant concern for most players. The priorities below reflect what tends to give the best return at each stage of progression, starting with lab slots and moving through cards, modules, relics and lab rushing.
+Priorities
+Your first gem purchases should be lab slots. Labs are the main bottleneck on progression, so opening your second lab slot early keeps your account advancing at a steady pace. After that, focus on unlocking three key cards: Attack Speed, Enemy Balance and Coins, along with the card slots needed to equip all three.
+Once those are in place, buy your third lab slot, then unlock the Health and Cash cards and the slots to run them. Your fourth lab slot comes next, followed by unlocking two cards from Crit Coin, Wave Skip and Extra Orbs, plus two more slots for them. The fifth lab slot rounds out this opening phase.
+After your fifth lab slot, aim to pick up one Epic module of each type. Do not chase specific epics at this stage. Newer players often cannot make use of certain unique effects yet, since some require other unlocks first, such as Havoc Bringer needing Rend Armor, or Core modules depending on particular Ultimate Weapons. The real goal here is the raw stat boost epics offer over rares, plus access to stronger sub-module effects through rerolls.
+With the basics covered, you can start spreading gems across cards, modules, relics and lab rushing based on your situation. Cards give powerful bonuses and are needed for daily and biweekly events, and maxing out 30 cards eventually unlocks Card Masteries for even stronger effects. Plan to keep buying cards until you own them all, and at minimum buy enough every two weeks to finish the buy 80 cards event, which costs 1600 gems. Common cards are especially strong early on, though you can ease off once they are nearly done, as long as you still complete the event.
+Card slots let you equip more cards at once. They have a hard cap, but many players sit below it for a long time because their current build does not need more. Before buying a new slot, ask yourself whether you have a card that would meaningfully improve your build if equipped right now. If yes, buy the slot. If not, keep buying and upgrading cards until the answer changes.
+Modules provide stat multipliers for Attack, Health, Coins and UW Damage, a wide range of substat effects, and unique abilities on natural Epic modules. Because modules drop randomly, you will sink a lot of gems into them over time. Early on, spend enough that your modules do not sit at their level cap, since a capped module cannot improve its substats even if you have the shards to do it. Modules sometimes appear on special banners that let you target a specific module or category, or that boost drop rates. These are rarely announced far ahead, so saving gems for a hypothetical banner is usually not worth it, but when one is active it can be worth shifting your spending toward it.
+Relics rotate through the Event Shop on a weekly cycle. Buying every relic that appears would drain an enormous number of gems and is generally worse value than modules and card levels. Instead, hold some gems in reserve and pick out the relics you actually want each time the shop rotates.
+Finally, gems can rush lab timers, but this is usually a poor choice early on when so many other things compete for your gems. If you do rush, know that the gem rate improves for every lab you have fully completed, shown as a gold box on the lab screen, and longer labs are cheaper to rush per unit of time. Both factors make lab rushing far more attractive in the mid and late game than at the start.
+Related pages
+Attack Speed
+Cards
+Cash Bonus
+Critical Coin
+Enemy Balance
+Health
+Lab Upgrades
+Modules
+Orbs
+Relics
+Wave Skip
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-10) . Something out of date? Tell us in the Discord .

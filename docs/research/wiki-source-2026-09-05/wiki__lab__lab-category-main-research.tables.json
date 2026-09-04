@@ -1,0 +1,43 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Main Research"
+    ],
+    "rows": [
+      [
+        "Game Speed Max Lv  7",
+        "Starting Cash Max Lv 99"
+      ],
+      [
+        "Workshop Attack Discount Max Lv 99",
+        "Workshop Defense Discount Max Lv 99"
+      ],
+      [
+        "Workshop Utility Discount Max Lv 99",
+        "Labs Coin Discount Max Lv 99"
+      ],
+      [
+        "Labs Speed Max Lv 99",
+        "Buy multiplier Max Lv  4"
+      ],
+      [
+        "More Round Stats Max Lv  1",
+        "Target Priority Max Lv  2"
+      ],
+      [
+        "Card Presets Max Lv  1",
+        "Workshop Respec Max Lv  1"
+      ],
+      [
+        "Reroll Daily Missions Max Lv 1",
+        "Workshop Enhancement Max Lv 1"
+      ],
+      [
+        "Enhancment Coin Discount Max Lv 100",
+        ""
+      ]
+    ]
+  }
+]

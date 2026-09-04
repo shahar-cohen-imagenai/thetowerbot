@@ -1,0 +1,56 @@
+Smart Missiles are an Ultimate Weapon that periodically fires a volley of homing missiles at enemies. Each missile tracks its target and explodes on impact, dealing damage based on a multiplier of your tower's damage — and because that multiplier accounts for your crit and super crit factor and chance, the weapon scales with the rest of your build.
+Beyond the basic workshop upgrades, Smart Missiles have one of the largest lab trees of any Ultimate Weapon, letting you extend missile lifetime, stack damage on repeat hits, add area-of-effect explosions, and unlock a manually triggered Missile Barrage.
+On this page
+Description
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Lab — Missile Despawn Time
+Lab — Missile Amplifier
+Lab — Missiles Explosion
+Lab — Missiles Radius
+Lab — Missile Barrage
+Lab — Missile Barrage Quantity
+Lab — Recharge Missile Barrage
+Lab
+Description
+Smart Missiles are an Ultimate Weapon. Once activated, they launch a set number of missiles on a repeating timer. The missiles home in on enemies and detonate when they connect.
+The damage each missile deals is a multiplier of your tower damage. That calculation includes your crit and super crit factor and chance, so anything that raises those stats also raises your missile output.
+Workshop — Basic Upgrades
+Like every Ultimate Weapon, Smart Missiles' basic upgrades sit in the Ultimate Weapon menu once you've unlocked the weapon itself. From there you can spend stones on three tracks: Damage, Quantity, and Cooldown.
+Damage has 30 levels, Quantity has 15 levels, and Cooldown has 16 levels. Maxing all three tracks costs 24,407 stones in total; the per-level breakdown is in the cost table below.
+Show all 32 rows
+Workshop — Ultimate Weapon Plus
+Ultimate Weapon Plus abilities become available only after you've purchased all 9 Ultimate Weapons. For Smart Missiles, the UW+ ability is Cover Fire, which passively launches an extra Smart Missile every few seconds on top of your normal volleys. The interval per level is listed in the table below.
+Lab — Missile Despawn Time
+Missile Despawn Time extends how long a missile stays in flight before disappearing if it hasn't hit anything. More time means fewer wasted missiles when targets are sparse or far away. This research has 20 levels.
+Show all 20 rows
+Lab — Missile Amplifier
+Missile Amplifier makes repeated hits on the same enemy progressively stronger: each missile that lands boosts the damage of the next missile striking that target, and the bonus stacks additively. It's especially valuable against tough, long-lived targets that soak multiple volleys. This research has 25 levels.
+Show all 25 rows
+Lab — Missiles Explosion
+Missiles Explosion is a single-level research that turns every missile impact into an area-of-effect blast, damaging enemies around the target rather than just the target itself. The starting blast radius is 0.30. Completing it unlocks the Missiles Radius research.
+Lab — Missiles Radius
+Missiles Radius becomes available once Missiles Explosion is complete. Each level widens the area-of-effect blast from your missile impacts, letting a single volley catch more enemies. This research has 20 levels.
+Show all 20 rows
+Lab — Missile Barrage
+Missile Barrage is a single-level research that adds a manually activated ability: once per run, you can fire a barrage of missiles all at the same time, with a base amount of 20 missiles per activation. You trigger it yourself during a round, so you can save it for a dangerous wave. Completing it unlocks the Missile Barrage Quantity research.
+Lab — Missile Barrage Quantity
+Missile Barrage Quantity raises the number of missiles fired each time you activate Missile Barrage, on top of the base 20. This research has 6 levels.
+Lab — Recharge Missile Barrage
+Recharge Missile Barrage removes the one-use-per-run limit by letting Missile Barrage recharge after a set number of waves, so you can trigger it multiple times in a long run. This research has 7 levels and is unlocked in Milestones at tier 14 wave 60.
+Lab
+Smart Missile lab researches are gated behind Milestones. Missile Despawn Time, Missile Amplifier, Missiles Explosion, and Missiles Radius all unlock at tier 7 wave 30. Missile Barrage and Missile Barrage Quantity unlock later, at tier 8 wave 50. Recharge Missile Barrage is separate, unlocking at tier 14 wave 60.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-03-27) . Something out of date? Tell us in the Discord .

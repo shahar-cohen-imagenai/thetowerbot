@@ -1,0 +1,72 @@
+Cash Bonus is a workshop upgrade that multiplies the cash you earn from every source, including the bonus you get per wave. It does not touch interest, so it will not raise your interest rate or your maximum interest.
+You can push the multiplier further with the Cash card, the Cash Bonus workshop enhancement and the Cash Bonus lab research, which all stack with the base workshop value.
+On this page
+Description
+Workshop
+Cost
+Card
+Workshop Enhancements — Cash Bonus
+Lab — Cash Bonus
+Description
+Cash Bonus multiplies all cash you earn, whatever the source, and that includes the cash bonus paid out at the end of each wave. It has no effect on interest: neither your interest rate nor your maximum interest is increased by this multiplier.
+Workshop
+You unlock Cash Bonus in the workshop for 40 coins together with Cash/Wave. The upgrade has 149 levels, starting at a x1.00 multiplier and gaining 0.01 per level, so it tops out at x2.49. Remember that this multiplier never increases interest or maximum interest.
+Cost
+The cost per level for Cash Bonus is listed in the cost table below. Since there are 149 levels, the full upgrade is a long-term coin investment, so plan your workshop spending around it.
+Level Value Cost Total Cost
+1 1.01x 30.00 30.00
+10 1.10x 674.00 2.76K
+20 1.20x 2.88K 20.16K
+30 1.30x 7.06K 70.23K
+40 1.40x 13.47K 174.15K
+50 1.50x 22.31K 355.40K
+60 1.60x 34.77K 647.75K
+70 1.70x 49.38K 1.07M
+80 1.80x 70.30K 1.68M
+90 1.90x 91.98K 2.50M
+Show all 16 rows
+Card
+Equipping the Cash card raises your Cash Bonus workshop multiplier while it is active. The card's multiplier is applied separately and then multiplied with your lab research, so the card and the lab compound each other rather than simply adding together.
+Workshop Enhancements — Cash Bonus
+The Cash Bonus enhancement is unlocked for free once you complete the Workshop Enhancement Labs. Unlocking it immediately adds x1 to your Cash Bonus multiplier, and each level after that adds another 0.01x, up to a maximum level of 400 for a total x5 bonus.
+On top of the multiplier, each upgrade of this enhancement also raises your cash per wave, your interest percentage and your maximum interest per wave by 1%. The exact per-level values are shown in the enhancement table below.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 6.53B 55.54B
+20 1.20x 48.30B 217.10B
+30 1.30x 313.07B 1.95T
+40 1.40x 2.54T 14.48T
+50 1.50x 9.59T 73.23T
+60 1.60x 60.08T 385.56T
+70 1.70x 216.08T 1.72q
+80 1.80x 580.27T 5.66q
+90 1.90x 1.31q 15.10q
+Show all 41 rows
+Lab — Cash Bonus
+The Cash Bonus lab research is unlocked through Milestones by reaching wave 30 on tier 1. It has 99 levels, and each level increases the increment that every workshop upgrade adds while also raising the maximum workshop value. Per-level details are in the lab table below.
+Level Time Cost Value
+1 0d 0h 0m 30 1.02
+2 0d 0h 6m 71 1.04
+3 0d 0h 16m 178 1.06
+4 0d 0h 31m 398 1.08
+5 0d 0h 52m 782 1.10
+6 0d 1h 20m 1,350 1.12
+7 0d 1h 56m 2,130 1.14
+8 0d 2h 39m 3,180 1.16
+9 0d 3h 31m 4,520 1.18
+10 0d 4h 32m 6,180 1.20
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-30) . Something out of date? Tell us in the Discord .

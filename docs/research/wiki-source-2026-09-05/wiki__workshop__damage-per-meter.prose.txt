@@ -1,0 +1,38 @@
+Damage Per Meter is a workshop upgrade that makes your tower deal more damage to enemies the farther away they are. The bonus grows with each full meter of distance between the enemy and your tower, rewarding you for hitting targets at long range.
+On this page
+Description
+Workshop
+Cost
+Calculation
+Workshop Enhancement — Damage/Meter
+Lab — Damage/Meter
+Description
+Damage Per Meter increases your tower's damage output based on enemy distance. The bonus is calculated per full meter of separation between the enemy and your tower. It does not scale fractionally — an enemy at 51.9 meters receives the same damage bonus as one at exactly 51 meters, since the value rounds down to the nearest whole meter.
+Workshop
+You unlock Damage Per Meter in the workshop for 50 coins, and it requires the Range upgrade to be purchased first. The workshop offers 200 levels total, starting from a base of 0%. Each level provides a smaller increase than the last until you reach level 70, after which every level adds a constant 0.0002%. The maximum workshop value caps out at 5.9%.
+Cost
+Show all 21 rows
+Calculation
+Damage Per Meter stacks additively across distance. The formula is:
+Damage × DPM% × Range
+This means the farther an enemy is from your tower, the larger the total multiplier applied to your base damage.
+Workshop Enhancement — Damage/Meter
+To unlock this enhancement, you need to have spent 5 trillion coins on attack enhancements. Once unlocked, it starts at a x1 multiplier to your Damage/Meter value and gains 0.01x per level. It has a maximum level of 400, reaching a 5x bonus at max. See the cost table below for per-level pricing.
+Show all 41 rows
+Lab — Damage/Meter
+The Damage/Meter lab unlocks through Milestones at tier 3, wave 30. It has 99 levels. Each lab level increases the increment gained per workshop level and raises the maximum value the workshop upgrade can reach. Refer to the table below for details on each level.
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-20) . Something out of date? Tell us in the Discord .

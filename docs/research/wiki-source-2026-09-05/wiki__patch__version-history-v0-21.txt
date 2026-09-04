@@ -1,0 +1,36 @@
+V0.21 overhauled tournaments for Silver tier and above by applying two battle conditions that scale harder in higher tiers and intensify over later waves. It also introduced PLUS upgrades, a new unique ability for each Ultimate Weapon unlocked once you own them all, and kept Ultimate Weapon timers synchronized throughout a round. The rest of the update was quality-of-life and stability work: locked cards during boss fights, a cap on UW toggling, cloud save improvements, six upcoming event relics, and a batch of bug fixes.
+Change list
+Reproduced from the developer's release notes.
+Every tournament for silver tier and above will challenge players by applying 2 battle conditions
+The battle conditions scale more aggressively in higher tier tournaments
+These conditions will increase in difficulty as you reach higher waves
+Every ultimate weapon has received a PLUS upgrade
+PLUS upgrades add an additional unique ability to each Ultimate Weapon
+PLUS upgrades become unlockable once every ultimate weapon is unlocked
+Ultimate Weapon timers will stay synchronized with each other now, instead of diverging slightly as the round progresses
+Cards are locked when bosses are active
+Fix tower range indicator to more accurately represent range
+Added 6 new relics for upcoming events
+Limited ultimate weapon toggling to 40 times per round
+Cloud save improvements (more consistent, less chance of rollbacks, etc)
+Fix tier listed during tournaments to say 11+
+Fix poison swamp was being removed when stuns ended
+Fix some players stuck at 1x game speed
+Fix an error that occurs if opening the ranking panel too fast upon game open
+Fix profile showing wave rank instead of best tournament rank
+Fixed an issue that could crash the game using auto pick perks
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,174 @@
+The Wall is a defensive layer that stops enemies from reaching your tower until its health is depleted. Once destroyed, it rebuilds automatically over a set period, but enemies can pass through freely during that rebuild window. It is one of the later defensive unlocks in the workshop and becomes a major part of your defense setup once you invest in its upgrades.
+On this page
+Overview
+Workshop
+Workshop — Wall Health
+Wall Rebuild
+Cost — Wall Health
+Cost — Wall Rebuild
+Workshop Enhancement — Wall Health
+Lab — Wall Health
+Lab — Wall Rebuild
+Lab — Wall Regen
+Lab — Wall Thorns
+Lab — Wall Invincibility
+Lab — Wall Fortification
+Lab
+Overview
+The Wall acts as a physical barrier between enemies and your tower. Enemies cannot reach the tower while the Wall has health remaining. Once its health drops to zero, the Wall is destroyed and begins rebuilding over time. During the rebuild, enemies are not blocked and can reach the tower as normal.
+When the Wall finishes rebuilding, it pushes all enemies away from the tower, ensuring nothing is left standing inside the Wall's perimeter when it comes back up.
+Workshop
+The Wall is unlocked in the workshop for 500 million coins, available after Death Defy. Unlocking it gives you access to two workshop upgrade tracks: Wall Health and Wall Rebuild.
+Workshop — Wall Health
+Wall Health sets the Wall's maximum HP as a percentage of your tower's health. It starts at 20% and gains 0.1% per upgrade level, with 1800 total upgrades bringing it to a maximum of 200% of tower health.
+Wall Rebuild
+Wall Rebuild controls how long the Wall takes to come back after being destroyed. It has 300 upgrades, each shaving 2 seconds off the rebuild timer, down to a minimum of 600 seconds from upgrades alone. The hard cap on rebuild time is 150 seconds, which requires additional reductions from labs to reach.
+Cost — Wall Health
+The cost table below shows the coin cost for each Wall Health upgrade level in the workshop.
+Level Value Cost Total Cost
+1 20.10% 8.00M 8.00M
+100 30.00% 31.91M 1.90B
+200 40.00% 111.04M 8.54B
+300 50.00% 398.70M 39.03B
+400 60.00% 665.11M 91.49B
+500 70.00% 2.09B 260.95B
+600 80.00% 3.14B 520.54B
+700 90.00% 9.02B 1.28T
+800 100.00% 12.52B 2.35T
+900 110.00% 33.73B 5.28T
+Show all 19 rows
+Cost — Wall Rebuild
+The cost table below shows the coin cost for each Wall Rebuild upgrade level in the workshop.
+Level Value Cost Total Cost
+1 1198s 16.00M 16.00M
+10 1180s 23.21M 196.03M
+20 1160s 31.37M 472.81M
+30 1140s 39.98M 833.36M
+40 1120s 49.45M 1.28B
+50 1100s 60.28M 1.84B
+60 1080s 150.51M 3.22B
+70 1060s 182.21M 4.89B
+80 1040s 231.80M 6.98B
+90 1020s 281.18M 9.56B
+Show all 31 rows
+Workshop Enhancement — Wall Health
+The Wall Health enhancement is unlocked after spending 50 trillion coins on defense enhancements. It starts at a x1 multiplier when first unlocked and increases by 0.01x per level, with a maximum of 400 levels for a total x5 bonus to Wall Health.
+The cost table below shows the enhancement cost per level.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 6.53B 55.54B
+20 1.20x 48.30B 217.10B
+30 1.30x 313.07B 1.95T
+40 1.40x 2.54T 14.48T
+50 1.50x 9.59T 73.23T
+60 1.60x 60.08T 385.56T
+70 1.70x 216.08T 1.72q
+80 1.80x 580.27T 5.66q
+90 1.90x 1.31q 15.10q
+Show all 41 rows
+Lab — Wall Health
+The Wall Health lab has 50 upgrades and increases the maximum health of the Wall, adding on top of the workshop value.
+The cost table below shows the lab cost per level.
+Level Time Cost Value
+1 0d 5h 33m 1B +2%
+2 0d 5h 37m 1,2B +4%
+3 0d 5h 46m 1,4B +6%
+4 0d 5h 59m 1,6B +8%
+5 0d 6h 19m 1,81B +10%
+6 0d 6h 45m 2,02B +12%
+7 0d 7h 19m 2,24B +14%
+8 0d 8h 1m 2,46B +16%
+9 0d 8h 51m 2,7B +18%
+10 0d 9h 50m 2,94B +20%
+Show all 50 rows
+Lab — Wall Rebuild
+The Wall Rebuild lab has 20 upgrades, each reducing the rebuild time by a set number of seconds. These reductions stack with workshop upgrades and are needed to push the rebuild timer below the 600-second workshop minimum toward the 150-second hard cap.
+The cost table below shows the lab cost per level.
+Level Time Cost Value
+1 0d 13h 53m 1,600,000,000 -10.0s
+2 1d 1h 1m 1,910,000,000 -20.0s
+3 1d 12h 20m 2,230,000,000 -30.0s
+4 2d 0h 14m 2,610,000,000 -40.0s
+5 2d 13h 11m 3,040,000,000 -50.0s
+6 3d 3h 49m 3,550,000,000 -60.0s
+7 3d 20h 51m 4,150,000,000 -70.0s
+8 4d 17h 6m 4,860,000,000 -80.0s
+9 5d 17h 26m 5,690,000,000 -90.0s
+10 6d 22h 51m 6,650,000,000 -100.0s
+Show all 20 rows
+Lab — Wall Regen
+Wall Regen has 30 upgrades and lets the Wall regenerate HP based on a percentage of your tower's Health Regen. This lab is also required to heal the bonus health provided by Wall Fortification, so it is worth picking up before or alongside Fortification.
+The cost table below shows the lab cost per level.
+Level Time Cost Value
+1 1d 3h 46m 30.00B 10.00%
+2 1d 9h 21m 35.10B 20.00%
+3 1d 15h 16m 40.35B 30.00%
+4 1d 22h 38m 45.72B 40.00%
+5 2d 9h 32m 51.21B 50.00%
+6 3d 3h 15m 56.81B 60.00%
+7 4d 8h 14m 62.52B 70.00%
+8 6d 6h 21m 68.32B 80.00%
+9 9d 4h 50m 74.22B 90.00%
+10 13d 12h 24m 80.22B 100.00%
+Show all 30 rows
+Lab — Wall Thorns
+Wall Thorns has 20 levels and allows the Wall to deal thorn damage based on a percentage of your tower's thorn damage when enemies attack it.
+The cost table below shows the lab cost per level.
+Level Time Cost Value
+1 1d 3h 46m 30B 1%
+2 1d 12h 7m 38,1B 2%
+3 1d 20h 49m 46,35B 3%
+4 2d 6h 58m 54,72B 4%
+5 2d 20h 39m 63,21B 5%
+6 3d 17h 8m 71,81B 6%
+7 5d 0h 54m 80,52B 7%
+8 7d 1h 48m 89,32B 8%
+9 10d 3h 3m 98,22B 9%
+10 14d 13h 24m 107,22B 10%
+Show all 20 rows
+Lab — Wall Invincibility
+Wall Invincibility has 10 upgrades. Each level extends the time the Wall is invincible after rebuilding, up to a maximum of 10 seconds. During this window the Wall takes no damage, giving it time to start regenerating before enemies can chip away at it again.
+The cost table below shows the lab cost per level.
+Level Time Cost Value
+1 3d 11h 19m 300,000,000,000 1.0s
+2 4d 1h 14m 351,000,000,000 2.0s
+3 4d 15h 29m 403,030,000,000 3.0s
+4 5d 7h 11m 455,800,000,000 4.0s
+5 6d 2h 26m 509,190,000,000 5.0s
+6 7d 4h 28m 563,130,000,000 6.0s
+7 8d 17h 48m 617,580,000,000 7.0s
+8 11d 0h 15m 672,500,000,000 8.0s
+9 14d 7h 3m 727,860,000,000 9.0s
+10 18d 22h 57m 783,630,000,000 10.0s
+Lab — Wall Fortification
+Wall Fortification is unlocked in Milestones at tier 14 wave 60 and has 60 levels. It allows the Wall to regenerate beyond its normal maximum health, effectively giving it an overheal buffer. Wall Regen is required to actually build up health past the maximum, so the two labs work as a pair.
+The cost table below shows the lab cost per level.
+Level Time Cost Value
+1 2d 7h 33m 300,000,000,000 20%
+2 2d 10h 4m 300,070,000,000 40%
+3 2d 12h 40m 300,440,000,000 60%
+4 2d 15h 25m 301,410,000,000 80%
+5 2d 18h 22m 303,280,000,000 100%
+6 2d 21h 33m 306,350,000,000 120%
+7 3d 1h 0m 310,920,000,000 140%
+8 3d 4h 46m 317,290,000,000 160%
+9 3d 8h 53m 325,760,000,000 180%
+10 3d 13h 23m 336,620,000,000 200%
+Show all 60 rows
+Lab
+All Wall labs are unlocked through Milestones. Wall Health and Wall Rebuild become available at tier 8 wave 10. Wall Regen and Wall Thorns unlock at tier 10 wave 70. Wall Invincibility unlocks at tier 12 wave 10. Wall Fortification unlocks at tier 14 wave 60.
+Wall Health adds to the workshop value, while Wall Rebuild reduces the workshop rebuild value. Wall Regen applies a percentage of tower regen to the Wall, Wall Thorns lets the Wall deal a percentage of tower thorns when attacked, Wall Invincibility grants a brief invulnerable window after each rebuild, and Wall Fortification lets the Wall hold health beyond its maximum as long as Wall Regen is active.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-30) . Something out of date? Tell us in the Discord .

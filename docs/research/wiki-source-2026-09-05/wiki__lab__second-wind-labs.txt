@@ -1,0 +1,24 @@
+Second Wind is a defensive mechanic that gives you another chance when your tower would otherwise fall. Two labs in the Labs tree build on it: Second Wind Blast adds a clearing effect when it triggers, and Recharge Second Wind lets the effect come back after a set number of waves instead of being spent for the rest of the run.
+Labs — Second Wind Blast
+Second Wind Blast is unlocked through Milestones at tier 3 wave 150. Once researched, triggering Second Wind also wipes out a percentage of the enemies that have spawned, thinning the wave that overwhelmed you and giving your tower room to recover.
+The lab has 4 levels, each raising the share of spawned enemies the blast clears. The exact percentages per level are listed in the data table below.
+Level Time Cost Value
+1 1d 3h 46m 1,800,000 25%
+2 1d 17h 39m 3,000,000 50%
+3 2d 7h 33m 4,500,000 75%
+4 3d 11h 19m 75,000,000 100%
+Labs — Recharge Second Wind
+Recharge Second Wind is unlocked through Milestones at tier 14 wave 60. Normally Second Wind is a one-time save, but this lab allows it to recharge and become available again a set number of waves after it activates.
+The lab has 7 levels, improving how quickly Second Wind comes back online. Check the data table below for the recharge values at each level.
+Level Time Cost Value
+1 5d 4h 59m 550B 2,000
+2 6d 14h 21m 1,05T 1,500
+3 8d 54m 39s 1,55T 1,250
+4 9d 23h 10m 2,05T 1,000
+5 14d 1h 58m 2,56T 750
+6 24d 19h 29m 3,07T 550
+7 51d 8h 11m 3,6T 400
+Related pages
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-01-12) . Something out of date? Tell us in the Discord .

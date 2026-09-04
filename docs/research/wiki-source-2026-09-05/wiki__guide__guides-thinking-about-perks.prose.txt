@@ -1,0 +1,51 @@
+Perks open up surprisingly early, around Tier 2, and they can push your tower well past what it could normally handle, no matter how you play or whether you spend money. Handled badly they can backfire, but more often they are the thing that gets you over the line on a milestone or farming goal.
+This guide covers how to think about perks rather than just listing them: which labs matter, how your priorities shift between short runs and long-term progression, and how to approach picks depending on what a run is for. Perks do not appear in Tournaments at all — they exist purely to strengthen your individual runs.
+On this page
+Understanding Perks
+Early use - Priorities
+Established Towers
+Coin runs
+Milestone Runs
+Priority Perks
+Common Pitfalls, Footguns and misconceptions
+Understanding Perks
+In their raw state, perks show up every 200 waves as a forced pick between two random options. That basic version is nowhere near enough if you want to crack into higher tiers, though even undeveloped perks add meaningful survivability to farming runs.
+The real power comes from the perk labs. Without them, perks are a gamble that can hurt you as easily as help you. With the right lab investment behind them, they become one of the strongest tools you have for reaching goals your tower otherwise could not.
+Everything in this guide is built around that idea: using perks deliberately, as a catalyst, rather than taking whatever the game hands you.
+Early use - Priorities
+Freshly unlocked perks are weak. You get two options, no way to ban anything, and no control over your first pick. Sooner or later you will be offered two trade-off perks that would both wreck your run, leaving you to either swallow one or ignore perks for the rest of that attempt.
+At this stage your lab slots are precious and there are honestly stronger places to put them. That said, if you want perks to start pulling their weight, the first essential buy is one level of Perk Option Quantity, which raises your choices to three. It costs 200 million undiscounted.
+It helps to split your thinking into short term and long term. Short term covers individual runs plus daily and weekly missions. Long term covers labs, relics, themes and similar permanent progression. Perks sit somewhere in between: they transform your short-term runs immediately, while their long-term lab cost is modest enough to be worth paying early.
+Even a single level of Option Quantity means you will far less often be trapped between two run-ending trade-offs. After that, Ban Perks is the cheap early pick — use it to remove options you consider dead weight. Start by banning trade-offs that do nothing for your build, and leave long-investment perks like the investing perk for your third or fourth ban slot.
+Established Towers
+This section assumes you are in or approaching midgame. You likely have three perk choices per pick, possibly First Perk Choice as well, your lab setup is built up or close to its final slot, and your farming runs clear at least 1,000 waves. Perhaps a few milestones sit just a couple of hundred waves out of reach.
+If that sounds like you, the way forward is to stop picking perks on instinct and start breaking down what each run actually needs. The next two sections do exactly that for the two most common run types.
+Coin runs
+Say your long-term progression is healthy but your per-run income feels flat. The first perk to chase is Perk Wave Requirement reduction. Even with four options and first pick, you are not guaranteed to see all three copies, so take it whenever it appears — especially if your maximum wave is still under 2,000.
+Second priority is less obvious. Your instinct says coins, and often that is right, particularly if the coin trade-off perk shows up or if your runs on higher tiers cap out just past 1,000 waves. But on lower tiers, where runs stretch long and most of your income arrives after wave 2,000, you want perks that pay off over distance: Free Upgrade Chance, Game Speed, or the trade-off that halves enemy damage at the cost of halving your own.
+If luck goes your way and you land two or three wave-requirement reductions, game speed and some free upgrades all before wave 2,000, the plan does not change — it is still a coin run. Grab a coin perk or the Golden Tower 1.5x bonus if one appears, and otherwise fill remaining picks with standard survivability: Defense %, Damage, Health and so on.
+Milestone Runs
+Milestone attempts live and die on survivability. Perk Wave Requirement reduction is still your first grab, followed by Free Upgrades when the target sits in the thousands of waves.
+Free Upgrades reward active play. Micromanage the opening hundred waves or so — run the cash card if it helps you hold max interest — and funnel the free levels into battle upgrades that are expensive or nearly maxed, things like Critical Factor, Bounce Range, landmine radius or damage-per-metre. Those final workshop levels get pricey fast, and how you handle the early waves can decide whether the milestone happens at all. If your build uses Super Crit or the enemy attack/health skip, prioritise those, since their costs climb quickest.
+For shorter milestone pushes, skip Free Upgrades and lean on Defense %, Health and Attack perks instead. Even so, never dismiss free upgrades entirely — once a single wave's earnings can barely buy one battle upgrade, their value spikes hard.
+There is also a subtler way to improve your perk pool mid-run. Imagine an early pick offering a random Ultimate Weapon, Health, Damage, and a boost for an ultimate you have barely touched. Damage or Health feels correct, but the right call is the useless UW perk. Each ultimate can only carry one boost perk, so taking it removes it from the pool permanently and raises the odds of strong perks later. When every option is bad, pick the one that costs you the least and clears itself out of rotation. Only Perk Wave Requirement reduction rivals this kind of pool thinning. One warning: after you hold 20 perks, the gap between picks grows, so check the Perk Waves Required details before leaning too hard on this approach.
+Priority Perks
+Priority order is always relative to your run goals, but worked examples help when you are calculating Waves Required. The orders below assume ideal conditions and maximum quantity on each perk, with the running total of perks taken shown in brackets.
+One common route for a standard run: (3) PWR, then (4) the -50/-50 damage trade-off, (5) game speed, (10) free upgrades, (17) coin perks, (23) Def%, (28) Damage at roughly equal footing with (33) Health, and finally (41) Ultimate Weapon perks. Here the coin perks grouping covers the 1.8 coin perk and the Gold Tower x1.5 boost.
+A second route suits runs where you front-load utility: (3) PWR, (4) game speed, then (17) single-quantity perks, (22) Bounce or Orb at roughly equal priority, and from there your favoured perks based on the run's conditions and goals. Single-quantity perks include, but are not limited to, the -50/-50 trade-off, 1.8 coin, and all UW perks.
+Treat these as starting templates rather than fixed rules, and adjust the order whenever a specific mission or run condition demands it.
+Common Pitfalls, Footguns and misconceptions
+Some perk-related investments look appealing on paper but do not pay off at the moment. A few examples to be aware of:
+The Waves Required lab is costly and time-consuming, and offers little appeal past level 10.
+Auto Pick Perks is also costly and time-consuming, and needs multi-stage preparation before it becomes viable. It only earns its place after your other perk labs are already levelled.
+First Choice perk is still a must-get, but be aware it does not cover Trade-off Perks. You cannot use it to cheese the 1.8 coin trade-off.
+Related pages
+Coin Guide - Basics
+Daily Missions
+Guides
+Lab Upgrades
+Perk Labs
+Perks
+Relics
+Themes Menu
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-05-02) . Something out of date? Tell us in the Discord .

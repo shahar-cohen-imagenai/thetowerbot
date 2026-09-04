@@ -1,0 +1,8 @@
+Coins is a common card that directly increases how much coin income you earn. It is one of the more straightforward cards in the game, and its value scales with how much of your economy depends on coin generation.
+Coins
+Coins is a common card in The Tower: Idle Tower Defense. Its effect increases all coins earned by a set amount, shown as [x] in the card's description. Because it applies to all coin income, it benefits every source of coins you have running during a round. The exact multiplier at each card level is listed in the data table below.
+Coins value per card level
+Card Mastery
+Unlocking the Coins card mastery costs 1250 stones. Once unlocked, it increases the card's stat multiplier, making the coin bonus stronger than the base card alone. Keep in mind the mastery bonus is only active while the Coins card is slotted into your current loadout — unequipping the card removes the benefit entirely.
+Coins mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

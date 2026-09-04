@@ -1,0 +1,7 @@
+Intro Sprint is a card that fast-forwards the opening of a run. While it is active, the wave counter jumps ahead in steps of 10 until it either completes its set number of waves or catches up to the highest wave you have previously reached in the tier you are currently running.
+Description
+During Intro Sprint, waves advance by 10 at a time, stopping after a fixed number of waves or when you reach your highest wave for the current tier, whichever comes first. A boss spawns on every one of these waves, and you earn no coins while the sprint is running.
+Use
+The card has several effects beyond its in-game text. Bosses that appear during the sprint cannot drop modules or reroll dice, and you only receive 20% of the normal cells from sprint waves. The sprint counts as 9 wave skips, which feeds into cash, free upgrades, and enemy level skips. You also cannot manually trigger Demon Mode, Nuke, or Missile Barrage while the sprint is in progress.
+If you want out before it finishes, tap the Intro Sprint icon that appears beneath your cash, coin, and gem totals in the top left of the screen to cancel it early.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-23) . Something out of date? Tell us in the Discord .

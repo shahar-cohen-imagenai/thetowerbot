@@ -1,0 +1,12 @@
+Workshop Respec lets you wipe your Workshop upgrades and reclaim the coins you put into them, so you can rebuild your stats from scratch without losing progress in coins. It costs 150 gems each time you use it.
+Description
+Workshop Respec resets your Workshop for 150 gems. When you respec, you get back the full amount of coins you originally spent on upgrades, even if a lab discount reduced what you actually paid at the time.
+The reset only applies to coin-based Workshop upgrades. Ultimate Weapons are not affected, so anything you have invested there stays exactly as it is.
+Lab
+The Workshop Respec lab is unlocked through Milestones at tier 4, wave 30. It has a single level, so once you have researched it there is nothing further to upgrade. The unlock requirements are listed in the table below.
+Related pages
+Lab Upgrades
+Milestones
+Ultimate Weapons
+Workshop Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2023-08-04) . Something out of date? Tell us in the Discord .

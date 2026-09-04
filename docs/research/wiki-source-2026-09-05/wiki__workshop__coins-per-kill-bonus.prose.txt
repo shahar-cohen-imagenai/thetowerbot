@@ -1,0 +1,40 @@
+Coins Per Kill (CPK) is a Workshop upgrade that raises the coins you receive every time you destroy an enemy. Because it multiplies with several other coin bonuses, it is one of the core ways to grow your coin income as you progress.
+On this page
+Description
+Workshop
+Formula
+Cost
+Coin Bonus
+Coins/Kill Bonus
+Description
+Coins Per Kill increases the coins awarded each time you destroy an enemy. Every kill in a run pays out based on this value, so even small increases add up quickly over thousands of kills per round.
+Workshop
+You unlock Coins Per Kill in the Workshop for 100 coins, buying it with Coins/Wave once you have purchased Cash Bonus and Cash Per Wave. It starts at a base value of x1.00 and has 149 levels, each adding 0.01 to the multiplier, up to a maximum of x2.49.
+The multiplier stacks multiplicatively with every other bonus that boosts coins from kills, such as the Tier Bonus, Skin Bonus, Golden Bot and Golden Tower. None of these change the coin/kill figure shown in game. The All Coin perk is the exception — it does raise the displayed Coin/Kill value.
+Formula
+The full calculation is: Coins/Kill = (Workshop × CPK lab + CPK mod effect) × (1 + coin bonus enhancement) × (1 + coin bonus perk base of 0.15 × perk quantity) × (trade-off perk of 1.8 × (1 + trade-off lab)).
+Work through the formula without rounding at any step, since rounding will make your result differ from the in-game display. Note that the enhancement is counted twice overall — once in the tier bonus and once in CPK itself. If you have not unlocked the trade-off perk, use 1 in place of that term.
+Cost
+The cost table below lists what you pay per level for this upgrade in the Workshop.
+Show all 16 rows
+Coin Bonus
+Coin Bonus is an enhancement that unlocks after you have spent 50 billion coins on Utility enhancements. Unlocking it raises the Coin Bonus multiplier by x1, and each further level adds 0.01x, up to a maximum level of 200 for a 3x bonus.
+This enhancement feeds into both the tier bonus and Coins/Kill, so its overall benefit is effectively squared. The level costs are shown in the table below.
+Show all 200 rows
+Coins/Kill Bonus
+Coins/Kill Bonus is a lab upgrade unlocked through Milestones at tier 1, wave 30. It has 99 levels, and each level increases the increments of the Workshop levels while also raising the maximum value the Workshop upgrade can reach. See the table below for the per-level details.
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Wave
+Critical Hits
+Damage
+Damage Per Meter
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-06) . Something out of date? Tell us in the Discord .

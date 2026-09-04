@@ -1,0 +1,9 @@
+Perk Research
+Unlock Perks Max Lv 1 Waves Required Max Lv 100
+Auto Pick Perks Max Lv 1 Standard Perks Bonus Max Lv 25
+Perk Option Quantity Max Lv 2 First Perk Choice Max Lv 1
+Ban Perks Max Lv 8 Improve Trade-Off Perks Max Lv 10
+Auto Pick Ranking Max Lv 32
+Related pages
+Perk Labs
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-07-19) . Something out of date? Tell us in the Discord .

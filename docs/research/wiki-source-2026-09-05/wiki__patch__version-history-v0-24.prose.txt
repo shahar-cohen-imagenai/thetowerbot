@@ -1,0 +1,147 @@
+Version 0.24 was one of the game's largest updates, headlined by a full bot redesign that made their timing work like Ultimate Weapons with in-run toggles, plus a complete Death Wave rework built around a persistent damage pool and utility-granting Effect Waves. Every Ultimate Weapon received adjustments, new labs and upgrades were added across the board, and three new tiers arrived alongside rebalanced T14+ scaling. A major engine rewrite improved lag recovery and fixed spawn rates across game speeds, while tournaments saw new Battle Conditions, Champion-tier changes, and increased enemy scaling. Numerous quality-of-life additions, including a Claim All Milestones button, hit text options, and a bot respec, rounded out the update.
+Change list
+Reproduced from the developer's release notes.
+Bots have been redesigned so that their timing is more intuitive. They now work the same way as Ultimate Weapons, and they can be toggled on/off during a run. Additionally, new stats and labs have been added so that your bots can get even stronger! New Stats:
+For all 4 bots, the stat ‘Frequency’ has been changed to ‘Cooldown’. Medal purchases into frequency will be refunded. Lab levels that were researched will persist.
+Golden Bot - Duration
+Amplify Bot - Duration
+Thunder Bot - Linger%: A portion of the stun effect will remain for 3 seconds even after the thunder bot's duration
+Flame Bot - Damage Reduction%: Enemies burned by Flame Bot will have a portion of their damage reduced
+Golden Bot - Increase duration
+Amplify Bot - Increase duration
+Thunder Bot - Increase linger time
+Flame Bot - Burn Stack: Allow for successive hits to stack the burn effect
+Additionally the renamed Cooldown lab (was Frequency) for all 4 Bots has been given 5 additional levels
+Flame Bot now “burns” the enemy. Every second, a burned enemy takes damage equal to Flame Bot initial hit, burn stacks (allowed with the lab), makes the burn ticks faster per stack, for example a stack of 4 will make the enemy take a burn hit every 0.25s (1s/4)
+Thunder Bot is now 50% effective against Bosses and Elites. Linger % is also 50% effective against Bosses and Elites.
+We have adjusted every UW in some way. There are plenty of new upgrades to spend stones on, and several existing upgrades have been made stronger or changed to fit the game better.
+Chain Lightning - Damage Scaling Changed
+Chain Lightning - CL+ reworked (the new effect is capped after 100 hits on a given enemy)
+Chain Lightning - Damage module substats have had their scaling changed
+Smart Missiles - Damage Scaling Changed
+Smart Missiles - New levels added to Cooldown and Quantity
+Death Wave - Coin Bonus is applied to all enemies hit rather than only enemies killed
+Death Wave - Animation was reworked to be more performant
+Chrono Field - New levels added to Slow %
+Chrono Field - CF+ reworked
+Golden Tower - New levels added to Duration and Bonus
+Golden Tower - GT+ only counts enemies that spawned during the current activation
+Poison Swamp - New levels added to Duration
+Black Hole - New levels added to Duration
+Black Hole - BH+ reworked
+Spotlight - New levels added to Angle and Quantity
+Spotlight - SL+ reworked
+Chain Thunder: Every 1% of enemy health removed by chain lightning reduces enemy damage by 10% (max reduction: [lab level])
+Lightning Amplifier ~ Scatter: Each Chain Lightning hit on a Scatter will amplify the damage for the next Chain Lightning hit on the same target (Additive)
+Swamp Rend: When Basic Enemies are hurt by the Poison Swamp, that damage is boosted by a percent of the enemy’s current Rend Armor Mult
+Swamp Rend - Additional Enemies: Increase the type of enemies that are impacted by Swamp Rend
+Here's the big one! A large part of the game code has been rewritten to be lighter on compute. The main tangible effect is: when lag starts to happen, the game can now recover gracefully. Previously, this would just snowball and cause all new computation to lag. Spawn rate differences across game speeds have been resolved.
+Three new tiers with all new Battle Conditions have been added. Additionally, the scaling of Battle Condition levels from T14 and T15 has been lessened, so that they are more gradually increased to T18. The damage and health scaling of enemies T14+ has been decreased.
+Auto Perk Priority
+Perk Ban (4 more levels)
+Improved Module Shatter returns
+Wall Regen (20 more levels)
+Increased damage and health scaling for tournaments
+New BCs are possible during tournaments
+Champion Tournaments start with the Boss per wave Battle Condition maxed.
+Champion Tournaments have been given an additional Battle Condition
+Module drop rate for Bosses in Champion Tournaments now have a cooldown of 20 waves
+Second tournament ticket will correctly be provided for free if you have the Disable Ads pack
+Two new perks (Cash and Defense Absolute)
+Changed Chrono Field perk from extra range to +5 seconds duration
+Added a Claim All Milestones button
+All bonus values will use "x[multiplier]" rather than %
+Mass was not being correctly boosted during runs. To not completely change game behavior since this wasn't working before, we made mass only start to be increased on high waves, but on new tiers this will work from the first wave.
+Extra long boss wave cooldown removed
+'recovery package after boss wave' will work on all boss waves correctly now
+Wave Skip now works on all waves (including xxx9)
+Wave Skipping a boss will roll for a module/reroll dice drop
+Fixed coin calculation stat giving negative values
+Event Booster has 250 gems added (will only go into effect for the next event)
+Max Tier for the cardless mission has been capped to T14
+Changed how news (patch notes) are displayed to users. They can now be found in the "Mail"
+Mission to “Reach wave X on a tier” will now auto update if you have a run in progress when the mission is given.
+All overheal on both tower and wall are condensed to one bar
+Wall Fortification will use Wall Regen lab to impact the speed of regeneration
+Other bug fixes
+Watching ads no longer leaves your run paused after claiming the reward
+A bug excessively limiting the range of Death Wave was fixed
+A rare bug where players lose their upgrades mid run has been fixed
+Orbs should work as normal now
+Chain Lightning - Scatter Amp is passed on to children
+Two levels were added to Swamp Rend - Additional Enemies (Bosses and Vampires)
+The “Start 1 run” daily mission was incorrectly labeled as “Buy 1 card”
+Chain Lightning damage had an incorrect value for one step
+Elite masses have been doubled
+Om Chip correctly follows bosses even with CF+
+Coins from Spotlight and coins from Black Hole stats were fixed
+Description of the Extra Orbs card was corrected
+New UW labs now have a prerequisite of owning the respective Ultimate Weapon
+Auto Pick Perk Priority lab is now locked behind Auto Perk lab now
+We have heard your feedback around Smart Missiles damage! SM damage has been improved to be more inline with previous version values while keeping the new scaling. To maintain balance, we have buffed Poison Swamp damage, Inner Land Mine damage, and Chain Lightning damage by a similar amount.
+A once per event bot respec is now available in the event store for 300 gems. All players will receive a free respec when loading from a previous game version.
+Hit Text now has a menu where you can toggle many different options to get a better understanding of your tower’s strengths
+Elite’s mass was reworked to be more similar to how it worked pre v24.0. It still isn’t identical, because knockback was completely redone as part of the performance changes.
+The Multiverse Nexus module now rounds to the nearest whole second
+BH+ and CL+ use percentage values once again
+CL+ Tooltip has been updated
+CL+, DW+, and BH+ now deal damage off of the enemy's wave health. So, with pulsar harvester, the level reduction also reduces the damage of these UWs
+All UWs that cause damage (including orbs and Death Ray) count towards the Critical Coin card again
+The “Buy 1 card” mission is no longer mislabeled as “Start 1 battle”
+Berserker now shows the right impact from the Damage card in the Damage Tooltip
+Flame Bot Damage Reduction no longer has a floating point error
+Ultimate Tank is no longer impacted by shockwave
+A small module icon glitch has been resolved
+If there are unselected perk bans, auto perk no longer blocks the movement of too many perks
+The perk menu is unlockable with “Auto Perk Ranking” researched
+Some UW+ and UW copy fixes
+Some other performance enhancements
+Death Wave has been completely reworked. It should still provide many of the benefits of today while adding many more. It works on the same Cooldown as the old Death Wave. Now, however, there is only one damage dealing wave (called the Death Wave). The Death Wave has a "damage pool" and will persist at your tower range until it has dealt that amount of damage. New activations of DW will add to the damage pool (rather than replacing it). The "damage pool" will only be reduced by the amount of damage needed to destroy an enemy (factoring in any bonuses)
+The Death Wave is preceded by some number of Effect Waves.
+“Quantity” has been changed to “Effect Waves”
+Effect Waves have 5 utilities (all of which can be improved with labs): Coin bonus: An enemy hit by an Effect Wave or the final Death Wave will have a coin bonus when it is destroyed Health bonus: An enemy hit by an Effect Wave or the final Death Wave will give a 0.05% health bonus when it is destroyed Cell bonus: An elite enemy hit by an Effect Wave or the final Death Wave will have a cell bonus applied when it is destroyed Death Wave Damage Amplifier: Each Effect Wave hit on a given enemy will boost the damage that enemy takes from the Death Wave Death Wave Armor Stripping: Each Effect Wave hit will strip some amount of armor from an enemy
+Effect Waves range are infinite
+Effect Waves have a 4 second interval
+Damage Scaling has been adjusted
+Damage module substat has been drastically improved
+Kill Wall drastically increases the damage of the Death Wave by counting every enemy hit by an effect wave and boosting the damage by that number times the power of your Kill Wall
+The Random Ultimate Weapon perk version of Death Wave will have the base health bonus and damage amplification bonus.
+New Enemy Battle Conditions added (Fast, Ranged, Basic, Boss)
+All Enemy Battle Conditions also get “boss status”: not impacted by orbs, Death Ray, Black Hole, or Black Hole damage. 50% damage from thorns
+Bonus from Death Wave in the Health tooltip is now shown as a multiplier rather than a magnitude
+Damage / Meter has been correctly adjusted to being based on 1 meter rather than 10 meters
+Damage / Meter module substats have been increased
+Rays and Vampires are now affected by CF+
+Garlic Thorns was added as a new lab. Effect: Vampires are hit with a small percent of thorns damage
+Bot range scales more smoothly and generously based on tower range
+Thunder, Chrono Field Reduction %, and Flame bot damage reduction all work on Rays
+Black Hole position is now slightly inside range at any tower range
+Plasma Cannon now fires before Boss get in range
+iOS occasionally being unable to connect to the internet for tournaments should be fixed
+Thorns Battle Condition was not affecting Rays
+Thorns hit text unlocks correctly
+Enemies were stopping a little short of the tower hitbox
+Updated Flame Bot Description
+Flame Bot armor stripping works now (lab copy has changed to match)
+Flame Bot damage reduction works now
+Ultimate Weapons from the Random UW Perk can have their hit text controlled
+Random UW Perk will remember the on/off state between runs
+Multiverse Nexus should correctly start a run or a resume with the average Cooldown
+Fixed an issue where the "Change Account" feature weren't properly working
+Death wave now give coin bonus even without any lab research
+When enemies die to Death wave they will now show the damage taken and remaining value in the DW pool. The damage taken is the amount removed from the pool.
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,42 @@
+Version 0.15 introduced the events system, a two-week cycle of missions that award currency for gems, stones, limited themes, and new robotic companions called bots that fight alongside your tower. The update also added the Champion league for tier 10+ players, new super critical attack upgrades and research, and rebalanced ultimate weapons by shifting their damage scaling from linear to exponential. Rounding it out were quality-of-life fixes like tournament end notifications, saved auto-pick perk states, and corrections to health, damage stat, and spawn bugs.
+Change list
+Reproduced from the developer's release notes.
+Events: participate in 2 week events. Accomplish missions to earn event currency. Spend currency on gems/stones, permanent upgrades to your tower in the form of robotic companions, or limited time themes. After an event completes, a new one will be ready in 2 weeks (usually). See in game info panel for more info. Expect changes to this along the way as I receive feedback
+Bots: Earned through events, fly around your tower causing damage, stunning or providing coin bonuses. Can be upgraded further after unlocking
+Themes: Each event will feature a limited theme that can be unlocked by earning event currency. Change the look of your tower and the background theme
+• New league: Champion - tier 10+ (this adds more granularity to leagues and will disperse skill levels better to create a more gradual difficulty gap between leagues). Expect more changes shortly after though once players start filtering into new leagues
+• Notification added for when a tournament ends, to remind player to claim their reward
+• Players that have been in gold league or higher cannot be demoted to copper league (previously only platinum was barred).
+• New Attack Upgrade: Super Critical Chance
+• New Attack Upgrade: Super Critical Mult
+• New Research: Blackhole Coin Bonus - Coin bonus for enemies killed within blackholes
+• New Research: Super Crit Chance
+• New Research: Super Crit Mult Bonus
+• Smart Missile Amplifier research bonus increased from 0.8 to 1.5 per level
+• All ultimate weapons that deal damage had equation for damaged changed from linear to exponential. Some like missiles grow much faster than others like death wave to help balance them, but all damage was buffed for each one.
+• All ultimate weapon damage upgrades max level increased from either 15 or 17 to 20
+• Golden tower max coin bonus max level increased from 12 to 15, however, is very expensive from level 12 to 15
+• Auto pick perk toggle state is saved on game close now
+• Dollar symbol shade of green is less ugly for max interest
+• Round end stats added for new mechanics like bots and blackhole coins earned
+• Further optimization of code and changes to expedite new updates
+• Lots of other stuff I'm sure I forgot to add to the update notes
+• Max health with and without health card math being slightly off (players will see slightly higher health without the card slotted in than before)
+• Total and round damage stats being wrong or negative occasionally
+• Left and right enemy spawns sometimes not working correctly
+• Translation fixes
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

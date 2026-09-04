@@ -1,0 +1,16 @@
+Utility Research
+Cash Bonus Max Lv 99 Cash / Wave Max Lv 99
+Coins / Kill Bonus Max Lv 99 Coins/wave Max Lv 99
+Interest Max Lv 99 Max Interest Max Lv 15
+Package After Boss Max Lv 1 Recovery Package Amount Max Lv 20
+Recovery Package Max Max Lv 20 Recovery Package Chance Max Lv 20
+Enemy Attack Level Skip Max Lv 20 Enemy Health Level Skip Max Lv 20
+Related pages
+Cash Bonus
+Cash Per Wave
+Coins Per Kill Bonus
+Coins Per Wave
+Enemy Level Skip
+Interest
+Recovery Packages
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

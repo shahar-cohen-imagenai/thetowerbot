@@ -1,0 +1,79 @@
+Enemy Level Skip is a utility upgrade that gives you a chance to skip the enemy stat level-up that normally happens after a completed wave. When it triggers, enemies stay at their current attack or health level instead of scaling up, slowing how quickly runs get harder.
+It comes in two parts — Enemy Attack Level Skip and Enemy Health Level Skip — which are upgraded separately but work the same way.
+On this page
+Overview
+Workshop
+Cost — Enemy Attack Level Skip
+Enemy Level Skips
+Lab — Enemy Attack Level Skip
+Lab
+Relics
+Overview
+After each completed wave, enemies normally gain a level to their stats. Enemy Level Skip gives a chance to skip that level-up, so enemy attack or health stays where it was for another wave.
+The effect is split into two independent upgrades: Enemy Attack Level Skip and Enemy Health Level Skip. Each one only affects its own stat, so you need both if you want to slow overall enemy scaling.
+Workshop
+You unlock Enemy Level Skip in the workshop for 1,000,000,000 (1B) coins, after Recovery Packages. Unlocking it opens both the Enemy Attack Level Skip and Enemy Health Level Skip workshops.
+Each workshop has 699 levels, starting at a 0.05% chance to skip. Every level adds another 0.05%, up to a maximum of 35.00%.
+When you skip waves with the Wave Skip card, Enemy Level Skip is checked for each wave that was skipped. For example, if Wave Skip triggers x3, the skip chance is rolled for each of those waves.
+As of V26, both Enemy Attack Level Skip and Enemy Health Level Skip are fully deterministic rather than random. A 50% chance, for instance, skips every other wave exactly, with no variance.
+Cost — Enemy Attack Level Skip
+Level Value Coins Total Coins
+1 0.10% 300.00M 300.00M
+10 0.55% 444.01M 3.72B
+20 1.05% 604.08M 9.04B
+30 1.55% 764.32M 15.96B
+40 2.05% 924.86M 24.49B
+50 2.55% 2.17B 44.76B
+60 3.05% 2.57B 68.95B
+70 3.55% 2.90B 96.49B
+80 4.05% 3.40B 128.17B
+90 4.55% 7.52B 200.13B
+Show all 71 rows
+Enemy Level Skips
+The Enemy Level Skips enhancement requires 500 trillion coins spent on Utility enhancements to unlock. It increases both the Enemy Health and Enemy Damage Level Skip multipliers by x1 when unlocked, then adds 0.01x per level. It caps at level 60, giving a 1.6x bonus. See the enhancement table below for per-level values.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+2 1.02x 15.50B 20.50B
+3 1.03x 202.98B 223.48B
+4 1.04x 1.13T 1.36T
+5 1.05x 3.89T 5.24T
+6 1.06x 10.14T 15.38T
+7 1.07x 22.19T 37.57T
+8 1.08x 43.05T 80.63T
+9 1.09x 76.44T 157.07T
+10 1.10x 126.85T 283.91T
+Show all 60 rows
+Lab — Enemy Attack Level Skip
+Level Time Cost Value
+1 0d 16h 39m 900,000,000 0.10
+2 1d 1h 1m 1,010,000,000 0.20
+3 1d 9h 30m 1,160,000,000 0.30
+4 1d 18h 19m 1,430,000,000 0.40
+5 2d 3h 38m 1,940,000,000 0.50
+6 2d 13h 41m 2,800,000,000 0.60
+7 3d 0h 40m 4,150,000,000 0.70
+8 3d 12h 50m 6,140,000,000 0.80
+9 4d 2h 25m 8,940,000,000 0.90
+10 4d 17h 39m 12,730,000,000 1.00
+Show all 20 rows
+Lab
+The Enemy Level Skip labs are unlocked through Milestones at tier 11, wave 200. Like the workshop, the lab is split into Enemy Attack Level Skip and Enemy Health Level Skip. Each lab has 20 levels, and the lab levels add directly to the respective workshop upgrade.
+Relics
+Some relics grant an additional bonus to Enemy Level Skip. The relic table below lists which relics apply and the bonus each one provides.
+# Rarity Relic Bonus Type Value Source Event / Type
+55 Epic Light Speedometer Enemy Attack Level Skip 2% Event Faster Than Light II (Standard)
+62 Epic Alien Egg Enemy Health Level Skip 2% Event Invaders II (Standard)
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-19) . Something out of date? Tell us in the Discord .

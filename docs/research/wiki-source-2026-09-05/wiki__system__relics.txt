@@ -1,0 +1,46 @@
+Relics are passive buffs that permanently improve your tower's abilities. Once you have earned one, it works on its own in the background — there is nothing to equip or activate.
+On this page
+Description
+Unlock
+Using Relics
+Relics
+Description
+Relics are passive buffs to increase tower abilities. They sit alongside your other upgrades as a permanent boost, applying to every run without any input from you.
+Unlock
+You can browse relic unlocks in the Themes Menu. There are six main ways to earn them: reaching wave 4500 milestones, placing in tournaments, completing events and buying from the event store, the guild store, rewards for years of gameplay, and a gift commemorating the game's 5th Anniversary. Note that relics bought from the event store are only available when that event is re-run, so if you miss one you will need to wait for it to come back.
+Using Relics
+Relics are fully passive — once unlocked, their effects apply automatically with no setup required. When stacking, bonuses from similar relics add together, while they multiply against other types of bonuses. The table below lists each relic and its effect.
+Total Bonuses
+Misc. Total
+Lab Speed 75%
+Bot Range 10m
+Damage Total
+Damage 111%
+Ultimate Damage 45%
+Attack Speed 18%
+Critical Chance 14%
+Critical Factor 107%
+Damage / Meter 83%
+Super Critical Chance 6%
+Show all 30 rows
+Relics
+The table below lists the relics available in the game, along with the bonus each one provides and how it is unlocked.
+Nr. Order Relic Rarity Description Unlock Requirement
+1 T:I Flux Rare Increase coins earned by 2% Milestone: Beat Wave 4500 in tier 1
+2 T:II Lumin Rare Increase lab speed by 1.5% Milestone: Beat Wave 4500 in tier 2
+3 T:III Pulse Rare Increase critical factor by 2% Milestone: Beat Wave 4500 in tier 3
+4 T:IV Harmonic Rare Increase tower damage by 2% Milestone: Beat Wave 4500 in tier 4
+5 T:V Ether Rare Increase tower health by 2% Milestone: Beat Wave 4500 in tier 5
+6 T:VI Nova Epic Increase defense absolute by 5% Milestone: Beat wave 4500 in tier 6
+7 T:VII Aether Epic Increase coins earned by 5% Milestone: Beat wave 4500 in tier 7
+8 T:VIII Graviton Epic Increase damage / meter by 5% Milestone: Beat wave 4500 in tier 8
+9 T:IX Fusion Epic Increase tower health by 5% Milestone: Beat wave 4500 in tier 9
+10 T:X Plasma Epic Increase damage / meter by 5% Milestone: Beat wave 4500 in tier 10
+Show all 288 rows
+Related pages
+Events
+Guilds
+Milestones
+Themes Menu
+Tournaments
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-21) . Something out of date? Tell us in the Discord .

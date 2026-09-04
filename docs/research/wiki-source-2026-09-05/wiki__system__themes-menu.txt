@@ -1,0 +1,87 @@
+The Themes Menu, often just called skins, is where you customise how your game looks and sounds. You can swap your tower's appearance, change the background, pick different music, and check which relics you have collected.
+Every cosmetic you unlock adds a permanent boost to your coin earnings, even when you are not using it. This makes collecting themes a practical way to increase your income over time.
+On this page
+Description
+Themes
+Tower Themes
+Background Themes
+Menu Themes
+Guardian Themes
+Passive Coin Bonus Calculation
+Milestone Themes
+Event Themes
+Guild Themes
+Songs
+Relics
+Guild Seasons
+Description
+The Themes Menu, often just called skins, is where you customise how your game looks and sounds. You can swap your tower's appearance, change the background, pick different music, and check which relics you have collected.
+Every cosmetic you unlock adds a permanent boost to your coin earnings, even when you are not using it. This makes collecting themes a practical way to increase your income over time.
+Themes
+Four cosmetic categories exist: Tower, Background, Menu, and Guardian. Each one grants a coin bonus that stays active permanently, regardless of whether you have the skin equipped.
+You can pick specific looks from the Tower and Background submenus, or use the randomise option to let the game choose for you.
+Tower Themes
+These change how your tower looks during rounds. You can unlock them by reaching wave 2,500 on any tier through Milestones, or buy them during special events.
+Each tower skin you own adds 0.4% to your passive coin earnings.
+Background Themes
+These alter the backdrop behind your tower. They are only available by purchasing them during events.
+Owning a background theme boosts your coins by 0.8% each.
+Menu Themes
+These reskin the game's interface and menus. You buy them using Guild currency.
+Every menu theme in your collection provides a 0.6% coin bonus.
+Guardian Themes
+These change the appearance of your Guardian companion. Like menu themes, they are purchased through the Guild.
+Each one you own adds another 0.6% to your coin multiplier.
+Passive Coin Bonus Calculation
+All theme bonuses stack together additively into one cumulative multiplier. You can see your current total displayed in the tier multiplier menu.
+The game works it out by taking your base value of 1, then adding 0.004 for every tower theme, 0.008 for every background theme, and 0.006 for each menu and guardian theme you possess.
+Milestone Themes
+Theme Free/Paid
+Shurken Free
+Donut Paid
+Yin-Yang Free
+Smile Free
+Butterfly Paid
+Sheep Free
+Fried Egg Free
+Mush-mush Skin Paid
+Turtle Free
+Cheese Free
+Show all 21 rows
+Event Themes
+The table below lists both tower and background skins that have been available during past events.
+Theme Rerun
+Interstellar Yes
+Volcano Yes
+Plasma Yes
+Honeycomb Yes
+Aurora Yes
+Alien Yes
+Ocean Night Yes
+Sakura Yes
+Easter Yes
+Retrowave Yes
+Show all 39 rows
+Guild Themes
+The chart shows which themes are available in the guild shop during the current season.
+Guild Season Tower Background Menu Profile Guardian Rerun?
+1 Crown Throne Room Dark Being Butter no
+2 Mech Warrior Mech world Mech world Mech world Muse, Finn no
+3 DJ Party Party Party Nyra, Rolo no
+4 Pixel Soldier Pixel Alien War Pixel Alien War Pixel Alien War Glenn, Zepe no
+5 Restless Eye Crimson Horror Crimson Horror Crimson Horror Iris, Silk no
+6 Shining Star Cozy Cosmos Cozy Cosmos Cozy Cosmos Mickey, Gaia no
+7 Space Telescope Supernova Supernova Supernova Arwing, Frank no
+8 Bear Claw Machine Claw Machine Claw Machine Earl, Mei no
+Songs
+The Song submenu sits inside the Themes area. Here you can pick which tracks play during your rounds, and it also gives you another place to mute the game's audio entirely.
+Relics
+This submenu shows every relic you have unlocked and displays the total bonuses they provide. For full details on how relics work, see the Relics page.
+Guild Seasons
+Guild Season Tower Background Menu Guardian Rerun?
+1 Crown Throne Room Dark Being Butter no
+Related pages
+Events
+Milestones
+Relics
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-06) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,719 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "",
+      "Common",
+      "Rare",
+      "Epic",
+      "Legendary",
+      "Mythic",
+      "Ancestral"
+    ],
+    "rows": [
+      [
+        "Attack Speed",
+        "0.3",
+        "0.5",
+        "0.7",
+        "1",
+        "3",
+        "5"
+      ],
+      [
+        "Crit Chance [%]",
+        "2",
+        "3",
+        "4",
+        "6",
+        "8",
+        "10"
+      ],
+      [
+        "Crit Factor",
+        "2",
+        "4",
+        "6",
+        "8",
+        "12",
+        "15"
+      ],
+      [
+        "Attack Range [m]",
+        "2",
+        "4",
+        "8",
+        "12",
+        "20",
+        "30"
+      ],
+      [
+        "Damage / Meter [m]",
+        "0.005",
+        "0.01",
+        "0.025",
+        "0.04",
+        "0.075",
+        "0.15"
+      ],
+      [
+        "Multishot Chance [%]",
+        "n/a",
+        "3",
+        "5",
+        "7",
+        "10",
+        "13"
+      ],
+      [
+        "Multishot Targets",
+        "n/a",
+        "n/a",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      [
+        "Rapid Fire Chance [%]",
+        "n/a",
+        "2",
+        "4",
+        "6",
+        "9",
+        "12"
+      ],
+      [
+        "Rapid Fire Duration",
+        "n/a",
+        "0.4s",
+        "0.8s",
+        "1.4s",
+        "2.5s",
+        "3.5s"
+      ],
+      [
+        "Bounce Shot Chance",
+        "n/a",
+        "2%",
+        "3%",
+        "5%",
+        "9%",
+        "12%"
+      ],
+      [
+        "Bounce Shot Targets",
+        "n/a",
+        "n/a",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      [
+        "Bounce Shot Range",
+        "n/a",
+        "0.5m",
+        "0.8m",
+        "1.2m",
+        "1.8m",
+        "2.0m"
+      ],
+      [
+        "Super Crit Chance",
+        "n/a",
+        "n/a",
+        "3%",
+        "5%",
+        "7%",
+        "10%"
+      ],
+      [
+        "Super Crit Multi",
+        "n/a",
+        "n/a",
+        "2",
+        "3",
+        "5",
+        "7"
+      ],
+      [
+        "Rend Armor Chance",
+        "n/a",
+        "n/a",
+        "n/a",
+        "2%",
+        "5%",
+        "8%"
+      ],
+      [
+        "Rend Armor Multi",
+        "n/a",
+        "n/a",
+        "n/a",
+        "2%",
+        "5%",
+        "8%"
+      ],
+      [
+        "Max Rend Armor Multi",
+        "n/a",
+        "n/a",
+        "n/a",
+        "200%",
+        "300%",
+        "500%"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "",
+      "Common",
+      "Rare",
+      "Epic",
+      "Legendary",
+      "Mythic",
+      "Ancestral"
+    ],
+    "rows": [
+      [
+        "Health Regen [%]",
+        "20",
+        "40",
+        "60",
+        "100",
+        "200",
+        "400"
+      ],
+      [
+        "Defense [%]",
+        "1",
+        "2",
+        "3",
+        "5",
+        "6",
+        "8"
+      ],
+      [
+        "Defense Absolute [%]",
+        "15",
+        "25",
+        "40",
+        "100",
+        "500",
+        "1000"
+      ],
+      [
+        "Thorns Damage",
+        "n/a",
+        "n/a",
+        "2",
+        "4",
+        "7",
+        "10"
+      ],
+      [
+        "Lifesteal [%]",
+        "n/a",
+        "n/a",
+        "0.3",
+        "0.5",
+        "1.5",
+        "2.0"
+      ],
+      [
+        "Knockback Chance [%]",
+        "n/a",
+        "n/a",
+        "2",
+        "4",
+        "6",
+        "9"
+      ],
+      [
+        "Knockback Force",
+        "n/a",
+        "n/a",
+        "0.1",
+        "0.4",
+        "0.9",
+        "1.5"
+      ],
+      [
+        "Orb Speed",
+        "n/a",
+        "n/a",
+        "1",
+        "1.5",
+        "2",
+        "3"
+      ],
+      [
+        "Orbs",
+        "n/a",
+        "n/a",
+        "n/a",
+        "n/a",
+        "1",
+        "2"
+      ],
+      [
+        "Shockwave Size",
+        "n/a",
+        "n/a",
+        "0.1",
+        "0.3",
+        "0.7",
+        "1"
+      ],
+      [
+        "Shockwave Frequency [s]",
+        "n/a",
+        "n/a",
+        "-1",
+        "-2",
+        "-3",
+        "-4"
+      ],
+      [
+        "Land Mine Damage [%]",
+        "n/a",
+        "30",
+        "50",
+        "150",
+        "500",
+        "800"
+      ],
+      [
+        "Land Mine Chance [%]",
+        "n/a",
+        "1.5",
+        "3",
+        "6",
+        "9",
+        "12"
+      ],
+      [
+        "Land Mine Radius",
+        "n/a",
+        "0.1",
+        "0.15",
+        "0.3",
+        "0.75",
+        "1"
+      ],
+      [
+        "Death Defy",
+        "n/a",
+        "n/a",
+        "n/a",
+        "1.5%",
+        "3.5%",
+        "5%"
+      ],
+      [
+        "Wall Health [%]",
+        "n/a",
+        "n/a",
+        "20",
+        "40",
+        "90",
+        "120"
+      ],
+      [
+        "Wall Rebuild [s]",
+        "n/a",
+        "n/a",
+        "-20",
+        "-40",
+        "-80",
+        "-100"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "",
+      "Common",
+      "Rare",
+      "Epic",
+      "Legendary",
+      "Mythic",
+      "Ancestral"
+    ],
+    "rows": [
+      [
+        "Cash Bonus",
+        "0.1",
+        "0.2",
+        "0.3",
+        "0.5",
+        "1.2",
+        "2.5"
+      ],
+      [
+        "Cash / Wave",
+        "30",
+        "50",
+        "100",
+        "200",
+        "500",
+        "1000"
+      ],
+      [
+        "Coins / Kill Bonus",
+        "0.1",
+        "0.2",
+        "0.3",
+        "0.4",
+        "0.5",
+        "0.6"
+      ],
+      [
+        "Coins / Wave",
+        "20",
+        "35",
+        "60",
+        "120",
+        "200",
+        "350"
+      ],
+      [
+        "Free Attack Upgrade [%]",
+        "2",
+        "4",
+        "6",
+        "8",
+        "10",
+        "12"
+      ],
+      [
+        "Free Defense Upgrade [%]",
+        "2",
+        "4",
+        "6",
+        "8",
+        "10",
+        "12"
+      ],
+      [
+        "Free Utility Upgrade [%]",
+        "2",
+        "4",
+        "6",
+        "8",
+        "10",
+        "12"
+      ],
+      [
+        "Interest / Wave [%]",
+        "n/a",
+        "n/a",
+        "2",
+        "4",
+        "6",
+        "8"
+      ],
+      [
+        "Recovery Amount  [%]",
+        "n/a",
+        "n/a",
+        "3",
+        "5",
+        "7",
+        "10"
+      ],
+      [
+        "Max Recovery",
+        "n/a",
+        "n/a",
+        "0.4",
+        "0.7",
+        "1.0",
+        "1.5"
+      ],
+      [
+        "Package Chance [%]",
+        "n/a",
+        "n/a",
+        "5",
+        "8",
+        "11",
+        "15"
+      ],
+      [
+        "Enemy Attack Level Skip [%]",
+        "n/a",
+        "n/a",
+        "2",
+        "4",
+        "6",
+        "8"
+      ],
+      [
+        "Enemy Health Level Skip [%]",
+        "n/a",
+        "n/a",
+        "2",
+        "4",
+        "6",
+        "8"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "",
+      "Common",
+      "Rare",
+      "Epic",
+      "Legendary",
+      "Mythic",
+      "Ancestral"
+    ],
+    "rows": [
+      [
+        "Golden Tower - Bonus",
+        "n/a",
+        "n/a",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      [
+        "Golden Tower - Duration [s]",
+        "n/a",
+        "n/a",
+        "n/a",
+        "2",
+        "4",
+        "7"
+      ],
+      [
+        "Golden Tower - Cooldown [s]",
+        "n/a",
+        "n/a",
+        "n/a",
+        "-5",
+        "-8",
+        "-12"
+      ],
+      [
+        "Black Hole - Size [m]",
+        "2",
+        "4",
+        "6",
+        "8",
+        "10",
+        "12"
+      ],
+      [
+        "Black Hole - Duration [s]",
+        "n/a",
+        "n/a",
+        "n/a",
+        "2",
+        "3",
+        "4"
+      ],
+      [
+        "Black Hole - Cooldown [s]",
+        "n/a",
+        "n/a",
+        "n/a",
+        "-2",
+        "-3",
+        "-4"
+      ],
+      [
+        "Spotlight - Bonus",
+        "1.2",
+        "2.5",
+        "3.5",
+        "10",
+        "15",
+        "20"
+      ],
+      [
+        "Spotlight - Angle*",
+        "n/a",
+        "n/a",
+        "3",
+        "6",
+        "11",
+        "15"
+      ],
+      [
+        "Chrono Field - Duration [s]*",
+        "n/a",
+        "n/a",
+        "n/a",
+        "4",
+        "7",
+        "10"
+      ],
+      [
+        "Chrono Field - Speed Reduction [%]",
+        "n/a",
+        "n/a",
+        "3",
+        "8",
+        "11",
+        "15"
+      ],
+      [
+        "Chrono Field - Cooldown [s]*",
+        "n/a",
+        "n/a",
+        "n/a",
+        "-4",
+        "-7",
+        "-10"
+      ],
+      [
+        "Death Wave - Damage [x]",
+        "8",
+        "15",
+        "25",
+        "50",
+        "100",
+        "250"
+      ],
+      [
+        "Death Wave -  Quantity",
+        "n/a",
+        "n/a",
+        "n/a",
+        "1",
+        "2",
+        "3"
+      ],
+      [
+        "Death Wave - Cooldown [s]",
+        "n/a",
+        "n/a",
+        "n/a",
+        "-6",
+        "-10",
+        "-13"
+      ],
+      [
+        "Smart Missiles - Damage",
+        "8",
+        "15",
+        "25",
+        "50",
+        "100",
+        "250"
+      ],
+      [
+        "Smart Missiles - Quantity",
+        "n/a",
+        "n/a",
+        "1",
+        "2",
+        "4",
+        "5"
+      ],
+      [
+        "Smart Missiles - Cooldown [s]",
+        "n/a",
+        "n/a",
+        "n/a",
+        "-2",
+        "-4",
+        "-6"
+      ],
+      [
+        "Inner Land Mines - Damage [x]",
+        "8",
+        "15",
+        "25",
+        "50",
+        "100",
+        "250"
+      ],
+      [
+        "Inner Land Mines - Quantity",
+        "n/a",
+        "n/a",
+        "n/a",
+        "1",
+        "2",
+        "3"
+      ],
+      [
+        "Inner Land Mines - Cooldown [s]",
+        "n/a",
+        "n/a",
+        "-5",
+        "-8",
+        "-10",
+        "-13"
+      ],
+      [
+        "Poison Swamp - Damage [x]",
+        "8",
+        "15",
+        "25",
+        "50",
+        "100",
+        "250"
+      ],
+      [
+        "Poison Swamp - Duration [s]",
+        "n/a",
+        "n/a",
+        "n/a",
+        "2",
+        "5",
+        "10"
+      ],
+      [
+        "Poison Swamp - Cooldown [s]",
+        "n/a",
+        "-2",
+        "-4",
+        "-6",
+        "-8",
+        "-10"
+      ],
+      [
+        "Chain Lightning - Damage [x]",
+        "8",
+        "15",
+        "25",
+        "50",
+        "100",
+        "250"
+      ],
+      [
+        "Chain Lightning - Quantity",
+        "n/a",
+        "n/a",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      [
+        "Chain Lightning - Chance [%]",
+        "2",
+        "4",
+        "6",
+        "9",
+        "12",
+        "15"
+      ]
+    ]
+  }
+]

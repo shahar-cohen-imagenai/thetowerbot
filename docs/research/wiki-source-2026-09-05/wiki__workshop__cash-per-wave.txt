@@ -1,0 +1,52 @@
+Cash Per Wave is a workshop upgrade that gives you a flat amount of cash every time you finish a wave. It sits alongside Cash Bonus as one of the two core cash upgrades, and the two multiply together, so levelling both is how you grow your economy.
+On this page
+Description
+Workshop
+Cost
+Cash/Wave
+Description
+Cash Per Wave pays out a set amount of cash each time you complete a wave. The payout lands after the wave cooldown timer finishes and is credited before interest is calculated, so the cash you receive can immediately feed into your interest earnings for that round.
+Workshop
+You unlock Cash Per Wave in the workshop for 40 coins, and it becomes available together with Cash Bonus. It starts at a base value of 0 and has 149 upgrade levels, with each level adding 4 to the payout, reaching a maximum of 596. The final amount you receive per wave is this value multiplied by your Cash Bonus, so the two upgrades scale off each other.
+Cost
+The coin cost rises with each workshop level. The cost table below lists the price of every level up to the maximum.
+Level Value Cost Total Cost
+1 4 30.00 30.00
+10 40 674.00 2.76K
+20 80 2.88K 20.16K
+30 120 7.06K 70.23K
+40 160 13.47K 174.15K
+50 200 22.31K 355.40K
+60 240 34.77K 647.75K
+70 280 49.38K 1.07M
+80 320 70.30K 1.68M
+90 360 91.98K 2.50M
+Show all 16 rows
+Cash/Wave
+A matching lab upgrade, Cash/Wave, is unlocked through Milestones at tier 1 wave 30. It has 99 levels, and each lab level increases the size of the workshop increments while also raising the maximum workshop value, letting you push the per-wave payout well beyond the base cap. The table below shows the effect of each lab level.
+Level Time Cost Value
+1 0d 0h 0m 30 1.02
+2 0d 0h 6m 71 1.04
+3 0d 0h 16m 178 1.06
+4 0d 0h 31m 398 1.08
+5 0d 0h 52m 782 1.10
+6 0d 1h 20m 1,350 1.12
+7 0d 1h 56m 2,130 1.14
+8 0d 2h 39m 3,180 1.16
+9 0d 3h 31m 4,520 1.18
+10 0d 4h 32m 6,180 1.20
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Damage Per Meter
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-30) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,77 @@
+Events are a recurring set of challenges that pay out medals when you complete them. You unlock events through Milestones by reaching wave 70 on tier 1.
+Medals are the event currency: you earn them from missions and spend them in the event shop on currencies, themes, relics, songs and bots.
+On this page
+Description
+Event Cycle
+Missions
+Possible Missions
+Removed Missions
+Rewards
+Event Shop
+Currencies
+Themes
+Relics
+Songs
+Bots
+Unlock Costs
+Bots Description
+Bot Respec
+Bot+
+Bot+ Abilities
+Bot+ Ability Costs
+Synchronicity
+Description
+Events are a series of challenges that reward medals when completed. They are unlocked in Milestones on tier 1 at wave 70.
+Event Cycle
+Events run on a two-week cycle. New missions appear during the first 8 days, followed by 6 days with no new missions. As soon as one event ends, the next one starts immediately.
+Missions
+Every event mission has 3 tiers. Each tier asks more of you and pays out more medals than the last.
+Seven missions are available on day one, and two more are added each day for the next seven days. Once a mission is live, it stays available until the event ends.
+Possible Missions
+The table below lists the missions that can appear during an event.
+Show all 53 rows
+Removed Missions
+Some missions have been taken out of the game in past updates. The table below lists them.
+Rewards
+Completing missions earns you medals, and the medals you collect build credit toward unlocking relics. You do not spend medals to claim relics; the total you have earned is what counts. Medals carried over from previous events or earned from daily mission boxes do not count toward relic progress.
+Buying the event booster doubles the medals you earn, and boosted medals do count toward relic totals. The booster only applies to the event you bought it for, so you need to purchase it again for each event where you want doubled rewards. The event pass also adds 2 premium relics per event.
+Event Shop
+The event shop is where you spend your medals. It stays open even when no event is running, and it sells currencies, themes, relics, songs and bots.
+Currencies
+Each event you can trade medals for gems, stones or shards. An exchange gives 150 gems, 15 stones or 250 shards. The cost rises after every purchase and resets when the next event begins.
+Shards come in four types, one for each Module type. Buying one type of shard raises the cost of the other types as well.
+Themes
+Themes rotate with each event and are only available for a limited time, so you can miss them. Themes have come back in the past, but there is no guarantee any given theme will return. Once you buy one, you keep it forever. Each event offers one tower theme for 150 medals and one background for 250 medals.
+Relics
+Relics are unlocked by earning medals during an event rather than bought directly. Reaching 350 medals earned unlocks the first-tier relic, and 700 medals unlocks the second and final tier. Buying the event pass adds access to two more relics, one at 550 medals and one at 1100 medals.
+Some relics are also sold for medals in the shop, at price points such as 200 and 500 medals. These are marked as limited and may be unique to the event that offers them.
+Songs
+Three songs are available in the shop. They do not rotate, cost 200 medals each, and each one grants a +0.6% coin bonus.
+Bots
+Bots are sold exclusively for medals in the event shop, and any bot you buy is kept permanently rather than resetting each event. Five bots are offered: Flame, Thunder, Golden, Amplify and Bot Bot. The unlock cost goes up each time you buy a bot.
+You can toggle bots on and off in the shop between rounds.
+Unlock Costs
+The table below shows the medal cost to unlock each bot.
+Bots Description
+The table below describes what each bot does.
+Bot Respec
+A bot respec refunds your bots and the medals spent on them. It costs 300 gems and can be used once per event. Lab research completed for bots is not refunded; only medal-based unlocks and upgrades are returned.
+Bot+
+After you have bought all five bots, you can add extra abilities to them. Each Bot+ ability costs 1250 stones per bot, and the abilities themselves can then be upgraded further with medals.
+Bot+ Abilities
+The table below lists the available Bot+ abilities.
+Bot+ Ability Costs
+The table below shows the medal costs for upgrading Bot+ abilities.
+Show all 29 rows
+Synchronicity
+Unlocking all five Bot+ abilities opens up Synchronicity, a stone upgrade that lets you assign bots to synchronised pathing. It comes with two slots, and each extra slot costs 1500 stones, reaching the maximum of five slots for 4500 stones in total. As long as you own the bots and have the slots unlocked, you can freely move bots in and out of the slots.
+Related pages
+Amplify Bot
+Bot Bot
+Flame Bot
+Golden Bot
+Milestones
+Modules
+Themes Menu
+Thunder Bot
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-28) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,29 @@
+Ultimate Crit is an epic card in The Tower: Idle Tower Defense. It gives your ultimate weapons a chance to critically hit, using your tower's existing crit factor for the damage calculation.
+Ultimate Crit
+When equipped, Ultimate Crit adds a percentage chance for your ultimate weapons to deal critical damage. The size of that critical hit is not set by the card itself — it uses your Tower Crit Factor, so anything that raises your crit factor also makes these ultimate crits hit harder.
+The card matters most once you rely on ultimate weapons for a large share of your damage. Before that point, the crit chance it provides has little to multiply, and other cards will usually contribute more to your run.
+Ultimate Crit value per card level
+Card Level Effect
+1 1%
+2 1.33%
+3 1.66%
+4 2%
+5 2.33%
+6 2.66%
+7 3%
+Card Mastery
+Unlocking the Ultimate Crit mastery costs 750 stones. Once unlocked, it increases the crit chance your ultimate weapons gain from the card.
+The mastery is not a permanent account-wide bonus. It only takes effect while Ultimate Crit is in your active loadout, so you need to keep the card equipped to benefit from the extra crit chance.
+Ultimate Crit mastery value per lab level
+Mastery Level Value
+0 +0.3%
+1 +0.7%
+2 +1.0%
+3 +1.3%
+4 +1.7%
+5 +2.0%
+6 +2.3%
+7 +2.7%
+8 +3.0%
+9 +3.3%
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

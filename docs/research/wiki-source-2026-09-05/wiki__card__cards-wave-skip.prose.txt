@@ -1,0 +1,10 @@
+Wave Skip is a rare card that gives you a chance to bypass a wave entirely while still collecting rewards from it. It is a useful tool for speeding up runs and pushing through waves faster than normal.
+Wave Skip
+When equipped, Wave Skip gives you a percentage chance to skip a wave as it begins. When the effect triggers, you still earn coins and cash, calculated at 1.10 times the value of the previous wave.
+The exact trigger chance depends on the card's level, which you can see in the data table below. Because skipped waves still pay out, Wave Skip lets you progress more quickly without sacrificing income, making it valuable for farming runs where speed matters.
+Wave Skip value per card level
+Card Mastery
+Unlocking the Wave Skip card mastery costs 1000 stones. Once unlocked, it adds a chance for the wave skip effect to trigger twice, letting you skip two waves in a single activation.
+The mastery bonus is only active while Wave Skip is equipped in your active loadout. If you swap the card out, the mastery effect stops applying until you equip it again.
+Wave Skip mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

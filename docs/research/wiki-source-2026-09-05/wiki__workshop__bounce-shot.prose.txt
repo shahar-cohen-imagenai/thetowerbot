@@ -1,0 +1,42 @@
+Bounce Shot is a workshop upgrade that gives your tower's projectiles a chance to ricochet to another enemy after impact. When it triggers, the projectile can chain between multiple targets within a set range, letting a single shot hit several enemies.
+On this page
+Description
+Workshop
+Bounce Shot Chance
+Bounce Shot Targets
+Bounce Shot Range
+Costs — Bounce Shot Chance
+Costs — Bounce Shot Targets
+Costs — Bounce Shot Range
+Description
+This upgrade adds a ricochet mechanic to your tower's attacks. When a projectile hits an enemy, it has a chance to bounce toward another target instead of disappearing. The bounce can repeat multiple times, allowing one projectile to strike several enemies as long as they remain within the allowed range.
+Workshop
+You unlock Bounce Shot in the workshop for 10000 coins, but only after you have already unlocked Rapid Fire. Purchasing it opens three separate upgrade tracks: Bounce Shot Chance, Bounce Shot Targets, and Bounce Shot Range.
+Bounce Shot Chance
+This determines how often a projectile will ricochet after hitting an enemy. The workshop offers 85 levels for this stat, and each level adds 0.80% to the trigger chance. Fully upgrading it brings the chance to 68.00%.
+Bounce Shot Targets
+This controls how many enemies a single projectile can hit in one chain. The base value is 1 target, and you can raise it through 7 workshop levels, each adding one more target, up to a maximum of 8. The Bounce Shot perk can push this cap further to 14 targets. Note that enemies selected by a bounce cannot be knocked back toward your tower.
+Bounce Shot Range
+This sets the maximum distance a projectile can travel between enemies during a bounce. It starts at 2.0m, and each of the 60 available levels extends it by 0.1m, reaching a maximum of 8.0m. Once a target has been chosen, the projectile will pursue it even if knockback pushes that enemy beyond the normal bounce range.
+Costs — Bounce Shot Chance
+The cost table below shows the coin cost for each of the 85 levels of Bounce Shot Chance.
+Show all 85 rows
+Costs — Bounce Shot Targets
+The cost table below lists the coin cost for each of the 7 levels of Bounce Shot Targets.
+Costs — Bounce Shot Range
+The cost table below breaks down the coin cost for each of the 60 levels of Bounce Shot Range.
+Show all 60 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Damage Per Meter
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-20) . Something out of date? Tell us in the Discord .

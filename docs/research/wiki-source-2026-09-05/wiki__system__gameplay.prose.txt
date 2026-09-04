@@ -1,0 +1,32 @@
+The Tower: Idle Tower Defense runs on a simple loop: enemies approach your tower in timed waves, and your run continues until the tower falls. Around that loop sit several game systems — the wave structure, the on-screen interface, the enemy roster, and a set of currencies that each pay for different upgrades. This page explains how each of those systems works.
+On this page
+Waves and Rounds
+Waves
+Rounds
+Tower
+Enemies
+Currencies
+Waves and Rounds
+The game treats "wave" and "round" as two distinct terms with fixed meanings, and they should not be swapped for one another. A wave is a single segment of enemy spawns, while a round is the full run from start to death. Knowing which one a description refers to matters, because some effects and abilities are tied to one or the other.
+Waves
+Every wave runs through two stages, each with its own timer. During the length stage, enemies appear and attack; once that timer ends, a cooldown stage follows in which nothing spawns. When both timers have run out, the following wave starts automatically. You can follow your progress on the wave counter displayed beside the tower's health bar. In tournaments, the cooldown stage is cut in half, so waves arrive faster. The timing values for each stage are listed in the table below.
+Timers at x1 Speed
+Rounds
+A round is one complete run: it opens on wave 1 and closes only when your tower is destroyed. Anything described as usable once per round stays spent until you die and a new run begins — restarting or advancing waves does not refresh it.
+Tower
+Your tower occupies the middle of the screen, and the workshop upgrade menu runs along the bottom. Tapping the icon of the panel you currently have open will collapse the workshop again. Just above the workshop, a stat summary lists your damage, health regeneration, and active coin bonuses, with the tower's health bar sitting to the left. When you have abilities ready to trigger or a wall built, their buttons and the wall's own health bar show up above the main health bar. The game speed control sits over the wave counter.
+Enemies
+Six enemy types appear in the game (see the Enemies page for details on each). Mid-round, you can inspect them through the Wave Info Menu — tap the wave counter on the right side of the screen to open it. That menu lists every enemy type along with its stats, including how often each one spawns. For basic enemies specifically, their current health and damage figures are displayed beside the wave counter in the lower right.
+Currencies
+Seven main currencies exist: Cash, Coins, Gems, Power Stones, Medals, Keys, and five varieties of Shards. Three of them — Cash, Coins, and Gems — are always visible in the top left corner, and tapping that display toggles it between your current total and a per-minute earn rate for Cash and Coins. When you have an Energy Shield equipped, its remaining charges appear just under the gem count.
+Cash pays for upgrades inside a round. You earn it by killing enemies and as a payout when each wave ends, and Cards, Sub-modules, and Ultimate Weapons can all raise your Cash multiplier temporarily.
+Coins fund Workshop Upgrades, Lab Research, and Module upgrades. They come from enemy kills, end-of-wave payouts, daily and weekly missions, Milestones, and Tournaments. Cards, Modules, Sub-modules, Bots, and Ultimate Weapons can grant temporary coin multiplier boosts, while permanent multipliers are unlocked through Milestones, bought with Medals during events, or purchased with real money.
+Gems buy Cards, Card Slots, and Modules, and can also rush Lab research or open extra Lab Slots. You can collect them by watching ads, completing Offer Wall offers, claiming the daily free bonus, finishing daily and weekly Missions, picking up the gems that float by during rounds, taking part in Tournaments, or trading Medals during events — and they are also sold for real money.
+Power Stones unlock and upgrade Ultimate Weapons. They are earned through Tournament participation and event shops that accept Medals, and packs of stones go on sale for real money roughly once a month.
+Medals come from completing Event Missions and are spent in the Event Shop, where they can be traded for other currencies or used to unlock and upgrade Bots.
+Keys are awarded based on your placement in the Legends tier of Tournaments, and they are spent in The Vault.
+Shards upgrade Modules and come in five kinds: Reroll, Attack, Defense, Utility, and Ultimate Weapon. Each kind upgrades the Module matching its name, except Reroll Shards, which are spent to reroll Sub-modules. You can earn Shards from daily missions, by shattering common or rare modules, and through Tournaments.
+Related pages
+Enemies
+The Vault
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-07) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,17 @@
+Echo Lab refers to the four Dissonant Echo labs, which let a slice of the Dissonance Boost you earn on one tier carry over to every other tier. Each lab targets a different stat category, so you choose whether the echoed boost improves your damage, survivability, economy or ultimate weapons.
+On this page
+Description
+Labs
+Dissonant Echo Boost per Tier
+Description
+Dissonant Echo Boost can raise tower damage, tower health, your coin multiplier or ultimate weapon damage, depending on which lab you level. The strength of the echo is tied to the Dissonance Boost you reach on a given tier.
+There is one lab for each Dissonant category: Dissonant Echo - Attack, Dissonant Echo - Defense, Dissonant Echo - Utility and Dissonant Echo - Ultimate Weapon. Putting more levels into a lab raises the percentage of your Dissonance Boost that echoes across to all tiers.
+Labs
+Each of the four labs has 20 levels. The echo chance starts at 0.5% and every level adds another 0.5%, topping out at 10.5% Dissonant Echo Boost when maxed.
+The cost of each level doubles over the previous one, so the later levels get expensive quickly. The figures in the cost table below were recorded with level 0 lab speed, no lab discount and no relics that reduce lab costs, so your own costs and times may be lower.
+Show all 20 rows
+Dissonant Echo Boost per Tier
+The echoed boost for each tier is worked out as: (Dissonant Boost - 1) multiplied by your lab percentage. The resulting bonus is additive with the boost already on the receiving tier.
+For example, with the lab at level 0 (0.5%) and the maximum Dissonance Boosts reached on tiers 1 through 10: a 3x Dissonance Boost echoes a 0.10x bonus to all tiers, while a 5x boost echoes 0.20x. A tier sitting at 5x would then effectively run at 5.20x, or 3.10x if it was at 3x. The table below lists the echoed boost per lab level for the maximum 3x and 5x Dissonance Boosts.
+Show all 22 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-19) . Something out of date? Tell us in the Discord .

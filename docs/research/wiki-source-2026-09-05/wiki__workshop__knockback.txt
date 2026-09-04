@@ -1,0 +1,62 @@
+Knockback is a workshop upgrade that gives your tower a chance to push enemies away when you hit them. It is bought with coins and comes in two parts: Knockback Chance, which controls how often the effect triggers, and Knockback Force, which controls how far enemies are pushed.
+On this page
+Descriptions
+Workshop
+Knockback Chance
+Workshop — Knockback Force
+Cost — Knockback Chance
+Cost — Knockback Force
+Knockback Force
+Descriptions
+Knockback gives your tower a chance to push enemies away from it when your shots land. It is a defensive tool, buying you time by keeping enemies at range.
+Workshop
+Knockback is unlocked in the workshop for 5000 coins. It becomes available after you have unlocked Lifesteal. Once unlocked, it gives you access to two separate upgrades: Knockback Chance and Knockback Force.
+Knockback Chance
+Knockback Chance determines how often your shots will knock enemies back. There are 80 upgrades available, each raising the chance by 1%, for a maximum of 80% chance to knockback.
+Workshop — Knockback Force
+Knockback Force controls how strongly enemies are pushed. There are 40 levels in the workshop, starting from a base of 0.4. Each level adds 0.142, reaching a maximum knockback of 6.08.
+There is no unit attached to knockback, so the exact effect of each point is not clearly defined. Enemy mass reduces the effect: heavier enemies are pushed less than lighter ones. Enemy mass increases at higher waves, so knockback becomes weaker the further you progress. When paired with bounce shot, enemies cannot be pushed toward the tower by knockback.
+Cost — Knockback Chance
+The cost table below shows the coin cost for each level of Knockback Chance.
+Level Value Cost Total Cost
+1 1.00% 80.00 0.00
+2 2.00% 113.00 193.00
+3 3.00% 154.00 347.00
+4 4.00% 205.00 552.00
+5 5.00% 267.00 819.00
+6 6.00% 342.00 1.16K
+7 7.00% 429.00 1.59K
+8 8.00% 530.00 2.12K
+9 9.00% 645.00 2.77K
+10 10.00% 775.00 3.54K
+Show all 80 rows
+Cost — Knockback Force
+The cost table below shows the coin cost for each level of Knockback Force.
+Level Value Cost Total Cost
+1 0.55 80.00 80.00
+2 0.70 113.00 193.00
+3 0.85 154.00 347.00
+4 1.00 206.00 553.00
+5 1.15 269.00 822.00
+6 1.30 346.00 1.17K
+7 1.45 436.00 1.60K
+8 1.60 540.00 2.14K
+9 1.75 659.00 2.80K
+10 1.90 794.00 3.60K
+Show all 40 rows
+Knockback Force
+See Knockback.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-23) . Something out of date? Tell us in the Discord .

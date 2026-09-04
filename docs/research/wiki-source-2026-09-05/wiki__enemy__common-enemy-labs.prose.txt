@@ -1,0 +1,17 @@
+Common Enemy labs are a pair of research options that directly weaken the basic enemies you face in every round. By lowering their health and attack, these labs make standard waves easier to survive and faster to clear.
+On this page
+Description — Common Enemy Health
+Description — Common Enemy Attack
+Description
+Description — Common Enemy Health
+Common Enemy Health is a lab you unlock through Milestones by reaching tier 9 wave 10. Each level you research reduces the health of basic enemies across all waves, so they die sooner to your damage output. The lab has 30 levels in total; the exact reduction per level is listed in the cost table below.
+Show all 30 rows
+Description — Common Enemy Attack
+Common Enemy Attack is also unlocked in Milestones at tier 9 wave 10. Researching it lowers the attack of basic enemies on every wave, reducing the damage your tower takes from standard foes. Like the health lab, it has 30 levels.
+Description
+Both Common Enemy labs modify the stats of basic enemies during rounds. Keep in mind that once you research them, the usual base ratios between enemy types stop holding true. For example, boss health is normally a fixed multiple of basic enemy health, but researching basic health breaks that relationship, so comparisons based on default modifiers will no longer be accurate.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-05-01) . Something out of date? Tell us in the Discord .

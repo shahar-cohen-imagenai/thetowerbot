@@ -1,0 +1,40 @@
+Vampire labs let you weaken Vampire enemies directly by researching permanent modifiers to their stats. Each lab targets a specific part of how Vampires behave in combat, so their value depends on how much trouble this enemy type gives you.
+On this page
+Description — Vampire Enemy Attack
+Description — Vampire Enemy Health
+Description — Garlic Thorns
+Description
+Description — Vampire Enemy Attack
+This lab lowers the attack stat of Vampire enemies by a percentage. It reduces their attack only, not their Drain effect, so their life-stealing behaviour is unaffected. It unlocks at Tier 19 Wave 60 and has 30 levels, with the exact reduction per level shown in the cost table below.
+Level Time Cost(Q) Value
+1 10d 19h 11m 0.25 -0.40%
+2 21d 14h 22m 0.50 -0.80%
+3 32d 9h 33m 0.75 -1.20%
+4 43d 4h 45m 1.00 -1.60%
+5 53d 23h 56m 1.25 -2.00%
+6 64d 19h 7m 1.50 -2.40%
+7 75d 14h 19m 1.75 -2.80%
+8 86d 9h 30m 2.00 -3.20%
+9 97d 4h 41m 2.25 -3.60%
+10 107d 23h 53m 2.50 -4.00%
+Show all 30 rows
+Description — Vampire Enemy Health
+This lab cuts the maximum health of Vampire enemies by a percentage, letting you kill them faster. It unlocks at Tier 19 Wave 60 and has 30 levels of research.
+Description — Garlic Thorns
+Garlic Thorns unlocks at Tier 2 Wave 1000 and has 10 upgrades. Once researched, Vampire elites take a percentage of your thorns damage per second while they are using their ranged attack, punishing them for staying at range. The damage percentage per upgrade level is listed in the table below.
+Level Time Cost Value
+1 1d 3h 13m 4,500 0.5
+2 1d 6h 5m 7,100 1.0
+3 1d 9h 49m 13,300 1.5
+4 1d 14h 59m 26,700 2.0
+5 1d 22h 5m 50,900 2.5
+6 2d 7h 33m 89,500 3.0
+7 2d 19h 45m 146,100 3.5
+8 3d 11h 5m 224,300 4.0
+9 4d 5h 54m 327,700 4.5
+10 5d 4h 32m 459,900 5.0
+Description
+Vampire labs alter the stats of Vampire enemies during rounds. Once you research one of these labs, the base stat relationships between enemies stop holding true. For example, a boss will no longer always have twenty times the health of a basic enemy if you have researched basic enemy health reductions.
+Related pages
+Enemies
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

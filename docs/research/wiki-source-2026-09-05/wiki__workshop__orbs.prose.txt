@@ -1,0 +1,67 @@
+Orbs are one of the strongest defensive tools you can add to your tower. Once unlocked, they circle the tower and destroy most enemies on contact, making them a core part of many builds.
+This page covers how orbs are unlocked, how their speed, count, and size are upgraded, and which labs improve them further.
+On this page
+Overview
+Workshop
+Orb Speed
+Extra Orbs Speed
+Orbs
+Orb Damage
+Cost — Orb Speed
+Cost — Orbs
+Orb Size
+Lab — Orb Speed Research
+Lab — Orb Boss Hit
+Lab — Extra Orb Adjuster
+Lab — Extra Extra Orbs
+Lab
+Overview
+Orbs are an unlockable defense that travel around the tower in a clockwise path and instantly kill most enemies they touch. A separate set of Extra Orbs, gained through a card and lab research, travels in the opposite direction.
+At maximum, your tower can have 14 orbs active at once: as many as 11 moving clockwise and up to 3 moving counter-clockwise.
+Workshop
+You unlock orbs in the workshop for 15000 coins after Knockback. Doing so opens up both the Orb Speed and Orbs upgrade tracks in the workshop.
+The distance workshop orbs keep from the tower scales with your tower range, but not on a strict one-to-one basis. As your range grows, the orbs sit proportionally further inside it. There is also a floor of 60m: if your tower range drops below that, the orbs will actually orbit outside your range circle.
+Orb Speed
+This upgrade controls how fast your defensive orbs travel, measured in rotations per minute. The track has 38 levels, starting at 0.4 and gaining 0.15 per level, topping out at 6.10.
+Extra Orbs Speed
+The Orb Speed workshop value also applies to the Extra Orb card, with the card's own bonus added on top of the workshop figure.
+Researching Extra Extra Orbs comes with a trade-off: the first level cuts extra orb speed by 5%, and the second level removes another 5%, for 10% slower in total. Because speed is measured in rotations per minute rather than raw movement, pushing extra orbs further out with the Extra Orb Adjuster lab makes them physically move faster so they still finish each rotation in the same time.
+Orbs
+This workshop upgrade sets how many orbs guard your tower. It has 4 levels, each adding one orb, for a base cap of 4.
+Several other sources raise that ceiling. The orb perk brings it to 6. A +2 orb sub-module effect on Ancestral Armor pushes it to 8, and the same effect on an Assist Module at 100% sub-stat efficiency adds another 2, reaching 10 clockwise orbs. One final orb is available from the Power Tree in the Vault.
+Orb Damage
+Contact with an orb is an instant kill for most enemies, but Bosses, Elites, and anything shielded by a Protector are exceptions. With the Orb Boss Hit lab researched, orbs can damage Bosses for up to 2% of their maximum health per hit. Protectors never take orb damage.
+Heats can also stop orbs from killing outright, with the heat level setting how much damage an orb deals instead. Heats do not make Protectors vulnerable, and Bosses keep taking damage according to your Orb Boss Hit research.
+Cost — Orb Speed
+The cost table below lists every Orb Speed level and what you pay for it.
+Show all 38 rows
+Cost — Orbs
+The cost table below shows the price of each additional orb level in the workshop.
+Orb Size
+Orb Size becomes available once you have spent 500 trillion coins on defense enhancements. Unlocking it immediately multiplies orb size by x1, and each level after that adds 0.01x. At the maximum level of 200, your orbs are 3x their original size. The cost table below breaks down each level.
+Show all 21 rows
+Lab — Orb Speed Research
+This lab opens at tier 3 wave 80 and contains 20 upgrades. Each one adds to the orb speed values you have from the workshop. See the table below for the per-level details.
+Show all 20 rows
+Lab — Orb Boss Hit
+Available from tier 6 wave 750, this 10-level lab is what lets orbs hurt Bosses, dealing a percentage of their total health per hit. The table below shows the values at each level.
+Lab — Extra Orb Adjuster
+Unlocked through milestones at tier 6 wave 50, this lab lets you change the orbit distance of Extra Orb card orbs mid-round. You can pull them in as close as 60m or your tower range, whichever is smaller, or push them out to 1.3 times your tower range. The adjuster is disabled whenever a boss is on the field. Level costs are in the table below.
+Lab — Extra Extra Orbs
+This milestone lab, reached at tier 6 wave 80, adds more orbs whenever you have the Extra Orb card equipped. It has 2 levels, detailed in the table below.
+Lab
+All four orb labs — Orb Speed, Orb Boss Hit, Extra Orb Adjuster, and Extra Extra Orbs — are unlocked through Milestones.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-12) . Something out of date? Tell us in the Discord .

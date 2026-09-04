@@ -1,0 +1,21 @@
+Enemies Research
+Common Enemy Health Max Lv 30 Common Enemy Attack Max Lv 30
+Fast Enemy Health Max Lv 30 Fast Enemy Attack Max Lv 30
+Fast Enemy Speed Max Lv 30 Tank Enemy Health Max Lv 30
+Tank Enemy Attack Max Lv 30 Ranged Enemy Health Max Lv 30
+Ranged Enemy Attack Max Lv 30 Boss Health Max Lv 30
+Boss Attack Max Lv 30 Protector Health Max Lv 30
+Protector Radius Max Lv 30 Protector Damage Reduction Max Lv 20
+Ranged Enemy Range Max Lv 30 Vampire Enemy Attack Max Lv 30
+Vampire Enemy Health Max Lv 30 Ray Enemy Attack Max Lv 30
+Ray Enemy Health Max Lv 30 Scatter Enemy Attack Max Lv 30
+Show all 11 rows
+Related pages
+Boss Labs
+Common Enemy Labs
+Fast Enemy Labs
+Enemies
+Protector Labs
+Ranged Enemy Labs
+Tank Enemy Labs
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

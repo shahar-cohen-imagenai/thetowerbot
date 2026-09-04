@@ -1,0 +1,25 @@
+Every module in The Tower can carry Sub-Module Effects, which are additional stat rolls attached to the module. The rarity of each sub-module is rolled separately from the module's own rarity, so an Epic module can hold a Rare or even a Common sub-module.
+Sub-modules can be rerolled with reroll shards if you want different effects. You can lock a sub-module you want to keep so that slot is excluded from the reroll, but locking raises the shard cost. One important limit: bonus stats from Assist Module sub-module effects do not break through hard caps. Caps such as 98% defense, 90% Chrono Field speed reduction, 150s Wall rebuild, 7s Shockwave Frequency and 37s Inner Land Mine cooldown still apply no matter how many sub-module bonuses you stack.
+On this page
+Cannon Submodules (Attack)
+Armor Submodules (Defense)
+Generator Submodules (Utility)
+Cores Sub Modules (Ultimate Weapons)
+Sub-Module Effects are available on all modules, and each sub-module's rarity is independent of the module it sits on. An Epic module can roll a Rare or Common sub-module, and vice versa.
+You reroll sub-modules with reroll shards. Locking a sub-module protects that slot from being rerolled, but each lock increases the cost of the roll. See the Modules page for the broader submodule mechanics.
+Keep in mind that extra stats granted by Assist Module sub-module effects cannot push a stat past its hard cap. The caps that matter here include 98% defense, 90% slow on Chrono Field speed reduction, 150s Wall rebuild, 7s Shockwave Frequency and 37s Inner Land Mine cooldown.
+Cannon Submodules (Attack)
+Cannon sub-modules provide attack-focused effects, boosting the offensive side of your tower. The full list of available effects and their values is shown in the table below.
+Show all 17 rows
+Armor Submodules (Defense)
+Armor sub-modules cover defensive effects, improving your tower's ability to survive. The table below lists each effect you can roll.
+Show all 17 rows
+Generator Submodules (Utility)
+Generator sub-modules grant utility effects that support your economy and general tower function rather than raw damage or defence. See the table below for the available rolls.
+Show all 13 rows
+Cores Sub Modules (Ultimate Weapons)
+Core sub-modules affect your Ultimate Weapons. If you have already maxed Spotlight angle at 90 degrees, or maxed Chrono Field duration or cooldown through Workshop stats and/or labs, those specific sub effects are removed from the roll pool for free, so you will not waste rerolls on stats you can no longer use. The table below shows the effects you can roll.
+Show all 26 rows
+Related pages
+Modules
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-11) . Something out of date? Tell us in the Discord .

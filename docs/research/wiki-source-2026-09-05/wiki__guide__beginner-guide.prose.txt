@@ -1,0 +1,41 @@
+This guide walks you through your first steps in The Tower: Idle Tower Defense, with the goal of clearing tier 1 and getting a foothold in tier 2. It draws on community guides from the game's Discord, including a tier 1 completion guide last updated for v0.14.8 — much of that advice still holds for tier 1 in the current version.
+Right now, tier 1 revolves around a turtle build: you make your tower's defence so strong that enemies simply cannot hurt it. Tier 1 is the only tier where this approach works, so enjoy it while it lasts.
+On this page
+Overview
+Workshop Between Rounds
+Upgrades - Step 1 — Workshop During a Run
+Upgrades - Step 2
+Workshop Between Round
+Upgrades - Step 2 — Workshop During a Run
+Transitioning to Tier 2 & Beyond
+Overview
+This guide walks you through your first steps in The Tower: Idle Tower Defense, with the goal of clearing tier 1 and getting a foothold in tier 2. It draws on community guides from the game's Discord, including a tier 1 completion guide last updated for v0.14.8 — much of that advice still holds for tier 1 in the current version.
+Right now, tier 1 revolves around a turtle build: you make your tower's defence so strong that enemies simply cannot hurt it. Tier 1 is the only tier where this approach works, so enjoy it while it lasts.
+Workshop Between Rounds
+Between runs, spend your coins in the workshop with these priorities.
+**Economy**
+- **Cash & Coins/Wave** — Early on, per-wave bonuses scale quickly and give you easy access to cash for in-run upgrades and coins for workshop upgrades. - **Cash Bonus & Coins/Kill** — Enemy spawns ramp up later in a round. Once you can pass wave 100, start putting coins into Cash Bonus. - **Interest** — A decent early boost to cash, but it caps out at $50 of interest until you unlock max interest at tier 2 wave 80, so don't invest heavily here.
+**Health & Defence**
+- **Def Abs** — Your most useful in-round stat when starting out, but it only needs about 50 workshop levels. Overshooting is fine; the coin cost at low levels is trivial long-term. - **Health** — Raise it a little at a time early on (1–2 levels). It matters much more later. - **Def%** — Once Def Abs hits level 50, start pushing this with coins. - **Thorns** — Your main damage source. To dodge rounding issues, keep the value 1% above a fraction breakpoint (for example 6%, 11%, 21%, 26%).
+Upgrades - Step 1 — Workshop During a Run
+During a run, follow this rough order for your cash:
+1. Boost Cash/Wave for the first 5–9 waves. 2. Boost Coins/Wave for roughly waves 10–20. 3. Boost Cash Bonus and Coins/Kill until enemies start getting damage through your Def Abs. 4. Improve Def Abs. 5. When Def Abs gets too expensive, put coins into thorns if you can reach the next fraction breakpoint — fewer hits per enemy means less damage taken.
+Upgrades - Step 2
+The steps above should be enough to unlock tier 2. Keep farming tier 1 anyway — tier 2 is roughly 20 times harder than tier 1, an extreme jump that tiers 3–9 don't repeat. While you farm, start folding new stats into your build so you can push further on tier 1 and prepare for the move up.
+This is also the point where you stop relying on Def Abs. Long-term progression comes from either more HP or more damage, and HP scales faster on its own than damage does. Switching to a health build now is easier than trying to out-damage everything. Surviving on health means keeping enemies away from the tower and healing back damage as fast as it comes in.
+Workshop Between Round
+Keep levelling the earlier stats until they can be maxed during a run, and start adding these to your build.
+**Economy**
+- **Coins/Kill Bonus** — This is how you'll make money now, so raise it. It takes 20 million coins to max, but every level along the way helps you earn that much. - **Cash Bonus** — Start investing; this becomes your main cash source later. - **Coins/Wave** — Not very important since most coins come from kills. Max it once 20 million coins is pocket change. - **Cash/Wave** — Your early-round income before Cash Bonus takes over. Leave it alone in the workshop and level it in rounds instead.
+**Survival**
+- **Lifesteal** — Becomes your main healing source. It only heals off tower projectile damage. - **Knockback** — Gains value once you have orbs, since it can knock enemies into them. This lets you kill enemies without thorns and survive longer, though bosses will still reach the tower. - **Orbs** — Orb speed makes hits more reliable, while orb quantity gives more chances to connect. Orbs plus knockback sharply reduce how often your tower gets hit.
+**Damage**
+- **Attack Speed** — More shots fired. Pairs with knockback by hitting enemies more often, and improves lifesteal through more frequent hits. - **Damage** — Improves lifesteal. - **Crit Chance & Crit Factor** — Both improve lifesteal. Crit Factor's final levels get very expensive, so don't expect to max it quickly. - **Range** — Ignore for now. Upgrading it doesn't hurt, but it won't help much yet. - **Damage/meter** — Behaves more like damage per 10 meters. It boosts lifesteal by raising damage and works well alongside strong knockback. - **Multishot** — Work on this once you can max attack speed within a run. - Then repeat the same pattern with rapid fire once multishot can be maxed in a run, and again with bounce shot once rapid fire can be maxed. - **Super Crit** — Very useful, but hold off unlocking it until 100 million coins isn't a stretch.
+Upgrades - Step 2 — Workshop During a Run
+In-run spending builds on the step 1 routine:
+1. Repeat the step 1 phases (economy first, then defence). 2. Once Def Abs starts losing effectiveness and getting pricey, shift your focus to health. 3. Improve orb- and lifesteal-related stats as needed — orbs to clear enemies when knockback is piling too many up at once, lifesteal when incoming damage starts outpacing your healing.
+For help with cards and labs, check the dedicated guides on those systems.
+Transitioning to Tier 2 & Beyond
+Tier 2 is harder, but it pays out nearly double the coins. Once you can reliably reach wave 1000 on tier 1, test your tier 2 progress every few rounds. Around wave 300 on tier 2, it should overtake tier 1 as your better coin source.
+When you make the jump, stop upgrading Def Abs during runs. Health and Def% take over as your survival core, and reducing incoming hits through knockback while letting orbs clean up enemies becomes the key to lasting longer.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-19) . Something out of date? Tell us in the Discord .

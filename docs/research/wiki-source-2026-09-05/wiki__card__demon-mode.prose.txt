@@ -1,0 +1,26 @@
+Demon Mode is a card that gives your tower a massive temporary damage boost and full invincibility when activated. It can only be used once per round, so timing it well is the difference between a saved run and a wasted cooldown.
+On this page
+Description
+Use
+Recharge Demon Mode
+Description
+Activating Demon Mode grants 300x projectile damage along with invincibility for a fixed duration. The effect lasts between 180 and 300 seconds depending on the card's level, stepping up in 20-second increments across seven tiers: 180, 200, 220, 240, 260, 280 and 300 seconds.
+The card can only be triggered once per round, which makes the timing of that single activation the main decision it asks of you.
+Use
+Demon Mode does not fire on its own — you have to activate it manually. The standard advice is to hold it until your tower is close to dying, since the invincibility window can carry you through the danger and stretch the run further than an early activation would.
+If you own the Smart Demon Mode Automation, the card joins the game's chain of death-prevention effects and fires automatically when lethal damage would kill you. That chain resolves in a set order, and each effect only triggers if the ones above it could not:
+- Death Defy is checked first when you take lethal damage. - Energy Shield spends a charge if you take any damage and Death Defy did not trigger. - Second Wind activates on lethal damage when nothing higher-priority is available. - Demon Mode activates next under the same condition. - Nuke is the last resort, triggering with Smart Nuke Automation if everything above it failed. Nuke does not clear projectiles already in flight, but since v27.3 (18 December 2025) its automation also grants 15 seconds of invulnerability.
+Because Demon Mode sits late in this order, it acts as a deep safety net rather than your first line of defence.
+Recharge Demon Mode
+Recharge Demon Mode is a lab unlocked through Milestones at tier 14, wave 60. Once researched, Demon Mode becomes usable again after a set number of waves have passed since it activated, instead of being locked to a single use per round.
+The lab has 7 levels, with each level improving the recharge — see the level table below for the exact wave counts.
+Related pages
+Cards
+Death Defy
+Energy Shield
+Lab Upgrades
+Milestones
+Nuke
+Second Wind
+The Vault
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-02) . Something out of date? Tell us in the Discord .

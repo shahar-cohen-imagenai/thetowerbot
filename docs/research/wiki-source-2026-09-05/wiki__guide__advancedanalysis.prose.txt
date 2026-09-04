@@ -1,0 +1,12 @@
+Advanced Analysis is a community-driven wiki page for The Tower: Idle Tower Defense that collects player-made breakdowns and findings which go beyond the information the game itself gives you. It is organised by topic, and the notes below explain how to find what you need on the page and how to add your own work to it.
+This section is reserved for an upcoming wiki implementation and has no content yet.
+Navigating Advanced Analysis
+There are two main ways to find content on this page. The first is the table of contents, which lets you jump straight to a section or subsection. For example, if you want to read about the Black Hole Digestor, you would go to "Modules-Themselves" and then open the "Black Hole Digestor" section from there.
+The second method is your browser's built-in search. On PC this is usually opened with "ctrl + F", while on mobile you look for your browser app's "Find on page" option. Type a keyword and step through every match on the page.
+When viewing images, tapping a thumbnail on mobile should open it in full. On PC, once an image is open you can click "See Full Image" in the top left to view it at a higher resolution.
+Contributing to Advanced Analysis
+Before adding anything, make sure your work is still accurate for the current released version of the game. Content here should be analysis that is not documented anywhere in the game itself — that is what makes it Advanced Analysis rather than basic info.
+Submissions should be uploaded in thumbnail format with the "Wrap text around this item" option turned off. The caption and description should follow this order: author(s) if known, a quick description, then a comma-separated list of tags that are not already mentioned in the description. On the caption, highlight the tag list and change the text type to "Subscript" so it displays smaller.
+If a piece of content legitimately fits in more than one place, you may copy and paste it with its caption into the other sections, but keep this to a maximum of three sections.
+If you need help, have suggestions, or want someone else to upload content on your behalf so you can avoid making a Fandom account, you can ping (not direct message) Yugiohcd10 on Discord, or reach u/HubbyLord on Reddit.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-26) . Something out of date? Tell us in the Discord .

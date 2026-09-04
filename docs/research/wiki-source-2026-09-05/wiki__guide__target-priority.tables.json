@@ -1,0 +1,26 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Level",
+      "Time",
+      "Cost",
+      "Ability"
+    ],
+    "rows": [
+      [
+        "1",
+        "1d 23h 59m",
+        "1,000,000",
+        "Select 1 enemy type to be targeted, Other enemies will be selected by closest"
+      ],
+      [
+        "2",
+        "8d  \u20020h \u20020m",
+        "1,000,000,000",
+        "Sort priority for all enemies, able to also sort by closest and spotlight"
+      ]
+    ]
+  }
+]

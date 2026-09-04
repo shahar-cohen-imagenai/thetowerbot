@@ -1,0 +1,6 @@
+The Tower: Idle Tower Defense runs a creator code programme that lets you support a content creator whenever you spend money on the game. Entering a creator's code sends a slice of your purchase revenue to that creator, and it costs you nothing extra.
+Overview
+When you buy content in The Tower, you can enter a creator code so that a small share of the proceeds goes to that creator. For in-game purchases, the code is entered in the settings tab. For purchases made through the Webstore, the code is entered on the Webstore itself.
+Once entered, a code stays active for 30 days, or until you enter a different code or reapply the same one. The code's owner receives 5% of revenue from in-app purchases and 8% of revenue from Webstore purchases, with no added cost on your end. In some cases you may also see an option to tip the creator directly.
+The programme is currently closed access, so new creators cannot apply to join at this time.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-09-08) . Something out of date? Tell us in the Discord .

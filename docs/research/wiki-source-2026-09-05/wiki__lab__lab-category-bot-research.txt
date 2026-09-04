@@ -1,0 +1,11 @@
+Bot Research
+Flame Bot Cooldown Max Lv 25 Thunder Bot Cooldown Max Lv 25
+Golden Bot Cooldown Max Lv 25 Amplify Bot Cooldown Max Lv 25
+Flame Bot - Burn Stacks Max lv 5 Thunder Bot - Linger Time Max lv 20
+Golden Bot - Duration Max lv 20 Amplify Bot - Duration Max lv 20
+Related pages
+Amplify Bot
+Flame Bot
+Golden Bot
+Thunder Bot
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-07-19) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,70 @@
+Events in The Tower: Idle Tower Defense are time-limited challenges that reward medals and relics. This guide covers strategies for completing event quests efficiently, from general approaches to specific quest walkthroughs.
+On this page
+Overview
+General methods
+Specific quests
+Kill [x] enemy
+Reach wave [x] on any tier
+Reach wave [x] without any cards equipped
+Take no damage for [x] consecutive waves
+Kill [x] bosses outside of tower range
+Claim ad gems/tap floating gems
+Death defy [x] times/let energy shield save
+Kill enemies while in demon mode/Kill enemies with nuke
+Stun enemies using land mine stun card/kill enemies using workshop landmines
+Skip [x] waves
+Buy cards/Buy modules/merge to get modules
+Hit the same enemy with [x] smart missiles
+Kill [x] enemies inside of Spotlight
+Kill [x] enemies with Inner Land Mines/hit with Inner Land Mines
+Have [x] enemies in the same Black Hole
+Poison [x] enemies with Poison Swamp
+Kill [x] enemies with Smart Missiles
+Hit [x] enemies with Chain Lightning
+This guide provides strategies for completing event quests with minimal hassle. Be aware that many quests are designed for players further into the game and may require specific ultimate weapons, unlocks, or cards. These prerequisites are necessary to earn the medals tied to those quests.
+Overview
+Events are structured as a series of challenges that award medals upon completion. Reaching certain medal thresholds unlocks relics, and each event also includes a store where you can spend currency on additional relics, themes, and other items. Collecting as many medals as possible during each event is important to avoid missing out on relics and to maximize the bonuses they provide.
+General methods
+A large portion of event quests can be finished simply by playing the game as you normally would. Running rounds, starting labs, and pulling cards all contribute to quest progress. Many medals can be earned passively by letting the game run in the background, though a handful of quests do require more active attention. If a quest calls for an ultimate weapon you do not own, the random ultimate weapon perk can provide it. WAWSIS, which stands for Wave Accelerator, Wave Skip, and Intro Sprint, is a commonly used strategy for quickly reaching high waves or accessing stronger enemies, and it appears in several of the methods below.
+Specific quests
+The following sections break down individual quest types, explaining any quirks and offering methods to complete them efficiently.
+Kill [x] enemy
+This quest asks you to kill a set number of a specific enemy type. Most of these are straightforward, though elites tend to spawn earlier on higher tiers, making those tiers more efficient for elite-focused quests. The Enemy Balance card is particularly useful here since it increases the number of enemies per wave, and with mastery it can cause elites to spawn in pairs. Wave Accelerator also helps by reducing the downtime between waves, keeping enemies flowing in more consistently.
+Reach wave [x] on any tier
+One of the simplest quests to finish. Pick a low tier where you can survive for a long time and let a run play out. This pairs well with other quests, especially kill quests, since you will naturally be defeating enemies along the way. If you want to speed things up, WAWSIS will get you to high waves much faster.
+Reach wave [x] without any cards equipped
+Another straightforward quest. Since no cards can be used, there are no tricks to speed this up beyond picking the right tier. The game requires you to complete this on your highest tier minus two, which keeps it manageable.
+Take no damage for [x] consecutive waves
+This is easy to clear by heading to tier 1 with a solid defense absolute stat. If you find yourself taking chip damage, the Extra Defense and Fortress cards can help, though they are usually not needed. Wave Accelerator is useful for speeding up completion. Note that Wave Skip and Intro Sprint do not count toward this quest since they bypass waves rather than playing through them.
+Kill [x] bosses outside of tower range
+Head to a low tier where your bounce shots can one-shot bosses. If you own the Death Wave ultimate weapon, this quest becomes trivial since anything killed by Death Wave counts as being outside tower range. WAWSIS is helpful for reaching boss waves quickly.
+Claim ad gems/tap floating gems
+These quests simply require you to wait and collect gems as they appear. Purchasing the disable ads DLC makes the ad gem portion slightly less tedious, but it is not necessary. There is no way to speed these quests up directly, though a tech tree option allows ads to stack beyond one, letting you step away and claim several at once.
+Death defy [x] times/let energy shield save
+Both of these quests require your tower to actually take hits. Activate Intro Sprint and queue into the highest tier available to you. When a boss lands a hit, Energy Shield and Death Defy will absorb some of the damage. Once you die, start another run and repeat the process. Second Wind can serve as a backup by tanking a hit when neither Energy Shield nor Death Defy triggers.
+Kill enemies while in demon mode/Kill enemies with nuke
+These two quests share a similar strategy and are more hands-on than most. It is best to complete them as soon as they appear. Queue into the highest tier you can access with Wave Accelerator and Enemy Balance equipped. Remove any one-shot cards like Death Ray or Extra Orb, along with any damage-boosting cards, to keep enemies alive longer. Once the round starts, disable your damage-dealing ultimate weapons such as Spotlight, Smart Missiles, and Chain Lightning. Wait until the intro sprint ends or the enemy cap is reached, then activate Demon Mode followed by Nuke. After Demon Mode ends, repeat the cycle. If you have unlocked Demon Mode and Nuke recharge in the tech tree, a slower but more passive approach is to simply enable them and let the run continue. Using WAWSIS to reach waves where enemies survive longer can also speed things up.
+Stun enemies using land mine stun card/kill enemies using workshop landmines
+Both of these can be finished by entering a low tier and letting the run play out. Turning off damage ultimate weapons can help by ensuring more enemies are hit by landmines instead of being killed by other sources, but leave Spotlight active since it boosts landmine damage. Enemy Balance is very effective here because it increases the number of enemies that can trigger or be hit by landmines.
+Skip [x] waves
+The intended method is the Wave Skip card, but it is slow. Equipping Intro Sprint is far more efficient and will complete this quest quickly. For the fastest results, combine it with WAWSIS.
+Buy cards/Buy modules/merge to get modules
+These quests are lower priority since they cost gems. To complete them, simply purchase cards or buy modules and merge duplicates. If you already own every card, the buy cards quest will max out automatically. For the merge quest, having module drop rate labs researched allows you to use rare modules dropped by bosses as merge material.
+Hit the same enemy with [x] smart missiles
+Enter the highest tier you can handle with Energy Shield or Second Wind equipped. When a boss is about to strike your tower, activate Missile Barrage to guarantee the hits land. Without Missile Barrage, you are relying on random chance for the boss to approach while missiles are already firing. Regular enemies die too quickly to be reliable targets, though smaller quest requirements can still be finished without a boss. WAWSIS can help you reach waves with tougher bosses faster.
+Kill [x] enemies inside of Spotlight
+This quest essentially completes itself. Just keep Spotlight active during your runs and the kills will accumulate naturally. WAWSIS can speed up the process.
+Kill [x] enemies with Inner Land Mines/hit with Inner Land Mines
+These quests are trickier but become easier on higher tiers where enemies push further into your defenses and reach the Inner Land Mines. Magnetic Hook and Space Displacer both help by extending the reach of your Inner Land Mines to hit more enemies. Space Displacer is especially valuable because it can provide Inner Land Mines even if you do not own the ultimate weapon, though at significantly reduced damage.
+Have [x] enemies in the same Black Hole
+This quest tends to complete on its own during normal play. Devo builds will finish it effortlessly, though they are not required. The Black Hole duration perk or workshop upgrades make this easier by giving enemies more time to be pulled in. Alternatively, high enemy spawn rates from later waves combined with Enemy Balance can also make this much simpler, particularly when Protectors are present to provide orb immunity.
+Poison [x] enemies with Poison Swamp
+This one is harder than it sounds, because your tower range usually covers the whole swamp, so enemies die before the poison can tag them. Devo builds have no trouble here since they skip knockback, but any build that knocks enemies away makes the mission awkward.
+There are two main fixes. The first is to take the Poison Swamp radius perk on top of a well-upgraded base radius, which lets the swamp spill outside your tower range partway through a run. The second is to shrink your range instead: keep the range lab low and remove any range card so the swamp extends past it naturally. Either way, you need a decent base swamp radius for this to work. Enemy Balance is a big help too, since it packs more enemies into the swamp and racks up poisons faster.
+Kill [x] enemies with Smart Missiles
+The simplest route is to farm runs in lower tiers, where missiles clean up waves quickly and the kills pile up. If you have Missile Barrage unlocked, you can fire it alongside Demon Mode and Nuke to work on several missions at once. Enemy Balance helps here as well, since more enemies on screen means more targets caught in the area damage.
+Hit [x] enemies with Chain Lightning
+Once Chain Lightning is unlocked this mission mostly takes care of itself, and it goes even faster with high attack speed. As with other hit-count missions, Wave Accelerator and Enemy Balance both make a noticeable difference by feeding you more enemies per wave.
+Related pages
+Perks
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-08) . Something out of date? Tell us in the Discord .

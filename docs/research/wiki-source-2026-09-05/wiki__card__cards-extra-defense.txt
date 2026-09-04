@@ -1,0 +1,29 @@
+Extra Defense is a common card that boosts your tower's defense percent by a set amount, shown as [x]% on the card itself. Because defense percent reduces the damage your tower takes from each hit, this card is a straightforward survivability pick for your loadout.
+Extra Defense
+When you slot Extra Defense into your active loadout, it increases your defense percent by the value printed on the card. Defense percent lowers incoming damage, so the card effectively lets your tower absorb more punishment before falling.
+The exact bonus scales with the card's level — check the table below for the per-level values. As a common card, Extra Defense is easy to obtain and upgrade, making it one of the more accessible defensive options early on.
+Extra Defense value per card level
+Card Level Effect
+1 5%
+2 6%
+3 7%
+4 8%
+5 9%
+6 10%
+7 11%
+Card Mastery
+Unlocking the Extra Defense mastery costs 1000 stones. Once unlocked, it increases the card's stat multiplier, raising the defense percent bonus the card provides beyond its base values.
+Keep in mind that the mastery only works while Extra Defense is actually equipped in your active loadout. If you swap the card out, you lose the mastery benefit along with the card's own effect, so plan your stone spending around whether this card earns a permanent slot in your setup.
+Extra Defense mastery value per lab level
+Mastery Level Value
+0 +0.7%
+1 +1.4%
+2 +2.1%
+3 +2.8%
+4 +3.5%
+5 +4.2%
+6 +4.9%
+7 +5.6%
+8 +6.3%
+9 +7.0%
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

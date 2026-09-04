@@ -1,0 +1,57 @@
+Defense enhancements are permanent Workshop upgrades that multiply your core defensive stats. Each one has its own unlock condition, and most require you to have spent a set amount of coins on defense enhancements before they become available. Once unlocked, you buy levels with coins to raise the multiplier step by step.
+On this page
+— Health
+— Health Regen
+— Defense Absolute
+— Land Mines
+— Wall Health
+— Orb Size
+— Health
+The Health enhancement is the only one that costs nothing to access: it unlocks for free once you have completed the Workshop Enhancement lab. It starts at a x1 multiplier, and each level adds 0.01x to your Health. With a cap of 400 levels, you can push the multiplier to x5.00 at most. The cost table below shows the price per level.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 6.53B 55.54B
+20 1.20x 48.30B 217.10B
+30 1.30x 313.07B 1.95T
+40 1.40x 2.54T 14.48T
+50 1.50x 9.59T 73.23T
+60 1.60x 60.08T 385.56T
+70 1.70x 216.08T 1.72q
+80 1.80x 580.27T 5.66q
+90 1.90x 1.31q 15.10q
+Show all 41 rows
+— Health Regen
+Health Regen becomes available after you have spent 50 billion coins on defense enhancements. It begins at x1 and gains 0.01x per level, so the 400-level maximum tops out at a 5x regen multiplier.
+— Defense Absolute
+Defense Absolute requires 500 billion coins spent on defense enhancements before it unlocks. Like the other standard enhancements, it starts at x1, rises by 0.01x per level, and caps at 400 levels for a 5x bonus.
+— Land Mines
+The Land Mines enhancement unlocks once 5 trillion coins have been spent on defense enhancements. It scales faster than the others: each level adds 0.06x to Land Mine Damage, so the 400-level cap reaches a 25x multiplier rather than the usual 5x. Check the table below for the per-level costs.
+Level Value Coins Total Coins
+1 1.06x 5.00B 5.00B
+10 1.60x 6.53B 55.54B
+20 2.20x 48.30B 217.10B
+30 2.80x 313.07B 1.95T
+40 3.40x 2.54T 14.48T
+50 4.00x 9.59T 73.23T
+60 4.60x 60.08T 385.56T
+70 5.20x 216.08T 1.72q
+80 5.80x 580.27T 5.66q
+90 6.40x 1.31q 15.10q
+Show all 41 rows
+— Wall Health
+Wall Health is a late-game enhancement, requiring 50 trillion coins spent on defense enhancements to unlock. It follows the standard pattern of x1 at unlock and 0.01x per level, with 400 levels giving a maximum 5x bonus to your Wall's health.
+— Orb Size
+Orb Size is the most expensive enhancement to access, needing 500 trillion coins spent on defense enhancements. It starts at x1 and gains 0.01x per level, but it caps at 200 levels rather than 400, for a maximum of 3x orb size. The table below lists the cost of each level.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 477.01B 1.42T
+20 1.20x 15.26T 41.94T
+30 1.30x 174.29T 878.96T
+40 1.40x 1.92q 9.64q
+50 1.50x 8.82q 60.41q
+60 1.60x 63.90q 379.19q
+70 1.70x 257.74q 1.92Q
+80 1.80x 760.97q 6.91Q
+90 1.90x 1.86Q 19.93Q
+Show all 21 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

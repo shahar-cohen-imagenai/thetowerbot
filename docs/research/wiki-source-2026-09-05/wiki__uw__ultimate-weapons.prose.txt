@@ -1,0 +1,29 @@
+Ultimate Weapons are special abilities you purchase with Power Stones. They provide powerful effects during rounds, from dealing damage to offering utility, and activate automatically once their cooldown reaches zero. As you progress, you can unlock Ultimate Weapon Plus abilities to further enhance them.
+On this page
+Description — Ultimate Weapons
+Description — Ultimate Weapon Plus
+Description
+Description — Ultimate Weapons
+You can purchase Ultimate Weapons once you have enough Power Stones. The price increases based on how many you already own. When you buy one, you are presented with three random options, each with an equal chance of appearing. You can close the menu without purchasing by clicking outside it or closing the app, and the choices will remain the same until you buy one.
+All Ultimate Weapons you own can be used simultaneously in a round, including any granted by perks. They activate automatically when their cooldown timer reaches zero, and the timer resets immediately even if the weapon is still active. You can toggle Ultimate Weapons on and off during a round, though turning one off will reset its cooldown when reactivated. You are limited to 40 toggles per run.
+Damage-dealing Ultimate Weapons factor critical damage and super critical damage into their displayed total in the workshop screen. The damage formula is: Ultimate Weapon Damage = UW Multiplier * Core Module Multiplier * Damage * (1 + Critical Factor * Critical Chance) * (1 + Super Crit Mult * Super Crit Chance * Critical Chance). If you equip the Ultimate Crit card, damage-dealing Ultimate Weapons gain a chance to critically hit enemies using your workshop crit factor stat, though this does not apply to percentage-based damage. The critical damage formula is: Critical Ultimate Weapon Damage = Ultimate Weapon Damage * Critical Factor.
+Description — Ultimate Weapon Plus
+Ultimate Weapon Plus abilities are additional enhancements that improve your Ultimate Weapons and their base abilities. You can only unlock these once you have all nine Ultimate Weapons. Unlike purchasing Ultimate Weapons, you can buy Plus abilities in any order you choose. Each purchase increases the cost of the next ability, and newly unlocked abilities start at level 0.
+Each ability can be upgraded ten times. Upgrade costs follow one of three price trees.
+Show all 11 rows
+Description
+Ultimate Weapons are tools purchased with Power Stones that provide various advantages during rounds. Each has three upgradable stats once unlocked. Despite the name, not every Ultimate Weapon deals damage, though some can gain that ability when upgraded. As you progress, you will also gain access to Ultimate Weapon Plus abilities.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-27) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,44 @@
+Some parts of The Tower look like bugs until you understand how they work under the hood. This page collects the questions players ask most often and explains what is actually going on, or points you to the guide that covers the topic in full.
+On this page
+Overview
+Which UW Should I Select?
+Why Don't The Coins On The Stats Page Equal Total Coins?
+Why is (BH, GB, SL) Negative?
+Is perk math correct in game
+Do Themes/Skins Stack?
+What Does a Certain Abbreviation Mean?
+When Should I get Wall?
+I had enough abs defense to not take any damage, why did I die?
+What Should I Spend Medals On?
+Overview
+Many features of the game get reported as bugs simply because their behaviour is not obvious at first glance. The answers below cover the most common points of confusion, with links to deeper guides where one exists.
+Which UW Should I Select?
+Picking your Ultimate Weapons is one of the biggest decisions in the game, so it has its own dedicated guide. Check the "Which UW do I select?" page for a full breakdown and recommendations.
+Why Don't The Coins On The Stats Page Equal Total Coins?
+Version 27 changed how coin breakdowns are displayed, and the per-source numbers will not add up to your total. That is expected, not a bug.
+The short version: whenever two or more coin multipliers overlap, the coins from that overlap get credited to each source involved. So Golden Tower, Black Hole, Spotlight, Death Wave and Golden Bot can all count some of the same coins, inflating their individual figures.
+A simple example shows why. Say a wave drops 100 base coins with a 20x Golden Tower multiplier and a 10x Black Hole multiplier, and every coin is earned while both are active. Your total is 100 x 20 x 10 = 20,000 coins. The stats page reasons like this: without GT you would have earned 100 x 10 = 1,000, so GT is credited with 19,000. Without BH you would have earned 100 x 20 = 2,000, so BH is credited with 18,000. Adding those gives 37,000 even though you only earned 20,000, because both were active at once.
+Real runs are messier than this example. Some enemies die while only one multiplier is running, or while neither is, and Spotlight, Death Wave and Golden Bot all add their own overlaps on top.
+Why is (BH, GB, SL) Negative?
+Seeing a negative coin value for Black Hole, Golden Bot or Spotlight is a known visual bug. It is purely a display issue and has no effect on the coins you actually earned.
+Is perk math correct in game
+Perk calculations have their own quirks. The Perks page explains how the numbers work and what to expect.
+Do Themes/Skins Stack?
+Whether theme and skin bonuses combine is covered in full on the Themes page.
+What Does a Certain Abbreviation Mean?
+The community uses a lot of shorthand (GT, BH, SL and so on). The Common Abbreviations page lists what each one stands for.
+When Should I get Wall?
+Advice on Wall timing varies, but there is a real reason not to rush it. Early on the Wall hurts you more than it helps: it does not apply thorns quickly enough, so enemies survive their hits and heat up, dealing much more damage than they would have otherwise.
+Readiness comes down to two things. First, income: you want to be earning hundreds of billions of coins per day so you can afford the essential Wall labs. Second, lab capacity: you want at least three lab slots so you can push Wall thorns higher, level Wall regeneration, and boost the Wall's health and fortification at the same time.
+Treat the Wall as a long-term investment that will cost trillions of coins before it pays off properly.
+I had enough abs defense to not take any damage, why did I die?
+There is a heat-up mechanic the game never really explains. Every time an enemy hits you or your Wall and survives, its damage is multiplied by 1.04x. Stack enough of those hits and an enemy can blow through defence% and absolute defence that would normally reduce its damage to zero.
+This catches early players most often, because low thorns% means enemies live through many hits and rack up large multipliers. As you progress and your thorn damage improves, enemies die on their first or second hit and heat-up stops being a problem.
+What Should I Spend Medals On?
+Medal spending priorities are covered in the dedicated Medals Guide.
+Related pages
+Common Abbreviations
+Medals Guide
+Perks
+Themes Menu
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-19) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,68 @@
+Land Mines are a defensive workshop upgrade line that gives enemies a chance to drop a mine, which then explodes and damages everything caught in its blast. The whole line is built around three workshop stats — Chance, Damage and Radius — supported by a card, a workshop enhancement and two lab researches.
+On this page
+Overview
+Land Mine Chance
+Land Mine Chance — Workshop
+Land Mine Damage
+Land Mine Damage — Workshop
+Card
+Damage Calculation
+Land Mine Radius
+Land Mine Radius — Workshop
+Cost — Land Mine Chance
+Cost — Land Mine Damage
+Cost — Land Mine Radius
+Workshop Enhancement — Land Mine Damage
+Labs — Land Mine Decay Research
+Labs — Land Mine Damage Research
+Overview
+Land Mines are a defense-side workshop feature. When the effect triggers, an enemy drops a mine on the ground, and once that mine goes off it damages every enemy inside its explosion range. How often mines appear, how hard they hit and how wide the blast reaches are all upgraded separately in the workshop.
+Land Mine Chance
+Land Mine Chance is the probability that an enemy drops a land mine. Raising it means more mines on the field over a run.
+Land Mine Chance — Workshop
+Land Mine Chance is unlocked in the workshop for 400,000 coins, bundled with Land Mine Damage and Land Mine Radius, and becomes available after Shockwave Size and Shockwave Frequency. It has 50 upgrade levels, each adding 0.60% to the spawn chance, for a maximum of 30.00%. Once a mine has spawned it will explode on its own after a fixed delay, and that delay can be extended through the Land Mine Decay lab.
+Land Mine Damage
+Land Mine Damage sets how much of your tower's damage a mine deals when it explodes, expressed as a percentage. The calculation already factors in your critical and super critical multipliers and their chances.
+Land Mine Damage — Workshop
+Land Mine Damage is unlocked in the workshop for 400,000 coins together with Land Mine Chance and Land Mine Radius, after Shockwave Size and Shockwave Frequency. It offers 200 upgrade levels starting from a base value of 100%, with each level adding 10%, reaching a maximum of 2100% damage.
+Card
+The Land Mine Stun card adds a control effect to your mines: when one explodes, it stuns any non-boss enemies caught in the blast range. Bosses are immune to the stun, but it still buys breathing room against regular waves.
+Damage Calculation
+Mine damage uses your average critical factor and average super critical factor, weighted by their activation chances. The full formula is:
+Land Mine Damage = Land Mine Damage % * Damage * (1 + Critical Factor * Critical Chance) * (1 + Super Crit Mult * Super Crit Chance * Crit Chance)
+Land Mine Radius
+Land Mine Radius determines the size of the explosion when a mine goes off. A larger radius means each mine can hit more enemies at once.
+Land Mine Radius — Workshop
+Land Mine Radius is unlocked in the workshop for 400,000 coins alongside Land Mine Chance and Land Mine Damage, after Shockwave Size and Shockwave Frequency. It has 50 upgrade levels, which together add up to a total of 1.50 extra radius.
+Cost — Land Mine Chance
+The coin cost for each level of Land Mine Chance is listed in the cost table below.
+Show all 50 rows
+Cost — Land Mine Damage
+The coin cost for each level of Land Mine Damage is listed in the cost table below.
+Show all 21 rows
+Cost — Land Mine Radius
+The coin cost for each level of Land Mine Radius is listed in the cost table below.
+Show all 50 rows
+Workshop Enhancement — Land Mine Damage
+The Land Mine Damage enhancement becomes available after you have spent 5 trillion coins on defense enhancements. Unlocking it applies a x1 multiplier to Land Mine Damage, and each further level adds 0.06x. It caps at level 400, which works out to a 25x bonus. The cost per level is shown in the table below.
+Show all 41 rows
+Labs — Land Mine Decay Research
+Land Mine Decay is unlocked in Milestones at Tier 6 Wave 30. It extends the time a mine can sit on the field before exploding on its own, giving enemies more opportunity to wander into it. The research has 35 levels, with costs and values in the table below.
+Show all 35 rows
+Labs — Land Mine Damage Research
+Land Mine Damage research is unlocked in Milestones at Tier 6 Wave 30. It adds a further percentage on top of the damage your mines deal. The research has 20 levels, with costs and values in the table below.
+Show all 20 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-10-27) . Something out of date? Tell us in the Discord .

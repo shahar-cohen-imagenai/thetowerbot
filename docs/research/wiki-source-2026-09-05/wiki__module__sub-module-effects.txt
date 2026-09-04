@@ -1,0 +1,69 @@
+Every module in The Tower can carry Sub-Module Effects, which are additional stat rolls attached to the module. The rarity of each sub-module is rolled separately from the module's own rarity, so an Epic module can hold a Rare or even a Common sub-module.
+Sub-modules can be rerolled with reroll shards if you want different effects. You can lock a sub-module you want to keep so that slot is excluded from the reroll, but locking raises the shard cost. One important limit: bonus stats from Assist Module sub-module effects do not break through hard caps. Caps such as 98% defense, 90% Chrono Field speed reduction, 150s Wall rebuild, 7s Shockwave Frequency and 37s Inner Land Mine cooldown still apply no matter how many sub-module bonuses you stack.
+On this page
+Cannon Submodules (Attack)
+Armor Submodules (Defense)
+Generator Submodules (Utility)
+Cores Sub Modules (Ultimate Weapons)
+Sub-Module Effects are available on all modules, and each sub-module's rarity is independent of the module it sits on. An Epic module can roll a Rare or Common sub-module, and vice versa.
+You reroll sub-modules with reroll shards. Locking a sub-module protects that slot from being rerolled, but each lock increases the cost of the roll. See the Modules page for the broader submodule mechanics.
+Keep in mind that extra stats granted by Assist Module sub-module effects cannot push a stat past its hard cap. The caps that matter here include 98% defense, 90% slow on Chrono Field speed reduction, 150s Wall rebuild, 7s Shockwave Frequency and 37s Inner Land Mine cooldown.
+Cannon Submodules (Attack)
+Cannon sub-modules provide attack-focused effects, boosting the offensive side of your tower. The full list of available effects and their values is shown in the table below.
+Common Rare Epic Legendary Mythic Ancestral
+Attack Speed 0.3 0.5 0.7 1 3 5
+Crit Chance [%] 2 3 4 6 8 10
+Crit Factor 2 4 6 8 12 15
+Attack Range [m] 2 4 8 12 20 30
+Damage / Meter [m] 0.005 0.01 0.025 0.04 0.075 0.15
+Multishot Chance [%] n/a 3 5 7 10 13
+Multishot Targets n/a n/a 1 2 3 4
+Rapid Fire Chance [%] n/a 2 4 6 9 12
+Rapid Fire Duration n/a 0.4s 0.8s 1.4s 2.5s 3.5s
+Bounce Shot Chance n/a 2% 3% 5% 9% 12%
+Show all 17 rows
+Armor Submodules (Defense)
+Armor sub-modules cover defensive effects, improving your tower's ability to survive. The table below lists each effect you can roll.
+Common Rare Epic Legendary Mythic Ancestral
+Health Regen [%] 20 40 60 100 200 400
+Defense [%] 1 2 3 5 6 8
+Defense Absolute [%] 15 25 40 100 500 1000
+Thorns Damage n/a n/a 2 4 7 10
+Lifesteal [%] n/a n/a 0.3 0.5 1.5 2.0
+Knockback Chance [%] n/a n/a 2 4 6 9
+Knockback Force n/a n/a 0.1 0.4 0.9 1.5
+Orb Speed n/a n/a 1 1.5 2 3
+Orbs n/a n/a n/a n/a 1 2
+Shockwave Size n/a n/a 0.1 0.3 0.7 1
+Show all 17 rows
+Generator Submodules (Utility)
+Generator sub-modules grant utility effects that support your economy and general tower function rather than raw damage or defence. See the table below for the available rolls.
+Common Rare Epic Legendary Mythic Ancestral
+Cash Bonus 0.1 0.2 0.3 0.5 1.2 2.5
+Cash / Wave 30 50 100 200 500 1000
+Coins / Kill Bonus 0.1 0.2 0.3 0.4 0.5 0.6
+Coins / Wave 20 35 60 120 200 350
+Free Attack Upgrade [%] 2 4 6 8 10 12
+Free Defense Upgrade [%] 2 4 6 8 10 12
+Free Utility Upgrade [%] 2 4 6 8 10 12
+Interest / Wave [%] n/a n/a 2 4 6 8
+Recovery Amount [%] n/a n/a 3 5 7 10
+Max Recovery n/a n/a 0.4 0.7 1.0 1.5
+Show all 13 rows
+Cores Sub Modules (Ultimate Weapons)
+Core sub-modules affect your Ultimate Weapons. If you have already maxed Spotlight angle at 90 degrees, or maxed Chrono Field duration or cooldown through Workshop stats and/or labs, those specific sub effects are removed from the roll pool for free, so you will not waste rerolls on stats you can no longer use. The table below shows the effects you can roll.
+Common Rare Epic Legendary Mythic Ancestral
+Golden Tower - Bonus n/a n/a 1 2 3 4
+Golden Tower - Duration [s] n/a n/a n/a 2 4 7
+Golden Tower - Cooldown [s] n/a n/a n/a -5 -8 -12
+Black Hole - Size [m] 2 4 6 8 10 12
+Black Hole - Duration [s] n/a n/a n/a 2 3 4
+Black Hole - Cooldown [s] n/a n/a n/a -2 -3 -4
+Spotlight - Bonus 1.2 2.5 3.5 10 15 20
+Spotlight - Angle* n/a n/a 3 6 11 15
+Chrono Field - Duration [s]* n/a n/a n/a 4 7 10
+Chrono Field - Speed Reduction [%] n/a n/a 3 8 11 15
+Show all 26 rows
+Related pages
+Modules
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-11) . Something out of date? Tell us in the Discord .

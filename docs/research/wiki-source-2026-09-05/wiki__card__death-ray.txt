@@ -1,0 +1,28 @@
+Death Ray is a card that projects a beam from your tower, sweeping around it and destroying any standard enemy the beam touches. It is one of the cards that can clear large numbers of regular enemies automatically, but it comes with clear limits on what it can affect.
+On this page
+Description
+Use
+Double Death Ray
+Description
+Death Ray fires a beam from your tower that rotates around it, killing every enemy the beam comes into contact with. It works as an automatic area-clearing tool, sweeping through waves of regular enemies without any input from you once the card is equipped.
+Use
+Death Ray cannot kill bosses, and it also has no effect on any enemy sitting inside a protector's radius. Keep this in mind when relying on it as your main clearing tool, since protected enemies and bosses will need to be dealt with by other means. At maximum level, the beam's rotation covers more than 180 degrees, widening the area it sweeps with each pass.
+Double Death Ray
+Double Death Ray is a lab upgrade unlocked through Milestones at tier 3, wave 300. Once researched, each Death Ray activation has a chance to trigger a second beam, and investing more levels into the lab raises that chance. When the upgrade triggers, the second beam always appears directly opposite the first and rotates in the same direction around the tower, effectively doubling your coverage. The lab has 30 levels; the per-level chance values are shown in the table below.
+Level Time Cost Value
+1 0d 0h 59m 2.5M 1%
+2 0d 9h 21m 2.81M 2%
+3 0d 17h 53m 3.42M 3%
+4 1d 2h 54m 5.83M 4%
+5 1d 12h 49m 13.94M 5%
+6 2d 0h 6m 35.25M 6%
+7 2d 13h 17m 82.06M 7%
+8 3d 4h 58m 172.67M 8%
+9 3d 23h 49m 332.58M 9%
+10 4d 22h 31m 595.69M 10%
+Show all 30 rows
+Related pages
+Cards
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-07-24) . Something out of date? Tell us in the Discord .

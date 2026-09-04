@@ -1,0 +1,70 @@
+Interest rewards you for holding onto cash. At the end of each wave, you earn a percentage of the cash you still have on hand, so money you don't spend keeps working for you. It sits in the Workshop Upgrades category and is supported by two related lab researches.
+On this page
+Overview
+Workshop
+Cost
+Labs — Interest
+Labs — Max Interest
+Labs
+Overview
+Interest pays out a percentage of your unspent cash when a wave ends. The larger the balance you carry into the end of a wave, the more interest you collect, which encourages saving rather than spending everything immediately.
+Workshop
+Interest/Wave is bought in the workshop for 5000 coins once Free Upgrades is unlocked. It has 99 levels starting from a 0% base, and each level adds 0.06% to that base, reaching a maximum of 5.94%. The payout is worked out after Cash Per Wave is applied, using the formula: (Current Cash + Cash/Wave × Cash Bonus) × Interest/Wave %.
+Cost
+The cost of each Interest/Wave workshop level is listed in the cost table below.
+Level Value Coin Total Coins
+1 0.06% 125 125
+2 0.12% 179 304
+3 0.18% 245 549
+4 0.24% 328 877
+5 0.30% 431 1.31K
+6 0.36% 556 1.86K
+7 0.42% 705 2.57K
+8 0.48% 881 3.45K
+9 0.54% 1.08K 4.53K
+10 0.60% 1.32K 5.85K
+Show all 99 rows
+Labs — Interest
+The Interest lab raises how much each Interest/Wave workshop level adds and also lifts the workshop's maximum value. It has 99 levels, with the per-level values shown in the table below.
+Level Time Cost Value
+1 0d 0h 0m 50 1.02
+2 0d 0h 9m 93 1.04
+3 0d 0h 24m 221 1.06
+4 0d 0h 45m 532 1.08
+5 0d 1h 16m 1,130 1.10
+6 0d 1h 58m 2,110 1.12
+7 0d 2h 53m 3,590 1.14
+8 0d 4h 2m 5,680 1.16
+9 0d 5h 27m 8,480 1.18
+10 0d 7h 8m 12,130 1.20
+Show all 99 rows
+Labs — Max Interest
+Max Interest raises the cap on how much interest you can earn, which starts at $50. It has 15 levels. You can tell when you've hit the cap because the $ symbol next to your cash display turns bright green.
+Level Time Cost Value
+1 0d 0h 41m 250 $100
+2 0d 1h 9m 910 $200
+3 0d 2h 8m 2,130 $350
+4 0d 4h 33m 4,860 $500
+5 0d 9h 42m 10,330 $700
+6 0d 19h 11m 20,020 $1,000
+7 1d 10h 50m 35,600 $1,500
+8 2d 10h 43m 58,900 $2,000
+9 3d 21h 10m 91,940 $2,500
+10 5d 20h 39m 136,870 $3,500
+Show all 15 rows
+Labs
+The Interest labs are unlocked in the Labs menu through Milestones, at tier 2 wave 80.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-30) . Something out of date? Tell us in the Discord .

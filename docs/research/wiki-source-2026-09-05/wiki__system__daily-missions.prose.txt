@@ -1,0 +1,24 @@
+Daily missions are progress-based challenges that refresh every 8 hours. Finishing them pays out coins and gems, and completing enough of them over the week unlocks a series of weekly rewards.
+On this page
+Description
+Challenges
+Rewards
+Weekly Rewards
+Reroll Daily Mission
+Description
+Daily missions are challenges handed out every 8 hours, and each one is built around your own progression rather than a fixed list. Clearing them earns you coins and gems, and every mission you finish also counts towards weekly reward milestones.
+Challenges
+Unlike events, daily missions scale to your account. You will only see card or ultimate weapon challenges once you have actually unlocked the relevant feature, so the missions you receive may look different from another player's. Because missions are matched to your progress, every challenge you are given should be completable.
+Rewards
+Each daily mission pays out 3 gems plus an amount of coins and shards that scales with the highest tier you have unlocked. That same highest tier also feeds into the coins you get from weekly rewards and guild rewards, so pushing tiers raises several income streams at once. If you want more shards per mission, the Daily Mission Shards lab increases the payout; the exact values are in the table below.
+Show all 21 rows
+Weekly Rewards
+For every 5 daily missions you complete, you earn a weekly reward, up to a total of 35 completed missions. These rewards contain coins, medals, gems and stones, with the coin portion based on the same tier-linked coin level used for your daily missions. The milestones reset, so you can earn the full set again each week.
+Reroll Daily Mission
+The reroll feature lets you swap a mission for a different one at a cost of 5 gems, and the replacement is guaranteed to be a different mission than the one you gave up. It unlocks once you reach Tier 4 Wave 30 and has a single level, so there is nothing further to upgrade.
+Related pages
+Cards
+Events
+Module Labs
+Ultimate Weapons
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-26) . Something out of date? Tell us in the Discord .

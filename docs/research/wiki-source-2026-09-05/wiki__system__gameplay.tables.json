@@ -1,0 +1,19 @@
+[
+  {
+    "type": "table",
+    "caption": "Timers at x1 Speed",
+    "headers": [
+      "Normal Wave"
+    ],
+    "rows": [
+      [
+        "Length",
+        "Cooldown"
+      ],
+      [
+        "26.00 Seconds",
+        "9.00 Seconds"
+      ]
+    ]
+  }
+]

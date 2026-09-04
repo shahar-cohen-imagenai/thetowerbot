@@ -1,0 +1,117 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Cards
+Cards
+Cards, slots, presets and masteries — the cheapest multipliers in the game if you equip the right ones.
+Area of Effect Card
+Area of Effect is an epic card in The Tower: Idle Tower Defense that boosts damage for several area-based attacks, with a mastery that widens its radius.
+Attack Speed Card
+Attack Speed is a common card in The Tower: Idle Tower Defense that raises your tower's fire rate. Learn how it works and what its card mastery adds.
+Berserker Card
+How the Berserker epic card works in The Tower: Idle Tower Defense, including its absorbed-damage bonus and the 750-stone card mastery.
+Card Masteries
+How Card Masteries unlock in The Tower: Idle Tower Defense, what they do, and how their labs and stone costs work.
+Card Presets
+Card Presets let you save up to 5 card loadouts in The Tower: Idle Tower Defense. Learn how presets work and how to unlock the lab.
+Card Slots
+Card slots control how many cards you can equip at once. Learn how slots are unlocked with gems and keys, and the total costs involved.
+Cards
+All 31 cards in The Tower explained — rarities, star levels, gem costs, which slots to unlock first, and how card mastery changes the math.
+Cash Card
+Cash is a common card in The Tower: Idle Tower Defense that boosts all cash earned. Its mastery adds a chance for elites to drop reroll dice.
+Coins Card
+Coins is a common card in The Tower: Idle Tower Defense that boosts all coins earned. Learn its effect and what its card mastery adds.
+Critical Chance Card
+Critical Chance is a common card in The Tower: Idle Tower Defense that raises your tower's critical chance, with a mastery that boosts crit-related stats.
+Critical Coin Card
+Critical Coin is a rare card in The Tower: Idle Tower Defense that gives basic enemies killed by critical shots a chance to drop coins.
+Damage Card
+Damage is a common card in The Tower: Idle Tower Defense that raises your tower's damage output, with a mastery upgrade costing 750 stones.
+Death Ray
+Death Ray is a card that fires a rotating beam killing enemies on contact. Learn its limits and how the Double Death Ray lab upgrade works.
+Demon Mode
+Demon Mode in The Tower: 300x projectile damage and invincibility for up to 300 seconds — once per round, manual or automated, all activation rules.
+Enemy Balance Card
+Enemy Balance is a common card in The Tower that spawns more enemies per wave and raises cash per kill. Learn its effect and mastery.
+Energy Net
+Energy Net is a card that automatically fires a net at bosses entering tower range, stunning them for a period of time.
+Energy Shield
+Energy Shield is a card that blocks one attack per charge and recharges over time. Learn how recharge timing works and how the Extra Hit lab adds charges.
+Extra Defense Card
+Extra Defense is a common card in The Tower: Idle Tower Defense that raises your tower's defense percent while equipped.
+Extra Orb Card
+Extra Orb is a rare card in The Tower: Idle Tower Defense that adds a spinning orb destroying enemies on contact, with a coin-bonus card mastery.
+Fortress Card
+Fortress is a common card in The Tower: Idle Tower Defense that raises defense absolute. Learn its effect and card mastery details.
+Free Upgrades Card
+Free Upgrades is a rare card in The Tower: Idle Tower Defense that raises your free upgrade chances each wave, with a mastery that locks a chosen stat.
+Health Card
+Health is a common card in The Tower: Idle Tower Defense that raises your tower's health. Learn how it works and what its card mastery adds.
+Health Regen Card
+Health Regen is a common card in The Tower: Idle Tower Defense that raises your tower's health regeneration per second. Learn how it works and what its card mas
+Intro Sprint Card
+Intro Sprint is a rare card in The Tower: Idle Tower Defense that speeds through early waves with bosses spawning every wave but no coin rewards.
+Land Mine Stun Card
+Land Mine Stun is a rare card in The Tower: Idle Tower Defense that gives land mines a 40% chance to stun non-boss enemies.
+Nuke
+Nuke is a manually activated card that destroys a percentage of enemies. Learn how it works, its automation priority, and how to unlock its recharge lab.
+Plasma Cannon
+Plasma Cannon is a card that fires a projectile at bosses in tower range, dealing damage equal to a percentage of the boss's total health.
+Range Card
+Range is a common card in The Tower: Idle Tower Defense that increases your tower's range. Its mastery adds a damage-per-meter multiplier.
+Recovery Package Chance Card
+Recovery Package Chance is a rare card in The Tower: Idle Tower Defense that raises the spawn rate of recovery packages during a round.
+Second Wind
+Second Wind card: revive your tower with half health once per round, plus an invincible shield. Includes lab upgrades.
+Slow Aura
+Slow Aura is a card that reduces enemy speed by a percentage while enemies are inside your tower's range.
+Super Tower Card
+Super Tower is an epic card that temporarily boosts tower damage for 15 seconds with a 30-second cooldown. Learn how it works and what its mastery adds.
+Ultimate Crit Card
+Ultimate Crit is an epic card in The Tower: Idle Tower Defense that gives ultimate weapons a chance to deal critical damage based on your Tower Crit Factor.
+Wave Accelerator Card
+Wave Accelerator is an epic card in The Tower: Idle Tower Defense that reduces the cooldown between waves. Learn how it works and what its card mastery adds.
+Wave Skip Card
+Wave Skip is a rare card in The Tower: Idle Tower Defense that gives a chance to skip waves while still earning coins and cash.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

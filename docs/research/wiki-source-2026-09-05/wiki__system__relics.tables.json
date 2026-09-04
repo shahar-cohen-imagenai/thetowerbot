@@ -1,0 +1,2450 @@
+[
+  {
+    "type": "table",
+    "caption": "Total Bonuses",
+    "headers": [
+      "Misc.",
+      "Total"
+    ],
+    "rows": [
+      [
+        "Lab Speed",
+        "75%"
+      ],
+      [
+        "Bot Range",
+        "10m"
+      ],
+      [
+        "Damage",
+        "Total"
+      ],
+      [
+        "Damage",
+        "111%"
+      ],
+      [
+        "Ultimate Damage",
+        "45%"
+      ],
+      [
+        "Attack Speed",
+        "18%"
+      ],
+      [
+        "Critical Chance",
+        "14%"
+      ],
+      [
+        "Critical Factor",
+        "107%"
+      ],
+      [
+        "Damage / Meter",
+        "83%"
+      ],
+      [
+        "Super Critical Chance",
+        "6%"
+      ],
+      [
+        "Super Critical Mult",
+        "5%"
+      ],
+      [
+        "Rend Armor Mult",
+        "2%"
+      ],
+      [
+        "Defense",
+        "Total"
+      ],
+      [
+        "Health",
+        "114%"
+      ],
+      [
+        "Health Regen",
+        "35%"
+      ],
+      [
+        "Defense Percent",
+        "5%"
+      ],
+      [
+        "Defense Absolute",
+        "74%"
+      ],
+      [
+        "Thorns",
+        "13%"
+      ],
+      [
+        "Knockback Force",
+        "33%"
+      ],
+      [
+        "Orb Speed",
+        "28%"
+      ],
+      [
+        "Wall Rebuild",
+        "-2s"
+      ],
+      [
+        "Utility",
+        "Total"
+      ],
+      [
+        "Cash Bonus",
+        "27%"
+      ],
+      [
+        "Coins",
+        "85%"
+      ],
+      [
+        "Free Attack Upgrade",
+        "13%"
+      ],
+      [
+        "Free Defense Upgrade",
+        "9%"
+      ],
+      [
+        "Free Utility Upgrade",
+        "10%"
+      ],
+      [
+        "Recovery Amount",
+        "18%"
+      ],
+      [
+        "Enemy Attack Level Skip",
+        "2%"
+      ],
+      [
+        "Enemy Health Level Skip",
+        "2%"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "",
+      "Nr. Order",
+      "Relic",
+      "Rarity",
+      "Description",
+      "Unlock Requirement"
+    ],
+    "rows": [
+      [
+        "",
+        "1",
+        "T:I Flux",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Milestone: Beat Wave 4500 in tier 1"
+      ],
+      [
+        "",
+        "2",
+        "T:II  Lumin",
+        "Rare",
+        "Increase lab speed by 1.5%",
+        "Milestone: Beat Wave 4500 in tier 2"
+      ],
+      [
+        "",
+        "3",
+        "T:III  Pulse",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Milestone: Beat Wave 4500 in tier 3"
+      ],
+      [
+        "",
+        "4",
+        "T:IV  Harmonic",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Milestone: Beat Wave 4500 in tier 4"
+      ],
+      [
+        "",
+        "5",
+        "T:V Ether",
+        "Rare",
+        "Increase tower health by 2%",
+        "Milestone: Beat Wave 4500 in tier 5"
+      ],
+      [
+        "",
+        "6",
+        "T:VI Nova",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Milestone: Beat wave 4500 in  tier 6"
+      ],
+      [
+        "",
+        "7",
+        "T:VII Aether",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Milestone: Beat wave 4500 in  tier 7"
+      ],
+      [
+        "",
+        "8",
+        "T:VIII Graviton",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Milestone: Beat wave 4500 in  tier 8"
+      ],
+      [
+        "",
+        "9",
+        "T:IX Fusion",
+        "Epic",
+        "Increase tower health by 5%",
+        "Milestone: Beat wave 4500 in  tier 9"
+      ],
+      [
+        "",
+        "10",
+        "T:X Plasma",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Milestone: Beat wave 4500 in  tier 10"
+      ],
+      [
+        "",
+        "11",
+        "T:XI  Resonance",
+        "Legendary",
+        "Increase defense absolute by 10%",
+        "Milestone: Beat wave 4500 in  tier 11"
+      ],
+      [
+        "",
+        "12",
+        "T:XII  Chrono",
+        "Legendary",
+        "Increase lab speed by 10%",
+        "Milestone: Beat wave 4500 in  tier 12"
+      ],
+      [
+        "",
+        "13",
+        "T:XIII  Hyper",
+        "Legendary",
+        "Increase coins earned by 10%",
+        "Milestone: Beat wave 4500 in  tier 13"
+      ],
+      [
+        "",
+        "14",
+        "T:XIV  Arcane",
+        "Legendary",
+        "Increase tower damage by 10%",
+        "Milestone: Beat wave 4500 in  tier 14"
+      ],
+      [
+        "",
+        "15",
+        "T:XV  Celestial",
+        "Legendary",
+        "Increase critical factor by 10%",
+        "Milestone: Beat wave 4500 in  tier 15"
+      ],
+      [
+        "",
+        "16",
+        "T:XVI Quantum",
+        "Legendary",
+        "Increase tower health by 10%",
+        "Milestone: Beat wave 4500 in  tier 16"
+      ],
+      [
+        "",
+        "17",
+        "T:XVII Nebula",
+        "Legendary",
+        "Increase damage / meter by 10%",
+        "Milestone: Beat wave 4500 in tier 17"
+      ],
+      [
+        "",
+        "18",
+        "T:XVIII Singularity",
+        "Legendary",
+        "Increase lab speed by 10%",
+        "Milestone: Beat wave 4500 in tier 18"
+      ],
+      [
+        "",
+        "19",
+        "T:XIX Atomic",
+        "Legendary",
+        "Increase tower damage by 10%",
+        "Milestone: Beat wave 4500 in tier 19"
+      ],
+      [
+        "",
+        "20",
+        "T:XX Cyber",
+        "Legendary",
+        "Increase ultimate damage by 8%",
+        "Milestone: Beat wave 4500 in tier 20"
+      ],
+      [
+        "",
+        "21",
+        "T:XXI Eclipse",
+        "Legendary",
+        "Increase lab speed by 10%",
+        "Milestone: Beat wave 4500 in tier 21"
+      ],
+      [
+        "",
+        "22",
+        "Copper  Badge",
+        "Rare",
+        "Increase tower damage by 3%",
+        "Tournament: Finish top 4 in copper"
+      ],
+      [
+        "",
+        "23",
+        "Silver  Badge",
+        "Rare",
+        "Increase coins earned by 5%",
+        "Tournament: Finish top 4 in silver"
+      ],
+      [
+        "",
+        "24",
+        "Gold  Badge",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Tournament: Finish Top 4 in Gold"
+      ],
+      [
+        "",
+        "25",
+        "Platinum  Badge",
+        "Epic",
+        "Increase lab speed by 4%",
+        "Tournament: Finish top 4 in  Platinum"
+      ],
+      [
+        "",
+        "26",
+        "Champion  Badge",
+        "Legendary",
+        "Increase damage / meter by 10%",
+        "Tournament: Finish top 4 in  Champion"
+      ],
+      [
+        "",
+        "27",
+        "Tower  Master",
+        "Legendary",
+        "Increase tower health by 10%",
+        "Tournament: Finish top 4 in  Legends"
+      ],
+      [
+        "",
+        "28",
+        "Legend Badge",
+        "Legendary",
+        "Increase critical factor by 10%",
+        "Tournament: Win Legend"
+      ],
+      [
+        "",
+        "29",
+        "1st Tower Birthday",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Play for 1 year"
+      ],
+      [
+        "",
+        "30",
+        "2nd Tower Birthday",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Play for 2 years"
+      ],
+      [
+        "",
+        "31",
+        "3rd Tower Birthday",
+        "Rare",
+        "Increase damage / meter by 2%",
+        "Play for 3 years"
+      ],
+      [
+        "",
+        "32",
+        "4th Tower Birthday",
+        "Rare",
+        "Increase tower health by 2%",
+        "Play for 4 year"
+      ],
+      [
+        "",
+        "33",
+        "5th Tower Birthday",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Play for 5 years"
+      ],
+      [
+        "",
+        "34",
+        "6th Tower Birthday",
+        "Rare",
+        "Increase damage / meter by 2%",
+        "Play for 6 years"
+      ],
+      [
+        "",
+        "35",
+        "No Spoon",
+        "Rare",
+        "Increase defense absolute by 2%",
+        "Event: Earn 350 medals during  the \"Into the Matrix\""
+      ],
+      [
+        "",
+        "36",
+        "Red Pill",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event: Earn 700 medals during  the \"Into the Matrix\""
+      ],
+      [
+        "",
+        "37",
+        "Dreamcatcher",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Event: Earn 350 medals during  the \"Full Moon\""
+      ],
+      [
+        "",
+        "38",
+        "Spirit  Wolf",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event: Earn 700 medals during  the \"Full Moon\""
+      ],
+      [
+        "",
+        "39",
+        "Bacteriophage",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event: Earn 350 medals during  the \"Viral Outbreak\""
+      ],
+      [
+        "",
+        "40",
+        "Neuron",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event: Earn 700 medals during  the \"Viral Outbreak\""
+      ],
+      [
+        "",
+        "41",
+        "Ionized  Plasma",
+        "Rare",
+        "Increase defense absolute by 2%",
+        "Event: Earn 350 medals during  the \"Plasma Returns\""
+      ],
+      [
+        "",
+        "42",
+        "Plasma  Arc",
+        "Epic",
+        "Increase lab speed by 4%",
+        "Event: Earn 700 medals during  the \"Plasma Returns\""
+      ],
+      [
+        "",
+        "43",
+        "Honey Drop",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event: Earn 350 medals during the \"Honey\""
+      ],
+      [
+        "",
+        "44",
+        "Stinger",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event: Earn 700 medals during the \"Honey\""
+      ],
+      [
+        "",
+        "45",
+        "Aurora Vortex",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Aurora (II)\""
+      ],
+      [
+        "",
+        "46",
+        "Contained Ions",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"Aurora (II)\""
+      ],
+      [
+        "",
+        "47",
+        "Alien Head",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Event: Earn 350 medals during the \"Aliens\""
+      ],
+      [
+        "",
+        "48",
+        "Alien Warp Drive",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Event: Earn 700 medals during the \"Aliens\""
+      ],
+      [
+        "",
+        "49",
+        "Ancient Tome",
+        "Rare",
+        "Increase lab speed by 1.5%",
+        "Event: Earn 350 medals during the \"Sands of Time\""
+      ],
+      [
+        "",
+        "50",
+        "Space Sundial",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event: Earn 700 medals during the \"Sands of Time\""
+      ],
+      [
+        "",
+        "51",
+        "Spooky Bat",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Event: Earn 350 medals during the \"Halloween\""
+      ],
+      [
+        "",
+        "52",
+        "Man Skull",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event: Earn 700 medals during the \"Halloween\""
+      ],
+      [
+        "",
+        "53",
+        "Cherry",
+        "Rare",
+        "Increase defense absolute by 2%",
+        "Event: Earn 350 medals during the \"Cherry Blossom\""
+      ],
+      [
+        "",
+        "54",
+        "Sakura Lantern",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Event: Earn 700 medals during the \"Cherry Blossom\""
+      ],
+      [
+        "",
+        "55",
+        "Tower Latte",
+        "Rare",
+        "Increase damage / meter by 2%",
+        "Event: Earn 350 medals during the \"Autumn\""
+      ],
+      [
+        "",
+        "56",
+        "Pumpkin",
+        "Epic",
+        "Increase lab speed by 4%",
+        "Event: Earn 700 medals during the \"Autumn\""
+      ],
+      [
+        "",
+        "57",
+        "Holy Joystick",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event: Earn 350 medals during the \"Retro Arcade\""
+      ],
+      [
+        "",
+        "58",
+        "Controller",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event: Earn 700 medals during the \"Retro Arcade\""
+      ],
+      [
+        "",
+        "59",
+        "Firework",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"New Year\""
+      ],
+      [
+        "",
+        "60",
+        "Cheers",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"New Year\""
+      ],
+      [
+        "",
+        "61",
+        "Palm Tree",
+        "Rare",
+        "Increase lab speed by 2%",
+        "Event: Earn 350 medals during the \"Retrowave\""
+      ],
+      [
+        "",
+        "62",
+        "Pixel Cube Heart",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event: Earn 700 medals during the \"Retrowave\""
+      ],
+      [
+        "",
+        "63",
+        "Dark Sight",
+        "Rare",
+        "Increase damage / meter by 2%",
+        "Event: Earn 350 medals during the \"Dark Strands\""
+      ],
+      [
+        "",
+        "64",
+        "Creepy Smile",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event: Earn 700 medals during the \"Dark Strands\""
+      ],
+      [
+        "",
+        "65",
+        "Submarine",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Event: Earn 350 medals during the \"Deep Blue Sea\""
+      ],
+      [
+        "",
+        "66",
+        "The Kraken",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"Deep Blue Sea\""
+      ],
+      [
+        "",
+        "67",
+        "Warp Gate",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Event: Earn 350 medals during the \"Faster Then Light\""
+      ],
+      [
+        "",
+        "68",
+        "Star Ship",
+        "Epic",
+        "Increase lab speed by 4%",
+        "Event: Earn 700 medals during the \"Faster Then Light\""
+      ],
+      [
+        "",
+        "69",
+        "Barnacle",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Ocean Night\""
+      ],
+      [
+        "",
+        "70",
+        "Wave",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event: Earn 700 medals during the \"Ocean Night\""
+      ],
+      [
+        "",
+        "71",
+        "Pizza",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event: Earn 350 medals during the \"Invaders\""
+      ],
+      [
+        "",
+        "72",
+        "Illuminati",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"Invaders\""
+      ],
+      [
+        "",
+        "73",
+        "Refraction Array",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Event: Earn 350 medals during the \"Prismatic Lines\""
+      ],
+      [
+        "",
+        "74",
+        "Prismatic Shard",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Event: Earn 700 medals during the \"Prismatic Lines\""
+      ],
+      [
+        "",
+        "75",
+        "Hook",
+        "Rare",
+        "Increase damage / meter by 2%",
+        "Event: Earn 350 medals during the \"Sunset Fishing\""
+      ],
+      [
+        "",
+        "76",
+        "Fish",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"Sunset Fishing\""
+      ],
+      [
+        "",
+        "77",
+        "Cobweb",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Cobweb\""
+      ],
+      [
+        "",
+        "78",
+        "The Fly",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"Cobweb\""
+      ],
+      [
+        "",
+        "79",
+        "Gale Winds",
+        "Rare",
+        "Increase coins earned by 5%",
+        "Event: Earn 350 medals during the \"Into The Storm\""
+      ],
+      [
+        "",
+        "80",
+        "Flying House",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event: Earn 700 medals during the \"Into The Storm\""
+      ],
+      [
+        "",
+        "81",
+        "Clip Ons",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Event: Earn 350 medals during the \"Into The Matrix\""
+      ],
+      [
+        "",
+        "82",
+        "Code Stream",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event: Earn 700 medals during the \"Into The Matrix\""
+      ],
+      [
+        "",
+        "83",
+        "Rain Jacket",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Rainfall\""
+      ],
+      [
+        "",
+        "84",
+        "Cloud Lightning",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event: Earn 700 medals during the \"Rainfall\""
+      ],
+      [
+        "",
+        "85",
+        "Rabies",
+        "Rare",
+        "Increase lab speed by 2%",
+        "Event: Earn 350 medals during the \"Viral Outbreak (II)\""
+      ],
+      [
+        "",
+        "86",
+        "Ebola",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"Viral Outbreak (II)\""
+      ],
+      [
+        "",
+        "87",
+        "Comet",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event: Earn 350 medals during the \"Interstellar\""
+      ],
+      [
+        "",
+        "88",
+        "Planetary Rings",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event: Earn 700 medals during the \"Interstellar\""
+      ],
+      [
+        "",
+        "89",
+        "Remote Control",
+        "Rare",
+        "Increase damage / meter by 2%",
+        "Event: Earn 350 medals during the \"Tower's Channel\""
+      ],
+      [
+        "",
+        "90",
+        "Cathode Ray Tube",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Event: Earn 700 medals during the \"Tower's Channel\""
+      ],
+      [
+        "",
+        "91",
+        "Anubis",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Event: Earn 350 medals during the \"Sands of Time\""
+      ],
+      [
+        "",
+        "92",
+        "Sphinx",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event: Earn 700 medals during the \"Sands of Time\""
+      ],
+      [
+        "",
+        "93",
+        "Lava Flow",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Volcano\""
+      ],
+      [
+        "",
+        "94",
+        "Ash Cloud",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"Volcano\""
+      ],
+      [
+        "",
+        "95",
+        "Abduction Room",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Abduction\""
+      ],
+      [
+        "",
+        "96",
+        "Crop Circle",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event: Earn 700 medals during the \"Abduction\""
+      ],
+      [
+        "",
+        "97",
+        "Acorn",
+        "Rare",
+        "Increase damage / meter by 2%",
+        "Event: Earn 350 medals during the \"Autumn (II)\""
+      ],
+      [
+        "",
+        "98",
+        "Scarf",
+        "Epic",
+        "Increase defense absolute by 5%",
+        "Event: Earn 700 medals during the \"Autumn (II)\""
+      ],
+      [
+        "",
+        "99",
+        "Cauldron",
+        "Rare",
+        "Increase lab speed by 2%",
+        "Event: Earn 350 medals during the \"Halloween (II)\""
+      ],
+      [
+        "",
+        "100",
+        "Witch Hat",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event: Earn 700 medals during the \"Halloween (II)\""
+      ],
+      [
+        "",
+        "101",
+        "Icicle",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event: Earn 350 medals during the \"Snowstorm\""
+      ],
+      [
+        "",
+        "102",
+        "Sleigh Bell",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event: Earn 700 medals during the \"Snowstorm\""
+      ],
+      [
+        "",
+        "103",
+        "Koi Fish",
+        "Rare",
+        "Increase lab speed by 2%",
+        "Event: Earn 350 medals during the \"Cherry Blossom (II)\""
+      ],
+      [
+        "",
+        "104",
+        "Bonsai Tree",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Event: Earn 700 medals during the \"Cherry Blossom (II)\""
+      ],
+      [
+        "",
+        "105",
+        "Tea Ceremony",
+        "Rare",
+        "Increase tower health by 2%",
+        "Purchase: 200 medals during the \"Cherry Blossom (II)\""
+      ],
+      [
+        "",
+        "106",
+        "Kimono",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Purchase: 500 medals during the \"Cherry Blossom (II)\""
+      ],
+      [
+        "",
+        "107",
+        "Lunar Cat Paw",
+        "Rare",
+        "Increase critical chance by 1%",
+        "Event: Earn 350 medals during the \"Meowy Night\""
+      ],
+      [
+        "",
+        "108",
+        "Pet Cat",
+        "Epic",
+        "Increase attack speed by 2%",
+        "Event: Earn 700 medals during the \"Meowy Night\""
+      ],
+      [
+        "",
+        "109",
+        "Confetti Ball",
+        "Rare",
+        "Increase free attack upgrade by 1%",
+        "Event: Earn 700 medals during the \"New Year (II)\""
+      ],
+      [
+        "",
+        "110",
+        "Party Mask",
+        "Epic",
+        "Increase ultimate damage by 5%",
+        "Event: Earn 350 medals during the \"New Year (II)\""
+      ],
+      [
+        "",
+        "111",
+        "Summit Starlight",
+        "Rare",
+        "Increase lab speed by 2%",
+        "Event: Earn 350 medals during the \"Howling Wolf (II)\""
+      ],
+      [
+        "",
+        "112",
+        "Mountain Goat",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event: Earn 700 medals during the \"Howling Wolf (II)\""
+      ],
+      [
+        "",
+        "113",
+        "Falling Apple",
+        "Rare",
+        "Increase free defense upgrade by 1%",
+        "Event: Earn 350 medals during the \"Gravity\""
+      ],
+      [
+        "",
+        "114",
+        "3 Body Solution",
+        "Epic",
+        "Increase super critical chance by 2%",
+        "Event: Earn 700 medals during the \"Gravity\""
+      ],
+      [
+        "",
+        "115",
+        "Power Glove",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event: Earn 350 medals during the \"Retro Arcade (II)\""
+      ],
+      [
+        "",
+        "116",
+        "Arcade Token",
+        "Epic",
+        "Increase bot range by 2m",
+        "Event: Earn 700 medals during the \"Retro Arcade (II)\""
+      ],
+      [
+        "",
+        "117",
+        "Coral Crown",
+        "Rare",
+        "Increase health regen by 2%",
+        "Event: Earn 350 medals during the \"Deep Blue Sea (II)\""
+      ],
+      [
+        "",
+        "118",
+        "Angler Fish",
+        "Epic",
+        "Increase thorns by 2%",
+        "Event: Earn 700 medals during the \"Deep Blue Sea (II)\""
+      ],
+      [
+        "",
+        "119",
+        "Temporal Rift",
+        "Rare",
+        "Increase cash bonus by 2%",
+        "Event: Earn 350 medals during the \"What Time Is It?\""
+      ],
+      [
+        "",
+        "120",
+        "Hourglass",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Event Premium: Earn 550 medals during the \"What Time Is It?\""
+      ],
+      [
+        "",
+        "121",
+        "Dream Clock",
+        "Epic",
+        "Increase orb speed by 2%",
+        "Event: Earn 700 medals during the \"What Time is It?\""
+      ],
+      [
+        "",
+        "122",
+        "Time Compass",
+        "Epic",
+        "Increase attack speed by 2%",
+        "Event Premium: Earn 1100 medals during the \"What Time is It?\""
+      ],
+      [
+        "",
+        "123",
+        "Throne",
+        "Rare",
+        "Increase tower health by 2%",
+        "Guild: Spend 75 tokens in Guild Season 1"
+      ],
+      [
+        "",
+        "124",
+        "Crown",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Guild: Spend 150 tokens in Guild Season 1"
+      ],
+      [
+        "",
+        "125",
+        "Haunted Mirror",
+        "Rare",
+        "Decrease wall rebuild time by 2s",
+        "Event: Earn 350 medals during the \"Dark Strands (II)\""
+      ],
+      [
+        "",
+        "126",
+        "Whispering Web",
+        "Rare",
+        "Increase free defense upgrade by 1%",
+        "Event Premium: Earn 550 medals during the \"Dark Strands (II)\""
+      ],
+      [
+        "",
+        "127",
+        "Shadow Puppet",
+        "Epic",
+        "Increase super critical mult by 5%",
+        "Event: Earn 700 medals during the \"Dark Strands (II)\""
+      ],
+      [
+        "",
+        "128",
+        "Cursed Candle",
+        "Epic",
+        "Increase super critical chance by 2%",
+        "Event Premium: Earn 1100 medals during the \"Dark Strands (II)\""
+      ],
+      [
+        "",
+        "129",
+        "Pulsar Core",
+        "Rare",
+        "Increase recovery amount by 2%",
+        "Event: Earn 350 medals during the \"Faster Than Light (II)\""
+      ],
+      [
+        "",
+        "130",
+        "Quantum Drive",
+        "Rare",
+        "Increase bot range by 1m",
+        "Event Premium: Earn 550 medals during the \"Faster Than Light (II)\""
+      ],
+      [
+        "",
+        "131",
+        "Light Speedometer",
+        "Epic",
+        "Increase enemy attack level skip by 2%",
+        "Event: Earn 700 medals during the \"Faster Than Light (II)\""
+      ],
+      [
+        "",
+        "132",
+        "Photon Blade",
+        "Epic",
+        "Increase tower damage by 2%",
+        "Event Premium: Earn 1100 medals during the \"Faster Than Light (II)\""
+      ],
+      [
+        "",
+        "133",
+        "Bloom Burst",
+        "Rare",
+        "Increase cash bonus by 2%",
+        "Event: Earn 350 medals during the \"Easter\""
+      ],
+      [
+        "",
+        "134",
+        "Mystic Bunny",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Event Premium: Earn 550 medals during the \"Easter\""
+      ],
+      [
+        "",
+        "135",
+        "Candy Core",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event: Earn 700 medals during the \"Easter\""
+      ],
+      [
+        "",
+        "136",
+        "Magic Egg",
+        "Epic",
+        "Increase free attack upgrade by 2%",
+        "Event Premium: Earn 1100 medals during the \"Easter\""
+      ],
+      [
+        "",
+        "137",
+        "Fancy Wires",
+        "Rare",
+        "Increase health regen by 2%",
+        "Guild: Spend 75 Tokens during the \"Season 2\""
+      ],
+      [
+        "",
+        "138",
+        "Mech Head",
+        "Epic",
+        "Increase bot range by 2m",
+        "Guild: Spend 150 Tokens during the \"Season 2\""
+      ],
+      [
+        "",
+        "139",
+        "Infinite Ruler",
+        "Rare",
+        "Increase free utility upgrade by 1%",
+        "Event: Earn 350 medals during the \"Pi\""
+      ],
+      [
+        "",
+        "140",
+        "Pi Seal",
+        "Rare",
+        "Increase lab speed by 2%",
+        "Event Premium: Earn 550 medals during the \"Pi\""
+      ],
+      [
+        "",
+        "141",
+        "Do While True",
+        "Epic",
+        "Increase orb speed by 5%",
+        "Event: Earn 700 medals during the \"Pi\""
+      ],
+      [
+        "",
+        "142",
+        "Psychohistorian Brain",
+        "Epic",
+        "Increase super critical chance by 2%",
+        "Event Premium: Earn 1100 medals during the \"Pi\""
+      ],
+      [
+        "",
+        "143",
+        "UFO Beam",
+        "Rare",
+        "Increase knockback force by 2%",
+        "Event: Earn 350 medals during the \"Invaders (II)\""
+      ],
+      [
+        "",
+        "144",
+        "Abduction Signal",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Event Premium: Earn 550 medals during the \"Invaders (II)\""
+      ],
+      [
+        "",
+        "145",
+        "Alien Egg",
+        "Epic",
+        "Increase enemy health skip by 2%",
+        "Event: Earn 700 medals during the \"Invaders (II)\""
+      ],
+      [
+        "",
+        "146",
+        "Monolith",
+        "Epic",
+        "Increase ultimate damage by 5%",
+        "Event Premium: Earn 1100 medals during the \"Invaders (II)\""
+      ],
+      [
+        "",
+        "147",
+        "Honey Jar",
+        "Rare",
+        "Increase attack speed by 1%",
+        "Event: Earn 350 medals during the \"Honey (II)\""
+      ],
+      [
+        "",
+        "148",
+        "Heavenly Sweet",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event Premium: Earn 550 medals during the \"Honey (II)\""
+      ],
+      [
+        "",
+        "149",
+        "Honey Society",
+        "Epic",
+        "Increase knockback force by 5%",
+        "Event: Earn 700 medals during the \"Honey (II)\""
+      ],
+      [
+        "",
+        "150",
+        "The Queen",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Event Premium: Earn 1100 medals during the \"Honey (II)\""
+      ],
+      [
+        "",
+        "151",
+        "Duck",
+        "Rare",
+        "Increase ultimate damage by 2%",
+        "Event: Earn 350 medals during the \"Koi Pond\""
+      ],
+      [
+        "",
+        "152",
+        "Grass",
+        "Rare",
+        "Increase free defense upgrade by 1%",
+        "Event Premium: Earn 550 medals during the \"Koi Pond\""
+      ],
+      [
+        "",
+        "153",
+        "Wind",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Event: Earn 700 medals during the \"Koi Pond\""
+      ],
+      [
+        "",
+        "154",
+        "Lilies",
+        "Epic",
+        "Increase recovery amount by 5%",
+        "Event Premium: Earn 1100 medals during the \"Koi Pond\""
+      ],
+      [
+        "",
+        "155",
+        "Let's Mix",
+        "Rare",
+        "Increase coins earned by 2%",
+        "Guild: Spend 75 Tokens during the \"Season 3\""
+      ],
+      [
+        "",
+        "156",
+        "Night Life",
+        "Epic",
+        "Increase attack speed by 2%",
+        "Guild: Spend 150 Tokens during the \"Season 3\""
+      ],
+      [
+        "",
+        "157",
+        "Plasma Globe",
+        "Rare",
+        "Increase bot range by 1m",
+        "Event: Earn 350 medals during the \"Plasma Returns (II)\""
+      ],
+      [
+        "",
+        "158",
+        "Plasma Vortex",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event Premium: Earn 550 medals during the \"Plasma Returns (II)\""
+      ],
+      [
+        "",
+        "159",
+        "Plasma Cell",
+        "Epic",
+        "Increase critical chance by 2%",
+        "Event: Earn 700 medals during the \"Plasma Returns (II)\""
+      ],
+      [
+        "",
+        "160",
+        "Plasma Chamber",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event Premium: Earn 1100 medals during the \"Plasma Returns (II)\""
+      ],
+      [
+        "",
+        "161",
+        "Floppy Disk",
+        "Rare",
+        "Increase free utility upgrade by 1%",
+        "Event: Earn 350 medals during the \"Retrowave (III)\""
+      ],
+      [
+        "",
+        "162",
+        "Magic Cube",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Event Premium: Earn 550 medals during the \"Retrowave (II)\""
+      ],
+      [
+        "",
+        "163",
+        "Retro Camera",
+        "Epic",
+        "Increase health regen by 5%",
+        "Event: Earn 700 medals during the \"Retrowave (III)\""
+      ],
+      [
+        "",
+        "164",
+        "Night City",
+        "Epic",
+        "Increase cash bonus by 5%",
+        "Event Premium: Earn 1100 medals during the \"Retrowave (III)\""
+      ],
+      [
+        "",
+        "165",
+        "Safe Path",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event: Earn 350 medals during the \"Camping\""
+      ],
+      [
+        "",
+        "166",
+        "Shining Light",
+        "Rare",
+        "Increase critical chance by 1%",
+        "Event Premium: Earn 550 medals during the \"Camping\""
+      ],
+      [
+        "",
+        "167",
+        "Eternal Quest",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event: Earn 700 medals during the \"Camping\""
+      ],
+      [
+        "",
+        "168",
+        "Nature's Wrath",
+        "Epic",
+        "Increase orb speed by 5%",
+        "Event Premium: Earn 1100 medals during the \"Camping\""
+      ],
+      [
+        "",
+        "169",
+        "Fisherman Set",
+        "Rare",
+        "Increase defense absolute by 2%",
+        "Event: Earn 350 medals during the \"Sunset Fishing (II)\""
+      ],
+      [
+        "",
+        "170",
+        "Sunset Boat",
+        "Rare",
+        "Increase attack speed by 1%",
+        "Event Premium: Earn 550 medals during the \"Sunset Fishing (II)\""
+      ],
+      [
+        "",
+        "171",
+        "Good Catch",
+        "Epic",
+        "Increase thorns by 2%",
+        "Event: Earn 700 medals during the \"Sunset Fishing (II)\""
+      ],
+      [
+        "",
+        "172",
+        "River Of Plenty",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Event Premium: Earn 1100 medals during the \"Sunset Fishing (II)\""
+      ],
+      [
+        "",
+        "173",
+        "World Domination",
+        "Rare",
+        "Increase tower health by 2%",
+        "Guild: Spend 75 Tokens during the \"Season 4\""
+      ],
+      [
+        "",
+        "174",
+        "Brave Heroes",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Guild: Spend 150 Tokens during the \"Season 4\""
+      ],
+      [
+        "",
+        "175",
+        "Model Training",
+        "Rare",
+        "Increase orb speed by 2%",
+        "Event: Earn 350 medals during the \"Into the Matrix (III)\""
+      ],
+      [
+        "",
+        "176",
+        "Gnosis",
+        "Rare",
+        "Increase free defense upgrade by 1%",
+        "Event Premium: Earn 550 medals during the \"Into the Matrix (III)\""
+      ],
+      [
+        "",
+        "177",
+        "Tower Agent",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Event: Earn 700 medals during the \"Into the Matrix (III)\""
+      ],
+      [
+        "",
+        "178",
+        "Fake Reality",
+        "Epic",
+        "Increase ultimate damage by 5%",
+        "Event Premium: Earn 1100 medals during the \"Into the Matrix (III)\""
+      ],
+      [
+        "",
+        "179",
+        "Rlyeh",
+        "Rare",
+        "Increase free attack upgrade by 1%",
+        "Event: Earn 350 medals during the \"Cthulhu\""
+      ],
+      [
+        "",
+        "180",
+        "Madness Induced",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Event Premium: Earn 550 medals during the \"Cthulhu\""
+      ],
+      [
+        "",
+        "181",
+        "Cosmic Freedom",
+        "Epic",
+        "Increase health regen by 5%",
+        "Event: Earn 700 medals during the \"Cthulhu\""
+      ],
+      [
+        "",
+        "182",
+        "Omniscience",
+        "Epic",
+        "Increase cash bonus by 5%",
+        "Event Premium: Earn 1100 medals during the \"Cthulhu\""
+      ],
+      [
+        "",
+        "183",
+        "Breaking News",
+        "Rare",
+        "Increase bot range by 1m",
+        "Event: Earn 350 medals during the \"Tower's Channel (II)\""
+      ],
+      [
+        "",
+        "184",
+        "Globalization",
+        "Rare",
+        "Increase tower damage by 2%",
+        "Event Premium: Earn 550 medals during the \"Tower's Channel (II)\""
+      ],
+      [
+        "",
+        "185",
+        "No Signal",
+        "Epic",
+        "Increase critical chance by 2%",
+        "Event: Earn 700 medals during the \"Tower's Channel (II)\""
+      ],
+      [
+        "",
+        "186",
+        "Antenna",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event Premium: Earn 1100 medals during the \"Tower's Channel (II)\""
+      ],
+      [
+        "",
+        "187",
+        "Brunch",
+        "Rare",
+        "Increase knockback force by 2%",
+        "Event: Earn 350 medals during the \"Autumn (II)\""
+      ],
+      [
+        "",
+        "188",
+        "Dry leaves",
+        "Rare",
+        "Increase free attack upgrade by 1%",
+        "Event Premium: Earn 550 medals during the \"Autumn (II)\""
+      ],
+      [
+        "",
+        "189",
+        "Glowing Mushrooms",
+        "Epic",
+        "Increase thorns by 2%",
+        "Event: Earn 700 medals during the \"Autumn (II)\""
+      ],
+      [
+        "",
+        "190",
+        "Warm Clothes",
+        "Epic",
+        "Increase lab speed by 4%",
+        "Event Premium: Earn 1100 medals during the \"Autumn (II)\""
+      ],
+      [
+        "",
+        "191",
+        "Blood Monster",
+        "Rare",
+        "Increase defense percent by 1%",
+        "Guild: Spend 75 tokens in Guild Season 5"
+      ],
+      [
+        "",
+        "192",
+        "Glimpse of Despair",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Guild: Spend 150 tokens in Guild Season 5"
+      ],
+      [
+        "",
+        "193",
+        "Vr",
+        "Rare",
+        "Increase thorns by 1%",
+        "Event: Earn 350 medals during the \"Cyberpunk\""
+      ],
+      [
+        "",
+        "194",
+        "Holographic Ads",
+        "Rare",
+        "Increase lab speed by 2%",
+        "Event Premium: Earn 550 medals during the \"Cyberpunk\""
+      ],
+      [
+        "",
+        "195",
+        "Tech Weapon",
+        "Epic",
+        "Increase recovery amount by 5%",
+        "Event: Earn 700 medals during the \"Cyberpunk\""
+      ],
+      [
+        "",
+        "196",
+        "Cybernetics",
+        "Epic",
+        "Increase critical chance by 2%",
+        "Event Premium: Earn 1100 medals during the \"Cyberpunk\""
+      ],
+      [
+        "",
+        "197",
+        "Good Hunting",
+        "Rare",
+        "Increase cash bonus by 2%",
+        "Event: Earn 350 medals during the \"Cobweb (III)\""
+      ],
+      [
+        "",
+        "198",
+        "Spider Vision",
+        "Rare",
+        "Increase orb speed by 2%",
+        "Event Premium: Earn 550 medals during the \"Cobweb (III)\""
+      ],
+      [
+        "",
+        "199",
+        "Spider Poison",
+        "Epic",
+        "Increase ultimate damage by 5%",
+        "Event: Earn 700 medals during the \"Cobweb (III)\""
+      ],
+      [
+        "",
+        "200",
+        "Spider Forest",
+        "Epic",
+        "Increase critical factor by 2%",
+        "Event Premium: Earn 1100 medals during the \"Cobweb (III)\""
+      ],
+      [
+        "",
+        "201",
+        "Pinball",
+        "Rare",
+        "Increase defense absolute by 2%",
+        "Event: Earn 350 medals during the \"Retro Arcade (III)\""
+      ],
+      [
+        "",
+        "202",
+        "To Infinity",
+        "Rare",
+        "Increase health regen by 2%",
+        "Event Premium: Earn 550 medals during the \"Retro Arcade (III)\""
+      ],
+      [
+        "",
+        "203",
+        "Let's Play",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event: Earn 700 medals during the \"Retro Arcade (III)\""
+      ],
+      [
+        "",
+        "204",
+        "Enemies",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Event Premium: Earn 1100 medals during the \"Retro Arcade (III)\""
+      ],
+      [
+        "",
+        "205",
+        "Explorer's Helmet",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Crystal Cave\""
+      ],
+      [
+        "",
+        "206",
+        "Miner's Tool",
+        "Rare",
+        "Increase defense percent by 1%",
+        "Event Premium: Earn 550 medals during the \"Crystal Cave\""
+      ],
+      [
+        "",
+        "207",
+        "Crystals Bag",
+        "Epic",
+        "Increase knockback force by 5%",
+        "Event: Earn 700 medals during the \"Crystal Cave\""
+      ],
+      [
+        "",
+        "208",
+        "Full Minecart",
+        "Epic",
+        "Increase bot range by 2m",
+        "Event Premium: Earn 1100 medals during the \"Crystal Cave\""
+      ],
+      [
+        "",
+        "209",
+        "Star Path",
+        "Rare",
+        "Increase free attack upgrade by 2%",
+        "Guild: Spend 75 Tokens during the \"Season 6\""
+      ],
+      [
+        "",
+        "210",
+        "Star Planet",
+        "Epic",
+        "Increase health regen by 5%",
+        "Guild: Spend 150 Tokens during the \"Season 6\""
+      ],
+      [
+        "",
+        "211",
+        "Snow Globe",
+        "Rare",
+        "Increase recovery amount by 2%",
+        "Event: Earn 350 medals during the \"Snowstorm (II)\""
+      ],
+      [
+        "",
+        "212",
+        "Snowflake",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Event: Earn 700 medals during the \"Snowstorm (II)\""
+      ],
+      [
+        "",
+        "213",
+        "Winter Gloves",
+        "Rare",
+        "Increase thorns by 1%",
+        "Event Premium: Earn 550 medals during the \"Snowstorm (II)\""
+      ],
+      [
+        "",
+        "214",
+        "Wreath",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event Premium: Earn 1100 medals during the \"Snowstorm (II)\""
+      ],
+      [
+        "",
+        "215",
+        "Party Popper",
+        "Rare",
+        "Increase free attack upgrade by 1%",
+        "Event: Earn 350 medals during the \"New Year (III)\""
+      ],
+      [
+        "",
+        "216",
+        "Firework Rocket",
+        "Epic",
+        "Increase free utility upgrade by 2%",
+        "Event: Earn 700 medals during the \"New Year (III)\""
+      ],
+      [
+        "",
+        "217",
+        "Champagne",
+        "Rare",
+        "Increase attack speed by 1%",
+        "Event Premium: Earn 550 medals during the \"New Year (III)\""
+      ],
+      [
+        "",
+        "218",
+        "Gift Box",
+        "Epic",
+        "Increase lab speed by 4%",
+        "Event Premium: Earn 1100 medals during the \"New Year (III)\""
+      ],
+      [
+        "",
+        "219",
+        "Happiness Balloons",
+        "Rare",
+        "Increase defense absolute by 2%",
+        "Event: Earn 350 medals during the \"Amusement Park\""
+      ],
+      [
+        "",
+        "220",
+        "Amazing Prizes",
+        "Epic",
+        "Increase thorns by 2%",
+        "Event: Earn 700 medals during the \"Amusement Park\""
+      ],
+      [
+        "",
+        "221",
+        "Delicious Food",
+        "Rare",
+        "Increase cash bonus by 2%",
+        "Event Premium: Earn 550 medals during the \"Amusement Park\""
+      ],
+      [
+        "",
+        "222",
+        "Carousel Of Joy",
+        "Epic",
+        "Increase coins earned by 5%",
+        "Event Premium: Earn 1100 medals during the \"Amusement Park\""
+      ],
+      [
+        "",
+        "223",
+        "Sky's Curtain",
+        "Rare",
+        "Increase free defense upgrade by 1%",
+        "Event: Earn 350 medals during the \"Aurora (III)\""
+      ],
+      [
+        "",
+        "224",
+        "Northern Mountains",
+        "Epic",
+        "Increase defense percent by 2%",
+        "Event: Earn 700 medals during the \"Aurora (III)\""
+      ],
+      [
+        "",
+        "225",
+        "Solar Flare",
+        "Rare",
+        "Increase critical chance by 1%",
+        "Event Premium: Earn 550 medals during the \"Aurora (III)\""
+      ],
+      [
+        "",
+        "226",
+        "Cosmic Impact",
+        "Epic",
+        "Increase orb speed by 5%",
+        "Event Premium: Earn 1100 medals during the \"Aurora (III)\""
+      ],
+      [
+        "",
+        "227",
+        "Elemental Explosion",
+        "Rare",
+        "Increase rend armor mult by 2%",
+        "Guild: Spend 75 Tokens during the \"Season 7\""
+      ],
+      [
+        "",
+        "228",
+        "Quasar",
+        "Epic",
+        "Increase tower health by 5%",
+        "Guild: Spend 150 Tokens during the \"Season 7\""
+      ],
+      [
+        "",
+        "229",
+        "Sudden Attack",
+        "Rare",
+        "Increase health regen by 2%",
+        "Event: Earn 350 medals during the \"Aliens (III)\""
+      ],
+      [
+        "",
+        "230",
+        "Crop Circles",
+        "Epic",
+        "Increase knockback force by 5%",
+        "Event: Earn 700 medals during the \"Aliens (III)\""
+      ],
+      [
+        "",
+        "231",
+        "Alien Experiment",
+        "Rare",
+        "Increase bot range by 1m",
+        "Event Premium: Earn 550 medals during the \"Aliens (III)\""
+      ],
+      [
+        "",
+        "232",
+        "Alien Implants",
+        "Epic",
+        "Increase ultimate damage by 5%",
+        "Event Premium: Earn 1100 medals during the \"Aliens (III)\""
+      ],
+      [
+        "",
+        "233",
+        "Bouquet",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Valentine\""
+      ],
+      [
+        "",
+        "234",
+        "Lovely Gift",
+        "Epic",
+        "Increase knockback force by 5%",
+        "Event: Earn 700 medals during the \"Valentine\""
+      ],
+      [
+        "",
+        "235",
+        "Love Letter",
+        "Rare",
+        "Increase damage / meter by 2%",
+        "Event Premium: Earn 550 medals during the \"Valentine\""
+      ],
+      [
+        "",
+        "236",
+        "Pierced Heart",
+        "Epic",
+        "Increase ultimate damage by 5%",
+        "Event Premium: Earn 1100 medals during the \"Valentine\""
+      ],
+      [
+        "",
+        "237",
+        "Lighthouse",
+        "Rare",
+        "Increase recovery amount by 2%",
+        "Event: Earn 350 medals during the \"Ocean Night II\""
+      ],
+      [
+        "",
+        "238",
+        "Sailing At Night",
+        "Epic",
+        "Increase tower health by 5%",
+        "Event: Earn 700 medals during the \"Ocean Night II\""
+      ],
+      [
+        "",
+        "239",
+        "Night Shark",
+        "Rare",
+        "Increase cash bonus by 2%",
+        "Event Premium: Earn 550 medals during the \"Ocean Night II\""
+      ],
+      [
+        "",
+        "240",
+        "Moonlight",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event Premium: Earn 1100 medals during the \"Ocean Night II\""
+      ],
+      [
+        "",
+        "241",
+        "Festival Lanterns",
+        "Rare",
+        "Increase knockback force by 2%",
+        "Event Premium: Earn 350 medals during the \"Cherry Blossom (IV)\""
+      ],
+      [
+        "",
+        "242",
+        "Ramen",
+        "Epic",
+        "Increase free utility upgrade by 1%",
+        "Event Premium: Earn 550 medals during the \"Cherry Blossom (IV)\""
+      ],
+      [
+        "",
+        "243",
+        "Forest Temple",
+        "Rare",
+        "Increase thorns by 2%",
+        "Event Premium: Earn 700 medals during the \"Cherry Blossom (IV)\""
+      ],
+      [
+        "",
+        "244",
+        "Tori",
+        "Epic",
+        "Increase orb speed by 5%",
+        "Event Premium: Earn 1100 medals during the \"Cherry Blossom (IV)\""
+      ],
+      [
+        "",
+        "245",
+        "Perfect Catch",
+        "Rare",
+        "Increase free utility upgrade by 1%",
+        "Guild: Spend 75 Tokens during the \"Season 8\""
+      ],
+      [
+        "",
+        "246",
+        "Collector's Spirit",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Guild: Spend 150 Tokens during the \"Season 8\""
+      ],
+      [
+        "",
+        "247",
+        "Broken Security",
+        "Rare",
+        "Increase health regen by 2%",
+        "Event Premium: Earn 350 medals during the \"Glitch\""
+      ],
+      [
+        "",
+        "248",
+        "Research Object",
+        "Epic",
+        "Increase tower damage by 2%",
+        "Event Premium: Earn 550 medals during the \"Glitch\""
+      ],
+      [
+        "",
+        "249",
+        "Digital Disaster",
+        "Rare",
+        "Increase free defense upgrade by 2%",
+        "Event Premium: Earn 700 medals during the \"Glitch\""
+      ],
+      [
+        "",
+        "250",
+        "Instability",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Event Premium: Earn 1100 medals during the \"Glitch\""
+      ],
+      [
+        "",
+        "251",
+        "Ancient Times",
+        "Rare",
+        "Increase defense absolute by 2%",
+        "Event Premium: Earn 350 medals during the \"What time is it? (II)\""
+      ],
+      [
+        "",
+        "252",
+        "Space Distortion",
+        "Epic",
+        "Increase attack speed by 1%",
+        "Event Premium: Earn 550 medals during the \"What time is it? (II)\""
+      ],
+      [
+        "",
+        "253",
+        "Clock Tower",
+        "Rare",
+        "Increase cash bonus by 5%",
+        "Event Premium: Earn 700 medals during the \"What time is it? (II)\""
+      ],
+      [
+        "",
+        "254",
+        "Time Travel",
+        "Epic",
+        "Increase critical chance by 2%",
+        "Event Premium: Earn 1100 medals during the \"What time is it? (II)\""
+      ],
+      [
+        "",
+        "255",
+        "Nature's Fury",
+        "Rare",
+        "Increase defense percent by 1%",
+        "Event Premium: Earn 350 medals during the \"Into the Storm event (II)\""
+      ],
+      [
+        "",
+        "256",
+        "Big Tornado",
+        "Epic",
+        "Increase damage / meter by 2%",
+        "Event Premium: Earn 550 medals during the \"Into the Storm event (II)\""
+      ],
+      [
+        "",
+        "257",
+        "Natural Fire",
+        "Rare",
+        "Increase health regen by 5%",
+        "Event Premium: Earn 700 medals during the \"Into the Storm event (II)\""
+      ],
+      [
+        "",
+        "258",
+        "Storm Planet",
+        "Epic",
+        "Increase lab speed by 4%",
+        "Event Premium: Earn 1100 medals during the \"Into the Storm event (II)\""
+      ],
+      [
+        "",
+        "259",
+        "Synapse",
+        "Rare",
+        "Increase knockback force by 2%",
+        "Event Premium: Earn 350 medals during the \"Neuron\""
+      ],
+      [
+        "",
+        "260",
+        "Neural Network",
+        "Epic",
+        "Increase coins earned by 2%",
+        "Event Premium: Earn 550 medals during the \"Neuron\""
+      ],
+      [
+        "",
+        "261",
+        "Brain Net",
+        "Rare",
+        "Increase free utility upgrade by 2%",
+        "Event Premium: Earn 700 medals during the \"Neuron\""
+      ],
+      [
+        "",
+        "262",
+        "Body Control",
+        "Epic",
+        "Increase ultimate damage by 5%",
+        "Event Premium: Earn 1100 medals during the \"Neuron\""
+      ],
+      [
+        "",
+        "263",
+        "Viral Infection",
+        "Rare",
+        "Increase tower health by 2%",
+        "Event: Earn 350 medals during the \"Viral Outbreak\""
+      ],
+      [
+        "",
+        "264",
+        "Immunization",
+        "Rare",
+        "Increase critical chance by 1%",
+        "Event Premium: Earn 550 medals during the \"Viral Outbreak\""
+      ],
+      [
+        "",
+        "265",
+        "Personal Care",
+        "Epic",
+        "Increase tower health by 2%",
+        "Event: Earn 700 medals during the \"Viral Outbreak\""
+      ],
+      [
+        "",
+        "266",
+        "Global Threat",
+        "Epic",
+        "Increase critical factor by 5%",
+        "Event Premium: Earn 1100 medals during the \"Viral Outbreak\""
+      ],
+      [
+        "",
+        "267",
+        "Magic Cards",
+        "Rare",
+        "Increase free utility upgrade by 1%",
+        "Guild: Spend 75 Tokens during the \"Season 9\""
+      ],
+      [
+        "",
+        "268",
+        "Dangerous Tricks",
+        "Epic",
+        "Increase attack speed by 2%",
+        "Guild: Spend 150 Tokens during the \"Season 9\""
+      ],
+      [
+        "",
+        "269",
+        "Magma River",
+        "Rare",
+        "Increase cash bonus by 2%",
+        "Event: Earn 350 medals during the \"Volcano\""
+      ],
+      [
+        "",
+        "270",
+        "Obsidian",
+        "Rare",
+        "Increase attack speed by 2%",
+        "Event Premium: Earn 550 medals during the \"Volcano\""
+      ],
+      [
+        "",
+        "271",
+        "New Island",
+        "Epic",
+        "Increase free attack upgrade by 2%",
+        "Event: Earn 700 medals during the \"Volcano\""
+      ],
+      [
+        "",
+        "272",
+        "Geological Activity",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Event Premium: Earn 1100 medals during the \"Volcano\""
+      ],
+      [
+        "",
+        "273",
+        "Big Party",
+        "Rare",
+        "Increase attack speed by 1%",
+        "Gift to commemorate 5th Anniversary"
+      ],
+      [
+        "",
+        "274",
+        "Celebration",
+        "Epic",
+        "Increase tower damage by 5%",
+        "Gift to commemorate 5th Anniversary"
+      ],
+      [
+        "",
+        "275",
+        "Mining Drone",
+        "Rare",
+        "Increase free attack upgrade by 1%",
+        "Event: Earn 350 medals during the \"Meteor Shower\""
+      ],
+      [
+        "",
+        "276",
+        "Precious Minerals",
+        "Rare",
+        "Increase critical factor by 2%",
+        "Event Premium: Earn 550 medals during the \"Meteor Shower\""
+      ],
+      [
+        "",
+        "277",
+        "Meteor Impact",
+        "Epic",
+        "Increase damage / meter by 5%",
+        "Event: Earn 700 medals during the \"Meteor Shower\""
+      ],
+      [
+        "",
+        "278",
+        "Asteroid Belt",
+        "Epic",
+        "Increase health regen by 5%",
+        "Event Premium: Earn 1100 medals during the \"Meteor Shower\""
+      ],
+      [
+        "",
+        "279",
+        "Prismatic Star",
+        "Rare",
+        "Increase recovery amount by 2%",
+        "Event: Earn 350 medals during the \"Prismatic Lines\""
+      ],
+      [
+        "",
+        "280",
+        "Light Spectrum",
+        "Rare",
+        "Increase thorns by 1%",
+        "Event Premium: Earn 550 medals during the \"Prismatic Lines\""
+      ],
+      [
+        "",
+        "281",
+        "Rainbow",
+        "Epic",
+        "Increase knockback force by 5%",
+        "Event: Earn 700 medals during the \"Prismatic Lines\""
+      ],
+      [
+        "",
+        "282",
+        "Light Scattering",
+        "Epic",
+        "Increase attack speed by 2%",
+        "Event Premium: Earn 1100 medals during the \"Meteor Shower\""
+      ],
+      [
+        "",
+        "283",
+        "Manta Ray",
+        "Rare",
+        "Increase attack speed by 1%",
+        "Guild: Spend 75 Tokens during the \"Season 10\""
+      ],
+      [
+        "",
+        "284",
+        "Pearl Shell",
+        "Epic",
+        "Increase free attack upgrade by 2%",
+        "Guild: Spend 150 Tokens during the \"Season 10\""
+      ],
+      [
+        "",
+        "285",
+        "Flying Object",
+        "Rare",
+        "Increase free utility upgrade by 1%",
+        "Event: Earn 350 medals during the \"Interstellar\""
+      ],
+      [
+        "",
+        "286",
+        "Binary System",
+        "Rare",
+        "Increase orb speed by 2%",
+        "Event Premium: Earn 550 medals during the \"Interstellar\""
+      ],
+      [
+        "",
+        "287",
+        "Space Nebula",
+        "Epic",
+        "Increase free defense upgrade by 2%",
+        "Event: Earn 700 medals during the \"Interstellar\""
+      ],
+      [
+        "",
+        "288",
+        "Rogue Planet",
+        "Epic",
+        "Increase critical chance by 2%",
+        "Event Premium: Earn 1100 medals during the \"Interstellar\""
+      ]
+    ]
+  }
+]

@@ -1,0 +1,355 @@
+Enemies are the hostile units that march on your Tower each round and try to destroy it. They come in several distinct types, each with its own behaviour, stats and immunities, and understanding those differences is central to building a defence that holds up at higher waves.
+This page covers the four enemy categories, the shared mechanics that affect every enemy, and the labs that let you weaken specific enemy types.
+On this page
+Description
+Different Enemies
+Shared characteristics
+Normal Enemies
+Bosses
+Elite Enemies
+Single Elite Enemy spawns
+Double Elite Enemy Spawns
+Fleet Enemies
+Overview
+Fleet Rewards
+Fleet Enemy Spawns
+Fleets at Higher Waves on All Tiers
+Fleets in Battle Condition Tiers and Tournaments
+Enemy Details — Basic — Common Enemy Health
+Enemy Details — Basic — Common Enemy Attack
+Enemy Details — Basic
+Enemy Details — Ranged — Fast Enemy Health
+Enemy Details — Ranged — Fast Enemy Attack
+Enemy Details — Ranged — Fast Enemy Speed
+Enemy Details — Ranged
+Enemy Details — Ray — Tank Enemy Health
+Enemy Details — Ray — Tank Enemy Attack
+Enemy Details — Ray
+Enemy Details — Commander — Ranged Enemy Health
+Enemy Details — Commander — Ranged Enemy Attack
+Enemy Details — Commander — Ranged Enemy Range
+Enemy Details — Commander
+Enemy Details — Fast Enemy Health — Boss Health
+Enemy Details — Fast Enemy Health — Boss Attack
+Enemy Details — Fast Enemy Health
+Enemy Details — Tank Enemy Health — Protector Health
+Enemy Details — Tank Enemy Health — Protector Radius
+Enemy Details — Tank Enemy Health — Protector Damage Reduction
+Enemy Details — Tank Enemy Health
+Enemy Details — Ranged Enemy Range — Vampire Enemy Attack
+Enemy Details — Ranged Enemy Range — Vampire Enemy Health
+Enemy Details — Ranged Enemy Range — Garlic Thorns
+Enemy Details — Ranged Enemy Range
+Enemy Details — Protector Radius — Ray Enemy Attack
+Enemy Details — Protector Radius — Ray Enemy Health
+Enemy Details — Protector Radius
+Enemy Details — Vampire Enemy Health — Scatter Enemy Attack
+Enemy Details — Vampire Enemy Health — Scatter Enemy Health
+Enemy Details — Vampire Enemy Health — Lightning Amplifier - Scatter
+Enemy Details — Vampire Enemy Health
+Enemy Details — Scatter Enemy Attack
+Enemy Details — Scatter Enemy Health
+Enemy Details — Lightning Amplifier - Scatter
+Description
+Enemies are the opposing units in the game whose only goal is to reach and attack your Tower. Multiple kinds exist, and each one pressures your defence in a different way.
+Different Enemies
+Enemies fall into four categories: Normal, Elite, Fleet and Boss. A maximum of 150 enemies can be on screen at once, split into separate caps of 120 Normal enemies, 20 Elites and 10 Bosses. Fleet Enemies count toward the Normal enemy cap.
+Shared characteristics
+Three mechanics apply to enemies generally. Their damage rises by 4% with each hit they land, often called the heat-up mechanic. Any enemy still alive after more than 3 waves loses 50% of its coin value, known as coin decay. An enemy's mass also grows by 4% for every wave it remains alive.
+Normal Enemies
+The Normal category contains Basic, Fast, Range, Tank and Protector enemies. These five form a single spawn group, and their individual spawn chances within a wave always total 100%.
+Protectors follow special rules: only one can spawn per wave, a cooldown applies before the next chance to spawn, and no more than 8 can be on screen at once.
+Bosses
+Bosses never appear on normal waves (0% spawn rate) but are guaranteed on boss waves, which occur every 10 waves unless a battle condition shortens the interval. They are immune to Orbs (unless you have the Boss Orb Hit lab), Death Ray, Shockwave and Black Hole. Killing a boss drops module shards and reroll shards, with the amounts increased once you have researched the relevant module-based labs.
+Elite Enemies
+Elites consist of the Vampire, Ray and Scatter. Normally only one can spawn per wave, rising to two at higher waves. All Elites are immune to Orbs, Death Ray, Shockwave and Black Hole, and each one defeated drops Elite Cells. A maximum of 8 of each Elite type can be on screen at once; Scatter children do not count toward that limit.
+The three Elite types share a single spawn percentage that climbs through fixed steps: 1%, 4%, 9%, 16%, 25%, 36%, 49%, 64%, 81% and 100%. The in-game display splits this between the three types, with a hidden repeating 0.33 when the value is not divisible by 3. Once the background chance of a second Elite per wave also reaches 100%, the displayed value jumps from 33% to 100%. In practice, a displayed 33% means at least one Elite is guaranteed with a chance of a second, while 100% guarantees two per wave.
+Single Elite Enemy spawns
+The table below lists the spawn rates that apply while only one Elite can appear per wave.
+% T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21
+0% 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.33% 500 450 405 365 328 295 266 239 215 194 174 157 141 127 114 41 37 33 30 27 24
+1.33% 1000 900 810 729 656 590 531 478 430 387 349 314 282 254 229 102 92 83 75 68 61
+3% 1500 1350 1215 1094 984 886 797 717 646 581 523 471 424 381 343 205 185 166 150 135 122
+5% 2000 1800 1620 1458 1312 1181 1063 957 861 775 697 628 565 508 458 308 277 250 225 203 182
+8% 3000 2700 2430 2187 1968 1771 1594 1435 1291 1162 1046 941 847 763 686 411 370 333 300 270 243
+12% 4000 3600 3240 2916 2624 2362 2126 1913 1722 1550 1395 1255 1130 1017 915 617 555 500 450 405 365
+16% 5000 4500 4050 3645 3281 2952 2657 2391 2152 1937 1743 1569 1412 1271 1144 823 741 667 600 540 486
+21% 6000 5400 4860 4374 3937 3543 3189 2870 2583 2325 2092 1883 1695 1525 1373 1029 926 833 750 675 608
+27% 7000 6300 5670 5103 4593 4133 3720 3348 3013 2712 2441 2197 1977 1779 1601 1235 1111 1000 901 811 729
+Show all 11 rows
+Double Elite Enemy Spawns
+The table below lists the spawn rates that apply once a second Elite per wave becomes possible.
+% T1 T2 T3 T4 T5 T6 T7 T8 T9 T10 T11 T12 T13 T14 T15 T16 T17 T18 T19 T20 T21
+0.33% 8000 7200 6480 5832 5249 4724 4252 3826 3444 3099 2789 2510 2259 2033 1830 1441 1297 1167 1051 946 851
+1.33% 9000 8100 7290 6561 5905 5314 4783 4305 3874 3487 3138 2824 2542 2288 2059 1647 1482 1334 1201 1081 973
+3% 10000 9000 8100 7290 6561 5905 5314 4783 4305 3874 3487 3138 2824 2542 2288 1853 1667 1500 1351 1216 1094
+5% 11000 9900 8910 8019 7217 6495 5846 5261 4735 4262 3835 3452 3107 2796 2516 2058 1853 1667 1501 1351 1216
+8% 12000 10800 9720 8748 7873 7086 6377 5740 5166 4649 4184 3766 3389 3050 2745 2264 2038 1834 1651 1486 1337
+12% 13000 11700 10530 9477 8529 7676 6909 6218 5596 5036 4533 4080 3672 3304 2974 2470 2223 2001 1801 1621 1459
+16% 14000 12600 11340 10206 9185 8267 7440 6696 6027 5424 4881 4394 3954 3559 3203 2676 2408 2168 1951 1756 1580
+21% 15000 13500 12150 10935 9841 8857 7972 7174 6457 5811 5230 4708 4236 3813 3432 2882 2594 2334 2101 1891 1702
+27% 16000 14400 12960 11664 10497 9448 8503 7653 6887 6199 5579 5022 4519 4067 3660 3088 2779 2501 2251 2026 1824
+33% 17000 15300 13770 12393 11153 10038 9034 8131 7318 6586 5928 5336 4801 4321 3889 3294 2964 2668 2402 2161 1945
+Fleet Enemies
+Note: this section is based on community research and the V28.3 patch notes, so some details may be inaccurate.
+Fleet Enemies — Saboteur, Commander and Overcharge — appear on Tier 14 and beyond. They are immune to Orbs, Death Ray, Shockwave, knockback, and both Black Hole damage and pull. They also resist Chrono Field, Chrono Loop (CF+), Thunder Bot, Poison Swamp Stun and Land Mine Stun at 50% effectiveness. The Plasma Cannon card cannot target them, and they do not collide with other enemies. Commander and Overcharge stop once they enter your Tower's range, while Saboteur closes in fully on the Tower itself. Against Thorns they have 85% resistance, and Thorn damage is calculated from their current health rather than their maximum.
+Fleet Enemies attack very slowly at Wave 1, with their attack rate scaling up to its maximum by Wave 4000.
+Overview
+Saboteur still counts as attacking for the purposes of thorn effects, but it does not trigger Energy Shield or break The Wall. Overcharge damage is fixed at its Wave 1 value for that tier.
+The table below summarises the Fleet Enemy types.
+Fleet Enemy Overview
+Fleet Enemy Description Speed Health Attack
+Saboteur Selects an ultimate weapon on tower hit, decreasing its upgrade level by 1 and deactivating the ultimate weapon if it reaches 0. Wall hits do not affect ultimate weapons. 2x 20x 0*
+Commander Empowers enemies within an area, providing a 1.15x boost to health, mass, and speed with each pulse, capped to 8 boosts per enemy. This pulse does not affect bosses. 0.5x 20x N/A
+Overcharge Shoots a returning projectile at the Tower, dealing 1.4x damage with each hit. Fires a final projectile on death. 1x 20x Wave 1**
+Fleet Rewards
+When killed, Fleet Enemies have an 80% chance to drop reroll shards and a 20% chance to drop module shards. Exact amounts are listed in the table below.
+Fleet Rewards
+Tiers Reroll Shards (80%) Wave Module Shards (20%, 5% per type)
+T14 1080 1 5
+T15 1200 250 6
+T16 1350 500 7
+T17 1500 750 8
+T18 1650 1000 9
+T19 1800 1250 10
+T20 1950 1500 11
+T21 2100 1750 12
+2000 13
+2250 14
+Show all 21 rows
+Fleet Enemy Spawns
+Fleet Enemies are never missed: if you wave-skip past a wave where one was due, it still spawns. Each Fleet Enemy arrives with an escort of related enemies, apparently a random count between 10 and 14, and the exact spawn moment within the wave is random. Since v28.3 these escorts have their own separate cap, so they are guaranteed to appear and can push the total enemy count above the usual limit.
+Fleet Companions
+Fleet Companions
+Overcharge Ranged
+Commander Tank
+Saboteur Fast
+Fleets at Higher Waves on All Tiers
+Fleets now exist on every tier. On Tier 1 they begin at wave 15,000, and each higher tier brings that start point 250 waves earlier (Tier 2 at 14,750, Tier 3 at 14,500, and so on). After their first appearance they spawn every 100 waves.
+Low Tier Spawning
+Tier First Spawn Wave Spawn Frequency Waves / Fleet
+Tier 1 15,000 100
+Tier 2 14,750 100
+Tier 3 14,500 100
+Tier 4 14,250 100
+Tier 5 14,000 100
+Tier 6 13,750 100
+Tier 7 13,500 100
+Tier 8 13,250 100
+Tier 9 13,000 100
+Tier 10 12,750 100
+Show all 13 rows
+Fleets in Battle Condition Tiers and Tournaments
+In battle condition tiers and tournaments, bonus Fleet spawns continue the pattern carried over from lower tiers' high waves. If a regular fleet is present at the same time, the bonus spawns do not drop rewards.
+Spawning Behavior
+Tier First Wave Frequency Wave/fleet Bonus Spawn First Wave Frequency Wave / Fleet
+Tier 14+ (Legends prior to V27.3) 895 30 N/A N/A
+Tier 14 2495 1000 11,750 100
+Tier 15 1495 750 11,500 100
+Tier 16 995 500 11,250 100
+Tier 17 495 250 11,000 100
+Tier 17+ (Legends from V27.3+) 895 30
+Tier 18 95 100 10,750 100
+Tier 19 45 50 10,500 100
+Tier 20 5 10 waves/1 fleet 10,250 100
+Tier 21 5 10 waves/2 fleets 10,000 100
+Show all 13 rows
+Enemy Details — Basic — Common Enemy Health
+This lab is unlocked through Milestones at tier 9 wave 10. It lowers the health of basic enemies across all waves and has 30 levels. Per-level values are shown in the table below.
+Level Time Cost Value
+1 2d 7h 33m 20,000,000,000 -0.40%
+2 2d 15h 54m 40,000,000,000 -0.80%
+3 3d 0h 27m 60,070,000,000 -1.20%
+4 3d 9h 34m 80,330,000,000 -1.60%
+5 3d 19h 44m 100,970,000,000 -2.00%
+6 4d 7h 36m 122,260,000,000 -2.40%
+7 4d 21h 51m 144,530,000,000 -2.80%
+8 5d 15h 19m 168,130,000,000 -3.20%
+9 6d 12h 53m 193,510,000,000 -3.60%
+10 7d 15h 31m 221,140,000,000 -4.00%
+Show all 30 rows
+Enemy Details — Basic — Common Enemy Attack
+This lab is unlocked through Milestones at tier 9 wave 10. It lowers the attack of basic enemies across all waves and has 30 levels.
+Enemy Details — Basic
+Common Enemy labs alter basic enemy stats during rounds. Once researched, the default stat ratios between enemy types stop being reliable — for example, boss health will no longer always equal 20 times basic health if you have researched basic health reduction.
+Enemy Details — Ranged — Fast Enemy Health
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers the health of fast enemies across all waves and has 30 levels. Per-level values are shown in the table below.
+Level Time Cost Value
+1 2d 7h 33m 30,000,000,000 -0.40%
+2 2d 15h 54m 60,010,000,000 -0.80%
+3 3d 0h 27m 90,070,000,000 -1.20%
+4 3d 9h 34m 120,330,000,000 -1.60%
+5 3d 19h 44m 150,970,000,000 -2.00%
+6 4d 7h 36m 182,260,000,000 -2.40%
+7 4d 21h 51m 214,530,000,000 -2.80%
+8 5d 15h 19m 248,130,000,000 -3.20%
+9 6d 12h 53m 283,510,000,000 -3.60%
+10 7d 15h 31m 321,140,000,000 -4.00%
+Show all 30 rows
+Enemy Details — Ranged — Fast Enemy Attack
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers the attack of fast enemies across all waves and has 30 levels.
+Enemy Details — Ranged — Fast Enemy Speed
+This lab is unlocked through Milestones at tier 9 wave 300. It lowers the movement speed of fast enemies across all waves and has 30 levels. Per-level values are shown in the table below.
+Level Time Cost Value
+1 2d 18h 39m 60,000,000,000 -0.40%
+2 3d 3h 1m 120,010,000,000 -0.80%
+3 3d 11h 34m 180,070,000,000 -1.20%
+4 3d 20h 40m 240,330,000,000 -1.60%
+5 4d 6h 51m 300,970,000,000 -2.00%
+6 4d 18h 43m 362,260,000,000 -2.40%
+7 5d 8h 58m 424,530,000,000 -2.80%
+8 6d 2h 26m 488,130,000,000 -3.20%
+9 7d 0h 0m 553,510,000,000 -3.60%
+10 8d 2h 38m 621,140,000,000 -4.00%
+Show all 30 rows
+Enemy Details — Ranged
+Fast enemies move twice as quickly as basic enemies and have a base value of 2 coins.
+Fast Enemy labs alter fast enemy stats during rounds. Once researched, the default stat ratios between enemy types stop being reliable — for example, boss health will no longer always equal 20 times basic health if you have researched basic health reduction.
+Enemy Details — Ray — Tank Enemy Health
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers the health of tank enemies across all waves and has 30 levels.
+Enemy Details — Ray — Tank Enemy Attack
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers the attack of tank enemies across all waves and has 30 levels.
+Enemy Details — Ray
+Tank enemies move at half the speed of basic enemies but have five times the health, and they carry a base value of 4 coins.
+Tank Enemy labs alter tank enemy stats during rounds. Once researched, the default stat ratios between enemy types stop being reliable — for example, boss health will no longer always equal 20 times basic health if you have researched basic health reduction.
+Enemy Details — Commander — Ranged Enemy Health
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers the health of ranged enemies across all waves and has 30 levels.
+Enemy Details — Commander — Ranged Enemy Attack
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers the attack of ranged enemies across all waves and has 30 levels.
+Enemy Details — Commander — Ranged Enemy Range
+This lab is unlocked at tier 13 wave 80. It reduces the attack range of the Ranged enemy type and has 30 levels. Per-level values are shown in the table below.
+Level Time Cost(T) Value
+1 2d 16h 47m 1.0 -0.50%
+2 5d 9h 35m 1.4 -1.00%
+3 8d 2h 23m 2.0 -1.50%
+4 10d 19h 11m 2.7 -2.00%
+5 13d 11h 59m 3.8 -2.50%
+6 16d 4h 46m 5.4 -3.00%
+7 18d 21h 34m 7.5 -3.50%
+8 21d 14h 22m 10.5 -4.00%
+9 24d 7h 10m 14.8 -4.50%
+10 26d 23h 58m 20.7 -5.00%
+Show all 30 rows
+Enemy Details — Commander
+Ranged enemies fire projectiles at your Tower from a distance and have a base value of 2 coins.
+Ranged Enemy labs alter ranged enemy stats during rounds. Once researched, the default stat ratios between enemy types stop being reliable — for example, boss health will no longer always equal 20 times basic health if you have researched basic health reduction.
+Enemy Details — Fast Enemy Health — Boss Health
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers boss health across all waves and has 30 levels. Per-level values are shown in the table below.
+Level Time Cost Value
+1 2d 7h 33m 40,000,000,000 -0.30%
+2 2d 15h 54m 80,010,000,000 -0.60%
+3 3d 0h 27m 120,070,000,000 -0.90%
+4 3d 9h 34m 160,330,000,000 -1.20%
+5 3d 19h 44m 200,970,000,000 -1.50%
+6 4d 7h 36m 242,260,000,000 -1.80%
+7 4d 21h 51m 284,530,000,000 -2.10%
+8 5d 15h 19m 328,130,000,000 -2.40%
+9 6d 12h 53m 373,510,000,000 -2.70%
+10 7d 15h 31m 421,140,000,000 -3.00%
+Show all 30 rows
+Enemy Details — Fast Enemy Health — Boss Attack
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers boss attack across all waves and has 30 levels.
+Enemy Details — Fast Enemy Health
+Bosses move at 30% of basic enemy speed, have 20 times the health, and carry a base value of 5 coins. One appears every 10 waves. See the Bosses section above for full details of their behaviour and immunities.
+Boss labs alter boss stats during rounds. Once researched, the default stat ratios between enemy types stop being reliable — for example, boss health will no longer always equal 20 times basic health if you have researched basic health reduction.
+Enemy Details — Tank Enemy Health — Protector Health
+This lab is unlocked through Milestones at tier 9 wave 20. It lowers the health of protector enemies on every wave, and it has 30 levels.
+Enemy Details — Tank Enemy Health — Protector Radius
+This lab is unlocked through Milestones at tier 9 wave 20. It shrinks the radius of a protector's effect on all waves, and it has 30 levels.
+Enemy Details — Tank Enemy Health — Protector Damage Reduction
+This lab is unlocked through Milestones at tier 9 wave 20. It cuts the damage reduction that protectors grant, across all waves, and it has 20 levels. Per-level values are listed in the table below.
+Level Time Cost Value
+1 2d 18h 39m 80,000,000,000 -0.30%
+2 3d 3h 1m 150,000,000,000 -0.60%
+3 3d 11h 34m 220,070,000,000 -0.90%
+4 3d 20h 40m 290,330,000,000 -1.20%
+5 4d 6h 51m 360,970,000,000 -1.50%
+6 4d 18h 43m 432,260,000,000 -1.80%
+7 5d 8h 58m 504,530,000,000 -2.10%
+8 6d 2h 26m 578,130,000,000 -2.40%
+9 7d 0h 0m 653,510,000,000 -2.70%
+10 8d 2h 38m 731,140,000,000 -3.00%
+Show all 20 rows
+Enemy Details — Tank Enemy Health
+Protectors shield nearby enemies: anything inside their range cannot be instantly killed and takes 60% reduced damage. They are worth 3 coins at base value, only appear on tier 2 or higher, and no more than 10 can be alive at once.
+Protector labs adjust how protectors perform during a round. Once you have researched them, the standard base modifiers between enemy types stop being reliable — for example, boss health will not always be exactly 20 times basic health if basic health has been researched.
+Enemy Details — Ranged Enemy Range — Vampire Enemy Attack
+Unlocks at tier 19 wave 60. This lab reduces Vampire attack by a percentage per level, but it does not affect their drain effect. It has 30 levels, with values shown in the table below.
+Level Time Cost(Q) Value
+1 10d 19h 11m 0.25 -0.40%
+2 21d 14h 22m 0.50 -0.80%
+3 32d 9h 33m 0.75 -1.20%
+4 43d 4h 45m 1.00 -1.60%
+5 53d 23h 56m 1.25 -2.00%
+6 64d 19h 7m 1.50 -2.40%
+7 75d 14h 19m 1.75 -2.80%
+8 86d 9h 30m 2.00 -3.20%
+9 97d 4h 41m 2.25 -3.60%
+10 107d 23h 53m 2.50 -4.00%
+Show all 30 rows
+Enemy Details — Ranged Enemy Range — Vampire Enemy Health
+Unlocks at tier 19 wave 60. This lab reduces the maximum health of Vampire enemies by a percentage per level, over 30 levels.
+Enemy Details — Ranged Enemy Range — Garlic Thorns
+Unlocked at tier 2 wave 1000, with 10 upgrades available. While a Vampire elite is channeling its ranged attack on your tower, this lab makes it take a percentage of your thorns damage each second. The percentages per level are in the table below.
+Level Time Cost Value
+1 1d 3h 13m 4,500 0.5
+2 1d 6h 5m 7,100 1.0
+3 1d 9h 49m 13,300 1.5
+4 1d 14h 59m 26,700 2.0
+5 1d 22h 5m 50,900 2.5
+6 2d 7h 33m 89,500 3.0
+7 2d 19h 45m 146,100 3.5
+8 3d 11h 5m 224,300 4.0
+9 4d 5h 54m 327,700 4.5
+10 5d 4h 32m 459,900 5.0
+Enemy Details — Ranged Enemy Range
+Vampires have double the health of a basic enemy. Their beam deals 2% of your tower's maximum health per second and switches off all tower regeneration while it is active. They are worth 4 coins at base value.
+Vampire attacks cannot be strengthened or weakened by perks or other modifiers. When a vampire beam is hitting your tower, tower regen and lifesteal are disabled, but wall regen keeps working.
+Enemy Details — Protector Radius — Ray Enemy Attack
+Unlocks at tier 19 wave 60. This lab reduces Ray attack by a percentage per level, across 30 levels.
+Enemy Details — Protector Radius — Ray Enemy Health
+Unlocks at tier 19 wave 60. This lab reduces Ray health by a percentage per level, across 30 levels.
+Enemy Details — Protector Radius
+Rays have the same health as a basic enemy. They charge up for 30 seconds, then fire a beam that hits for twice a basic enemy's damage. They are worth 4 coins at base value and are immune to knockback.
+Ray labs change how Ray enemies behave during rounds. After researching them, the usual base modifiers between enemy types no longer apply cleanly — boss health, for instance, will not always be 20 times basic health if basic health has been researched.
+Enemy Details — Vampire Enemy Health — Scatter Enemy Attack
+Unlocks at tier 19 wave 60. This lab reduces Scatter attack by a percentage per level, over 30 levels.
+Enemy Details — Vampire Enemy Health — Scatter Enemy Health
+Unlocks at tier 19 wave 60. This lab reduces Scatter health by a percentage per level, over 30 levels.
+Enemy Details — Vampire Enemy Health — Lightning Amplifier - Scatter
+This lab is unlocked through Milestones at tier 16 wave 60. It boosts Chain Lightning damage against Scatters with each consecutive hit, and the bonus is additive — every value stacks on top of the original damage from the first hit. See the table below for the per-level values.
+level Time Cost Value
+1 8d 8h 0m 100.00B x1.25
+2 9d 8h 0m 150.00B x2.5
+3 10d 10h 52m 225.00B x3.75
+4 11d 16h 59m 337.50B x5
+5 13d 2h 42m 506.25B x6.25
+6 14d 16h 28m 759.38B x7.5
+7 16d 10h 45m 1.14T x8.75
+8 18d 10h 8m 1.71T x10
+9 20d 15h 11m 2.56T x11.25
+10 23d 2h 36m 3.84T x12.5
+Show all 30 rows
+Enemy Details — Vampire Enemy Health
+Scatters have double the health of a basic enemy. They split in half four times, and each split halves the health of the resulting enemies. They are worth 4 coins at base value.
+Only a single split scatter will drop Elite Cells when defeated. Scatter labs alter Scatter stats and interactions during rounds, so once researched, the standard base modifiers between enemies (like boss health being 20 times basic) may no longer be accurate.
+Enemy Details — Scatter Enemy Attack
+Saboteurs have 20 times the health of a basic enemy. When one hits your tower it disables a random Ultimate Weapon, which comes back online once the Saboteur dies.
+A Saboteur will rest against your wall without damaging it and cannot debuff the tower in that state. Its attacks are rolled against thorns, but not against Energy Shield.
+Enemy Details — Scatter Enemy Health
+These enemies have 20 times the health of a basic enemy. They empower other enemies in an area around them, granting a buff to enemy health.
+Enemy Details — Lightning Amplifier - Scatter
+This enemy has 20 times the health of a basic enemy. It fires a projectile at your tower that returns, and each subsequent hit deals double damage.
+Related pages
+Currency
+Elite Cells
+Death Ray
+Lab Upgrades
+Black Hole
+Milestones
+Module Labs
+Orbs
+Shockwave
+The Tower
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-01-26) . Something out of date? Tell us in the Discord .

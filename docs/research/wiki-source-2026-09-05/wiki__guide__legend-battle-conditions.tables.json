@@ -1,0 +1,188 @@
+[
+  {
+    "type": "table",
+    "caption": "Legend Overheats, read from the game's condition table",
+    "headers": [
+      "Overheat",
+      "From wave",
+      "Interval",
+      "Effect per step"
+    ],
+    "rows": [
+      [
+        "More Fleets",
+        "1000",
+        "every 100 waves",
+        "one extra Fleet"
+      ],
+      [
+        "Damage Decay",
+        "1500",
+        "every 10 waves",
+        "Attack Workshop levels removed"
+      ],
+      [
+        "Health Decay",
+        "1500",
+        "every 10 waves",
+        "Defense Workshop levels removed"
+      ],
+      [
+        "More Elites",
+        "2000",
+        "every 5 waves",
+        "one extra Elite"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Workshop levels removed every 10 waves from wave 1500",
+    "headers": [
+      "Battle Condition Reduction",
+      "Damage Decay (base 35)",
+      "Health Decay (base 50)"
+    ],
+    "rows": [
+      [
+        "0%",
+        "35",
+        "50"
+      ],
+      [
+        "10%",
+        "32",
+        "45"
+      ],
+      [
+        "20%",
+        "28",
+        "40"
+      ],
+      [
+        "30%",
+        "25",
+        "35"
+      ],
+      [
+        "40%",
+        "21",
+        "30"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Legend's 16 drawable conditions",
+    "headers": [
+      "Category",
+      "Conditions"
+    ],
+    "rows": [
+      [
+        "Resistances (5)",
+        "Death Ray, Thorns, Knockback, Armored Enemies, Plasma Cannon"
+      ],
+      [
+        "Enhancements (4)",
+        "Enemy Speed, Enemy Attack Speed, More Enemies, Mass Enforcement"
+      ],
+      [
+        "Ultimate enemies (6)",
+        "Protector, Tank, Boss, Basic, Fast, Ranged"
+      ],
+      [
+        "Other (1)",
+        "Ultimate Weapon Durations"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Pool size by league",
+    "headers": [
+      "League",
+      "Pool size",
+      "Adds"
+    ],
+    "rows": [
+      [
+        "Silver / Gold / Platinum",
+        "14",
+        "\u2014"
+      ],
+      [
+        "Champion",
+        "15",
+        "Ultimate Weapon Durations"
+      ],
+      [
+        "Legend",
+        "16",
+        "+ Mass Enforcement"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "The three decay constants, read from the game",
+    "headers": [
+      "Mechanic",
+      "Constant",
+      "Advances on",
+      "After 3 triggers"
+    ],
+    "rows": [
+      [
+        "Stun Decay",
+        "0.995",
+        "each cumulative stunned second",
+        "10s stun \u2192 about 9.07s"
+      ],
+      [
+        "Miss Decay",
+        "0.875",
+        "each successful miss",
+        "30% \u2192 20.1%"
+      ],
+      [
+        "Death Defy Decay",
+        "0.9",
+        "each successful Death Defy",
+        "42% \u2192 30.6%"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "A 10-second stun applied repeatedly to the same enemy",
+    "headers": [
+      "Application",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "rows": [
+      [
+        "Effective stun (s)",
+        "10.00",
+        "9.51",
+        "9.07",
+        "8.67",
+        "8.30",
+        "7.96",
+        "7.65",
+        "7.36",
+        "7.09",
+        "6.85"
+      ]
+    ]
+  }
+]

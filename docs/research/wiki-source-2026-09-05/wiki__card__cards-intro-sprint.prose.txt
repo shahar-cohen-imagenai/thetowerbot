@@ -1,0 +1,8 @@
+Intro Sprint is a rare card in The Tower: Idle Tower Defense that lets you skip through early waves quickly. It is designed for players who want to reach their highest wave faster without sitting through the easier opening stages.
+Intro Sprint
+Intro Sprint is a rare card that increases your wave count by 10 each time, for the first [x] waves or up to your highest wave. During this period, a Boss spawns every wave and you earn no coins. This makes it useful for rushing to higher waves quickly, though you sacrifice coin income while it is active.
+Intro Sprint value per card level
+Card Mastery
+The Intro Sprint card mastery costs 1250 stones to unlock. It increases how many waves the card remains active. The mastery only applies while Intro Sprint is equipped in your active loadout.
+Intro Sprint mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

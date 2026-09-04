@@ -1,0 +1,21 @@
+Epic modules come with unique effects that change how parts of your tower behave, and several of them have quirks that are not obvious from their in-game descriptions. This page covers the mechanical details of those effects for cannons, armor, generators and cores, so you know exactly what you are getting when you equip one.
+On this page
+Cannons
+Armor
+Generators
+Notes
+Cores
+Cannons
+Amplifying Strike deals its damage as Impact ultimate weapon damage. The effect has a duration, and that duration is refreshed whenever you kill a new boss or elite enemy, so on waves with plenty of elites you can keep it running continuously. The exact values for each rarity are listed in the table below.
+Armor
+Space Displacer interacts with the Inner Land Mines ultimate weapon. If you have not unlocked ILM, the module applies the level 1 x30 damage multiplier instead. If you do have ILM unlocked, your own ILM stats and effects are used, which means sub-effects like an increased ILM damage multiplier will raise the total damage dealt.
+There is also a useful interaction with Negative Mass Projector and Anti Cube Portal: enemies still register as being hit by shockwaves or orbs for the purposes of those effects even when they are immune to the effects themselves.
+Generators
+The unique effects for generator epic modules are listed in the table below.
+Notes
+A few unique effects have edge cases worth knowing about. Project Funding's multiplier will never drop below x1.00, and its effective multiplier follows the formula (1 + Log(cash) x rarity multiplier).
+Black Hole Digestor grants its bonus whenever a free upgrade triggers, whether or not any free upgrades are actually available. If every upgrade in a category is already maxed, you still receive the bonus when a free upgrade triggers on that category.
+Pulsar Harvester suffers diminishing returns once it has reduced 100 levels on an enemy. Restorative Bonus is refreshed in full when you pick up another Recovery Package rather than stacking, so grabbing a second package resets the duration instead of adding to it.
+Cores
+Dimension Core doubles the shock multiplier in an additive way. With the shock lab maxed, the base shock multiplier is 1.66x (1 + 0.66). After the Dimension Core effect doubles it, that becomes 2.32x (1 + 1.32). Stacking is additive and follows the form 1 + 1.32 x n, so at 20 stacks you reach 1 + 1.32 x 20, a 27.4x total multiplier once fully stacked. Values for other core modules are shown in the table below.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-22) . Something out of date? Tell us in the Discord .

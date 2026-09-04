@@ -1,0 +1,17 @@
+Card Masteries are a late-game upgrade layer for your cards in The Tower: Idle Tower Defense. Once unlocked, each mastery adds an extra effect to a specific card, but only while that card is equipped in your loadout.
+On this page
+Card Mastery
+Card Mastery Lab Time and Coins
+Card Mastery Overview
+Card Mastery
+Card Masteries become available once you have maxed 30 cards and reached the Card Mastery Milestone at Tier 16, Wave 100. From that point you can unlock masteries individually on the cards page.
+Each mastery costs a varying amount of stones to unlock. Unlocking it also opens that card's Mastery Labs, where the effect can be levelled further. Keep in mind that a mastery only applies while the card it belongs to is in your active loadout — unequip the card and you lose the effect.
+Card Mastery Lab Time and Coins
+Every card mastery lab shares the same lab costs and research times, regardless of which card it belongs to. The full breakdown of times and coin costs is shown in the table below.
+Card Mastery Overview
+The table below lists each Card Mastery, its stone cost to unlock, and how its effect scales as you level it through the mastery labs. For a deeper look at how each mastery performs in practice and which ones are worth prioritising, see the Advanced Analysis page.
+Show all 31 rows
+Related pages
+AdvancedAnalysis
+Cards
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-15) . Something out of date? Tell us in the Discord .

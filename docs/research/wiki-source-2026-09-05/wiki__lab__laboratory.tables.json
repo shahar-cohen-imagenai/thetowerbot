@@ -1,0 +1,129 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "Lab 1",
+        "unlocked for free upon reaching wave 30 in T1 for the first time."
+      ],
+      [
+        "Lab 2",
+        "100 gems"
+      ],
+      [
+        "Lab 3",
+        "400 gems"
+      ],
+      [
+        "Lab 4",
+        "1400 gems"
+      ],
+      [
+        "Lab 5",
+        "3000 gems"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Version 0.16",
+    "headers": [
+      "Time",
+      "Time (in seconds)",
+      "Cost (in gems)"
+    ],
+    "rows": [
+      [
+        "0 seconds",
+        "0",
+        "0"
+      ],
+      [
+        "1 second",
+        "1",
+        "0.0020833"
+      ],
+      [
+        "1 minute",
+        "60",
+        "0.125"
+      ],
+      [
+        "1 hour",
+        "3600",
+        "7.5"
+      ],
+      [
+        "1 day",
+        "86400",
+        "180"
+      ],
+      [
+        "1 week",
+        "604800",
+        "1260"
+      ],
+      [
+        "30 days",
+        "2592000",
+        "5400"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Version 0.17",
+    "headers": [
+      "Time",
+      "Time (in seconds)",
+      "Cost (in gems)",
+      "Discount applied"
+    ],
+    "rows": [
+      [
+        "0 seconds",
+        "0",
+        "0",
+        "0.00"
+      ],
+      [
+        "1 second",
+        "1",
+        "0.002083",
+        "1.00"
+      ],
+      [
+        "1 minute",
+        "60",
+        "0.125",
+        "1.00"
+      ],
+      [
+        "1 hour",
+        "3600",
+        "7.5",
+        "1.00"
+      ],
+      [
+        "1 day",
+        "86400",
+        "163",
+        "0.91"
+      ],
+      [
+        "1 week",
+        "604800",
+        "1000",
+        "0.79"
+      ],
+      [
+        "30 days",
+        "2592000",
+        "3550",
+        "0.66"
+      ]
+    ]
+  }
+]

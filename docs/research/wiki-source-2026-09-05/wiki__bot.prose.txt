@@ -1,0 +1,57 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Bots
+Bots
+The five bots, their cooldowns, durations and the labs that shorten the gap between activations.
+Amplify Bot
+Amplify Bot boosts damage against enemies in its range. Learn its upgrades, duration, cooldown, bonus, range, and lab research.
+Bot Bot
+Bot Bot is a support bot that amplifies the effects of other bots within its range. Learn its upgrades, labs and costs.
+Flame Bot
+Flame Bot is an unlockable bot in The Tower that burns enemies around it, dealing damage over time and reducing the damage burned enemies deal.
+Golden Bot
+Golden Bot in The Tower: how its coin multiplier really works, every upgrade level for duration, cooldown, bonus and range — and how to get it.
+Thunder Bot
+Thunder Bot stuns enemies in an area, then slows them with a linger effect. Learn its upgrades, labs, and how it works.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

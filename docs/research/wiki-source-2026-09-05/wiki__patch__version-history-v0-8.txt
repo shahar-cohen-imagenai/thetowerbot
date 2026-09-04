@@ -1,0 +1,40 @@
+Version 0.8 expanded the game's progression by adding tier 11 and introducing new upgrades like Second Wind Blast, Double Death Ray, and Inner Orb options. The update increased wave difficulty for longer runs to shorten round times, while boosting coin bonuses at higher tiers to make them more rewarding. Players also saw significant performance improvements for extended sessions, along with various fixes for floating text, tournaments, and game stability.
+Change list
+Reproduced from the developer's release notes.
+Second Wind Blast - tier 5
+Double Death Ray -
+tier 8
+Inner Orb Adjuster - tier 6
+Extra Inner Orbs - tier 6
+Difficulty of waves for longer runs increased to shorten rounds a bit
+New tier 11 added
+Coin bonus going to tier 9 is +0.9, to tier 10 is +1.0, to tier 11 is +1.1 (making later tiers more worthwhile)
+Game performance improved a lot for longer runs
+Floating texts increasing in size overtime
+Symbols no longer allowed for user names
+Platinum players can no longer be demoted to bronze
+Buy multipliers are saved through sessions
+Round end stats shows enemy killed by
+Tournament promotion/demotion panel stopped showing up
+Reduced chance of crashing
+Floating text for interest and free upgrades have an exclusive pool now
+Fixed some floating text being colored wrong
+Fixed shots being reused before they even reached the enemy on higher waves. Also increase projectiles pool to 150
+Changed inner orbs to rotate counter clockwise
+Improved reliability of IAP system
+Several other small fixes
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

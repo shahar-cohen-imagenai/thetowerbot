@@ -1,0 +1,70 @@
+Bot Bot is a support bot that boosts the effects of your other bots while they are inside its radius. It does nothing on its own, so its value scales with how many other bots you run and how strong they are.
+On this page
+Description
+Unlocking/Upgrading
+Duration
+Cooldown
+Bonus
+Range
+Cost
+Labs — Bot Bot Cooldown
+Labs — Bot Bot Duration
+Description
+While active, Bot Bot increases the effects of your other bots as long as they are within its radius. It is purely a support bot: it has no effect by itself and only pays off when paired with at least one other bot.
+Unlocking/Upgrading
+As with every bot, you unlock and upgrade Bot Bot through the Event Shop menu. The medals needed to unlock it depend on how many other bots you have already bought. Each of its four upgrades begins at a base cost of 100 medals, rising by 40 medals per level.
+Duration
+Duration controls how long Bot Bot stays active each time it fires. It starts at 20 seconds and can be raised through 30 levels, with each level adding 0.5 seconds of active time.
+Cooldown
+Cooldown sets the gap between activations. It begins at 120 seconds and has 15 levels, each one shaving 3 seconds off the wait.
+Bonus
+Bonus is the multiplier Bot Bot applies to the other bots inside its range. It starts at x1.05 and has 30 levels, with each level adding 0.5 to the multiplier.
+Range
+Range sets how far Bot Bot's effect reaches while it is active, and it is amplified by your tower range. It starts at 25m and has 18 levels, each adding 2m.
+Cost
+The medal cost for each level of every Bot Bot upgrade is listed in the cost table below.
+Level Cost Duration Cooldown Bonus Range
+1 100 20.5 117 1.05 27
+2 140 21.0 114 1.10 29
+3 180 21.5 111 1.15 31
+4 220 22.0 108 1.20 33
+5 260 22.5 105 1.25 35
+6 300 23.0 102 1.30 37
+7 340 23.5 99 1.35 39
+8 380 24.0 96 1.40 41
+9 420 24.5 93 1.45 43
+10 460 25.0 90 1.50 45
+Show all 31 rows
+Labs — Bot Bot Cooldown
+This lab is unlocked in Milestones at tier 6 wave 90. Each of its 25 levels reduces Bot Bot's cooldown by 1 second, for a total possible reduction of 25 seconds. The research times and costs are shown in the table below.
+Level Time Cost Value
+1 1d 14h 53m 30.00M -1
+2 1d 23h 14m 60.05M -2
+3 2d 7h 47m 91.60M -3
+4 2d 16h 54m 132.15M -4
+5 3d 3h 4m 201.20M -5
+6 3d 14h 56m 336.25M -6
+7 4d 5h 11m 598.80M -7
+8 4d 22h 39m 1.08B -8
+9 5d 20h 13m 1.91B -9
+10 6d 22h 51m 3.25B -10
+Show all 25 rows
+Labs — Bot Bot Duration
+This lab is also unlocked in Milestones at tier 6 wave 90. It extends how long Bot Bot stays active, with 20 levels that each add 0.5 seconds for a maximum of 10 extra seconds. See the table below for the per-level costs.
+Level Time Cost Value
+1 8d 8h 0m 100.00B 0.50
+2 9d 14h 0m 150.00B 1.00
+3 11d 0h 30m 225.00B 1.50
+4 12d 16h 10m 337.50B 2.00
+5 14d 13h 48m 506.25B 2.50
+6 16d 18h 16m 759.38B 3.00
+7 19d 6h 36m 1.14T 3.50
+8 22d 4h 0m 1.71T 4.00
+9 25d 11h 48m 2.56T 4.50
+10 29d 7h 34m 3.84T 5.00
+Show all 20 rows
+Related pages
+Events
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-30) . Something out of date? Tell us in the Discord .

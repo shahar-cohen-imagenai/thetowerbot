@@ -1,0 +1,74 @@
+Recovery Packages are a utility mechanic that gives your tower a chance to heal itself during a run. When a package spawns, it restores a percentage of your tower's health automatically, with no need to collect it manually.
+The system is built from three workshop upgrades, a card, an enhancement, and several lab researches, all of which stack together to determine how often packages appear and how much they heal.
+On this page
+Overview
+Workshop
+Recovery Amount
+Max Recovery
+Package Chance
+Card
+Cost — Recovery Amount
+Cost — Max Recovery
+Cost — Package Chance
+Packages
+Lab — Package After Boss
+Lab — Recovery Package Amount
+Lab — Recovery Package Max
+Lab — Recovery Package Chance
+Lab
+Overview
+Recovery Packages have a chance to spawn each wave and immediately restore health to your tower when they do. The healing is applied automatically on spawn, so you never need to interact with the package itself.
+How much a package heals is governed by Recovery Amount, while Max Recovery sets the ceiling on how far above your normal maximum health that healing can push you. Package Chance controls how often a package appears at all.
+Workshop
+Recovery Packages are unlocked in the workshop for 1,500,000 coins, and the option becomes available after Interest. Purchasing the unlock gives you access to three separate upgrades: Recovery Amount, Max Recovery, and Package Chance.
+Recovery Amount
+Recovery Amount sets how much bonus health each package adds when it spawns. The heal is calculated as a percentage of your tower's current maximum health, so it scales naturally as your max health grows during a run.
+The upgrade has 300 levels, starting at a base of 14%. Each level adds 0.40%, bringing the maximum to 134.00% of your tower's max health per package.
+Max Recovery
+Max Recovery determines how far beyond your normal maximum health a package is allowed to heal you. It has 500 levels with a base value of x1.00 health, and each level adds 0.031 to that multiplier, reaching a maximum of x16.50 health.
+This overheal is unique to packages. Lifesteal and health regen cannot raise your health above 100%, so Max Recovery is the only way to build a buffer past your normal cap.
+Package Chance
+Package Chance is the probability that a recovery package spawns on a given wave. The workshop upgrade has 60 levels, starting at a base of 6% and gaining 0.40% per level, for a workshop maximum of 30%.
+The chance can be pushed further with other sources. With the lab research maxed (4%), the card maxed (33%), and an Ancestral substat (15%) on top of the workshop maximum, Package Chance can reach 82%.
+Card
+The Recovery Package Chance card increases the package chance provided by the workshop upgrade, raising the odds that a package spawns each wave.
+Cost — Recovery Amount
+The cost table below lists the price of each Recovery Amount level.
+Show all 31 rows
+Cost — Max Recovery
+The cost table below lists the price of each Max Recovery level.
+Show all 51 rows
+Cost — Package Chance
+The cost table below lists the price of each Package Chance level.
+Show all 60 rows
+Packages
+Packages is an enhancement that boosts both Max Recovery and Recovery Amount. It requires 50 trillion coins to be spent on Utility enhancements before it can be unlocked.
+Unlocking it grants an immediate x1 multiplier to both stats, and each level adds 0.01x on top. With a maximum level of 300, the enhancement reaches a 4x bonus at full investment.
+Show all 31 rows
+Lab — Package After Boss
+Package After Boss causes a recovery package to spawn after each boss wave, giving you a guaranteed heal at a predictable point in the run.
+Lab — Recovery Package Amount
+Recovery Package Amount is a lab research that adds to the Recovery Amount workshop upgrade. It has 20 levels.
+Show all 20 rows
+Lab — Recovery Package Max
+Recovery Package Max is a lab research that increases the maximum amount of health recovery packages can heal. It has 20 levels.
+Show all 20 rows
+Lab — Recovery Package Chance
+Recovery Package Chance is a lab research that increases the workshop chance for a package to spawn after a wave. It has 20 levels.
+Show all 20 rows
+Lab
+Recovery package labs are unlocked through Milestones. Package After Boss becomes available at tier 3 wave 200, while Recovery Package Amount, Recovery Package Max, and Recovery Package Chance all unlock at tier 6 wave 150.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-03-10) . Something out of date? Tell us in the Discord .

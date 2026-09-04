@@ -1,0 +1,29 @@
+Critical Chance is a common card you can slot into your loadout in The Tower: Idle Tower Defense. As the name suggests, it makes your tower land critical hits more often, which feeds into any build that leans on crit damage.
+Critical Chance
+When equipped, Critical Chance increases your tower's critical chance by a percentage that scales with the card's level. The exact values per level are listed in the table below.
+Because it is a common card, it is easy to obtain and upgrade early on, making it a straightforward way to push your crit rate higher while you work toward rarer options.
+Critical Chance value per card level
+Card Level Effect
+1 5%
+2 6%
+3 7%
+4 8%
+5 9%
+6 10%
+7 11%
+Card Mastery
+Unlocking the Critical Chance card mastery costs 750 stones. Once unlocked, it grants a bonus to Crit Chance, Super Crit chance, and Super Crit Factor, with the bonus size shown in the mastery table below.
+Keep in mind the mastery bonus is not passive: it only takes effect while the Critical Chance card is equipped in your active loadout. If you swap the card out, you lose the mastery benefit until you slot it back in.
+Critical Chance mastery value per lab level
+Mastery Level Value
+0 +1%
+1 +2%
+2 +3%
+3 +4%
+4 +5%
+5 +6%
+6 +7%
+7 +8%
+8 +9%
+9 +10%
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,27 @@
+Version 0.9 introduced the Chain Lightning Shock unlock along with its chance and multiplier upgrades, giving players a new way to amplify lightning damage. Death Wave gained two economy-boosting perks: increased max health and bonus coins per kill. The update also tweaked some lab cost equations, fixed iOS push notifications, corrected the inner orb distance adjuster's minimum value, and included further crash fixes.
+Change list
+Reproduced from the developer's release notes.
+Chain Lightning Shock (Initial unlock)
+Chain Lightning Shock Chance
+Chain Lightning Shock Multiplier
+Death Wave Health Boost (increase max health per DW kill)
+Death Wave Coin Boost (more coins per DW kill)
+Some lab cost equations slightly altered
+iOS push notifications fixed
+More attempts to fix crashes
+Inner orb distance adjuster minimum value corrected
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,79 @@
+Dissonant Runs are a challenge mode where you give up most of one stat category in exchange for an Echo bonus on completion. This guide covers the recommended order for tackling them, what each run type removes from your tower, how to set up your workshop, modules and cards for each variant, and a detailed look at a high-tier Ultimate Weapon dissonant build for glass cannon players.
+On this page
+1. General Advice
+2. What Each Run Type Costs You
+3.1 Attack Dissonant Run ("Max eHP")
+3.2 UW Dissonant Run ("Heavy eHP / Hybrid")
+3.3 Health (Defense) Dissonant Run ("Glass Cannon / Crowd Control")
+3.4 Utility Dissonant Run ("eHP / Glass Cannon")
+4. Deep Dive: High-Tier UW Disco (Glass Cannon Build)
+Why land mines still matter during UW disco
+Range: go max, not min
+Land mines vs. bullet damage scaling
+Module & Substat Recommendations
+Perks & Targeting
+Bot rotation trick (Amp Bot + Thunder Bot)
+5. Card & Module Reference
+Card effects referenced
+Module abbreviations referenced
+Perk effects referenced (from the matrix legend)
+6. Credits
+1. General Advice
+Work through the runs in this sequence: Attack first, then Ultimate Weapon, then Health, and finally Utility. Begin at Tier 1 and climb from there — every completed run grants an Echo bonus that makes your tower stronger for the next attempt. When you reach the tier where you can no longer progress, cycle between the Attack, Health and Utility variants to nudge each one higher; plenty of players just wait roughly a month and retry.
+Kick off every dissonant run from the tier you normally farm at. That way your regular income still benefits even if the run falls short of a full clear.
+2. What Each Run Type Costs You
+Every dissonant variant wipes out the bulk of one stat category, so it pays to know precisely what you're sacrificing before you commit to a setup. The table below lists what each run type strips away.
+3.1 Attack Dissonant Run ("Max eHP")
+With projectiles gone, survival comes entirely from soaking damage — think of it as tanking the whole run. Ultimate Weapons remain active and are useful for keeping crowds under control.
+Respec your workshop: move all attack coin into defense, and pull any coin or cell bonuses out of utility. If you have coin sitting in both Wall Health and Wall Health+, jot down those base levels first so you can put them back afterwards.
+Swap Summon Guardian out for Ally (or whichever card you prefer). For modules, relevel if necessary — cannon module level is irrelevant here because attack substats do nothing. Cannon is dead weight except for DP, and on Generator, PF, RB and PH won't help. A sample setup: DP on Cannon; SF and OA on Armor; GC and SH on Generator; PCol and HC on Core. If you own an Ass'd Mod, use it in the second cannon slot. Check section 5 for cards and perks, clear any bans that would get in the way, and once the run starts, turn off auto-pick perks and revisit your target priority.
+3.2 UW Dissonant Run ("Heavy eHP / Hybrid")
+Losing all Ultimate Weapons means the run rests on effective health plus whatever damage stats suit your build.
+The respec mirrors the attack run: shift attack coin into defense, strip coin and cell bonuses from utility, and record your WS/WS+ base levels beforehand. Replace Summon Guardian with Ally or a card of your choosing.
+On modules, GC on Generator and everything on Core except MH are useless or worse. A workable loadout: DP on Cannon; SF and OA on Armor; PH and SH on Generator; MH on Core (its substats are irrelevant). Slot an Ass'd Mod second on the cannon if available. Cards and perks are covered in section 5 — lift bans where needed, disable auto-pick perks during the run, and tune target priority as required.
+A specialised high-tier version of this run for Glass Cannon builds gets a full breakdown in section 4.
+3.3 Health (Defense) Dissonant Run ("Glass Cannon / Crowd Control")
+This variant is pure offence: any single hit ends you, and triangles or other unusual enemy shapes will finish you quickly. That's the price of going all-in on damage.
+Move every point of defense coin into damage during your respec, and clear coin and cell bonuses out of utility — again, note your WS/WS+ bases first. Trade Summon Guardian for Ally or your preferred card.
+Module-wise, SR on Cannon is a liability, and on Armor only OA and NMP (combined with the Extra Orbs card) do anything. Try DP on Cannon; OA and NMP on Armor; PF and PH on Generator; PC and DC on Core, with an Ass'd Mod in the spare cannon slot if you have one. Section 5 has the card and perk details. Remove obstructive bans, then during the run switch off auto-pick perks and adjust targeting as needed.
+3.4 Utility Dissonant Run ("eHP / Glass Cannon")
+Pick the variant that matches how you farm — the payoff is income worth as much as triple your usual earnings.
+Empty utility completely and redirect that coin into damage or health, whichever fits your build. If a big pile of coin has been sitting in eHP or eAttack lines, this is the moment to cash it in. Write down WS/WS+ base levels before respeccing, and swap Summon Guardian for Ally or another card.
+BHD on Generator is the only real module trap here. A suggested arrangement: DP on Cannon; SF and OA on Armor; PH and PF on Generator; PC and DC on Core; Ass'd Mod in the second cannon slot if owned. Recovery packages don't exist in this run, which rules out GComp for permanent Black Hole. If you're running PF, the Starting Cash lab is worth a look. See section 5 for cards and perks, drop any bans in the way, and manage perks and targeting manually once the run begins.
+Whichever variant you just completed, undo the setup afterwards: work back through your checklist to reinstate your usual WS/WS+ levels, modules, cards, bans and perk settings.
+4. Deep Dive: High-Tier UW Disco (Glass Cannon Build)
+The core of this setup is bullet damage backed up by land mines and inner land mines. Nothing here is a hard requirement — extra investment anywhere tends to pay off — but damage should dominate the build.
+Why land mines still matter during UW disco
+Space Displacer keeps producing Inner Land Mines even with Ultimate Weapons switched off, and their stun works as normal. Magnetic Hook also launches ILM; it's normally a weak core module, yet in UW disco it becomes one of the few cores worth running and does a great job of controlling scatter-type enemies.
+Range: go max, not min
+Testing (credited to /u/priesten) showed maximum range clearing on the order of 2,000 extra waves compared to minimum range, and there are three reasons behind that gap.
+First, damage output climbs with range — the author's relative figures put it at something like x4 versus x43.5. Second, with slows like Poison Swamp and Chrono Field unavailable, range itself acts as your crowd control by making enemies cross a much larger distance before reaching you. Third, a wide radius lets bounce shots chain across the entire screen, which is crucial given how much this build leans on stacking Bounce Shot with Astral Deliverance.
+Land mines vs. bullet damage scaling
+Astral Deliverance multiplies bullet damage rather than adding to it. In testing, pairing Astral Deliverance in the primary cannon slot with Amplifying Strike in the (Epic-only) ass'd mod slot was worth several thousand additional waves.
+While your bounce chance is still low, ordinary land mines hit incredibly hard and deserve priority — put investment into Wall Skip+ for their sake, and remember to unban the associated perk.
+As you close in on roughly 100% bounce chance through ass'd mods and vault upgrades, and reach the current ceiling of 22 bounce targets, bullet damage takes off to more than 1,000 times your mine output. At full bounce chance with 22 targets, Astral Deliverance can stack to a multiplier of around x400,000, leaving every other damage source far behind. Before you cross that threshold, though, mines can still beat your bullets — so keep them fed early on.
+Module & Substat Recommendations
+The table below lays out suggested modules and substats for this build.
+Perks & Targeting
+Grab the enemy-slowing perk when it appears. For target priority, place Ranged and Fast enemies above everything else (the author's preference is Fast ahead of Ranged, though trying the reverse is encouraged), with Closest sitting underneath.
+Bot rotation trick (Amp Bot + Thunder Bot)
+If you have enough bots to run both Amp Bot and Thunder Bot at 50 seconds, you can use Thunder Bot to cover the gap in Amp Bot's uptime. It's worth picking up Bot-Bot before adding Thunder Bot to the rotation.
+Start with Thunder Bot switched off and slow the game speed down. Just before the Amp Bot and Bot-Bot duration is about to run out, open the menu and switch Thunder Bot back on. Assuming all your bots share a 50-second duration, Amp Bot drops at the 45-second mark — Thunder Bot then fires during that roughly five-second exposed window and stuns everything until Amp Bot comes back online.
+This shrinks the period where you have no active bot buffs to almost nothing. The reported result was around 8,000 waves cleared in T18 with this build, and the author believes it may also be viable for clearing T19.
+5. Card & Module Reference
+The original walkthrough rates every card and module in a full matrix with Attack, Defense, Utility and UW columns. The tables below reproduce the card effects, module abbreviations and perk effects used in that matrix, so you can look up any entry the guide references.
+Card effects referenced
+The table below lists the effects of each card named in the ratings matrix, so you can check what a card actually does before following its rating.
+Show all 32 rows
+Module abbreviations referenced
+The matrix uses short abbreviations for each module. The table below expands them so you can match each abbreviation to its module.
+Show all 24 rows
+Perk effects referenced (from the matrix legend)
+The matrix legend references several perks by effect. The table below lists what each of those perks does, as used in the original walkthrough.
+Show all 34 rows
+6. Credits
+The Attack, UW, Health and Utility checklists come from u/NebulaMajor6064. The card, module and perk matrix and the "what you're missing" breakdown come from u/eike23. The high-tier UW Disso Glass Cannon deep-dive comes from u/priesten.
+Everything here is compiled from r/TheTowerGame community threads. Community guides are updated frequently as game balance shifts, so check the original threads for the latest corrections before relying on specific numbers.
+Related pages
+Dissonance
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-24) . Something out of date? Tell us in the Discord .

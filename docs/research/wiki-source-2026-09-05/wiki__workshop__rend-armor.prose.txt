@@ -1,0 +1,47 @@
+Rend Armor is a late-game Workshop upgrade that adds a chance-based damage amplification mechanic to your tower. When it triggers on an enemy, that enemy takes increased damage from your projectiles for the rest of the run. It only affects tower projectile damage, so it does nothing for damage coming from other sources.
+On this page
+Description
+Workshop
+Rend Armor Chance
+Workshop — Rend Armor Mult
+Cost — Rend Armor Chance
+Cost — Rend Armor Mult
+Rend Armor
+Rend Armor Max
+Rend Armor Mult
+Description
+Rend Armor gives your tower a chance to apply a damage multiplier to enemies it hits. The multiplier applies to individual enemies rather than globally, and it only increases damage from tower projectiles. Damage from any other source is unaffected.
+Workshop
+Rend Armor is unlocked in the Workshop for 500,000,000,000 (500 billion) coins, and requires Super Critical to be completed first. Unlocking it opens up two new upgrade tracks: Rend Armor Chance and Rend Armor Mult. When fully stacked on an enemy, Rend Armor can increase the damage that enemy takes by up to 800% of normal.
+Rend Armor Chance
+Rend Armor Chance determines how often a projectile hit applies the Rend effect to an enemy. Once applied, the damage increase on that enemy is permanent for the rest of the run. There are 299 levels available. Each level adds 0.10% to the trigger chance, starting from 0.10% and reaching a maximum of 30.00%.
+Workshop — Rend Armor Mult
+Rend Armor Mult controls how much extra damage an affected enemy takes per stack. There are 299 levels, each adding 0.10% (0.0010X) to the multiplier. It starts at 0.0010X and caps at 0.3000X per level investment. The total Rend effect on a single enemy can stack up to a limit of 800.00%. Only tower projectile damage is modified by this multiplier.
+Cost — Rend Armor Chance
+The cost table below shows the coin cost for each level of Rend Armor Chance.
+Show all 31 rows
+Cost — Rend Armor Mult
+The cost table below shows the coin cost for each level of Rend Armor Mult.
+Show all 31 rows
+Rend Armor
+The Rend Armor lab upgrade requires 50 billion coins to be spent on damage enhancements before it becomes available. Once unlocked, it applies a multiplier to your Rend Armor Max, Chance, and Mult values. The multiplier starts at x1 and increases by 0.01x per level, up to a maximum level of 400 for a total 5x bonus. The cost table below shows the coin cost per level.
+Show all 41 rows
+Rend Armor Max
+Rend Armor Max is a lab upgrade unlocked through Milestones at tier 13 wave 10. Each level raises the maximum total multiplier that Rend Armor can apply to a single enemy, pushing the cap beyond the base 800% limit. The cost table below shows the cost per level.
+Show all 30 rows
+Rend Armor Mult
+See the Rend Armor section above, which covers the lab upgrade that boosts Rend Armor Mult alongside Chance and Max.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-06) . Something out of date? Tell us in the Discord .

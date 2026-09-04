@@ -1,0 +1,67 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Ultimate Weapons
+Ultimate Weapons
+The nine Ultimate Weapons, their stone costs, their labs and the plus abilities that unlock once you own them all.
+Black Hole
+Black Hole in The Tower: cooldown, duration and size per level, the labs that turn it into a coin machine, and why it syncs with Golden Tower.
+Chain Lightning
+Chain Lightning ignores your bullet damage — the game's own code shows what it really multiplies. Full damage order, crit rules, shock stacking and labs.
+Chrono Field
+Chrono Field ultimate weapon guide: slow enemies, manage uptime, and upgrade duration, cooldown, range, and damage reduction.
+Death Wave
+Death Wave ultimate weapon guide for The Tower: reworked mechanics, Effect Waves, damage pool, workshop upgrades and all five Death Wave labs.
+Golden Tower
+Golden Tower in The Tower: the coin and cash multiplier the whole economy runs on — upgrades, labs, Golden Combo, and why it's the first UW to pick.
+Inner Land Mines
+Inner Land Mines is an ultimate weapon that spawns explosive mines dealing area damage based on tower damage, crit, and super crit factors.
+Poison Swamp
+Poison Swamp ultimate weapon guide: damage ramping, stun labs, Swamp Rend and upgrade costs in The Tower: Idle Tower Defense.
+Smart Missiles
+Smart Missiles in The Tower: how targeting works, every workshop upgrade, the Cover Fire UW+ and the labs that make it the late-game damage king.
+Spotlight
+Spotlight in The Tower: how the damage multiplier stacks, angle and quantity upgrades, the coin lab, and why it pairs so well with Smart Missiles.
+Ultimate Weapons
+Ultimate Weapons are powerful abilities bought with Power Stones that automatically activate in rounds and can be upgraded with Ultimate Weapon Plus abilities.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

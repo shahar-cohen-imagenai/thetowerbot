@@ -1,0 +1,38 @@
+Thunder Bot is one of the bots you can buy in The Tower. When it activates, it stuns enemies in an area around it, then applies a slowing linger effect once the stun ends. Both the stun and the linger are only 50% effective against Bosses and Elites, so keep that in mind when planning around tough waves.
+On this page
+Description
+Unlocking/Upgrading
+Duration
+Cooldown
+Linger
+Range
+Cost
+Labs — Thunder Bot Cooldown
+Labs — Thunder Bot Linger Time
+Description
+Thunder Bot stuns enemies in an area around the bot when it activates. Once the stun ends, affected enemies are slowed by a linger effect. Both the stun and the linger are 50% effective against Bosses and Elites.
+Unlocking/Upgrading
+Like all bots, Thunder Bot is unlocked and upgraded through the Event Shop menu. The medal cost to unlock it depends on how many other bots you have already bought. Each of its three upgrades starts at a base cost of 100 medals and rises by 40 medals per level.
+Duration
+The Duration upgrade increases how long enemies are stunned. It has 20 levels.
+Cooldown
+Cooldown is the time between the bot's activations. It starts at 120 seconds and the upgrade has 15 levels.
+Linger
+The Linger upgrade increases the slow percentage of the linger effect. It starts at 20% and has 20 levels.
+Range
+The Range upgrade increases the area the bot covers while active. Range is amplified by your tower range, so it scales with your tower's range stat. It has 15 levels.
+Cost
+The cost table below shows the medal cost for each upgrade level.
+Show all 21 rows
+Labs — Thunder Bot Cooldown
+This lab is unlocked in Milestones at tier 5 wave 70. It reduces Thunder Bot's cooldown by 1 second per level, with 25 levels for a total 25-second reduction. Note that this lab is mentioned in the Footguns section, so check that before investing heavily.
+Show all 25 rows
+Labs — Thunder Bot Linger Time
+This lab is unlocked in Milestones at tier 10 wave 60. It increases the duration of the linger effect by 0.5 seconds per level, with 20 levels for a total of 13 seconds.
+Show all 20 rows
+Related pages
+Events
+Footguns
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-30) . Something out of date? Tell us in the Discord .

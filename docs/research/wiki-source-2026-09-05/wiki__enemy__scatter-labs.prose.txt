@@ -1,0 +1,19 @@
+Scatter Labs are a set of lab researches that target Scatter enemies, one of the enemy types you face during rounds. By investing in these labs, you can directly reduce how hard Scatters hit, lower how much health they have, and make your Chain Lightning progressively stronger against them.
+On this page
+Description — Scatter Enemy Attack
+Description — Scatter Enemy Health
+Description — Lightning Amplifier - Scatter
+Description
+Description — Scatter Enemy Attack
+This lab becomes available once you reach Tier 19 Wave 60. Each level researched reduces the attack stat of Scatter enemies by a percentage, so they deal less damage to your tower. The lab has 30 levels in total; the per-level values are listed in the cost table below.
+Show all 30 rows
+Description — Scatter Enemy Health
+Unlocked at Tier 19 Wave 60, this lab cuts the health of Scatter enemies by a percentage per level, letting you kill them faster. It has 30 levels to research.
+Description — Lightning Amplifier - Scatter
+You unlock this lab through Milestones at Tier 16 Wave 60. It increases the damage Chain Lightning deals to Scatter enemies with each consecutive hit on them. The bonus is additive, meaning every extra hit adds its value on top of the original damage from the first hit rather than multiplying it. See the table below for the values per level.
+Show all 30 rows
+Description
+Scatter labs change how Scatter enemies behave and interact with your defences during rounds. One side effect to be aware of: once you start researching enemy stat labs, the usual base relationships between enemy types stop holding true. For example, a Boss will no longer always have exactly 20 times the health of a Basic if you have researched Basic health reduction.
+Related pages
+Enemies
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,39 @@
+Free Upgrades give you a chance each wave to level up a workshop stat without paying for it. There are three separate chances — one each for Attack, Defense and Utility — and each one only applies to upgrades in its own workshop.
+On this page
+Overview
+Workshop
+Cost — Free Attack Upgrades
+Cost — Free Utility Upgrades
+Card and Perk
+Free Upgrades
+Overview
+After each wave in a round, each of your three Free Upgrade chances rolls independently. On a success, a stat in the matching workshop gains a level for free. Free Upgrades never pick a stat that is already maxed, so a successful roll is never wasted as long as something in that workshop can still be upgraded.
+If the Wave Skip card triggers, each workshop's Free Upgrade can roll one extra time for every wave skipped. Chances above 100% also roll over: at 110% Free Utility Upgrade, for example, you are guaranteed one free level and have a 10% chance of a second that wave.
+Workshop
+The Free Upgrades upgrade is bought in the workshop for 800 coins, and sits behind Coins/Kill Bonus and Coins/Wave in the unlock order. Buying it unlocks three separate tracks: Free Attack Upgrade, Free Defense Upgrade and Free Utility Upgrade.
+Each track has 99 levels, and every level adds 0.5% to that workshop's free upgrade chance, for a maximum of 49.5% per workshop from the workshop alone.
+Cost — Free Attack Upgrades
+The cost table below lists the price per level for Free Attack Upgrade. The same structure applies across the three tracks, so use it to plan how far you can afford to push your free upgrade chance during a run.
+Show all 99 rows
+Cost — Free Utility Upgrades
+The cost table below lists the price per level for Free Utility Upgrade. Since free utility levels feed into upgrades like cash and coin bonuses, this track is often worth levelling alongside the attack version.
+Show all 99 rows
+Card and Perk
+The Free Upgrades card and the free upgrade perk each raise all three workshop chances by the value shown on them, on top of your workshop levels. With everything combined, the highest free upgrade chance you can reach is 90.75%.
+Free Upgrades
+Free Upgrades is also a Utility enhancement, unlocked by spending a total of 5 trillion coins on Utility enhancements. It acts as a multiplier on all three free upgrade chances: it starts at x1 when unlocked and gains 0.01x per level, up to level 100 for a x2 bonus. The level costs are shown in the table below.
+Show all 100 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-03) . Something out of date? Tell us in the Discord .

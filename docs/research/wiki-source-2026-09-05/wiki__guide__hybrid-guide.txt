@@ -1,0 +1,6 @@
+A hybrid build splits your investment evenly between damage and health stats, giving you a tower that can both kill enemies and survive hits. It's the standard approach for farming through most of the game's tiers, and it remains relevant even at the highest level of tournament play.
+Hybrid means putting equal effort into damage and health-related stats rather than specialising in one or the other. The result is a balanced tower that kills efficiently while still taking hits, which suits farming runs in T1 through T11.
+T12 hybrid farming is still possible if your Wall is well developed, but from that point on you're better off switching to a Glass Cannon build for farming. In tournaments, though, even the top players continue to run hybrid builds.
+Related pages
+Wall
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-01-06) . Something out of date? Tell us in the Discord .

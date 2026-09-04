@@ -1,0 +1,17 @@
+Labs Speed is a researchable upgrade in The Tower: Idle Tower Defense that shortens how long your other lab research takes to finish. Because lab time is one of the main bottlenecks on progression, this research has an outsized effect on how quickly everything else in the lab advances.
+Description
+Labs Speed reduces the amount of time each piece of lab research needs to complete. One quirk worth knowing: raising this research's level does not speed up future levels of Labs Speed itself. However, lab speed bonuses you earn from relics do apply to it, so relics still shorten each level of this research even though the research cannot accelerate itself.
+For every other research in the lab, the speed bonus from Labs Speed stacks multiplicatively with the lab speed bonus from your relics, rather than additively. The combined bonus is calculated as (Bonus from Lab Speed Research) x (Bonus from Relics). So a x1.25 relic bonus paired with a x2.98 research bonus gives a total of x3.725, not x3.23.
+Because of that multiplicative interaction, relics that boost lab speed are especially valuable. If one shows up during an event, it is well worth prioritising.
+Lab
+You unlock the lab through Milestones at tier 1, wave 150. Labs Speed has 99 levels, and the cost table below shows what each level requires.
+Note that increasing your lab speed does not help with the lab time event mission, so do not level it expecting progress there.
+Show all 99 rows
+Related pages
+Events
+Lab Upgrades
+Game Speed
+Milestones
+Perk Labs
+Relics
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-07-10) . Something out of date? Tell us in the Discord .

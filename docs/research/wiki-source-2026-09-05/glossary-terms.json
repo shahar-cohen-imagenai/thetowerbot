@@ -1,0 +1,1115 @@
+[
+  {
+    "id": "coins",
+    "term": "Coins",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#coins",
+    "definition_verified": false
+  },
+  {
+    "id": "cash",
+    "term": "Cash",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#cash",
+    "definition_verified": false
+  },
+  {
+    "id": "gems",
+    "term": "Gems",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#gems",
+    "definition_verified": false
+  },
+  {
+    "id": "stones",
+    "term": "Stones",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#stones",
+    "definition_verified": false
+  },
+  {
+    "id": "cells",
+    "term": "Cells",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#cells",
+    "definition_verified": false
+  },
+  {
+    "id": "shards",
+    "term": "Shards",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#shards",
+    "definition_verified": false
+  },
+  {
+    "id": "medals",
+    "term": "Medals",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#medals",
+    "definition_verified": false
+  },
+  {
+    "id": "bits",
+    "term": "Bits",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#bits",
+    "definition_verified": false
+  },
+  {
+    "id": "bob",
+    "term": "Bob",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#bob",
+    "definition_verified": false
+  },
+  {
+    "id": "ad-gems",
+    "term": "Ad gems",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#ad-gems",
+    "definition_verified": false
+  },
+  {
+    "id": "interest",
+    "term": "Interest",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#interest",
+    "definition_verified": false
+  },
+  {
+    "id": "suffixes",
+    "term": "Number suffixes (q vs Q)",
+    "domain": "Currencies & Resources",
+    "source_url": "https://www.tower-hub.com/glossary#suffixes",
+    "definition_verified": false
+  },
+  {
+    "id": "ehp",
+    "term": "eHP",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#ehp",
+    "definition_verified": false
+  },
+  {
+    "id": "edamage",
+    "term": "eDamage",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#edamage",
+    "definition_verified": false
+  },
+  {
+    "id": "crit",
+    "term": "Crit / Super Crit",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#crit",
+    "definition_verified": false
+  },
+  {
+    "id": "multishot",
+    "term": "Multishot",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#multishot",
+    "definition_verified": false
+  },
+  {
+    "id": "rapid-fire",
+    "term": "Rapid Fire",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#rapid-fire",
+    "definition_verified": false
+  },
+  {
+    "id": "bounce-shot",
+    "term": "Bounce Shot",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#bounce-shot",
+    "definition_verified": false
+  },
+  {
+    "id": "dpm",
+    "term": "Damage / Meter (DPM)",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#dpm",
+    "definition_verified": false
+  },
+  {
+    "id": "defense",
+    "term": "Defense % vs Defense Absolute",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#defense",
+    "definition_verified": false
+  },
+  {
+    "id": "wall",
+    "term": "Wall",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#wall",
+    "definition_verified": false
+  },
+  {
+    "id": "thorns",
+    "term": "Thorns",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#thorns",
+    "definition_verified": false
+  },
+  {
+    "id": "orbs",
+    "term": "Orbs",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#orbs",
+    "definition_verified": false
+  },
+  {
+    "id": "land-mines",
+    "term": "Land Mines",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#land-mines",
+    "definition_verified": false
+  },
+  {
+    "id": "shockwave",
+    "term": "Shockwave",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#shockwave",
+    "definition_verified": false
+  },
+  {
+    "id": "knockback",
+    "term": "Knockback",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#knockback",
+    "definition_verified": false
+  },
+  {
+    "id": "death-defy",
+    "term": "Death Defy",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#death-defy",
+    "definition_verified": false
+  },
+  {
+    "id": "cc",
+    "term": "Crowd Control (CC)",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#cc",
+    "definition_verified": false
+  },
+  {
+    "id": "shock",
+    "term": "Shock",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#shock",
+    "definition_verified": false
+  },
+  {
+    "id": "coin-bonus",
+    "term": "Coin Bonus",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#coin-bonus",
+    "definition_verified": false
+  },
+  {
+    "id": "free-upgrades",
+    "term": "Free Upgrades",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#free-upgrades",
+    "definition_verified": false
+  },
+  {
+    "id": "wave-skip-stat",
+    "term": "Wave Skip",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#wave-skip-stat",
+    "definition_verified": false
+  },
+  {
+    "id": "els",
+    "term": "Enemy Level Skip (ELS)",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#els",
+    "definition_verified": false
+  },
+  {
+    "id": "heat-up",
+    "term": "Heat-up",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#heat-up",
+    "definition_verified": false
+  },
+  {
+    "id": "recovery",
+    "term": "Recovery Packages",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#recovery",
+    "definition_verified": false
+  },
+  {
+    "id": "game-speed",
+    "term": "Game Speed",
+    "domain": "Combat & Stats",
+    "source_url": "https://www.tower-hub.com/glossary#game-speed",
+    "definition_verified": false
+  },
+  {
+    "id": "uw",
+    "term": "Ultimate Weapon (UW)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#uw",
+    "definition_verified": false
+  },
+  {
+    "id": "uw-plus",
+    "term": "UW+",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#uw-plus",
+    "definition_verified": false
+  },
+  {
+    "id": "gt",
+    "term": "Golden Tower (GT)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#gt",
+    "definition_verified": false
+  },
+  {
+    "id": "golden-combo",
+    "term": "Golden Combo (GT+)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#golden-combo",
+    "definition_verified": false
+  },
+  {
+    "id": "bh",
+    "term": "Black Hole (BH)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#bh",
+    "definition_verified": false
+  },
+  {
+    "id": "bh-gt-sync",
+    "term": "BH/GT Sync",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#bh-gt-sync",
+    "definition_verified": false
+  },
+  {
+    "id": "dw",
+    "term": "Death Wave (DW)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#dw",
+    "definition_verified": false
+  },
+  {
+    "id": "cl",
+    "term": "Chain Lightning (CL)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#cl",
+    "definition_verified": false
+  },
+  {
+    "id": "cf",
+    "term": "Chrono Field (CF)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#cf",
+    "definition_verified": false
+  },
+  {
+    "id": "chrono-loop",
+    "term": "Chrono Loop (CF+)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#chrono-loop",
+    "definition_verified": false
+  },
+  {
+    "id": "sm",
+    "term": "Smart Missiles (SM)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#sm",
+    "definition_verified": false
+  },
+  {
+    "id": "ps",
+    "term": "Poison Swamp (PS)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#ps",
+    "definition_verified": false
+  },
+  {
+    "id": "ilm",
+    "term": "Inner Land Mines (ILM)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#ilm",
+    "definition_verified": false
+  },
+  {
+    "id": "sl",
+    "term": "Spotlight (SL)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#sl",
+    "definition_verified": false
+  },
+  {
+    "id": "uw-stats",
+    "term": "UW stone upgrades",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#uw-stats",
+    "definition_verified": false
+  },
+  {
+    "id": "uw-substats",
+    "term": "UW substats",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#uw-substats",
+    "definition_verified": false
+  },
+  {
+    "id": "perma",
+    "term": "Perma (BH / GT / CF)",
+    "domain": "Ultimate Weapons",
+    "source_url": "https://www.tower-hub.com/glossary#perma",
+    "definition_verified": false
+  },
+  {
+    "id": "basic",
+    "term": "Basic",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#basic",
+    "definition_verified": false
+  },
+  {
+    "id": "fast",
+    "term": "Fast",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#fast",
+    "definition_verified": false
+  },
+  {
+    "id": "tank",
+    "term": "Tank",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#tank",
+    "definition_verified": false
+  },
+  {
+    "id": "ranged",
+    "term": "Ranged",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#ranged",
+    "definition_verified": false
+  },
+  {
+    "id": "boss",
+    "term": "Boss",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#boss",
+    "definition_verified": false
+  },
+  {
+    "id": "protector",
+    "term": "Protector",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#protector",
+    "definition_verified": false
+  },
+  {
+    "id": "ray",
+    "term": "Ray",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#ray",
+    "definition_verified": false
+  },
+  {
+    "id": "scatter",
+    "term": "Scatter",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#scatter",
+    "definition_verified": false
+  },
+  {
+    "id": "vampire",
+    "term": "Vampire",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#vampire",
+    "definition_verified": false
+  },
+  {
+    "id": "elites",
+    "term": "Elites",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#elites",
+    "definition_verified": false
+  },
+  {
+    "id": "fleet",
+    "term": "Fleet",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#fleet",
+    "definition_verified": false
+  },
+  {
+    "id": "mass",
+    "term": "Mass",
+    "domain": "Enemies",
+    "source_url": "https://www.tower-hub.com/glossary#mass",
+    "definition_verified": false
+  },
+  {
+    "id": "workshop",
+    "term": "Workshop",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#workshop",
+    "definition_verified": false
+  },
+  {
+    "id": "enhancements",
+    "term": "Workshop Enhancements",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#enhancements",
+    "definition_verified": false
+  },
+  {
+    "id": "perks",
+    "term": "Perks",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#perks",
+    "definition_verified": false
+  },
+  {
+    "id": "tradeoff-perks",
+    "term": "Trade-off Perks",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#tradeoff-perks",
+    "definition_verified": false
+  },
+  {
+    "id": "coin-tradeoff",
+    "term": "Coin Trade-off Perk",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#coin-tradeoff",
+    "definition_verified": false
+  },
+  {
+    "id": "cash-tradeoff",
+    "term": "Cash Trade-off Perk",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#cash-tradeoff",
+    "definition_verified": false
+  },
+  {
+    "id": "5050-tradeoff",
+    "term": "50/50 Damage Trade-off Perk",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#5050-tradeoff",
+    "definition_verified": false
+  },
+  {
+    "id": "boss-tradeoff",
+    "term": "Boss Trade-off Perk",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#boss-tradeoff",
+    "definition_verified": false
+  },
+  {
+    "id": "perk-bans",
+    "term": "Perk Bans / Auto-pick",
+    "domain": "Workshop & Perks",
+    "source_url": "https://www.tower-hub.com/glossary#perk-bans",
+    "definition_verified": false
+  },
+  {
+    "id": "cards",
+    "term": "Cards",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#cards",
+    "definition_verified": false
+  },
+  {
+    "id": "card-mastery",
+    "term": "Card Mastery",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-mastery",
+    "definition_verified": false
+  },
+  {
+    "id": "card-presets",
+    "term": "Card Presets",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-presets",
+    "definition_verified": false
+  },
+  {
+    "id": "card-damage",
+    "term": "Damage / Attack Speed / Critical Chance Cards",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-damage",
+    "definition_verified": false
+  },
+  {
+    "id": "card-health",
+    "term": "Health / Health Regen / Extra Defense Cards",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-health",
+    "definition_verified": false
+  },
+  {
+    "id": "card-econ",
+    "term": "Cash / Coins / Critical Coin Cards",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-econ",
+    "definition_verified": false
+  },
+  {
+    "id": "card-range",
+    "term": "Range Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-range",
+    "definition_verified": false
+  },
+  {
+    "id": "card-slow-aura",
+    "term": "Slow Aura Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-slow-aura",
+    "definition_verified": false
+  },
+  {
+    "id": "card-enemy-balance",
+    "term": "Enemy Balance Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-enemy-balance",
+    "definition_verified": false
+  },
+  {
+    "id": "card-fortress",
+    "term": "Fortress Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-fortress",
+    "definition_verified": false
+  },
+  {
+    "id": "card-free-upgrades",
+    "term": "Free Upgrades Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-free-upgrades",
+    "definition_verified": false
+  },
+  {
+    "id": "card-extra-orb",
+    "term": "Extra Orb Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-extra-orb",
+    "definition_verified": false
+  },
+  {
+    "id": "card-plasma-cannon",
+    "term": "Plasma Cannon Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-plasma-cannon",
+    "definition_verified": false
+  },
+  {
+    "id": "card-wave-skip",
+    "term": "Wave Skip Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-wave-skip",
+    "definition_verified": false
+  },
+  {
+    "id": "card-intro-sprint",
+    "term": "Intro Sprint Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-intro-sprint",
+    "definition_verified": false
+  },
+  {
+    "id": "card-land-mine-stun",
+    "term": "Land Mine Stun Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-land-mine-stun",
+    "definition_verified": false
+  },
+  {
+    "id": "card-recovery",
+    "term": "Recovery Package Chance Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-recovery",
+    "definition_verified": false
+  },
+  {
+    "id": "card-death-ray",
+    "term": "Death Ray Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-death-ray",
+    "definition_verified": false
+  },
+  {
+    "id": "card-energy-net",
+    "term": "Energy Net Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-energy-net",
+    "definition_verified": false
+  },
+  {
+    "id": "card-super-tower",
+    "term": "Super Tower Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-super-tower",
+    "definition_verified": false
+  },
+  {
+    "id": "card-second-wind",
+    "term": "Second Wind Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-second-wind",
+    "definition_verified": false
+  },
+  {
+    "id": "card-demon-mode",
+    "term": "Demon Mode Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-demon-mode",
+    "definition_verified": false
+  },
+  {
+    "id": "card-energy-shield",
+    "term": "Energy Shield Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-energy-shield",
+    "definition_verified": false
+  },
+  {
+    "id": "card-wave-accelerator",
+    "term": "Wave Accelerator Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-wave-accelerator",
+    "definition_verified": false
+  },
+  {
+    "id": "card-berserker",
+    "term": "Berserker Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-berserker",
+    "definition_verified": false
+  },
+  {
+    "id": "card-ultimate-crit",
+    "term": "Ultimate Crit Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-ultimate-crit",
+    "definition_verified": false
+  },
+  {
+    "id": "card-nuke",
+    "term": "Nuke Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-nuke",
+    "definition_verified": false
+  },
+  {
+    "id": "card-aoe",
+    "term": "Area of Effect Card",
+    "domain": "Cards",
+    "source_url": "https://www.tower-hub.com/glossary#card-aoe",
+    "definition_verified": false
+  },
+  {
+    "id": "modules",
+    "term": "Modules",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#modules",
+    "definition_verified": false
+  },
+  {
+    "id": "substats",
+    "term": "Substats",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#substats",
+    "definition_verified": false
+  },
+  {
+    "id": "ancestral",
+    "term": "Ancestral",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#ancestral",
+    "definition_verified": false
+  },
+  {
+    "id": "assist-modules",
+    "term": "Assist Modules",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#assist-modules",
+    "definition_verified": false
+  },
+  {
+    "id": "module-merging",
+    "term": "Module Merging",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#module-merging",
+    "definition_verified": false
+  },
+  {
+    "id": "astral-deliverance",
+    "term": "Astral Deliverance (AD)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#astral-deliverance",
+    "definition_verified": false
+  },
+  {
+    "id": "being-annihilator",
+    "term": "Being Annihilator (BA)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#being-annihilator",
+    "definition_verified": false
+  },
+  {
+    "id": "anti-cube-portal",
+    "term": "Anti-Cube Portal (ACP)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#anti-cube-portal",
+    "definition_verified": false
+  },
+  {
+    "id": "sharp-fortitude",
+    "term": "Sharp Fortitude (SF)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#sharp-fortitude",
+    "definition_verified": false
+  },
+  {
+    "id": "bhd",
+    "term": "Black Hole Digestor (BHD)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#bhd",
+    "definition_verified": false
+  },
+  {
+    "id": "project-funding",
+    "term": "Project Funding (PF)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#project-funding",
+    "definition_verified": false
+  },
+  {
+    "id": "dimension-core",
+    "term": "Dimension Core (DC)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#dimension-core",
+    "definition_verified": false
+  },
+  {
+    "id": "mvn",
+    "term": "Multiverse Nexus (MVN)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#mvn",
+    "definition_verified": false
+  },
+  {
+    "id": "galaxy-compressor",
+    "term": "Galaxy Compressor (GComp)",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#galaxy-compressor",
+    "definition_verified": false
+  },
+  {
+    "id": "guardian",
+    "term": "Guardian",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#guardian",
+    "definition_verified": false
+  },
+  {
+    "id": "chip-ally",
+    "term": "Ally Chip",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#chip-ally",
+    "definition_verified": false
+  },
+  {
+    "id": "chip-attack",
+    "term": "Attack Chip",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#chip-attack",
+    "definition_verified": false
+  },
+  {
+    "id": "chip-bounty",
+    "term": "Bounty Chip",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#chip-bounty",
+    "definition_verified": false
+  },
+  {
+    "id": "chip-fetch",
+    "term": "Fetch Chip",
+    "domain": "Modules & Guardian",
+    "source_url": "https://www.tower-hub.com/glossary#chip-fetch",
+    "definition_verified": false
+  },
+  {
+    "id": "bots",
+    "term": "Bots",
+    "domain": "Bots",
+    "source_url": "https://www.tower-hub.com/glossary#bots",
+    "definition_verified": false
+  },
+  {
+    "id": "flame-bot",
+    "term": "Flame Bot",
+    "domain": "Bots",
+    "source_url": "https://www.tower-hub.com/glossary#flame-bot",
+    "definition_verified": false
+  },
+  {
+    "id": "thunder-bot",
+    "term": "Thunder Bot",
+    "domain": "Bots",
+    "source_url": "https://www.tower-hub.com/glossary#thunder-bot",
+    "definition_verified": false
+  },
+  {
+    "id": "golden-bot",
+    "term": "Golden Bot",
+    "domain": "Bots",
+    "source_url": "https://www.tower-hub.com/glossary#golden-bot",
+    "definition_verified": false
+  },
+  {
+    "id": "amplify-bot",
+    "term": "Amplify Bot",
+    "domain": "Bots",
+    "source_url": "https://www.tower-hub.com/glossary#amplify-bot",
+    "definition_verified": false
+  },
+  {
+    "id": "bot-respec",
+    "term": "Bot Respec",
+    "domain": "Bots",
+    "source_url": "https://www.tower-hub.com/glossary#bot-respec",
+    "definition_verified": false
+  },
+  {
+    "id": "labs",
+    "term": "Labs",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#labs",
+    "definition_verified": false
+  },
+  {
+    "id": "lab-speedups",
+    "term": "Lab Speed-ups",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#lab-speedups",
+    "definition_verified": false
+  },
+  {
+    "id": "lab-rushing",
+    "term": "Lab Rushing (gems)",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#lab-rushing",
+    "definition_verified": false
+  },
+  {
+    "id": "buy-multiplier",
+    "term": "Buy Multiplier",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#buy-multiplier",
+    "definition_verified": false
+  },
+  {
+    "id": "bc-reduction",
+    "term": "Battle Condition Reduction",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#bc-reduction",
+    "definition_verified": false
+  },
+  {
+    "id": "milestones",
+    "term": "Milestones",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#milestones",
+    "definition_verified": false
+  },
+  {
+    "id": "tier",
+    "term": "Tier",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#tier",
+    "definition_verified": false
+  },
+  {
+    "id": "vault",
+    "term": "Vault / Harmony Tree",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#vault",
+    "definition_verified": false
+  },
+  {
+    "id": "auto-restart",
+    "term": "Auto Restart",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#auto-restart",
+    "definition_verified": false
+  },
+  {
+    "id": "relics",
+    "term": "Relics",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#relics",
+    "definition_verified": false
+  },
+  {
+    "id": "events",
+    "term": "Events",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#events",
+    "definition_verified": false
+  },
+  {
+    "id": "event-shop",
+    "term": "Event Shop",
+    "domain": "Labs & Progression",
+    "source_url": "https://www.tower-hub.com/glossary#event-shop",
+    "definition_verified": false
+  },
+  {
+    "id": "tournaments",
+    "term": "Tournaments",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#tournaments",
+    "definition_verified": false
+  },
+  {
+    "id": "leagues",
+    "term": "Leagues",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#leagues",
+    "definition_verified": false
+  },
+  {
+    "id": "bc",
+    "term": "Battle Conditions (BC)",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#bc",
+    "definition_verified": false
+  },
+  {
+    "id": "bc-armored",
+    "term": "Armored Enemies (BC)",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#bc-armored",
+    "definition_verified": false
+  },
+  {
+    "id": "bc-boss-ultimate",
+    "term": "Boss's Ultimate (BC)",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#bc-boss-ultimate",
+    "definition_verified": false
+  },
+  {
+    "id": "bc-basics-ultimate",
+    "term": "Basic's Ultimate (BC)",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#bc-basics-ultimate",
+    "definition_verified": false
+  },
+  {
+    "id": "bracket-luck",
+    "term": "Bracket luck",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#bracket-luck",
+    "definition_verified": false
+  },
+  {
+    "id": "respec",
+    "term": "Respec",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#respec",
+    "definition_verified": false
+  },
+  {
+    "id": "overheal",
+    "term": "Overheal",
+    "domain": "Tournaments",
+    "source_url": "https://www.tower-hub.com/glossary#overheal",
+    "definition_verified": false
+  },
+  {
+    "id": "gc",
+    "term": "Glass Cannon (GC)",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#gc",
+    "definition_verified": false
+  },
+  {
+    "id": "ehp-build",
+    "term": "eHP build",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#ehp-build",
+    "definition_verified": false
+  },
+  {
+    "id": "hybrid",
+    "term": "Hybrid",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#hybrid",
+    "definition_verified": false
+  },
+  {
+    "id": "blender",
+    "term": "Blender",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#blender",
+    "definition_verified": false
+  },
+  {
+    "id": "orbless",
+    "term": "Orbless",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#orbless",
+    "definition_verified": false
+  },
+  {
+    "id": "farming",
+    "term": "Farming run",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#farming",
+    "definition_verified": false
+  },
+  {
+    "id": "push",
+    "term": "Push",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#push",
+    "definition_verified": false
+  },
+  {
+    "id": "afk",
+    "term": "AFK-friendly",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#afk",
+    "definition_verified": false
+  },
+  {
+    "id": "creator-code",
+    "term": "Creator code",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#creator-code",
+    "definition_verified": false
+  },
+  {
+    "id": "whale",
+    "term": "Whale",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#whale",
+    "definition_verified": false
+  },
+  {
+    "id": "theorycrafting",
+    "term": "Theorycrafting",
+    "domain": "Builds & Community Slang",
+    "source_url": "https://www.tower-hub.com/glossary#theorycrafting",
+    "definition_verified": false
+  }
+]

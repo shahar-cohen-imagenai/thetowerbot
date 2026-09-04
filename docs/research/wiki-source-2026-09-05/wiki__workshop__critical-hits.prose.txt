@@ -1,0 +1,47 @@
+Critical hits give your tower a chance to deal bonus damage with each projectile. The two core stats behind them — Critical Chance and Critical Factor — are both upgraded through the Workshop and are available from the very start of the game.
+On this page
+Overview
+Workshop
+Critical Chance
+Workshop — Critical Factor
+Costs — Critical Chance
+Costs — Critical Factor
+Workshop Enhancement — Critical Factor
+Lab — Critical Factor
+Description
+Overview
+Criticals provide a chance to deal bonus damage to enemies. Rather than being a separate damage type, criticals modify your existing projectile damage, making them a foundational part of any damage-focused build.
+Workshop
+Both critical stats are unlocked in the Workshop for free at the start of the game. You do not need to reach any milestone or spend coins to gain access to them — they are available to upgrade immediately.
+Critical Chance
+Critical Chance is the probability that each individual projectile will deal critical damage. The Workshop offers 79 levels, with each level adding 1% to your chance, for a maximum of 80% from the Workshop alone. You can push this higher using the Critical Chance Card (which adds up to 11%) and the Critical Chance Cannon Module Effect. If your total Critical Chance exceeds 100%, the overflow only affects Ultimate Weapon damage calculations.
+Workshop — Critical Factor
+Critical Factor is the damage multiplier applied when a critical hit lands. It starts at a base of 1.2x and has 150 Workshop levels, each adding 0.1 to the multiplier, reaching a maximum of 16.2x. This stat is also used to calculate Ultimate Weapon critical hits when you have the Ultimate Crit card equipped. The maximum can be raised further through the Critical Factor Lab, the Critical Factor Cannon Module Effect, and the Critical Factor Enhancement.
+Costs — Critical Chance
+The cost table below shows the coin cost for each level of Critical Chance in the Workshop.
+Show all 79 rows
+Costs — Critical Factor
+The cost table below shows the coin cost for each level of Critical Factor in the Workshop.
+Show all 16 rows
+Workshop Enhancement — Critical Factor
+The Critical Factor Enhancement becomes available after you have spent 500 billion coins on enhancements in total. Unlocking it immediately adds 1.0x to your Critical Factor, and each of its 400 levels adds a further 0.1, for a maximum bonus of x5. The level-by-level costs are shown in the table below.
+Show all 41 rows
+Lab — Critical Factor
+The Critical Factor lab is unlocked through Milestones at tier 1 wave 30. It has 99 levels, and each level increases both the per-level increment of the Critical Factor Workshop upgrade and the maximum value the Workshop can reach. See the table below for the research times and costs.
+Show all 99 rows
+Description
+The Critical Workshop provides bonus damage to your tower's projectiles, and its stats also feed into Ultimate Weapon and Land Mine damage calculations. Critical Chance determines how often projectiles crit, while Critical Factor determines how much extra damage a crit deals. Both stats can be extended beyond their Workshop caps through cards, Cannon Module Effects, the Critical Factor Lab, and the Critical Factor Enhancement.
+Related pages
+Amplify Bot
+Attack Speed
+Attack Upgrades
+Black Hole
+Boss Labs
+Bot Bot
+Bounce Shot
+Buy multiplier
+Card Presets
+Cards
+Cash Bonus
+Cash Per Wave
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-23) . Something out of date? Tell us in the Discord .

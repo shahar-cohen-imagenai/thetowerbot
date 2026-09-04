@@ -1,0 +1,18 @@
+Reroll Shards are the currency you spend to reroll the sub-stats on your modules, and bosses are your main source of them. The Reroll Shards lab boosts how many of those shards each boss drops, which directly speeds up how often you can reroll module effects.
+Reroll Shards
+You unlock this lab through Milestones by reaching wave 70 on tier 4. Once researched, it increases the number of reroll shards that bosses drop when killed.
+The lab has 100 levels, and each level adds one extra reroll shard per boss drop, for a total of 100 additional shards at max level. The per-level costs are listed in the table below.
+This lab matters most once you are actively farming and rerolling modules, since shard income from bosses is the bottleneck on how many reroll attempts you get. If you are still early and not yet rerolling sub-stats, the lab can wait; once module optimisation becomes your focus, the extra shards per boss add up quickly over a run.
+Level Time Cost Value
+1 1d 9h 20m 900,000 +1
+2 1d 10h 11m 2,920,000 +2
+3 1d 11h 4m 13,940,000 +3
+4 1d 11h 59m 39,800,000 +4
+5 1d 12h 56m 85,430,000 +5
+6 1d 13h 54m 115,260,000 +6
+7 1d 14h 55m 253,390,000 +7
+8 1d 15h 57m 383,680,000 +8
+9 1d 17h 0m 549,810,000 +9
+10 1d 18h 5m 755,280,000 +10
+Show all 100 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-22) . Something out of date? Tell us in the Discord .

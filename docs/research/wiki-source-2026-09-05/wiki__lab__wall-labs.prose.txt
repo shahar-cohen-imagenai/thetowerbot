@@ -1,0 +1,33 @@
+Wall labs are a set of research options that strengthen the Wall, a defensive structure that absorbs enemy hits before they reach your tower. Each lab improves a different aspect of the Wall, from raw health and rebuild speed to regeneration, thorn damage and temporary invincibility. All Wall labs are unlocked through Milestones at specific tiers and waves.
+On this page
+Lab — Wall Health
+Lab — Wall Rebuild
+Lab — Wall Regen
+Lab — Wall Thorns
+Lab — Wall Invincibility
+Lab — Wall Fortification
+Lab
+Lab — Wall Health
+Wall Health has 50 upgrades. Each level increases the maximum health of the Wall, letting it soak up more damage before it breaks. The bonus from this lab is added on top of the Wall health value you have in the workshop. See the cost table below for per-level details.
+Show all 50 rows
+Lab — Wall Rebuild
+Wall Rebuild has 20 upgrades. Each level reduces the time it takes for the Wall to rebuild after being destroyed, measured in seconds. This reduction is applied to the rebuild time set by your workshop value. A faster rebuild means less time spent without your Wall's protection, so this lab matters most once enemies are breaking the Wall regularly.
+Show all 20 rows
+Lab — Wall Regen
+Wall Regen has 30 upgrades. It lets the Wall regenerate health based on a percentage of your tower's Health Regen stat. This lab is also a requirement for making use of Wall Fortification, since the extra health granted beyond the Wall's maximum can only be healed through Wall Regen.
+Show all 30 rows
+Lab — Wall Thorns
+Wall Thorns has 20 levels. It allows the Wall to deal thorn damage to enemies that attack it, calculated as a percentage of your tower's thorn damage. If your build already invests in thorns, this lab lets the Wall contribute damage while it tanks hits.
+Show all 20 rows
+Lab — Wall Invincibility
+Wall Invincibility has 10 upgrades. After the Wall rebuilds, it becomes invincible for a number of seconds, up to a maximum of 10 seconds at the highest level. During this window enemies cannot damage the Wall, giving it time to start regenerating before it takes hits again.
+Lab — Wall Fortification
+Wall Fortification is unlocked in Milestones at tier 14 wave 60 and has 60 levels. It allows the Wall to regenerate beyond its normal maximum health, building up an oversized health pool. Because the extra health is gained through regeneration, this lab requires Wall Regen to heal any health above the maximum.
+Show all 60 rows
+Lab
+All Wall labs are unlocked through Milestones. Wall Health and Wall Rebuild become available at tier 8 wave 10; Wall Health adds to your workshop value while Wall Rebuild reduces the workshop rebuild time. Wall Regen and Wall Thorns unlock at tier 10 wave 70, with Wall Regen applying a percentage of tower regen to the Wall and Wall Thorns letting the Wall reflect a percentage of tower thorns when attacked. Wall Invincibility unlocks at tier 12 wave 10 and makes the Wall briefly invincible after rebuilding. Wall Fortification unlocks at tier 14 wave 60 and lets the Wall regenerate past its maximum health, provided you also have Wall Regen.
+Related pages
+Health Regen
+Milestones
+Thorn Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-07-24) . Something out of date? Tell us in the Discord .

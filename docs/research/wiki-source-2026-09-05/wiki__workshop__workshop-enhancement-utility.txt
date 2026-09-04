@@ -1,0 +1,81 @@
+The Utility tab in Workshop Enhancements contains upgrades that improve your economy, free upgrade frequency, package recovery, and enemy level skipping. Each enhancement has its own unlock requirement and maximum level, and all of them increase by 0.01x per level after being unlocked.
+On this page
+— Cash Bonus
+— Coin Bonus
+— Cells/Kill Bonus
+— Free Upgrades
+— Packages
+— Enemy Level Skips
+— Cash Bonus
+Cash Bonus is the only Utility enhancement that costs nothing to unlock — it becomes available automatically once you complete the Workshop Enhancement Labs. Unlocking it immediately raises your Cash Bonus multiplier by x1, and each additional level adds 0.01x. Beyond the multiplier itself, every upgrade also increases your cash per wave, interest percentage, and maximum interest per wave by 1% each. You can level it up to 400 times, reaching a maximum bonus of 5x.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 6.53B 55.54B
+20 1.20x 48.30B 217.10B
+30 1.30x 313.07B 1.95T
+40 1.40x 2.54T 14.48T
+50 1.50x 9.59T 73.23T
+60 1.60x 60.08T 385.56T
+70 1.70x 216.08T 1.72q
+80 1.80x 580.27T 5.66q
+90 1.90x 1.31q 15.10q
+Show all 41 rows
+— Coin Bonus
+To unlock Coin Bonus, you need to have spent 50 billion coins on Utility enhancements. Once unlocked, it raises your Coin Bonus multiplier by x1 and gains 0.01x per level, capping at level 200 for a 3x bonus. This enhancement is particularly valuable because it affects both your tier bonus and your Coins per Kill, meaning the overall benefit is effectively squared.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+2 1.02x 6.25B 11.25B
+3 1.03x 12.46B 23.71B
+4 1.04x 27.42B 51.14B
+5 1.05x 54.50B 105.64B
+6 1.06x 96.85B 202.49B
+7 1.07x 157.45B 359.94B
+8 1.08x 239.17B 599.11B
+9 1.09x 344.79B 943.90B
+10 1.10x 477.01B 1.42T
+Show all 200 rows
+— Cells/Kill Bonus
+Cells/Kill Bonus requires 500 billion coins spent on Utility enhancements before it becomes available. It boosts your Cells per Kill multiplier by x1 upon unlocking and by 0.01x per level afterward, with a maximum level of 200 for a 3x bonus.
+— Free Upgrades
+Free Upgrades is locked behind a 5 trillion coin spending requirement on Utility enhancements. When unlocked, it increases all Free Upgrades by x1, with each level adding another 0.01x. The maximum level is 100, which gives you a 2x bonus.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+2 1.02x 6.05B 11.05B
+3 1.03x 22.25B 33.30B
+4 1.04x 95.56B 128.85B
+5 1.05x 299.27B 428.12B
+6 1.06x 739.39B 1.17T
+7 1.07x 1.56T 2.72T
+8 1.08x 2.92T 5.65T
+9 1.09x 5.05T 10.69T
+10 1.10x 8.18T 18.87T
+Show all 100 rows
+— Packages
+The Packages enhancement requires 50 trillion coins spent on Utility enhancements to unlock. It increases both your Max Recovery Package and Recovery Amount by x1 when first unlocked, then by 0.01x per level. You can level it up to 300 times, reaching a maximum bonus of 4x.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 6.53B 55.54B
+20 1.20x 48.30B 217.10B
+30 1.30x 313.07B 1.95T
+40 1.40x 2.54T 14.48T
+50 1.50x 9.59T 73.23T
+60 1.60x 60.08T 385.56T
+70 1.70x 216.08T 1.72q
+80 1.80x 580.27T 5.66q
+90 1.90x 1.31q 15.10q
+Show all 31 rows
+— Enemy Level Skips
+Enemy Level Skips is the most expensive Utility enhancement to unlock, requiring 500 trillion coins spent on Utility enhancements. It boosts the Enemy Health and Enemy Damage Level Skip multiplier by x1 upon unlocking and by 0.01x per level, with a maximum level of 60 for a 1.6x bonus.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+2 1.02x 15.50B 20.50B
+3 1.03x 202.98B 223.48B
+4 1.04x 1.13T 1.36T
+5 1.05x 3.89T 5.24T
+6 1.06x 10.14T 15.38T
+7 1.07x 22.19T 37.57T
+8 1.08x 43.05T 80.63T
+9 1.09x 76.44T 157.07T
+10 1.10x 126.85T 283.91T
+Show all 60 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

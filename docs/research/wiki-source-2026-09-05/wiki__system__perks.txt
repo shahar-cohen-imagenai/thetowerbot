@@ -1,0 +1,188 @@
+Perks are temporary advantages you earn during a round. They are one of the main ways your tower grows stronger as a run progresses, offering bonuses to damage, health, coins, game speed, and more. Some perks come with trade-offs, while others can unlock entirely new ultimate weapons mid-run.
+On this page
+Description
+Unlocking Perks
+Waves Required
+Perk Choice
+Standard Perk Math
+List of Perks
+Standard Perks
+Ultimate Weapon Perks
+Random ultimate weapon stats
+Trade-off Perks
+Perk Labs — Unlock Perks
+Perk Labs — Waves Required
+Perk Labs — Standard Perk Bonus
+Perk Labs — First Perk Choice
+Perk Labs — Improve Trade-Off Perks
+Perk Labs — Auto Perk Pick
+Perk Labs — Perk Option Quantity
+Perk Labs — Ban Perks
+Perk Labs — Auto Pick Ranking
+Perk Labs
+Description
+Perks are advantages earned during a round. They provide bonuses that last for the rest of that run and are lost when the round ends.
+Unlocking Perks
+Before you can earn perks, you need to unlock them through the lab system. The first step is completing the Unlock Perks lab, which becomes available in Milestones at tier 2 wave 150. Once that lab is finished, perks will start appearing during your rounds.
+Waves Required
+Your first perk becomes available at wave 200. The wave requirement increases as you pick more perks: after selecting 20 perks the base rises to 250, after 30 perks it goes to 300, and after 40 perks it reaches 350.
+You can lower the base requirement by upgrading the Waves Required lab and by picking the Perk Wave Requirement perk during a run. The formula for calculating the first perk at each base wave count is:
+Waves Required = (Base Waves Required - Waves Required lab) × (1 - (Perk Wave Required Perk × (1 + Standard Perk Bonus / 100)))
+If the result is a decimal, round down. You can then multiply that rounded number by the number of perks to find later thresholds. For example, with 8% Standard Perk Bonus and 3 PWR lab levels giving 64.8% reduction: (200 - 3) × (1 - 0.648) = 69.344, which rounds down to 69 waves required.
+Perk Choice
+When a perk is offered, you initially choose between 2 randomly generated options. The Perk Option Quantity lab can raise this to a maximum of 4 choices. It is possible for every option in a set to be a trade-off perk, even when other perk types are still available.
+The First Perk Choice lab lets you guarantee a specific standard perk appears as the top option in your first set of choices each round. When Auto Pick Perk is active, it always selects the top option from the list, which means it will pick your First Perk Choice if one is set.
+Standard Perk Math
+Most standard perks can be picked multiple times in a single round. The game uses two different formulas depending on whether the perk is additive or multiplicative.
+For additive perks (such as Def % and Perk Wave Required): Total Bonus = Base Value × Quantity × (1 + Standard Perk Bonus)
+For multiplicative perks (such as Coin Bonus, Health, and Damage): Total Bonus = (1 + Base Value × Quantity) × (1 + Standard Perk Bonus)
+List of Perks
+There are three categories of perks. Standard perks have a 65% chance of appearing, ultimate weapon perks have a 20% chance, and trade-off perks have a 15% chance.
+Standard Perks
+Standard perks are the most common type. The Bounce Shot perk will not appear unless you have already unlocked Bounce Shot. The strength of standard perks can be increased through the Standard Perk Bonus lab.
+When the Standard Perk Bonus lab is maxed, the Game Speed perk increases to 1.25, bringing the maximum game speed to 6.25. The game displays this as 6.3 because game speed visually rounds to the tenths place.
+Perk Quantity
+x1.20 Max Health 5
+x1.15 Damage 5
+x1.15 All Coin Bonuses 5
+x1.15 Defense Absolute 5
+x1.15 Cash Bonus 5
+x1.75 Health Regen 5
+Interest x1.50 5
+Land Mine Damage x3.50 5
+Free Upgrade Chance for All +5.0% 5
+Defense Percent +4.00 5
+Show all 15 rows
+Ultimate Weapon Perks
+Ultimate weapon perks only appear if you have the corresponding ultimate weapon unlocked. If you unlock an ultimate weapon mid-run through the random ultimate weapon perk, its related perks become available for the rest of that run.
+The Golden Tower Bonus perk does not apply to the GT bonus submodule effect.
+Perk Quantity
+4 More Smart Missiles 1
+Swamp Radius x1.5 1
++1 Wave on Death Wave 1
+Extra Set of Inner Mines 1
+Golden Tower Bonus x1.5 1
+Chain Lightning Damage x2 1
+Chrono Field Duration +5s 1
+Black Hole Duration +12.0s 1
+Spotlight Damage Bonus x1.5 1
+Random ultimate weapon stats
+When you pick the random ultimate weapon perk, the game selects one ultimate weapon you do not currently own and gives you a semi-upgraded version for the rest of the run. Unlocking a weapon this way does not let you research labs for that weapon. For example, getting Poison Swamp from this perk will not let you research Swamp Stun or Swamp Radius.
+Module sub-stats that apply to the chosen weapon will still affect it. For instance, a +damage multiplier ILM sub-stat will increase the weapon's multiplier by the listed amount. Once you own every ultimate weapon, this perk is removed from the perk pool.
+Ultimate weapon Stone value 1st Effect 1st Amount 2nd Effect 2nd Amount 3rd Effect 3rd Amount
+Chain Lightning 700 Damage x46 Quantity 3 Chance 15.5%
+Smart Missles 741 Damage x42 Quantity 11 Cooldown 130s
+Death Wave 1009 Damage x46 Quantity 2 Cooldown 210s
+Chrono Field 1824 Duration 22s Speed Reduction 40% Cooldown 120s
+Inner Land Mines 600 Damage x16 Quantiy 5 Cooldown 130s
+Golden Tower 1639 Bonus x9.0 Duration 30s Cooldown 230s
+Poison Swamp 715 Damage x43 Duration 50s Cooldown 90s
+Black Hole 984 Size 50m Duration 20s Cooldown 130s
+Spotlight 2426 Bonus x27.6 Angle 45 Quantity 1
+Trade-off Perks
+Trade-off perks give a strong benefit at the cost of a penalty. The benefit side can be increased by upgrading the Improve Trade-off Perks lab. This lab does not affect the ranged enemy distance perk.
+Perk Quantity
+x1.50 Tower Damage, but Bosses Have 8x Health 1
+x1.80 coins, but Tower Max Health -70% 1
+Enemies Have -50% Health, but Tower Health Regen and Lifesteal -90% 1
+Enemies Damage -50%, but Tower Damage -50% 1
+Ranged Enemies Attack Distance Reduced, But Tower Ranged Enemies Damage x3 1
+Enemies Speed -40%, But Enemies Damage x2.5 1
+x12.00 Cash Per Wave, But Enemy Kill Don't Give Cash 1
+Tower Health Regen x8.00, But Tower Max Max Health -60% 1
+Boss Health -70%, But Boss Speed +50% 1
+Lifesteal x2.50, But Knockback force -70% 1
+Perk Labs — Unlock Perks
+This is the entry point for the entire perk system. It has 1 level and unlocks access to perks during rounds. Completing it also opens up all other perk-related labs.
+Level Time Cost Value
+1 3d 11h 19m 1,500,000 Unlocked
+Perk Labs — Waves Required
+Available after finishing Unlock Perks. This lab reduces the base number of waves needed before your next perk is offered. It has 100 levels. See the Waves Required section above for the full calculation.
+Level Time Cost Value
+1 0d 1h 39m 100K -1.00
+2 0d 5h 1m 220K -2.00
+3 0d 8h 33m 940K -3.00
+4 0d 12h 34m 5,26M -4.00
+5 0d 17h 29m 20,98M -5.00
+6 0d 23h 46m 63,1M -6.00
+7 1d 7h 57m 156,22M -7.00
+8 1d 18h 38m 336,94M -8.00
+9 2d 8h 29m 656,26M -9.00
+10 3d 2h 11m 1,18B -10.00
+Show all 100 rows
+Perk Labs — Standard Perk Bonus
+Available after finishing Unlock Perks. This lab adds a multiplier that increases the strength of all standard perks. The bonus is applied differently depending on whether the perk is additive or multiplicative.
+Multiplicative: (1 + perk base × quantity) × (1 + standard perk bonus) Additive: perk base × quantity × (1 + standard perk bonus)
+Level Time Cost Value
+1 0d 1h 39m 100,000 1%
+2 0d 5h 34m 280,000 2%
+3 0d 9h 39m 1,360,000 3%
+4 0d 14h 14m 7,840,000 4%
+5 0d 19h 42m 31,420,000 5%
+6 1d 2h 32m 94,600,000 6%
+7 1d 11h 17m 234,280,000 7%
+8 1d 22h 32m 505,360,000 8%
+9 2d 12h 56m 984,340,000 9%
+10 3d 7h 11m 1,770,000,000 10%
+Show all 25 rows
+Perk Labs — First Perk Choice
+Unlocked in Milestones at tier 2 wave 250 after completing Unlock Perks. This lab lets you pick a standard perk that is guaranteed to appear as the top option in your first perk selection each round. You can only set this outside of a run, from the top right corner of the home screen. It has 1 level.
+Level Time Cost Value
+1 4d 15h 6m 1,000,000,000 Unlocked
+Perk Labs — Improve Trade-Off Perks
+Unlocked in Milestones at tier 2 wave 400 after completing Unlock Perks. This lab adds a multiplier that improves the benefit portion of trade-off perks. It does not improve the ranged enemy distance trade-off. It has 10 levels.
+Level Time Cost Value
+1 1d 0h 59m 600,000,000 1%
+2 1d 14h 54m 700,030,000 2%
+3 2d 5h 0m 801,180,000 3%
+4 2d 19h 40m 910,140,000 4%
+5 3d 11h 24m 1,050,000,000 5%
+6 4d 4h 49m 1,250,000,000 6%
+7 5d 0h 38m 1,600,000,000 7%
+8 5d 23h 39m 2,200,000,000 8%
+9 7d 2h 46m 3,230,000,000 9%
+10 8d 10h 58m 4,920,000,000 10%
+Perk Labs — Auto Perk Pick
+Unlocked in Milestones at tier 4 wave 50 after completing Unlock Perks. This is a toggleable ability that automatically selects the first available perk when a new set is offered. You can toggle it during a run by tapping the perk bar at the top of the screen. If none of the offered perks are in your auto pick ranking, the first perk in the list is chosen. It has 1 level.
+Level Time Cost Value
+1 4d 23h 26m 100,000,000 Unlocked
+Perk Labs — Perk Option Quantity
+Unlocked in Milestones at tier 4 wave 80 after completing Unlock Perks. Each level of this lab increases the number of perk choices you see when a new set is offered. It has 2 levels, bringing the maximum to 4 options at a time.
+Level Time Cost Value
+1 4d 23h 26m 200,000,000 +1
+2 10d 4h 26m 2,000,000,000 +2
+Perk Labs — Ban Perks
+Unlocked in Milestones at tier 5 wave 40 after completing Unlock Perks. This lab lets you ban specific perks from appearing during your rounds. Bans are set from the home screen while you are not in a run. It has 8 levels.
+Level Time Cost Value
+1 2d 7h 33m 10.00M 1
+2 4d 15h 6m 100.00M 2
+3 9d 6h 13m 1.00B 3
+4 20d 19h 59m 15.00B 4
+5 41d 16h 0m 15m 100.00B 5
+6 83d 8h 0m 1.00T 6
+7 166d 15h 59m 100.00T 7
+8 333d 8h 0m 1.00q 8
+Perk Labs — Auto Pick Ranking
+Unlocked in Milestones at tier 6 wave 10 after completing Auto Pick Perks. This lab lets you set a priority order for which perks Auto Pick Perks will select. Each lab level allows you to rank one additional perk. It has 32 levels.
+Auto Pick Ranking takes priority over First Perk Choice. For example, if your first choice is Perk Wave Required but Golden Tower is ranked higher in your auto pick ranking and both appear in the first set, Golden Tower will be picked instead.
+Level Time Cost Value
+1 1d 23h 46m 100.00K 1
+2 2d 5h 21m 180.00K 2
+3 2d 11h 18m 878.82K 3
+4 2d 18h 27m 4.46M 4
+5 3d 4h 11m 15.66M 5
+6 3d 18h 20m 42.28M 6
+7 4d 15h 12m 95.64M 7
+8 5d 21h 34m 191.02M 8
+9 7d 16h 38m 348.06M 9
+10 10d 4h 4m 591.04M 10
+Show all 32 rows
+Perk Labs
+Perk labs control every aspect of the perk system, from unlocking perks in the first place to improving their strength, increasing your choices, automating picks, and banning unwanted options. Investing in these labs is essential for getting the most out of perks during your runs.
+Related pages
+Bounce Shot
+Lab Upgrades
+Milestones
+Perk Labs
+Ultimate Weapons
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-16) . Something out of date? Tell us in the Discord .

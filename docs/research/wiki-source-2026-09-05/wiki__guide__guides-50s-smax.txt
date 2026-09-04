@@ -1,0 +1,5 @@
+The 50s SMax guide is a community strategy written and maintained by Yugiohcd10. Because the approach is highly sensitive to balance patches, the author keeps it current as a living document rather than a static page.
+50s SMax
+This guide was designed and written by Yugiohcd10. Its recommendations can shift quickly when patches land, so instead of a fixed write-up, the author maintains a live version that reflects the current state of the game.
+You can find the up-to-date version through the Google Docs link below. Check back after major updates, since details may have been revised to match the latest patch.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-04-16) . Something out of date? Tell us in the Discord .

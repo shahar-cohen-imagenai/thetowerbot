@@ -1,0 +1,24 @@
+Nuke is a powerful card that lets you wipe out a large portion of the enemies currently on screen with a single activation. It is a manual tool for clearing dangerous waves, and it can also be automated to save your run when things go wrong.
+On this page
+Description
+Use
+Recharge Nuke
+Description
+The Nuke card destroys a set percentage of all enemies currently on the field. As you upgrade the card, that percentage increases, allowing you to clear more of the screen with each use.
+Use
+You must activate Nuke yourself by tapping its card. It is best saved for moments when your tower is about to be overwhelmed by tough enemies, such as Elites or Fleets, letting you clear the danger before it reaches you.
+With the Smart Nuke Automation lab, Nuke becomes one of several abilities that can prevent your death. When you would take lethal damage, these abilities activate in a specific order. First, Death Defy has a chance to trigger. If it does not, an Energy Shield charge will be consumed to block the hit. If neither of those is available, Second Wind will activate. Next in line is Demon Mode, provided you have its own automation lab. Only if all of those are unavailable will Nuke fire automatically. Note that this automatic Nuke does not destroy projectiles already in flight, but as of version 27.3 (18 December 2025), Smart Nuke Automation also grants you 15 seconds of invulnerability after it triggers.
+Recharge Nuke
+You can unlock the Recharge Nuke lab in Milestones at tier 14, wave 60. Once researched, your Nuke card will automatically recharge after a set number of waves, allowing you to use it multiple times in a run. The lab has 7 levels, with each level reducing the number of waves required to recharge. The exact wave counts for each level are listed in the table below.
+Related pages
+Cards
+Death Defy
+Demon Mode
+Elite Enemies
+Energy Shield
+Fleet Enemies
+Lab Upgrades
+Milestones
+Second Wind
+The Vault
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-01-20) . Something out of date? Tell us in the Discord .

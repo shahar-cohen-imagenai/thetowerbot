@@ -1,0 +1,111 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Guides
+Guides
+Long-form community strategy: farming, tournaments, devo runs and the traps that cost people weeks.
+100% AFK Orb Devo
+A 100% AFK Orb Devo guide for The Tower: Idle Tower Defense, designed by Yugiohcd10, with a live-updated version on Yugi Tower.
+50s SMax
+Yugiohcd10's 50s SMax guide for The Tower: Idle Tower Defense, a patch-sensitive strategy maintained as a live Google Doc.
+AdvancedAnalysis
+How to navigate and contribute to the Advanced Analysis page for The Tower: Idle Tower Defense, including search tips and submission rules.
+Beginner Guide
+A beginner guide to The Tower: Idle Tower Defense, covering tier 1 turtle builds, workshop priorities, and the move to tier 2.
+Beginner's Exploration Guide
+Starting advice for The Tower: Idle Tower Defense. Progress through tiers, complete daily missions, and manage resources without spoilers.
+CF Guide
+Chrono Field upgrade guide: reaching 100% uptime, balancing duration labs against stone costs, and when to level slow and range.
+Coin Guide - Basics
+Learn how coins work in The Tower: coins per wave vs coins per kill, multipliers, UW syncing, and every source that grows your coin income.
+Common Abbreviations
+A reference for common abbreviations used in The Tower: Idle Tower Defense, including Ultimate Weapons, Cards, Labs, Workshop stats, Modules, and number notatio
+Devo Guide
+Devo guide for The Tower: how devolving your tower works, Death Wave setup, workshop priorities, stats, and survival tips.
+Dissonant Runs Guide
+How to approach Dissonant Runs: suggested order, respec steps, module loadouts for each run type, and a high-tier UW disco glass cannon build guide.
+Event Guide
+A guide to completing event quests in The Tower: Idle Tower Defense, with strategies for each quest type and general tips.
+Footguns
+Permanent upgrades in The Tower that can set your account back, from ultimate weapon picks to lab cooldowns, and how to avoid them.
+Frequently Asked Questions
+Answers to common The Tower: Idle Tower Defense questions, including coin math, negative UW stats, Wall timing and heat-up mechanics.
+Gem Guide
+A guide to spending gems efficiently in The Tower: Idle Tower Defense, covering lab slots, cards, modules, relics and lab rushing priorities.
+Guardian Guide
+How to unlock the Guardian, how its chips work, and how to upgrade and use Attack, Ally, Bounty, Fetch and Summon effectively.
+Guides
+A directory of The Tower: Idle Tower Defense guides covering beginner basics, resource spending, builds, and advanced optimisation tools.
+Guides / Thinking about Perks
+How perks work in The Tower: Idle Tower Defense, which lab upgrades to prioritise, and how to pick perks for coin farming and milestone pushes.
+Health Build
+Health builds prioritize survivability through health and damage reduction, ideal for early game progression in The Tower: Idle Tower Defense.
+Hybrid Guide
+Hybrid builds in The Tower balance damage and health investment, ideal for farming T1–T11 and still used by top players in tournaments.
+Intro Sprint
+How the Intro Sprint card works in The Tower: wave skips, boss spawns, reduced cell earnings, and how to cancel it early.
+Legend Battle Conditions
+How Legend tournament Battle Conditions, the four Overheats and the Stun, Miss and Death Defy decay mechanics actually work — with the constants read out of the game itself.
+Medals Guide
+How to earn and spend medals in The Tower: recommended purchase order and bot upgrade priority.
+Milestones
+Milestones in The Tower: Idle Tower Defense are progress-based rewards unlocked by reaching specific tiers and waves.
+Orb Devo
+Orb Devo is a hoarding strategy in The Tower that syncs Black Hole and Golden Tower so orbs kill stacked enemies for maximum coin gains.
+Orbless Guide
+Orbless farming builds stack Spotlight, Golden Tower and Black Hole coin bonuses by killing only inside overlapping zones. Requirements, methods and run phases
+Rushing Tiers
+Tier rushing guide for The Tower: swap to a survival build to hit wave milestones on tiers too strong for normal progression.
+SMAX Devo
+SMAX Devo guide for The Tower: workshop devo setup, synced BH/GT/SM strategy, card picks, perk priorities and survival tips.
+Strategies
+A midgame health-stacking strategy for The Tower: Idle Tower Defense, covering upgrades, cards, perks and damage sources.
+Target Priority
+Target Priority lets you choose which enemy type your tower focuses on. Unlock the lab at tier 4 wave 150, with 2 levels to research.
+Tier-Specific Guide
+A tier-by-tier guide to The Tower: Idle Tower Defense, covering enemies, blender builds, coin farming, tournaments and build swapping.
+UW Tier List: Best Ultimate Weapons in The Tower (2026)
+Every Ultimate Weapon ranked, with verified stone costs, a Legend account's real 53,547-stone split, and damage & coin shares from 50 logged runs.
+Which UW do I select?
+Guide to choosing Ultimate Weapons in The Tower: Idle Tower Defense, with a general ranking and when each UW matters.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

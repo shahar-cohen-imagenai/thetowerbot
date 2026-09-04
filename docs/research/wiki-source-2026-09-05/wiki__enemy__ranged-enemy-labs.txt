@@ -1,0 +1,43 @@
+Ranged Enemy labs are a set of research options that weaken the ranged enemy type during your rounds. Each lab targets one stat — health, attack or range — and applies its reduction at all waves once researched.
+On this page
+Description — Ranged Enemy Health
+Description — Ranged Enemy Attack
+Description — Ranged Enemy Range
+Description
+Description — Ranged Enemy Health
+This lab is unlocked through Milestones at tier 9, wave 20. It lowers the health of ranged enemies at every wave, making them quicker to kill. It has 30 levels, and the per-level values are shown in the cost table below.
+Level Time Cost Value
+1 2d 7h 33m 30,000,000,000 -0.40%
+2 2d 15h 54m 60,010,000,000 -0.80%
+3 3d 0h 27m 90,070,000,000 -1.20%
+4 3d 9h 34m 120,330,000,000 -1.60%
+5 3d 19h 44m 150,970,000,000 -2.00%
+6 4d 7h 36m 182,260,000,000 -2.40%
+7 4d 21h 51m 214,530,000,000 -2.80%
+8 5d 15h 19m 248,130,000,000 -3.20%
+9 6d 12h 53m 283,510,000,000 -3.60%
+10 7d 15h 31m 321,140,000,000 -4.00%
+Show all 30 rows
+Description — Ranged Enemy Attack
+This lab is also unlocked through Milestones at tier 9, wave 20. It reduces how much damage ranged enemies deal at all waves, which helps your tower survive their hits. It has 30 levels.
+Description — Ranged Enemy Range
+This lab unlocks at tier 13, wave 80. It shrinks the attack range of ranged enemies, so they have to get closer before they can fire on your tower. It has 30 levels, with the per-level values listed in the table below.
+Level Time Cost(T) Value
+1 2d 16h 47m 1.0 -0.50%
+2 5d 9h 35m 1.4 -1.00%
+3 8d 2h 23m 2.0 -1.50%
+4 10d 19h 11m 2.7 -2.00%
+5 13d 11h 59m 3.8 -2.50%
+6 16d 4h 46m 5.4 -3.00%
+7 18d 21h 34m 7.5 -3.50%
+8 21d 14h 22m 10.5 -4.00%
+9 24d 7h 10m 14.8 -4.50%
+10 26d 23h 58m 20.7 -5.00%
+Show all 30 rows
+Description
+All three Ranged Enemy labs modify the stats of ranged enemies while a round is running. One side effect worth knowing: researching these labs breaks the default stat ratios between enemy types. For example, boss health is normally a fixed multiple of basic enemy health, but once you have researched basic enemy health reductions, that multiple no longer holds true. Keep this in mind when comparing enemy stats or planning around specific breakpoints.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

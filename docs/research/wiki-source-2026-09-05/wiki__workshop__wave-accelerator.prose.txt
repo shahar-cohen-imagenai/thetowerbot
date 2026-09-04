@@ -1,0 +1,15 @@
+Wave Accelerator is a Workshop Upgrade card that reduces the wave cooldown timer in The Tower: Idle Tower Defense. By shortening the pause between waves, it speeds up the overall pace of each round.
+On this page
+Description
+Use
+Card Mastery
+Description
+The Wave Accelerator reduces the wave cooldown timer, cutting down the portion of each wave when no enemies can spawn. This makes rounds shorter overall by minimising the downtime between waves.
+Use
+Equipping the Wave Accelerator decreases the amount of time enemies do not spawn during a wave. This reduces the overall length of the round, which can be useful when you want to progress through waves more quickly. It also reduces the time between bosses, allowing Energy Shield charges to accumulate faster.
+Card Mastery
+The Card Mastery for Wave Accelerator shifts the spawn rates of normal enemies so they occur faster. Rather than simply reducing downtime, this actively compresses the spawn schedule of standard enemies within each wave.
+Related pages
+Cards
+Energy Shield
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-03-23) . Something out of date? Tell us in the Discord .

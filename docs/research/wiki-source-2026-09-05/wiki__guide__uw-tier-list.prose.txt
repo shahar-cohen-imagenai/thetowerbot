@@ -1,0 +1,43 @@
+Nine Ultimate Weapons, and every new pick costs more stones than the last — so the order you unlock and upgrade them shapes your whole account. This tier list is different from most: alongside the community pick order, it shows where a real Legend-league account actually put 53,547 stones, and what 50 logged long runs (waves 3,188–6,523) say about which weapons actually deal the damage and earn the coins. Every number on this page comes from verified cost tables, a decoded save file, or in-game battle reports — nothing is estimated.
+On this page
+The tier list at a glance
+Unlock order and what each slot costs
+Where a real Legend account put 53,547 stones
+What 50 logged runs say about damage
+What the runs say about coins
+When this ranking changes
+FAQ
+The tier list at a glance
+Tiers here mean pick-and-invest priority for a normal farming-focused account, not raw power in a vacuum. Economy weapons top the list because coins buy everything else: workshop levels, lab speed, and ultimately the damage weapons themselves. This matches the community pick order (see the linked Which UW Do I Select guide) and, as the data sections below show, it is exactly how the coin ledger of real runs behaves.
+Pick-and-invest priority for a farming-focused account
+Unlock order and what each slot costs
+Unlock costs are per slot, not per weapon: your first Ultimate Weapon costs 5 stones no matter which one you take, the ninth costs 3,000. All nine slots together cost exactly 9,705 stones. That escalation is why pick order matters so much: an early slot wasted on Poison Swamp costs you the same 5 stones, but the coins you didn't earn compound for months.
+My recommended order: Golden Tower, Black Hole, Death Wave, Spotlight, Chrono Field, Chain Lightning, Inner Land Mines, Poison Swamp, and Smart Missiles last. The classic community order takes Smart Missiles 7th, ahead of the two situational picks; I disagree for the reasons in the tier table: the stone investment it demands before it beats Chain Lightning is the largest commitment on this list, and in the current hybrid meta that project belongs at the very end. One refinement stands either way: if you can keep a 3x lab boost running continuously, take Chain Lightning 5th and push Chrono Field to 6th or 7th, because the boost cuts Chrono Field's long lab times down to size. Each UW+ ability (Smite, Golden Combo, Kill Wall …) additionally costs a flat 975 stones to unlock in-game.
+Stone cost per unlock slot (verified against the cost tables)
+Where a real Legend account put 53,547 stones
+This is the actual stone allocation of my Legend-league account, decoded straight from the save file: 9,705 stones on the nine unlock slots and 43,842 in upgrades. Two things stand out. First, the two biggest investments are an economy weapon and a crowd-control weapon, not damage: Golden Tower and Chrono Field together hold more stones than everything else combined. Second, Smart Missiles and Poison Swamp sit at zero upgrade stones even on a Legend account — they are genuinely late-game projects, which is worth remembering when a tier list tells you to unlock them last.
+Upgrade stones per UW (decoded save, August 2026)
+What 50 logged runs say about damage
+Averaged over the last 50 long farming runs on this account (waves 3,188 to 6,523, from 374 logged battle reports), the damage ledger looks like this. Context matters when reading it: this is a Chain-Lightning-focused hybrid build, and Smart Missiles / Poison Swamp / Inner Land Mines sit at or near zero upgrade stones — their shares are low because they are uninvested, not because they are weak. What the table really shows is that a B-tier damage weapon with only 3,416 stones in it can carry more than half of an account's total damage, which is exactly the cost-efficiency argument for taking Chain Lightning before Smart Missiles.
+Average share of total damage per source, last 50 long runs
+What the runs say about coins
+The same 50 runs, coin side. The game reports each bonus line relative to total coins earned, and because the multipliers stack with each other the lines overlap — they deliberately do not sum to 100%. Read them as "how big is this lever": Golden Combo alone is worth almost half of everything earned, and the four economy UW lines (Golden Combo, Golden Tower, Black Hole, Death Wave) each out-earn the biggest damage weapon's coin line. This is the empirical version of the tier list above — the economy weapons literally pay for the rest of the account.
+Average coin-bonus lines relative to total coins, last 50 long runs
+When this ranking changes
+Three progression points bend the list. Early game (first three slots): nothing changes — Golden Tower, Black Hole and Death Wave are the consensus opening in that order, and the coin data above shows why. Mid game: if you can keep a 3x lab boost running continuously, swap Chain Lightning ahead of Chrono Field (5th instead of 6th); the boost shrinks Chrono Field's brutal lab times, which is its main cost. Late game: Poison Swamp starts performing once a developed Chrono Field (ideally with CF+ levels) keeps enemies inside it, and Inner Land Mines' stun gets more valuable the more concentrated your damage becomes. Smart Missiles stay the final project: fully invested they can become a dominant damage source, but that point sits behind the largest stone commitment on this list — start it only when everything else on your account is where you want it.
+FAQ
+**What is the best Ultimate Weapon in The Tower?** Golden Tower. Unlocking it alone boosts cash and coins, and in 50 logged long runs its Golden Combo ability averaged 46.2% of all coins earned — the single biggest lever in the game.
+**What order should I unlock Ultimate Weapons in?** Golden Tower → Black Hole → Death Wave → Spotlight → Chrono Field → Chain Lightning → Inner Land Mines → Poison Swamp → Smart Missiles. If you can run a 3x lab boost continuously, take Chain Lightning 5th and Chrono Field 6th or 7th.
+**How many stones does it cost to unlock all Ultimate Weapons?** Exactly 9,705 stones for the nine slots (5, 50, 150, 300, 800, 1,250, 1,750, 2,400 and 3,000). Upgrading them costs far more — this account has 43,842 stones in upgrades on top.
+**Are damage Ultimate Weapons worth it?** Eventually, yes — but the run data is blunt about priorities: economy UW coin lines (Golden Combo 46.2%, Golden Tower 17.5%, Black Hole 16.4%) dwarf everything else, and those coins buy your damage later. Chain Lightning is the cost-efficient damage pick: 3,416 stones invested, over half of all run damage delivered.
+**Is Smart Missiles good in The Tower?** Only at the very end of the road. Heavily invested it can become a dominant damage source, but the stone cost of reaching the point where it outperforms Chain Lightning is the largest commitment on this list — which is why it sits last here, and why this Legend account still has 0 stones in it.
+Related pages
+Ultimate Weapons
+Which UW do I select?
+Golden Tower
+Black Hole
+Chrono Field
+Chain Lightning
+Death Wave
+Spotlight
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-08-08) . Something out of date? Tell us in the Discord .

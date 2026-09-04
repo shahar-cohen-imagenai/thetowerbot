@@ -1,0 +1,12 @@
+Target Priority is a setting that controls which enemy type your tower shoots at first when multiple enemies are inside its range. Instead of leaving the tower to pick targets on its own, you can tell it to focus on a specific kind of threat.
+This matters most when certain enemies are more dangerous to your run than others, or when you want damage concentrated on a particular target rather than spread across whatever happens to be closest.
+Description
+Target Priority lets you decide which enemy type the tower concentrates its fire on, as long as that enemy is within the tower's range. When several enemy types are in range at once, the tower will prefer the type you have selected rather than choosing freely.
+Use this when a specific enemy type is causing problems, such as one that survives too long or threatens your defences more than the rest of the wave. Directing your tower's attention to that type helps you deal with the biggest threat first.
+Lab
+The Target Priority lab is unlocked through Milestones once you reach tier 4 wave 150. It has 2 levels to research. See the table below for the details of each level.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2023-08-04) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,89 @@
+Version 0.28 introduced Dissonance, a per-tier difficulty modifier that disables a chosen workshop tab in exchange for a stat boost, alongside Bot Bot, five unlockable Bot+ abilities, and the Synchronicity pathing upgrade. It also added Overheat conditions to shorten high-wave runs and tournaments, and a rotating relic section in the Event Store. The release was followed by hotfixes that corrected Dissonant Boost values after the coin bonus shipped higher than intended, settling at 5x for Attack, Defense, and Ultimate Weapons and 3x for Utility.
+Change list
+Reproduced from the developer's release notes.
+Hey Tower Defenders! We are excited to share our v28 update with all of you. We are rolling out the build on Android now, and iOS will be rolling out within the next two day. This update should be fully available for all players by Thursday. Additionally, we will be enforcing a version lock for the tournament at the end of the week. Here is a look at the changes:
+Introducing: Dissonance! This is a new layer to Tier gameplay that presents a fun challenge, and a bonus to help push for further milestones. Dissonant Runs represent a new difficulty setting that can be applied to a Tier. Doing so disables a selected workshop tab (Attack, Defense, Utility, or Ultimate Weapons). Based on how far you progress, the related stat is boosted for that specific tier.
+The stats are:
+Attack Workshop → Attack
+Defense Workshop → Health
+Utility Workshop → Coins
+Ultimate Weapon Workshop → UW Damage
+Dissonance is unlocked at Tier 4 Wave 90. Once unlocked, you will have access to select this modifier for all unlocked Tiers. At Tier 17, Wave 60, you'll unlock four Dissonant Echo labs for each workshop type (Attack, Defense, Utility, Ultimate Weapon). These labs apply a percent of each tier's Dissonant Boost to your Tower. Unlocking Dissonance rewards you with a starting 0.5% Echo boost. Click on the Dissonant Boosts section on the Battle menu for an expanded panel.
+Bots are getting a lot of attention this update! To start, we have moved the Bots menu to its own tab in the Events page. This allows us more space to expand the feature, like so:
+A new Bot has entered the arena: Bot Bot! This new bot increases the effects of other bot effects within the radius, and has four stats: Range, Cooldown, % Increase, and Duration.
+Bots are getting an upgrade! The Bot+ feature gives each bot a new specialized ability. Bot+ is available when all Bots are unlocked. Each bot has its own Bot+ ability, which requires a one-time purchase using stones to unlock. Once the ability is unlocked, it can be upgraded further using medals. If you opt to respec your bots, all medals will be returned as usual, even if invested in the Bot+ stats. Unlocking the bot again will give you access to your Bot+ ability (without needing the stone purchase again).
+The five new Bot+ abilities are Wildfire, Titan Shock, Bonus Cells, Echoing Shot, and Maximum Power. Descriptions can be found in the Changelog below.
+Unlocking all five Bot+ abilities grants you access to Synchronicity , a stone upgrade that allows you to assign bots to have synchronized pathing. Unlocking Synchronicity grants you two slots, with each additional slot costing stones. Bots can be freely assigned into these slots so long as you have them unlocked.
+We have added in a new mechanic that amps up the difficulty of your run at higher waves. When you have successfully cleared Wave 4500 on any Tier, you will see an Overheat button on your Battle screen. This panel will define when the Overheat conditions will occur, and what the Overheat conditions are. This feature is designed to reduce the overall duration of a run in tiers and tournaments. This isn't a "game end" state when reaching this wave, but be prepared to face the heat!
+------------
+Hi! Quick example of how Overheat starts:
+Tier 1 Wave 15000
+Tier 10 Wave 12750
+Tier 20 Wave 10250
+Thanks!
+For normal tiers, the only change is that the Enemy Skip Decay Overheat condition kicks in at a defined wave. The panel will appear once you've cleared Wave 4500, but won't go into effect until much later in your run. Check the Heat button on each Tier more information.
+Overheat will appear in tournament runs as well, and can be viewed in the existing Heat button. We have added 4 new Overheat Conditions that will only appear in tournaments:
+Damage Decay: Tower Damage is reduced every 10 waves
+Health Decay: Tower Health is reduced every 10 waves
+More Fleets: An additional Fleet spawns every 100 waves
+More Elites: An additional Elite spawns every 5 waves
+We will be introducing a new Relic section in the Event Store starting on April 14th, 2026. This section will feature older relics from previous runs. Each week will feature four relics: two Rare and two Epic. These relics cost gems: 600 gems for Rare relics, and 1200 gems for Epic relics. This section of the Event Store will feature free and premium event relics earned from completing event missions, excluding most relics earned via medals. After a period of time, event relics will be added into the pool of options.
+Note : This section rotates every week, so make sure to check it at the beginning and middle of an active event!
+Added 5 new Bot+ abilities: Wildfire : Enemies hit by Flame Bot become Enflamed in addition to Burned, receiving {0}x extra damage. Duration of the damage amplification depends on current Flame Bot damage. Titan Shock : Enemies struck by Thunder Bot have a permanent {0}% decreased attack speed. This value is multiplied by the number of digits in the enemy's mass. Bonus Cells : Elites killed in Golden Bot range grant {0}x more Cells. Echoing Shot : Tower Bullets within Range count as {0} bullets. Ultimate Weapon projectiles are also boosted, but by 1/3. Maximum Power : Boosts the Bot+ abilities of other bots by {0}x.
+Bot's move speed is no longer dependent on its cooldown, and they now move while active
+3 new levels to Golden and Amplify Bot Range
+Improved the in-run stats to make the values more intuitive and player friendly
+Added new stats and stat categories Simplified the Battle Report to focus on time (Game and Real time), Coins, Coins per hour, Cells, and Cells per hour, and recategorized Included more "fun" stats, including records like Largest Wave Skip and Largest Golden Combo
+Added Golden Tower VFX toggle to the Toggles menu
+Damage reduction from Flame Bot now correctly applies to Tanks
+The process to pick Tournament Battle Conditions for Legends has been slightly adjusted
+Death Defy no longer rolls if the tower is already invincible (i.e. During Demon Mode)
+Fixed an issue where medals not claimed from an Event were sometimes not doubled by the Event Boost
+Fixed a bug where auto-reroll would fail to stop the re-rolling process when multiple conditions are selected, causing unintentional Reroll shards to be spent We've added a check to auto-reroll where it will automatically stop once any of the selected conditions are met
+Fixed an issue where Overcharge ignores Wall invincibility
+Fixed an issue where Ranged enemies failed to attack the Tower within the Black Hole for players without the "Black Hole Disables Ranged Enemies" research completed
+Fixed Spotlight not affecting all enemies (specifically all summoned enemies)
+Fixed an issue where standard perk bonuses did not apply to Cash or Absolute Defense perks
+Fixed an issue where the Module level up screen shows a different Coin rounding logic for the Coin display
+Demon Mode now accurately states that it provides a 300x boost to projectiles during its period of invincibility
+The in-game store should now correctly display prices in your local currency instead of in USD
+Improved local notifications to prevent inaccurate and duplicate notifications from occurring
+Improved localization in some languages, including message spacing in Japanese, and incorrect mission information in Russian
+Improved UI for Lab Gold Boxing
+Improved "Go Home" button interactions so it acts more like a Pause We will continue to improve this behavior in upcoming updates!
+Implemented general UI improvements regarding iOS's dynamic island
+Guild Chat no longer rapidly scrolls to the bottom of your recent messages
+Added in a popup for a player who has been removed from a Guild informing them about said removal
+Fixed an issue where players were unable to change their themes back to the Default option
+Oh, and v28 is just the beginning. We've already got another build in the works in the next two weeks - more polish, more fixes. We'll have a look at what's ahead in an upcoming Tower Tea, so stay close. Okay, that's actually it now. Bye, have fun, we love you!
+solving problems with saving records?
+We've identified an issue with our Dissonant Bonus values upon release that is granting a larger coin bonus than expected. While we recognize that this is a difficult change and we never intend to take away power from the players, these adjustments are necessary to maintain the competitive integrity we had imagined. We will be adjusting this value live; however, this unfortunately affects our other workshop bonuses. Here is a look at what will immediately change, and what the intended end goal is: Dissonant Run's maximum bonuses will be decreased from 5x to 2x. This effect will be visible for all players on the current build. In our upcoming v28.0.3 update, we will fix the maximum bonuses for Attack, Defense, and Ultimate Weapon to return to its original 5x bonus. While we do not want to make the change to all areas, we want to address the coin earnings issue and not create a larger earnings gap. To summarize:
+Temporary adjustments to Dissonant Run maximum bonus: Attack, Defense, Utility, and Ultimate Weapons are set to 2x
+v28.0.3 adjustments: Utility at 2x, Attack, Defense, and Ultimate Weapon at 5xWe are finalizing content for our v28.0.3 update now, and hope to deliver additional improvements next week. Additional content that will be covered in the upcoming hotfix includes adjustments to stunning effects overtime, improvements on our Bot+ abilities, a fix for Flame Bot's Damage Reduction, and UI improvements for Dissonant Runs. We appreciate your patience and understanding on this one, and hope everyone is having fun exploring the new features.
+Hey pals. I wanted to come back and give you a little more context on what happened, because you deserve it. When we were in late beta, we made a decision to increase the Attack, Defense, and UW bonuses. The coin bonus was always meant to stay at 2x - it just got caught up in that change when it shouldn't have. We missed that, and it shouldn't have gone live, which is why we had to do the quick correction. We hear you, and we are bringing the Utility bonus up to 3x, and will be giving a gift of gems to all players as well. This means all four bonuses will be at 3x in the current live version. Here's where things are headed:
+Attack, Defense, and UW bonuses are coming back to 5x in v28.0.3, which we're aiming to get out next week.
+That same update includes Bot+ improvements, the Flame Bot DR fix, stun adjustments, and Dissonant Run UI improvements.I've read every comment. I see what you're saying, and I'm bringing it all back to the team. We will have more info in the upcoming Tower Tea. Thank you for being here. Sam.
+Hey Tower Defenders! We are rolling out a hotfix now. This version includes fixes to our Dissonant Boosts, ensuring that our Attack, Defense, and Ultimate Weapon maximum bonuses are 5x.
+We decided to split up the upcoming fix to ensure that this gets to players faster. 28.0.4 is still slated for next week, and this update will include a larger number of improvements and bug fixes.
+To confirm the Dissonant Boost maximum values:
+Attack = 5x
+Defense = 5x
+Utility = 3x
+Ultimate Weapons = 5x
+Finally, the next tournament will be version locked to 28.0.2 and above.
+That's a wrap on this one, but we've got more coming. Stay tuned for Monday's Tower Tea for a peek at what's ahead.
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-11) . Something out of date? Tell us in the Discord .

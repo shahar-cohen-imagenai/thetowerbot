@@ -1,0 +1,44 @@
+Orb Devo is a coin-farming strategy built around hoarding enemies and killing them with your orbs while Black Hole and Golden Tower are active together. By stripping your tower's ability to kill things on its own, you let huge crowds build up, then cash in when your ultimate weapons fire with every multiplier running.
+The version summarised here is Tremnen's community guide, accurate as of v25.3 and updated for Death Wave changes and Black Hole positioning. For the latest revisions, check Tremnen's Orb Devo document directly.
+Orb Devo
+## Base requirements
+You need Black Hole and Golden Tower firing in sync, which Multiverse Nexus can do for you. Equip the Extra Orb card with the Extra Orb Adjuster lab, set your tower range to 69.5m using cash during the run, and set the Extra Orb card to 60m. If you use the Wall, tune Shockwave to roughly 1.4 so basics get juggled to the bottom of the stack (around 1.65-1.75 without the Wall).
+Your workshop should be heavily devo'd into defensive options, and Black Hole needs a minimum range of about 38-42m so it can pick up every brick — more range gives better coverage.
+## Workshop devo basics
+The point of devo is removing anything that kills enemies too quickly, so that as many enemies as possible are on screen when Black Hole and Golden Tower go off. In the workshop and via substats, keep the following at zero:
+- **Attack:** Attack Speed, Multishot Chance, Rapidfire Chance, Bounce Shot Chance - **Defense:** Knockback Chance, Orbs, Shockwave Size (set to the shuffle distance instead), Landmine Chance, Landmine Radius - **Utility:** Free Attack Upgrade, Free Defense Upgrade, Free Utility Upgrade
+Thorns is the exception: start it at zero, then push it up with cash during the run to trim basics. As spawns ramp up you will slowly raise it to about 34%. A substat can cover this if your workshop is at zero.
+Optional devo targets include Crit Chance (extends how long damage devo stays viable), Range (many players leave it at the 30m base), and Landmine Damage (relevant if you run Land Mine Stun with Landmine Radius, or want Land Mine Orbless with Spotlight).
+## Cards
+Required: Extra Orbs, Coins, Crit Coin, Cash, Enemy Balance, Health, Extra Defense.
+Economy picks: Wave Skip and Wave Accelerator. For defense, take Regen if you use the Wall or a Wormhole Redirector mod; otherwise take Recovery Package Chance, especially with Galaxy Compressor.
+Situational picks: Fortress helps early in a run. Land Mine Stun is strong only with Mythic or Ancestral Landmine Radius, and only once landmine damage is irrelevant — you want the stun, not the kills, so do not un-devo Landmine Chance.
+## Nice to have
+Maxed Black Hole Coin and Black Hole Damage labs, both Extra Extra Orb labs, Death Wave (a major boost to HP, coins and cells), Spotlight for its coin bonus, 25s Black Hole Duration with the perk so Protectors die within two cycles at max Black Hole Damage, the Extra Black Hole lab, Garlic Thorns, lower cooldowns on Black Hole, Golden Tower and Death Wave, Extra Orb Mastery, and a Golden Bot synced to your Black Hole and Golden Tower.
+## Strategy
+Hoard enemies and tank them with eHP. When Black Hole and Golden Tower fire together, the crowd is pulled into the Black Hole and your orbs kill the bricks. After setup, spend cash on defensive options: Enemy Attack Skips, the Wall if you have it, Health, Regen (with Wall or Wormhole Redirector), Defense Absolute, Def% and so on.
+Micromanage Thorns to trim basics, since they are worth fewer coins than tanks. When you are about to die, use cash to max Free Ups and ride the blender strategy until the run ends.
+## Pitfalls
+Protectors are the biggest nuisance — maxed Black Hole Damage with 25s duration guarantees they die within two ultimate weapon cycles. Because your bullets deal almost no damage, Elites and Bosses are killed mostly through Thorns.
+## How to improve
+Prioritise survival stats, and lower ultimate weapon cooldowns while keeping Black Hole and Golden Tower synced.
+## Perk priorities
+Economy: Perk Wave Requirement, Coin Trade Off, Golden Tower Bonus, Black Hole Duration, Coin, Extra Death Wave Wave, Cash.
+Defensive: Regen Trade Off, Regen, Defense%, Max HP, Defense Absolute, 50/50 Damage Trade Off.
+## Survival priorities by progression
+**Low lifetime coin (sub 1T):** On T1 or T2, pump Defense Absolute in the workshop to roughly 1000, then prioritise Health since large package recovery is your best early survival tool. Regen from a Wormhole mod only becomes worthwhile near 5000 levels — before that it scales poorly. Aim to get Health to about 5000 so you can cash-max it in run.
+**Lab goals:** Defense % to level 23 (caps Def% with an Ancestral substat and maxed Standard Perk Bonus), Death Wave Health, Health to level 50, maxed Standard Perk Bonus, and Enemy Attack Level Skips.
+**Early mid game (3-200T):** Wormhole Redirector is generally the best mod option, and you always want the highest-rarity Def% substat available. Landmine Radius on a Mythic-or-better armor mod makes Land Mine Stun very strong late in runs by stunning huge groups. Thorns also helps hit Wall Thorns breakpoints, reduces scatter through wall damage, and extends your end-of-run blender.
+## Thorns trimming
+Between activations (pre-Wall), your goal is to clear as many basics as possible so the stack holds the maximum number of tanks. Shockwave naturally shuffles tanks to the back, but you need to raise Thorns gradually to keep pace with basic spawn rates — around 15-20% is a good starting point.
+Related pages
+Black Hole
+Cards
+Death Wave
+Golden Bot
+Golden Tower
+Orbs
+Range
+Shockwave
+Spotlight
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-06-12) . Something out of date? Tell us in the Discord .

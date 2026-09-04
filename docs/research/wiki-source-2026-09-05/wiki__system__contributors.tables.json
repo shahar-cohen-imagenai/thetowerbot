@@ -1,0 +1,1089 @@
+[
+  {
+    "type": "table",
+    "caption": "Action List",
+    "headers": [
+      "Patch",
+      "Topic",
+      "Owner",
+      "Completed?",
+      "Notes"
+    ],
+    "rows": [
+      [
+        "V27",
+        "Review what guides may need updating.",
+        "",
+        "",
+        ""
+      ],
+      [
+        "V27",
+        "Wiki Front page Content Creator link and Site notice",
+        "Yugiohcd10",
+        "No",
+        "Awaiting active code"
+      ],
+      [
+        "N/A",
+        "Add images for ingame icons of Ultimate Weapons.",
+        "My wife left me Jr.",
+        "No",
+        "low priority."
+      ],
+      [
+        "N/A",
+        "Add images for medals, elite cells, keys, bits, and tokens in the currencies page",
+        "My wife left me Jr.",
+        "No",
+        "low priority."
+      ],
+      [
+        "V25.7.2",
+        "Update Relic and Theme",
+        "SvenTheSkull",
+        "Yes",
+        ""
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Change Log",
+    "headers": [
+      "Patch",
+      "Topic",
+      "Owner",
+      "Completed?",
+      "Notes"
+    ],
+    "rows": [
+      [
+        "N/A",
+        "Wiki Front page Redesign with leaderboard",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Ally reworked",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Attack Enhancment caps",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Defense enhancment caps",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Utility enhancement caps",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Confirm Fleet Spawn on T14+(Legends)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Add Fleets enemy info and pictures onto Enemy page",
+        "Yugiohcd10",
+        "yes",
+        "Not indiviual sections yet"
+      ],
+      [
+        "V27",
+        "Link new labs to milestones",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Daily mission values/Tier",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Four groups of Battle Condition Reduction labs, reducing the effect of specific Battle Conditions by a percentage.",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Lab Speed Up can now be queued up, reading the multiplier and duration set in the Speed Up menu",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Lab Speed Ups only tick down while a lab is in progress",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Added purchase confirmation for upgrades that cost >= 500 stones to help reduce misclicks",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Om chip reworked effect",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Module banners note",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "New Tiers",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "New Milestone Relics",
+        "SvenTheSkull",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "New milestones (13,18,19,20,21)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Area of effect card and card mastery",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Note about card mastery still being 30 card max unlock",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Section on Assist Modules",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Enhancement Coin Discount labs for Attack, Defense, and Utility",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Attack and Health labs for Ray, Vampire, and Scatter",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Ranged Enemy Range lab (added at Tier 13, Wave 80)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Assist Module labs for Substat and Bonus efficiencies across all four types",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Steal -> bounty rework",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Check notes on Attack SPeed performance",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Added ability for Black Hole Coin Bonus to apply to all enemies that die inside of Black Hole, even if Black Hole has no effect on them",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "10 levels for Amplify Bot\u2019s Bonus and Duration",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "10 levels for Golden Bot\u2019s Bonus and Duration",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "10 levels for Flame Bot\u2019s Damage",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "5 levels for Flame Bot Damage Reduction",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Implemented diminishing returns for Pulsar Harvester\u2019s level reduction at 100 levels",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Implemented an adjustment to enemy mass, where enemy mass increases by 4% each wave they are alive",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Adjusted Elite spawning logic so each Elite has its own spawn cap",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Added 10 more levels to Damage Slider in Harmony Tree",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Added ELS Reduction to Tiers 14-21",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Adjusted existing Battle Condition levels in Tier 14-18",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Removed Elite\u2019s Ultimate at Tier 18, and replaced it with three new Ultimate Battle Conditions for Elites:",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Add the new BCs to the BC list",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "New Battle Condition in Tier 21: Mass Enforcement: Surviving enemies mass increases by {x}% per wave they are alive",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Added ELS BC to Gold, Platinum, and Champion leagues",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Adjusted ELS BC in Legends league",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Added Fleets to Legends league",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Fixed an issue where Chrono Jump did not affect the mines from Space Displacer",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V27",
+        "Shift V26 Release notes and start V27 page",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "N/A",
+        "WIKI Top Navigation Rework",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "N/A",
+        "Advanced Analysis Page",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Create Guilds Page",
+        "Gugugan",
+        "Yes",
+        "Some data still not public confirmed"
+      ],
+      [
+        "V26",
+        "Create Action List items for V26",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Add changelogs for recent patches",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Copy over patch notes to Version History Page",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Update relics to include info about premium relics and event boost.",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Update ELS behavior on ELS page",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Tech Tree Updates",
+        "Yugiohcd10",
+        "Yes",
+        "I will also try to have text description of the Tec Trees"
+      ],
+      [
+        "V26",
+        "Module banners description",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Update shattering description to include epics of existing 5* mods",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "It is now guaranteed to get at least 1 rare module every 10 pulls",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Module history allows players to see up to 150 of their previous pulls",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "The module cap has been extended to level 300 (this requires a module to be at Ancestral - 5 stars)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "New module substats can be unlocked at level 201 and 241",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "The shard cost of module levels between 161 and 200 has been slightly reduced",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Update PS description/stats(on General UW page and PS page)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Update PS labs",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Add ILM chrono Jump(ILM page and labs page)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Update ILM stats((on General UW page and ILM page)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Update SL stats((on General UW page and SL page)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "CFd and SLA substats are banned from rolling when stat is maxed",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Update DW stats((on General UW page and DW page)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "UW+ updated levels (All UW pages general and individual)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Wall Rebuild will now push all enemies out from the tower to ensure no enemies are trapped inside.",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Battle Condition Reduction lab (T18W1000) - Decreases the level of the active battle conditions by a percentage (does not apply to the More Bosses or UW duration BCs)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "A new permanent Battle Condition has been added to the Legends League tournament - Enemy Level Skip Reduction.",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V26",
+        "Rerolling daily missions can no longer give the exact same mission",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "N/A",
+        "Add text for pictures/charts for AI accessibility",
+        "My wife left me Jr.",
+        "Yes",
+        "Yugi- The owner is whoever is assigned a task, claimed a task, or completed the task. And then completed could be \"Yes\", \"No\", or \"In Progress\". I occasionally just move completed items down to change Log to \"declutter\" the action list. When v26 drops, I'll make a lot of action list items that are sort and can be claimed."
+      ],
+      [
+        "V25.6",
+        "Redo Enemy Pictures",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "N/A",
+        "Update lab Rush to full numbers",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "v25.6",
+        "Labs for reroll bans. Both in module labs section and labs main page",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "v25.6",
+        "Death Wave\u2019s Damage Wave can deal damage through armored enemies",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "v25.6",
+        "Modules Effects can be auto rerolled until certain selectable conditions are met",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "v25.6",
+        "Only 20% of the cells are awarded during Intro Sprint",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "v25.6",
+        "Patch notes added to version History",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5.1",
+        "Wave Skip Cells change",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "Tournament Tie changes",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "Lab Boosting Changes",
+        "?",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "Intro Sprint description update",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "Free-Upgrades Description",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "Crit Chance Card mastery update",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "The spawn cap for elites has been raised",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "The floating gem limit has increased from 5 to 10",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "Add Patch notes to version page",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25.5",
+        "Slightly changed the order that Damage / Meter buffs are applied",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Update Labs page. Info like Search, favorites, auto research, partial research visuals.",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Fill Action List with V25 Changes",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Card Mastery Page",
+        "Yugiohcd10",
+        "Yes",
+        "Awaiting Overview spreadsheet."
+      ],
+      [
+        "V25.3",
+        "IntroSprint and SuperTower Plus rebalance",
+        "Yugiohcd10",
+        "Yes",
+        "Need data on IntroSprint+ changes"
+      ],
+      [
+        "V25",
+        "Tournament page update. Promotions and ticket cost",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Tournament Page Update. Rewards update",
+        "Naturage",
+        "Yes",
+        "Needs couple hyperlinks to Keys page once that's created."
+      ],
+      [
+        "V25",
+        "Page about Tech Trees",
+        "Yugiohcd10",
+        "Yes",
+        "Page is created. Just needs information when available and linking to Keys."
+      ],
+      [
+        "V25",
+        "Update ELS chance description",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Milestone sheet Update (Likely just T16W100 for Card Mastery)",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Daily Mission reward boxes update",
+        "EmilKing91",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Update Event starting mission count",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Update Reroll costs",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Add New song and coin bonus info",
+        "Naturage",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Update description for Rend WS+",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Tournament Page Update. BC's per tier",
+        "Naturage",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Tournament Page Update. Legends league specific info including keys reward.",
+        "Naturage",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Update Wave skip description with DW interactions and cells earned per skip.",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Update Intro Sprint description",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Update on Card slot count and cost",
+        "EmilKing91",
+        "Yes",
+        ""
+      ],
+      [
+        "V25",
+        "Update Chain Thunder",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "24.2-24.4",
+        "Fill/Verify Action List",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.2",
+        "Bot Respec Description",
+        "Yugiohcd10",
+        "Yes",
+        "Added to Event Shop section"
+      ],
+      [
+        "v24.2",
+        "UW Damage (SM, PS, ILM, CL)",
+        "Harychcn",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "DW Description",
+        "Harychcn",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "DW Renaming of quantity to Effect waves throughout Wiki",
+        "",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "DW Coin Bonus Labs",
+        "Harychcn",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "DW health Bonus Labs",
+        "Harychcn",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "DW cell bonus labs",
+        "Harychcn",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "DW Amp Labs",
+        "Harychcn",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "DW Armor labs",
+        "Harychcn",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "DW damage scaling(Including Submodules)",
+        "Harychcn",
+        "Yes",
+        "Changed the Damage Modifiers and New Stone Costs to the correct amount from the update, Someone else already changed the submodules, but those are correct as well."
+      ],
+      [
+        "v24.3",
+        "DW+ Description and upgrades",
+        "Yugiohcd10",
+        "Yes",
+        "Updated with all values from Skye's Tools"
+      ],
+      [
+        "v24.3",
+        "Garlic Thorns",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.3",
+        "Dmg/m substat values + Description if needed",
+        "Harychcn",
+        "Yes?",
+        "Corrected the Dmg values, perhaps description could be better?"
+      ],
+      [
+        "NA",
+        "Add FAQ, tool section, and subheadings for Contributors tab.",
+        "Yugiohcd10",
+        "Yes",
+        ""
+      ],
+      [
+        "v24.5",
+        "Update Guide: Which UW do I select?",
+        "Naturage",
+        "Yes",
+        "Placed DW as #3 (instead of tie with SL), updated description."
+      ],
+      [
+        "v24.5",
+        "Replace Devo Guide",
+        "Yugiohcd10",
+        "Yes",
+        "Entered in the up-to-date Orb Devo Guide."
+      ],
+      [
+        "V24.5",
+        "Consolidate Completed actions and move to a new \"Changelog\" table",
+        "Yugiohcd10",
+        "Yes",
+        "Copy and paste works for moving items over."
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Frequently Asked Questions",
+    "headers": [
+      "Question",
+      "Answer"
+    ],
+    "rows": [
+      [
+        "I've encountered a chart that won't let me edit it at all. What do I do?",
+        "Some of the charts, such as those in the lab tab, are constructed by templates. In order to edit these, look at the editing/text tab in the top. Click the hamburger icon(3 lines) and select Page-Settings -> Template Usage. If a template is used you will be able to pull it up and edit through this spot."
+      ],
+      [
+        "Is there a specific format for lab times?",
+        "From what I've seen, lab times on wiki are tabbed by spaces. Here is an example of the format xxdxxxhxxxm. whatever spots not used by a 1 or 2 digit hour/minute time will be spaces. Here is two examples: 1d  2h  3m and 12d 22h 56m."
+      ],
+      [
+        "How do I edit non-primry tabs on a tabber table?",
+        "Tabbers can be a little finicky. Usually you need to do a combination of editing templates vs edit source to get to a page where you can edit non-primary tabs."
+      ],
+      [
+        "Where do I grab the latest information about new labs/scalings?",
+        "Skye's tool is usually one of the first places to grab information after an update."
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Information Sources",
+    "headers": [
+      "Source",
+      "Notes"
+    ],
+    "rows": [
+      [
+        "Skye's Tools",
+        "Will usually contain some of the earliest numerical data post-updates."
+      ],
+      [
+        "Discord developer-announcements",
+        "Patch notes for checking what may need to go on Action List"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Tools",
+    "headers": [
+      "Tool",
+      "Link",
+      "Info",
+      "Owner"
+    ],
+    "rows": [
+      [
+        "Skye's Tool Time and Cost Convertor",
+        "Link",
+        "This google sheet will allow you to copy/paste lab details from Skye's Tool and have it convert Time and Cost to Wiki format that can then be pasted into Wiki. I strongly recommend doing Time conversions for every Lab. The cost convertor may or may not make sense to use depending on how high/Low values are.",
+        "Yugiohcd10"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Contributors",
+    "headers": [
+      "Name",
+      "Discord",
+      "Reddit",
+      "Other"
+    ],
+    "rows": [
+      [
+        "Yugiohcd10",
+        "yugiohcd10",
+        "u/Hubbylord",
+        ""
+      ],
+      [
+        "Unlrealcow",
+        "Unrealcow",
+        "u/ExtrapolatedData",
+        "Willing to help if I can figure out how to edit tab info."
+      ],
+      [
+        "harychcn",
+        "harychcn",
+        "u/Harychcn",
+        ""
+      ],
+      [
+        "Naturage",
+        "naturage",
+        "u/Naturage",
+        ""
+      ],
+      [
+        "SwaggoFlamingo",
+        "macis02 // 3XC3L",
+        "u/SwaggoFlamingo",
+        ""
+      ],
+      [
+        "SvenTheSkull",
+        "SvenTheSkull",
+        "",
+        ""
+      ],
+      [
+        "Gugugan",
+        "Gugugan",
+        "u/Gugugan",
+        ""
+      ]
+    ]
+  }
+]

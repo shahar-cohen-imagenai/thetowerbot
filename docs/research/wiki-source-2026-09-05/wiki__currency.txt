@@ -1,0 +1,69 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Currencies
+Currencies
+Coins, cash, gems, stones, cells, shards — where each one comes from and what it should be spent on.
+Bits
+Bits are the currency used to unlock and upgrade Chips and Chip Slots, earned from Guild Weekly Reward Chests and the Guild Store.
+Cash
+How Cash works in The Tower: Idle Tower Defense — earning sources, wave payouts, interest, and every way to improve your cash flow during runs.
+Coins
+Coins are the main currency in The Tower: Idle Tower Defense. Learn how to earn coins, improve coin flow, and how the Coin Bonus enhancement works.
+Currency
+Overview of The Tower's currencies: Cash, Coins, Gems, Power Stones, Medals and Elite Cells — how you earn and spend each one.
+Elite Cells
+Elite Cells are a currency dropped by Elite enemies in The Tower, used to buy lab boosts. Learn how to earn and increase them.
+Gems
+Gems are a premium currency in The Tower: Idle Tower Defense. Learn every way to earn them and what to spend them on.
+Keys
+Keys are a currency earned from Legend Tournament placements and spent on unique Tower upgrades in the Vault's Tech Trees.
+Medals
+Medals are a currency earned from events and missions in The Tower: Idle Tower Defense, spent in the Event Shop on items like Gems, Bots and Relics.
+Power Stones
+Power Stones are a premium currency in The Tower used to buy and upgrade Ultimate Weapons. Learn how to earn or purchase them.
+Shards
+Module Shards are a currency in The Tower: Idle Tower Defense, used for the game's module system.
+Tokens
+Tokens are a currency in The Tower: Idle Tower Defense earned from Weekly Challenges and Guild Chests, spent in the Guild shop.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

@@ -1,0 +1,25 @@
+Gems are one of the core currencies in The Tower: Idle Tower Defense, used to buy special items and upgrades that other currencies can't cover. Because they feed into several important systems, knowing how to collect them steadily — and where they're best spent — makes a real difference to your progress.
+On this page
+Gems
+Acquiring Gems
+Spending Gems
+Gems
+Gems are a core currency in The Tower, sitting alongside coins and other resources. Their role is to unlock special items and upgrades rather than everyday purchases, so they tend to be the bottleneck for long-term account growth rather than moment-to-moment runs.
+Acquiring Gems
+You have several ways to build up your Gem supply:
+- Floating Gems (often nicknamed Bob) drift around your tower during a run. Tapping one gives you two Gems. Up to ten can appear per run, spawning roughly every 400–500 waves, with a cap of one spawn per 15 minutes. - Ad Gems appear on screen about every ten minutes and pay out five Gems per claim. - Offer walls and TapJoy tasks reward Gems for completing external offers. - The store gives out free Gems daily, plus a free weekly Gem. - Tournaments award Gems based on participation and results. - You can buy Gems directly with real money through the Tower Web Store online, or the Google Play Store and Apple App Store in-game. - Medals earned from Events and Chips earned from Guilds can both be exchanged for Gems. - Daily Missions pay Gems on completion, and their Weekly Rewards — along with Guild Weekly Reward Chests — add more. - Reaching Milestones also grants Gems.
+Spending Gems
+Gems go towards some of the most impactful purchases in the game:
+- Cards and additional card slots - Extra lab slots, letting you run more research at once - Rushing lab upgrades to skip waiting time - Modules - Tournament tickets
+Which of these to prioritise depends on where you are in the game, but card slots and lab slots are permanent unlocks, while rushing labs and tickets are consumable spends.
+Related pages
+Cards
+Chips
+Daily Missions
+Guilds
+Lab Upgrades
+Medals Guide
+Milestones
+Modules
+Tickets
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-13) . Something out of date? Tell us in the Discord .

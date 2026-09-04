@@ -1,0 +1,18 @@
+Your player profile is the public face of your account. It is what other players see during tournaments, and it lets you present your achievements, cosmetics and current guild in one place.
+On this page
+Description
+Accessing
+Display
+Description
+The player profile is a menu built for showing off. Its purpose is to let you display your achievements to other players while you compete in tournaments, rather than to change anything about how your tower performs.
+Accessing
+To open your profile, tap the tower shown on the home menu. That takes you straight into the profile screen where you can review and edit what others see.
+Display
+The profile lets you pick one tower skin and five relics to show off. These choices are purely cosmetic: displaying a relic or skin here does not activate it or grant its effects, so you can show anything you own without affecting your build.
+The menu also lists your competitive milestones, including your highest tournament ranking and your highest tier and wave reached. If you want a different identity on the leaderboards, you can change your tournament name from this screen as well.
+Since v26.0, your profile also shows the guild you are currently active in, so other players can see your affiliation at a glance.
+Related pages
+Relics
+Themes Menu
+Tournaments
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-12) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,10 @@
+Fortress is a common card you can slot into your loadout in The Tower: Idle Tower Defense. It boosts your tower's defense absolute, making it a straightforward defensive pick when you want to soak up more damage.
+Fortress
+When equipped, Fortress increases your defense absolute stat. The exact amount it adds scales with the card's level, which you can see in the data table below.
+Because defense absolute reduces incoming damage by a flat amount, Fortress is most useful when you are building around flat damage reduction rather than percentage-based defense.
+Fortress value per card level
+Card Mastery
+Unlocking the Fortress card mastery costs 750 stones. Once unlocked, it reduces the time needed to rebuild your wall during a run.
+Keep in mind that the mastery bonus is only active while Fortress is equipped in your active loadout. If you swap the card out, you lose the rebuild time reduction until you equip it again.
+Fortress mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

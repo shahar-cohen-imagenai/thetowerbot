@@ -1,0 +1,20 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Level",
+      "Time",
+      "Cost",
+      "Value"
+    ],
+    "rows": [
+      [
+        "1",
+        "2d 13h \u20026m",
+        "3,000,000",
+        "Unlocked"
+      ]
+    ]
+  }
+]

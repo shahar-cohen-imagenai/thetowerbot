@@ -1,0 +1,8 @@
+Card slots determine how many cards you can have equipped at the same time, so they directly cap how much power you can bring into a run. You start with a single free slot, and expanding beyond that is one of the main long-term gem sinks in the game.
+Card Slots
+Your first card slot costs nothing. Every slot after that is bought with gems, and the price climbs as you go, reaching 10,000 gems for slot 22. If you plan to buy all of the gem-purchased slots, expect to spend 58,400 gems in total — the cost table below breaks this down slot by slot.
+Once you have all the gem slots, you can push further using keys. These key-unlocked slots raise the cap to a maximum of 28 equipped cards.
+Because each equipped card adds a meaningful bonus, extra slots are among the strongest account-wide upgrades you can buy. Prioritise them once your core card collection is in place, since every new slot is another card working for you in every round.
+Gem cost per card slot
+Show all 22 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

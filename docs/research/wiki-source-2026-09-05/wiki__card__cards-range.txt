@@ -1,0 +1,27 @@
+Range is a common card in The Tower: Idle Tower Defense that extends how far your tower can reach. Equipping it increases your tower's range, letting you engage enemies from a greater distance.
+Range
+Range is a common card whose effect reads: Increase tower range by [x]. When equipped, it extends the distance at which your tower can target enemies, which matters when you want your defenses to start dealing damage sooner or cover a wider area. The exact values for each level are shown in the data table below.
+Range value per card level
+Card Level Effect
+1 1.15
+2 1.20
+3 1.25
+4 1.30
+5 1.35
+6 1.40
+7 1.45
+Card Mastery
+The Range card mastery costs 750 stones to unlock. Once unlocked, it adds a damage per meter bonus multiplier, so your tower deals more damage based on how far it is hitting. This bonus only applies while the Range card is equipped in your active loadout.
+Range mastery value per lab level
+Mastery Level Value
+0 x1.2
+1 x1.4
+2 x1.6
+3 x1.8
+4 x2
+5 x2.2
+6 x2.4
+7 x2.6
+8 x2.8
+9 x3
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

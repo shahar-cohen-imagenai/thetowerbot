@@ -1,0 +1,37 @@
+Flame Bot is one of the bots you can unlock in The Tower: Idle Tower Defense. When it activates, it burns enemies in an area around the bot, dealing a tick of burn damage every second and weakening the damage those enemies deal back to you.
+On this page
+Description
+Unlocking/Upgrading
+Damage Reduction
+Cooldown
+Damage
+Range
+Cost
+Labs — Flame Bot Cooldown
+Labs — Flame Bot - Burn Stack
+Description
+Flame Bot damages enemies in an area around the bot. Anything it hits is set on fire, taking burn damage over time while the effect lasts.
+Unlocking/Upgrading
+Like all bots, Flame Bot is bought and upgraded through the Event Shop menu. The medals needed to unlock it depend on how many other bots you have already purchased. Each of its four upgrades starts at a base cost of 100 medals, rising by 40 medals per level. Flame Bot deals burn damage, applying one tick of damage equal to its bot damage each second.
+Damage Reduction
+Burned enemies deal less damage to you. This upgrade starts at 20% damage reduction and has 25 levels, adding 3% per level.
+Cooldown
+Cooldown controls the time between Flame Bot's activations. It begins at 75 seconds and has 15 levels, each shaving off 3 seconds.
+Damage
+This upgrade raises the damage Flame Bot deals when it activates. The calculation factors in your crit and super crit chance and multiplier, following the same damage formula used for Ultimate Weapons. The multiplier starts at x50 tower damage and has 30 levels, increasing by +8x per level.
+Range
+Range sets how far the bot's effect reaches while active, and it is amplified by your tower range. It starts at 30m and has 15 levels, adding 4m per level.
+Cost
+The cost table below lists the medal cost for each upgrade level of Flame Bot's four upgrades.
+Show all 31 rows
+Labs — Flame Bot Cooldown
+This lab is unlocked through Milestones at tier 5 wave 60. Each level reduces Flame Bot's cooldown by 1 second, and with 25 levels you can cut a total of 25 seconds off the cooldown. The lab table below shows the cost per level.
+Show all 25 rows
+Labs — Flame Bot - Burn Stack
+This lab is unlocked through Milestones at tier 10 wave 50. It lets repeated Flame Bot hits on the same enemy stack the burn effect, making the burn tick faster. At 2 stacks the enemy takes damage every 0.5 seconds, or 2 ticks per second. The lab has 5 levels, each adding 1 stack per hit, and burn stacks cap at 10. At lab level 1 it takes 10 hits to reach the cap, while at max lab level only 2 hits are needed. The lab table below shows the cost per level.
+Related pages
+Events
+Lab Upgrades
+Milestones
+Ultimate Weapons
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-30) . Something out of date? Tell us in the Discord .

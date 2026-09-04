@@ -1,0 +1,71 @@
+Damage Per Meter is a workshop upgrade that makes your tower deal more damage to enemies the farther away they are. The bonus grows with each full meter of distance between the enemy and your tower, rewarding you for hitting targets at long range.
+On this page
+Description
+Workshop
+Cost
+Calculation
+Workshop Enhancement — Damage/Meter
+Lab — Damage/Meter
+Description
+Damage Per Meter increases your tower's damage output based on enemy distance. The bonus is calculated per full meter of separation between the enemy and your tower. It does not scale fractionally — an enemy at 51.9 meters receives the same damage bonus as one at exactly 51 meters, since the value rounds down to the nearest whole meter.
+Workshop
+You unlock Damage Per Meter in the workshop for 50 coins, and it requires the Range upgrade to be purchased first. The workshop offers 200 levels total, starting from a base of 0%. Each level provides a smaller increase than the last until you reach level 70, after which every level adds a constant 0.0002%. The maximum workshop value caps out at 5.9%.
+Cost
+Level Value Cost Total Cost
+1 x0.00079 50.00 0.00
+10 x0.00742 691.00 2.99K
+20 x0.01376 2.78K 20.02K
+30 x0.01913 6.63K 67.41K
+40 x0.02365 12.46K 164.07K
+50 x0.02741 20.43K 330.66K
+60 x0.0305 31.59K 597.10K
+70 x0.033 44.59K 982.41K
+80 x0.035 63.15K 1.53M
+90 x0.037 82.27K 2.26M
+Show all 21 rows
+Calculation
+Damage Per Meter stacks additively across distance. The formula is:
+Damage × DPM% × Range
+This means the farther an enemy is from your tower, the larger the total multiplier applied to your base damage.
+Workshop Enhancement — Damage/Meter
+To unlock this enhancement, you need to have spent 5 trillion coins on attack enhancements. Once unlocked, it starts at a x1 multiplier to your Damage/Meter value and gains 0.01x per level. It has a maximum level of 400, reaching a 5x bonus at max. See the cost table below for per-level pricing.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 6.53B 55.54B
+20 1.20x 48.30B 217.10B
+30 1.30x 313.07B 1.95T
+40 1.40x 2.54T 14.48T
+50 1.50x 9.59T 73.23T
+60 1.60x 60.08T 385.56T
+70 1.70x 216.08T 1.72q
+80 1.80x 580.27T 5.66q
+90 1.90x 1.31q 15.10q
+Show all 41 rows
+Lab — Damage/Meter
+The Damage/Meter lab unlocks through Milestones at tier 3, wave 30. It has 99 levels. Each lab level increases the increment gained per workshop level and raises the maximum value the workshop upgrade can reach. Refer to the table below for details on each level.
+Level Time Cost Value
+1 0d 0h 0m 30 1.02
+2 0d 0h 6m 71 1.04
+3 0d 0h 16m 178 1.06
+4 0d 0h 31m 398 1.08
+5 0d 0h 52m 772 1.10
+6 0d 1h 20m 1,340 1.12
+7 0d 1h 56m 2,120 1.14
+8 0d 2h 39m 3,170 1.16
+9 0d 3h 31m 4,510 1.18
+10 0d 4h 32m 6,170 1.20
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-20) . Something out of date? Tell us in the Discord .

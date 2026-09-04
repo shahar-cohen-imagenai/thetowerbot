@@ -1,0 +1,10 @@
+Labs Coin Discount is a research option in the Labs that makes every other lab cheaper to buy with coins. It does not reduce its own research cost, so you pay full price for each level of the discount itself.
+Description
+When you research Labs Coin Discount, the coin price of all your other lab researches drops. This applies to every lab except itself, so you always pay the standard cost for Labs Coin Discount levels. The more you invest here, the more coins you save on everything else you want to research.
+Lab
+You unlock this lab by reaching tier 1 wave 30 in Milestones. It has 99 levels, and each level increases the discount applied to your other labs. Check the table below for the exact cost and discount per level.
+Show all 99 rows
+Related pages
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-11-11) . Something out of date? Tell us in the Discord .

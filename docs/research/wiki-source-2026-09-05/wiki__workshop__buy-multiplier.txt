@@ -1,0 +1,16 @@
+Buy Multiplier is a workshop upgrade option that lets you purchase several levels of an upgrade in a single action instead of buying them one at a time. It saves time when you have a lot of coins to spend, but it does not make anything cheaper.
+Description
+With Buy Multiplier active, you can raise a workshop upgrade by multiple levels per purchase rather than clicking through each level individually. The total cost is simply the sum of the individual levels, so there is no discount for buying in bulk.
+The available multiplier steps include a "Max" option, which buys as many levels as you can currently afford. This option was introduced before the x100 step existed. When x100 was later added, it was placed as a fourth level rather than the third, so that players who had already upgraded the feature kept the progress they had earned.
+Lab
+The Buy Multiplier lab is unlocked through Milestones once you reach tier 2 wave 20. The lab has 4 levels, and each level you research adds another purchase quantity you can select in the workshop. The level table below shows what each research level provides.
+Level Time Cost Value
+1 0d 0h 59m 2,500 5
+2 0d 5h 33m 10,000 10
+3 1d 3h 46m 50,000 Max
+4 2d 7h 33m 500,000 100
+Related pages
+Lab Upgrades
+Milestones
+Workshop Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

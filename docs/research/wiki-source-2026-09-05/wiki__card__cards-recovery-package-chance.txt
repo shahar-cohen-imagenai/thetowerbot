@@ -1,0 +1,15 @@
+Recovery Package Chance is a rare card you can equip in The Tower: Idle Tower Defense. It increases how often recovery packages spawn while a round is running, giving you more opportunities to pick up health restoration mid-run.
+Recovery Package Chance
+When equipped, this card raises the spawn chance of recovery packages by the percentage shown on the card. The exact bonus depends on the card's level, which you can check in the data table below.
+Recovery packages restore health when collected, so a higher spawn chance means more frequent healing during a round. This makes the card most useful in builds that rely on staying alive through sustained damage rather than avoiding hits entirely, particularly in longer runs where chip damage adds up.
+Because it is a rare card, Recovery Package Chance is relatively easy to obtain and upgrade compared to epic or legendary options, making it an accessible defensive pick early on.
+Recovery Package Chance value per card level
+Card Level Effect
+1 15%
+2 18%
+3 21%
+4 24%
+5 27%
+6 30%
+7 33%
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

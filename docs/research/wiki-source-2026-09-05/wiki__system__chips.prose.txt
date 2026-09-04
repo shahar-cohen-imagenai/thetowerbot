@@ -1,0 +1,61 @@
+Chips are abilities your Guardian activates during a run. Each one has a distinct effect, from damaging enemies to pulling in bonus loot, and each can be upgraded with bits.
+All chips share the same targeting behaviour, so it's worth understanding those rules before investing in upgrades.
+On this page
+Attack Chip
+Attack Chip — Upgrades
+Ally Chip
+Ally Chip — Upgrades
+Bounty Chip
+Bounty Chip — Upgrades
+Fetch Chip
+Droptable
+Fetch Chip — Upgrades
+Summon Chip
+Summon Chip — Upgrades
+Scout Chip
+Scout Chip — Upgrades
+When a chip activates, the Guardian targets the enemies closest to it, and it only has a limited range. If nothing is close enough when the chip would fire, the activation is wasted and nothing happens. If a chip can hit multiple targets, it will still go off as long as at least one enemy is in range, even if fewer are present than its maximum.
+Chips ignore your target priority settings entirely. They make no attempt to pick the ideal target for their effect — proximity is all that matters.
+The upgrade values shown for each chip are figures actually observed by players in game, not projections that assume the scaling curve stays the same at higher levels. That said, based on how Bots and Ultimate Weapons scale, there's reason to believe chip upgrades and their costs are linear until maxed.
+Attack Chip
+Attack makes the Guardian strike the enemies with the most missing health, dealing damage equal to a percentage of the health they've already lost. Against bosses this is cut in half.
+Because the damage scales with lost health rather than a flat value, the chip could in theory work like a Plasma Cannon against regular enemies: with enough upgrades it might hit multiple targets, hit hard, and fire more often. That potential still needs proper testing at higher upgrade levels to confirm.
+You'll know it's about to fire when a red sphere appears orbiting the Guardian.
+Attack Chip — Upgrades
+The upgrade table below lists the observed costs and values for each level of Attack.
+Show all 92 rows
+Ally Chip
+Ally converts an enemy into an Ally Recovery Package, which can heal your tower past its normal maximum recovery limit.
+These packages are a separate item from standard recovery packages. They don't count toward effects that interact with regular packages, such as the Galaxy Compressor module.
+Ally Chip — Upgrades
+Fully upgrading Ally costs 14,470 bits in total, which works out to roughly 71 weeks of saving. The table below breaks down the per-level costs and values.
+Show all 92 rows
+Bounty Chip
+Bounty marks nearby non-common enemies so they pay out extra coins when killed.
+The bonus is calculated from every coin multiplier active on the target at the moment it dies, multiplied by the chip's own Bounty Multiplier stat. Effects like Golden Bot, Death Wave, Golden Tower, Black Hole and Spotlight all feed into the total, so Bounty pays out most when your coin bonuses are stacked up.
+Bounty Chip — Upgrades
+The upgrade table below lists the observed costs and values for each level of Bounty.
+Show all 101 rows
+Fetch Chip
+Fetch sends the Guardian out to find and collect hidden loot during a run. The possible finds are coins, Gems, Medals, Shards and Modules.
+Droptable
+The drop table below shows what Fetch can bring back and how likely each reward is.
+Fetch Chip — Upgrades
+The table below lays out an estimated optimal upgrade path for Fetch, so you can prioritise the levels that give the best return for your bits.
+Show all 62 rows
+Summon Chip
+Summon spawns two enemies per second while it's active, drawn from the Basic, Tank, Ranged and Fast types. On top of that, every enemy killed during the activation pays a cash bonus — not just the ones the chip summoned.
+Summoned enemies never gain Ultimate status, even if the Battle Condition for their type is active.
+This chip launched in Season 5 with an incorrect in-game description, which caused some confusion before it was corrected on The Tower's Discord server.
+Summon Chip — Upgrades
+The upgrade table below lists the observed costs and values for each level of Summon.
+Show all 73 rows
+Scout Chip
+Scout marks all enemies on screen. While the effect is running, every enemy counts as being farther from your tower than it really is for damage calculations — useful if your setup benefits from distance-based damage.
+Scout Chip — Upgrades
+The upgrade table below lists the observed costs and values for each level of Scout.
+Show all 72 rows
+Related pages
+Battle Condition
+Plasma Cannon
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-23) . Something out of date? Tell us in the Discord .

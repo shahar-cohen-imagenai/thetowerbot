@@ -11,9 +11,8 @@ config.WEB_HOST before changing the bind address.
 
 "The web layer never writes" is no longer true in general, and the narrower
 claim is the one that matters: it never writes to the DATABASE. db.reader()
-opens mode=ro and nothing here can change that. Strategy files are the one
-thing it does write, through StrategyStore, which validates every profile
-before it reaches the disk.
+opens mode=ro and nothing here can change that. Strategy profiles and local
+advisor imports are written through their validating stores.
 """
 
 from __future__ import annotations
@@ -34,8 +33,11 @@ import config
 import db
 import events
 import upgrades
+from advisor import AdvisorStore
+from web.advisor import advisor_router
+from guide_presets import preset_payload
 from autopilot import AutopilotState
-from policy import PRESETS, preset_rules
+from policy import PRESETS
 from progression import compare_tiers
 from control import ControlError, Controls
 from events import EventBus
@@ -233,6 +235,7 @@ def create_app(
     runner: BotRunner | None = None,
     store: StrategyStore | None = None,
     shopping: Any | None = None,
+    advisor: AdvisorStore | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -250,6 +253,10 @@ def create_app(
 
     app = FastAPI(title="The Tower bot")
     autopilot_state = runner.autopilot_state if runner is not None else AutopilotState()
+    advisor_store = advisor if advisor is not None else AdvisorStore(
+        store.directory.parent / "advisor.json" if store is not None else None
+    )
+    app.include_router(advisor_router(advisor_store, store, autopilot_state))
 
     @app.get("/api/upgrades")
     async def upgrade_catalog() -> list[dict[str, Any]]:
@@ -257,7 +264,7 @@ def create_app(
 
     @app.get("/api/autopilot/presets")
     async def autopilot_presets() -> list[dict[str, Any]]:
-        return [{"name": name, "rules": [r.to_dict() for r in preset_rules(name)]} for name in PRESETS]
+        return [preset_payload(name) for name in PRESETS]
 
     def _comparison() -> dict[str, Any]:
         if db_path is None:

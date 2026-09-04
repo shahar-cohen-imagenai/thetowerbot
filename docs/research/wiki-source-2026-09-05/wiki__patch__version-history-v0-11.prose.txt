@@ -1,0 +1,32 @@
+Version 0.11 introduced several new gameplay systems, including Demon Mode, Wave Skip, and Critical Chance, alongside a Tier 5 lab research for card presets and one additional max card slot. Smart missiles received notable buffs to base damage, per-level scaling, and missile count. The update also fixed a range of issues, from Second Wind failing against ranged units to store pricing errors, iOS crashes, and incorrect upgrade costs from buy multipliers.
+Change list
+Reproduced from the developer's release notes.
+Demon Mode
+Wave Skip
+Critical Chance
+New Lab Research - Cards Presets (Tier 5)
+Max card slots increase by 1
+Smart missiles base damage increased from 600 to 800%, increase per level from 60 to 80%
+Smart missile starting count increased from 4 to 5, max missiles increased by 1
+Second wind not protecting against ranged units sometimes
+iOS push notifications fixed
+iOS crashing reduced
+Fixed an issue that could cause the store to open without price tags
+Fixed starter pack pop up sometimes showing the epic pack's price
+Fixed an issue with buy multipliers giving wrong upgrade costs (discounts)
+Land mine rotation research showing without inner land mines unlocked
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,81 @@
+Defense Percent cuts a percentage off every hit you take, and the reduction is worked out before Defense Absolute is subtracted. Because it scales with the size of incoming damage, it becomes one of the most valuable defensive stats as enemy damage grows.
+Although the sources listed below can add up to more than 100%, the stat is hard-capped at 98%, so you can never become fully immune through Defense Percent alone.
+On this page
+Description
+Workshop
+Cost
+Card
+Defense Percent
+Relics
+Description
+Defense Percent is the share of incoming damage that gets removed before anything else happens. The game applies this percentage reduction first, then subtracts Defense Absolute from whatever is left, so the two stats stack multiplicatively in effect rather than competing.
+The cap matters here: even if your combined bonuses exceed 100%, the game only honours 98%. Any investment past that point is wasted, so it pays to know where your total stands.
+Source Initial / Lowest Number of Improvements Max Value
+Workshop 0.50% 99 49.50 %
+Card 5.00% 6 11.00 %
+Mastery 0.70% 9 7.00%
+Lab 0.20 % 50 10.00 %
+Perk 4.00% 5 20.00 %
+Perk Lab 0.04% (per Perk) 25 5.00 %
+Sub-Module 1.00 % 6 8.00 %
+Assist Module 0.08% 100 8.00 %
+Relics 1.00% 4 5.00%
+Vault 0.50% 2 1.50%
+Show all 11 rows
+Workshop
+Defense Percent is bought in the Workshop for 75 coins. It sits in the Defense Absolute line, which itself opens up after you have unlocked Health and Health Regen.
+The Workshop offers 99 upgrades for this stat, each adding 0.5% to the reduction. Fully maxed, the Workshop alone gives you 49.5% Defense Percent.
+Cost
+The full cost of all 99 Workshop upgrades is laid out in the cost table below. Since later levels grow expensive, it is worth weighing each purchase against what the lab, card and perks can contribute toward the 98% cap for free or through other currencies.
+Level Value Cost Total Cost
+1 0.50% 50.00 0.00
+2 1.00% 76.00 126.00
+3 1.50% 109.00 235.00
+4 2.00% 151.00 386.00
+5 2.50% 203.00 589.00
+6 3.00% 266.00 855.00
+7 3.50% 340.00 1.20K
+8 4.00% 426.00 1.62K
+9 4.50% 525.00 2.15K
+10 5.00% 636.00 2.78K
+Show all 99 rows
+Card
+The Extra Defense card stacks directly on top of your Workshop value. Combining the Workshop maximum, the Defense % lab, the Extra Defense card and the Defense % perk can push the total to 95.5% before relics, leaving only a small gap to the 98% limit.
+Not every form of damage reduction feeds into this cap. Chrono Field Damage Reduction, Primordial Collapse and Flame Bot are all separate mechanics: they do not count toward the 98%, and their reductions are calculated after Defense Absolute rather than before it.
+Defense Percent
+The Defense Percent lab unlocks through Milestones at tier 5, wave 30. It has 50 levels, and whatever it provides is added straight onto your Workshop total.
+You do not need to finish the lab to hit the cap. With Workshop upgrades at +49.50%, the Extra Defense card at +11%, perks at +25% and Sub-Module effects at +8%, the 98% ceiling is reachable by level 23 of the lab, which contributes +4.60%. Levels beyond that only matter if you are missing one of the other sources.
+Level Time Cost Value
+1 0d 0h 59m 5,000 0.20
+2 0d 1h 51m 7,500 0.40
+3 0d 2h 51m 24,000 0.60
+4 0d 4h 13m 90,500 0.80
+5 0d 6h 13m 267,000 1.00
+6 0d 9h 6m 637,500 1.20
+7 0d 13h 11m 1,310,000 1.40
+8 0d 18h 47m 2,420,000 1.60
+9 1d 2h 14m 4,110,000 1.80
+10 1d 11h 54m 6,580,000 2.00
+Show all 50 rows
+Relics
+Four relics grant additive Defense % bonuses, and each one counts toward the 98% hard cap. Three of them give 1% each while the fourth gives 2%, adding up to a maximum of 5% from relics.
+Because relic bonuses share the cap with everything else, they are most useful while your lab or Workshop is still incomplete. Once the rest of your setup reaches 98% on its own, these relics stop providing any practical benefit.
+# Rarity Relic Value Source Event / Type
+92 Rare Blood Monster 1% Guild Season 5
+100 Rare Miner's Tool 1% Event Crystal Cave (Premium)
+124 Rare Nature's Fury 1% Event Into the Storm II (Standard)
+102 Epic Northern Mountains 2% Event Aurora III (Standard)
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-03) . Something out of date? Tell us in the Discord .

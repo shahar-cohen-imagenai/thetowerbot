@@ -1,0 +1,24 @@
+Workshop Defense Discount is a game system that reduces how many coins you spend on defense upgrades in the workshop. If you regularly invest coins into defensive stats, this discount stretches those coins further over time.
+Description
+Workshop Defense Discount lowers the coin price you pay when upgrading the defense category in your workshop. Every level of the discount makes each defensive upgrade cheaper than it would otherwise be, so the same pile of coins buys more upgrades.
+This matters most once defense upgrades become a meaningful part of your coin spending. The discount applies to the cost itself rather than refunding you after the fact, so you simply see lower prices in the workshop.
+Labs
+A corresponding lab exists for Workshop Defense Discount. You unlock it through Milestones by reaching tier 2 wave 50.
+The lab has 99 levels to research. The per-level costs and research times are listed in the table below.
+Level Time Cost Value
+1 0d 0h 0m 30 0.50%
+2 0d 0h 6m 71 1.00%
+3 0d 0h 16m 178 1.50%
+4 0d 0h 31m 398 2.00%
+5 0d 0h 52m 772 2.50%
+6 0d 1h 20m 1,340 3.00%
+7 0d 1h 56m 2,120 3.50%
+8 0d 2h 39m 3,170 4.00%
+9 0d 3h 31m 4,510 4.50%
+10 0d 4h 32m 6,170 5.00%
+Show all 99 rows
+Related pages
+Lab Upgrades
+Milestones
+Workshop Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

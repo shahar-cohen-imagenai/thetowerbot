@@ -1,0 +1,52 @@
+Thorn Damage is a workshop upgrade that punishes anything that hits your tower. When an enemy makes contact, it takes damage equal to a percentage of its own maximum health, which makes thorns especially effective against high-health targets.
+On this page
+Description
+Workshop
+Cost
+Garlic Thorns
+Description
+Thorn Damage deals a percentage of the attacking enemy's maximum health back to it whenever it hits your tower. This applies to ranged attackers as well as melee enemies, not just things touching the wall. Bosses take half the listed percentage, so a high thorns value still matters against them but at reduced effect.
+Workshop
+You unlock Thorn Damage in the workshop for 500 coins once you have both Defense % and Defense Absolute. From there you can buy 99 upgrades, each adding 1% thorns, up to a maximum of 99% (which works out to 49.5% against bosses).
+A few mechanical points worth knowing: thorn damage does not trigger lifesteal, and your tower does not need to actually take damage for thorns to fire. Protectors are a counter to watch for, since they cut thorn damage by 60% for all enemies within their range.
+Cost
+The cost of each thorns level rises as you buy more upgrades. See the cost table below for the exact price per level.
+Level Value Cost Total Cost
+1 1.00% 60.00 0.00
+2 2.00% 85.00 145.00
+3 3.00% 117.00 262.00
+4 4.00% 157.00 419.00
+5 5.00% 206.00 625.00
+6 6.00% 264.00 889.00
+7 7.00% 331.00 1.22K
+8 8.00% 409.00 1.63K
+9 9.00% 497.00 2.13K
+10 10.00% 596.00 2.72K
+Show all 99 rows
+Garlic Thorns
+Garlic Thorns is a lab upgrade unlocked at tier 2, wave 1000, with 10 upgrade levels. Once researched, Vampire elite enemies take a percentage of your thorns damage per second while they are using their ranged attack, giving you a way to pressure enemies that would otherwise sit safely at range. The per-level values are listed in the table below.
+Level Time Cost Value
+1 1d 3h 13m 4,500 0.5
+2 1d 6h 5m 7,100 1.0
+3 1d 9h 49m 13,300 1.5
+4 1d 14h 59m 26,700 2.0
+5 1d 22h 5m 50,900 2.5
+6 2d 7h 33m 89,500 3.0
+7 2d 19h 45m 146,100 3.5
+8 3d 11h 5m 224,300 4.0
+9 4d 5h 54m 327,700 4.5
+10 5d 4h 32m 459,900 5.0
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

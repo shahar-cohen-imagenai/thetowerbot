@@ -1,5 +1,31 @@
 # OCR Autopilot Implementation Plan
 
+## Follow-up: shared build presets
+
+Complete: extended each guide preset to cover battle rules and Workshop
+prerequisite unlocks/upgrades as one editable plan. Existing spending controls
+remain independent; applying a preset edits the draft and Save activates it.
+
+- [x] Define sourced Turtle and Health Workshop paths and unlock metadata.
+- [x] Apply shared presets from either purchase context; support reapplying a preset.
+- [x] Follow global Workshop priority and recognize already-satisfied unlocks.
+- [x] Verify targeted tests/build, refresh idle preview and document behavior.
+
+Additional investigation: Effective Paths as an account-specific recommendation
+source. Assess its spreadsheet interface and required inputs before promising
+automatic integration.
+
+Validation: 134 preset/API/schema tests, 90 affected Workshop/loop tests,
+and 28 editor/page tests passed. The production frontend build and independent
+executor review passed. Browser verification confirmed Turtle applies nine battle
+rules and twelve Workshop rows from the Workshop tab; Revert restores both.
+Preview: http://127.0.0.1:8766/strategy/ (idle, temporary profiles).
+
+Effective Paths assessment: this is a spreadsheet/IDS advisory system with eHP,
+eDamage and eEcon outputs; its FAQ excludes a standard Workshop path. Integration
+is proposed in `docs/superpowers/specs/effective-paths-integration.md`, not connected.
+A personal populated spreadsheet or representative export is the next input.
+
 > **For agentic workers:** Use superpowers:subagent-driven-development task by task.
 
 **Goal:** Deliver OCR purchases, editable guide strategies and a control room with

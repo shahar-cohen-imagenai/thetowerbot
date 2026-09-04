@@ -1,0 +1,34 @@
+The Tower community uses a lot of shorthand when discussing builds, stats, and progress. This page collects the most common abbreviations so you can follow guides and forum posts without guessing what each acronym means.
+Keep in mind that some abbreviations have more than one meaning. Always check the context to make sure the definition matches how the term is being used.
+On this page
+Ultimate Weapons (UW)
+Cards
+Labs
+Workshop (WS)
+Modules
+Common Lazy Talk
+Number notation
+Some acronyms in this game carry multiple meanings depending on the situation. When you come across an abbreviation, look at the surrounding context to confirm which definition applies before assuming.
+Ultimate Weapons (UW)
+When you see a "+" attached to an Ultimate Weapon abbreviation, it refers to the Ultimate Weapon Plus (UW+) ability. UW+ abilities are unlocked with stones after you have unlocked all 9 Ultimate Weapons. The number that follows the "+" indicates the level of that UW+ ability, starting at 0 when first unlocked.
+You may also see extra letters appended to a UW abbreviation. These suffixes point to a specific stat belonging to that Ultimate Weapon. The table below lists the known suffixes and what they stand for.
+Cards
+A "#" or "m" after a card abbreviation refers to that card's Mastery. Card Mastery becomes available for purchase with stones once you reach Tier 16 Wave 100 and have maxed all cards. The number after the symbol indicates the lab level of that Mastery, starting at 0 at base unlock.
+The table below lists common card abbreviations.
+Show all 18 rows
+Labs
+The table below lists abbreviations commonly used when referring to lab research topics.
+Workshop (WS)
+A "+" after a Workshop stat abbreviation points to the Workshop Enhancements (WS+) version of that stat. Not every Workshop stat has a WS+ counterpart, and some WS+ upgrades do not correspond to a base Workshop stat.
+The table below lists common Workshop abbreviations.
+Show all 24 rows
+Modules
+The table below lists abbreviations used for Modules and their related terms.
+Show all 22 rows
+Common Lazy Talk
+The table below covers informal shorthand and slang that players use in community discussions. These terms may not appear in the game itself but come up frequently in guides and chat.
+Show all 25 rows
+Number notation
+The Tower uses its own notation for large numbers. It begins with the familiar K for thousand and M for million, then continues into less common prefixes. The table below shows the full sequence so you can read damage numbers, costs, and other large values correctly.
+Show all 33 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-02) . Something out of date? Tell us in the Discord .

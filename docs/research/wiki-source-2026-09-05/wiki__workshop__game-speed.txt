@@ -1,0 +1,34 @@
+Game Speed is a workshop upgrade that raises the maximum speed your tower can run at. Higher game speed means more waves per minute of real time, which directly increases how fast you farm coins, cells and other resources.
+On this page
+Description
+Rounds
+Lab
+Description
+The Game Speed upgrade raises the cap on how fast the game can run. You can then select higher speed multipliers during a round, compressing more game time into each minute of real time.
+Rounds
+Game speed affects the pace of the whole round, and it shows up in several places. On the stats screen, real time and game time will not match, because game time runs faster at higher multipliers. Any ability that works on a timer is also sped up by game speed, so cooldowns and durations pass quicker in real terms.
+With the Game Speed perk taken during a round and the Standard Perk Bonus lab researched, game speed reaches a maximum of 6.25x, which the game displays as 6.3x. Note that the displayed multiplier is not fully accurate: 5.0x behaves closer to 4.0x in practice, and 6.25x is closer to 5x.
+Lab
+The Game Speed lab is unlocked through Milestones at tier 1 wave 30. It has a maximum of 7 levels, and each level raises the game speed cap further. See the table below for the cost and effect of each level.
+Level Cost Time Value
+1 300 9m x2.0
+2 2,500 2h 30m x2.5
+3 12,000 9h 48m x3.0
+4 50,000 1d 10h 2m x3.5
+5 150,000 3d 19h 39m x4.0
+6 500,000 14d 1h 46m x4.5
+7 1,000,000 25d 11h 6m x5.0
+Related pages
+Amplify Bot
+Attack Speed
+Black Hole
+Boss Labs
+Bot Bot
+Buy multiplier
+Card Presets
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-02-03) . Something out of date? Tell us in the Discord .

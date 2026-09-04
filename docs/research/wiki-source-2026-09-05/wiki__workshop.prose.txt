@@ -1,0 +1,143 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Workshop Upgrades
+Workshop Upgrades
+Every workshop upgrade — what it does, how many levels it has and what it costs to push.
+Attack Enhancements
+Attack Workshop Enhancements in The Tower: unlock costs, per-level gains and max levels for Damage, Rend, Crit, Damage/Meter, Super Crit and Attack Speed.
+Attack Speed
+Attack Speed controls how many projectiles your tower fires and how fast they travel. Covers workshop levels, labs, cards and enhancements.
+Attack Upgrades
+Attack upgrades in The Tower: Idle Tower Defense. Learn how Damage, Attack Speed, Critical Hits, Multishot, Rapid Fire, Bounce Shot, Super Criticals, and Rend A
+Bounce Shot
+Bounce Shot lets your tower's projectiles ricochet between enemies. Learn about its chance, targets, and range upgrades in the workshop.
+Buy multiplier
+Buy Multiplier lets you purchase workshop upgrades in larger batches at once. Learn how it works and how to unlock its lab upgrades.
+Cash Bonus
+Cash Bonus is a workshop upgrade that multiplies cash from all sources, including wave bonuses. Covers the workshop upgrade, card, enhancement and lab.
+Cash Per Wave
+Cash Per Wave is a workshop upgrade that pays out cash after each completed wave, multiplied by Cash Bonus and boosted further by a lab upgrade.
+Coins Per Kill Bonus
+Coins Per Kill is a Workshop upgrade that multiplies the coins you earn from destroying enemies, with 149 levels and a x2.49 maximum.
+Coins Per Wave
+Coins Per Wave is a workshop upgrade in The Tower that pays out coins each time you finish a wave. Learn its unlock path, levels, and lab boost.
+Critical Coin
+Critical Coin is a Workshop upgrade that gives basic enemies a chance to drop coins when killed by a critical hit.
+Critical Hits
+Critical Hits in The Tower: how Critical Chance and Critical Factor workshop upgrades, enhancements, and labs boost your damage output.
+Damage
+How tower damage works in The Tower: the damage formula, workshop levels, enhancement multiplier, Berserker and damage cards, and damage lab research.
+Damage Per Meter
+Damage Per Meter boosts your tower's damage based on how far enemies are, scaling with distance. Learn how it works and upgrades.
+Death Defy
+Death Defy is a Workshop upgrade that gives your tower a chance to ignore a killing hit, up to 30% at max level.
+Defense Absolute
+Defense Absolute reduces incoming enemy damage by a flat amount after Defense % is applied. Learn how it works, its costs, cards, and lab upgrades.
+Defense Enhancements
+Defense workshop enhancements in The Tower: unlock requirements, level caps and multipliers for Health, Regen, Defense Absolute, Land Mines, Wall Health and Orb
+Defense Percent
+Defense Percent reduces incoming damage by a percentage before Defense Absolute applies. Learn its workshop upgrades, lab, card, perks, relics and the 98% cap.
+Defense Upgrades
+Defense Upgrades are workshop upgrades that improve your tower's survivability by boosting health, reducing damage taken, or preventing death.
+Enemy Level Skip
+Enemy Level Skip gives a chance to skip enemy stat level-ups after each wave. Covers workshop, lab, enhancement and relic sources.
+Free Upgrades
+How Free Upgrades work in The Tower: Idle Tower Defense, including workshop costs, the free upgrade card and perk, and the Utility enhancement.
+Game Speed
+How the Game Speed workshop upgrade and lab work in The Tower: Idle Tower Defense, including the 6.25x cap and timer effects.
+Health
+Health is your tower's maximum HP. Learn how workshop upgrades, labs, cards and enhancements raise it, and how it feeds into Effective HP.
+Health Regen
+Health Regen restores tower health each second. Learn how workshop levels, labs, cards, enhancements, perks and relics stack to boost it.
+Interest
+Interest is a workshop upgrade in The Tower: Idle Tower Defense that pays a percentage of your unspent cash at the end of each wave.
+Knockback
+Knockback is a workshop upgrade in The Tower that gives your shots a chance to push enemies away. Covers chance, force, costs and enemy mass.
+Land Mine
+How Land Mines work in The Tower: spawn chance, damage formula, radius, workshop upgrades, the stun card, enhancements and lab research.
+Lifesteal
+How Lifesteal works in The Tower: Idle Tower Defense, including its healing mechanic, workshop unlock requirements, and upgrade costs.
+More Round Stats
+More Round Stats is a workshop upgrade that adds extra per-round statistics and unlocks the Battle History feature for reviewing past runs.
+Multishot
+Multishot is a workshop upgrade that lets your tower fire at multiple enemies at once. Learn how Multishot Chance and Multishot Targets work.
+Orbs
+How orbs work in The Tower: workshop upgrades, orb speed and counts, orb damage rules, and the orb-related lab research.
+Range
+Range is a workshop upgrade in The Tower: Idle Tower Defense that sets how far your tower fires and caps enemy ranged attack distance.
+Rapid Fire
+Rapid Fire is a workshop upgrade that gives your tower a chance to fire four times faster for a short duration. Learn how it works and what it upgrades.
+Recovery Packages
+Recovery Packages restore tower health automatically when they spawn. Learn how Recovery Amount, Max Recovery, Package Chance, cards, and labs work together.
+Rend Armor
+Rend Armor is a Workshop upgrade that gives projectiles a chance to permanently increase damage taken by enemies, with stacking multipliers up to 800%.
+Shockwave
+Shockwave is a Workshop upgrade in The Tower that periodically pushes enemies away. Covers size, frequency, costs and lab research.
+Starting Cash
+Starting Cash is a workshop upgrade that increases the amount of cash you begin each round with.
+Super Critical
+Super Critical adds a chance for extra critical damage after a crit lands. Covers Workshop upgrades, lab research, costs, and multipliers.
+Thorn Damage
+How Thorn Damage works in The Tower: unlock requirements, upgrade levels, boss and Protector interactions, and the Garlic Thorns lab.
+Utility Enhancements
+Utility enhancements in The Tower: Idle Tower Defense, including Cash, Coin, Cells/Kill, Free Upgrades, Packages, and Enemy Level Skips.
+Utility Upgrades
+Utility upgrades in The Tower: Idle Tower Defense workshop boost cash and coin income, grant free tower upgrades, and skip enemy level increases.
+Wall
+How the Wall works in The Tower: Idle Tower Defense, including Wall Health, Rebuild, Regen, Thorns, Invincibility, Fortification, and all lab and workshop upgra
+Wave Accelerator
+Wave Accelerator in The Tower: what each level cuts from the wave timer, how much faster full runs get, and why it also charges Energy Shield sooner.
+Wave Skip
+Wave Skip is a Workshop Upgrade that lets you bypass waves for multiplied rewards. Learn its income and wave-based mechanics.
+Workshop Attack Discount
+Workshop Attack Discount is a lab that lowers the coin cost of attack workshop upgrades. Unlock requirements and level details.
+Workshop Enhancement
+Workshop Enhancements in The Tower: unlock requirements, all 18 enhancement types, their multipliers, and the Enhancement Coin Discount lab.
+Workshop Respec
+Reset your Workshop coin upgrades for 150 gems and get back every coin you spent, with no discount deductions. Ultimate Weapons stay untouched.
+Workshop Upgrades
+The Tower's Workshop and Enhancements explained: unlock requirements, coin thresholds and max levels for every attack, defense and utility stat.
+Workshop Utility Discount
+Workshop Utility Discount lowers the coin cost of utility workshop upgrades. Learn what it does and how to unlock its lab.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

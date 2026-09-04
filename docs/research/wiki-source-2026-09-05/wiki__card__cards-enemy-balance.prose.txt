@@ -1,0 +1,11 @@
+Enemy Balance is a common card that trades a busier battlefield for better income. While it is equipped, more enemies appear in each wave, and every kill pays out more cash than usual.
+Because your earnings scale with the number of enemies you destroy, both halves of this card push in the same direction: extra spawns mean extra kills, and each of those kills is worth more. The exact cash bonus per level is listed in the table below.
+Enemy Balance
+Enemy Balance is a common card in The Tower: Idle Tower Defense. Equipping it increases the number of enemies spawned in each wave and raises the amount of cash you earn per kill.
+This makes it a straightforward economy card. More spawns give you more targets to kill, and the boosted cash per kill means each wave pays out noticeably more than it would without the card. It suits runs where your tower can comfortably handle the heavier enemy pressure, since the extra spawns only help if you can actually clear them.
+Enemy Balance value per card level
+Card Mastery
+Unlocking the Enemy Balance mastery costs 1000 stones. Once unlocked, it adds a chance for elite enemies to spawn twice.
+Keep in mind that the mastery is only active while Enemy Balance is equipped in your active loadout. If you swap the card out, you lose the double elite spawn chance until you equip it again.
+Enemy Balance mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

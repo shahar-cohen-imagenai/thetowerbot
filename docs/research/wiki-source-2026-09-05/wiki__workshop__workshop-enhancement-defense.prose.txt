@@ -1,0 +1,24 @@
+Defense enhancements are permanent Workshop upgrades that multiply your core defensive stats. Each one has its own unlock condition, and most require you to have spent a set amount of coins on defense enhancements before they become available. Once unlocked, you buy levels with coins to raise the multiplier step by step.
+On this page
+— Health
+— Health Regen
+— Defense Absolute
+— Land Mines
+— Wall Health
+— Orb Size
+— Health
+The Health enhancement is the only one that costs nothing to access: it unlocks for free once you have completed the Workshop Enhancement lab. It starts at a x1 multiplier, and each level adds 0.01x to your Health. With a cap of 400 levels, you can push the multiplier to x5.00 at most. The cost table below shows the price per level.
+Show all 41 rows
+— Health Regen
+Health Regen becomes available after you have spent 50 billion coins on defense enhancements. It begins at x1 and gains 0.01x per level, so the 400-level maximum tops out at a 5x regen multiplier.
+— Defense Absolute
+Defense Absolute requires 500 billion coins spent on defense enhancements before it unlocks. Like the other standard enhancements, it starts at x1, rises by 0.01x per level, and caps at 400 levels for a 5x bonus.
+— Land Mines
+The Land Mines enhancement unlocks once 5 trillion coins have been spent on defense enhancements. It scales faster than the others: each level adds 0.06x to Land Mine Damage, so the 400-level cap reaches a 25x multiplier rather than the usual 5x. Check the table below for the per-level costs.
+Show all 41 rows
+— Wall Health
+Wall Health is a late-game enhancement, requiring 50 trillion coins spent on defense enhancements to unlock. It follows the standard pattern of x1 at unlock and 0.01x per level, with 400 levels giving a maximum 5x bonus to your Wall's health.
+— Orb Size
+Orb Size is the most expensive enhancement to access, needing 500 trillion coins spent on defense enhancements. It starts at x1 and gains 0.01x per level, but it caps at 200 levels rather than 400, for a maximum of 3x orb size. The table below lists the cost of each level.
+Show all 21 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

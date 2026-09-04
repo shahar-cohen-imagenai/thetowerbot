@@ -1,0 +1,23 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Battle Condition"
+    ],
+    "rows": [
+      [
+        "Battle Condition Reduction Max Lv 10",
+        "Battle Condition Reduction Group 1 Max Lv 20"
+      ],
+      [
+        "Battle Condition Reduction Group 2 Max Lv 20",
+        "Battle Condition Reduction Group 3 Max Lv 10"
+      ],
+      [
+        "Battle Condition Reduction Group 4 Max Lv 10",
+        ""
+      ]
+    ]
+  }
+]

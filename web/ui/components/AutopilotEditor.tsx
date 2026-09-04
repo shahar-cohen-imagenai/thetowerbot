@@ -68,15 +68,41 @@ export function AutopilotEditor({
     ? savedPolicy
     : {
         ...savedPolicy,
-        rules: presets.find((preset) => preset.name === savedPolicy.preset)?.rules ?? [],
+        rules:
+          presets.find((preset) => preset.name === savedPolicy.preset)?.rules ??
+          [],
       };
   const fresh =
     snapshot?.updated_at != null &&
     Date.now() / 1000 - snapshot.updated_at <= 15;
-  const controlsDisabled =
-    disabled || commandPending || !snapshot?.can_control;
+  const controlsDisabled = disabled || commandPending || !snapshot?.can_control;
   const updatePolicy = (patch: Partial<AutopilotPolicy>) =>
     onChange({ ...value, autopilot: { ...policy, ...patch } });
+  const selectedPreset = presets.find(
+    (preset) => preset.name === policy.preset,
+  );
+  function applyPreset(name: string) {
+    if (name === "manual") {
+      updatePolicy({ preset: "manual" });
+      return;
+    }
+    const preset = presets.find((row) => row.name === name);
+    if (!preset) return;
+    onChange({
+      ...value,
+      autopilot: {
+        ...policy,
+        preset: preset.name,
+        rules: preset.rules.map((rule) => ({ ...rule })),
+      },
+      shopping: {
+        ...value.shopping,
+        workshop:
+          preset.workshop?.map((rule) => ({ ...rule })) ??
+          value.shopping.workshop,
+      },
+    });
+  }
   const matches = (upgrade: Upgrade, name: string) =>
     [upgrade.name, ...upgrade.aliases].some(
       (alias) => identity(alias) === identity(name),
@@ -226,6 +252,105 @@ export function AutopilotEditor({
           {error}
         </p>
       ) : null}
+      <div
+        className="flex flex-col gap-3 rounded-md border bg-muted/30 p-3"
+        aria-label="Guide build"
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm font-medium">
+            Guide preset
+            <select
+              aria-label="Guide preset"
+              className="rounded-md border bg-background p-2"
+              value={policy.preset}
+              disabled={disabled}
+              onChange={(event) => applyPreset(event.target.value)}
+            >
+              {!presets.some((row) => row.name === "manual") ? (
+                <option value="manual">Manual</option>
+              ) : null}
+              {presets.map((preset) => (
+                <option key={preset.name} value={preset.name}>
+                  {label(preset.name)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            disabled={disabled || policy.preset === "manual" || !selectedPreset}
+            className="rounded-md border bg-background px-3 py-2 text-sm disabled:opacity-40"
+            onClick={() => applyPreset(policy.preset)}
+          >
+            Reapply preset
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Guide presets update both Battle and Workshop plans; Save to apply.
+          Reapply restores the selected guide&apos;s plans. Automation switches
+          and spending limits stay as configured.
+        </p>
+        {policy.preset === "manual" ? (
+          <p className="text-sm">
+            Keep and edit your own Battle and Workshop plans.
+          </p>
+        ) : selectedPreset?.description ? (
+          <p className="text-sm">{selectedPreset.description}</p>
+        ) : null}
+        {policy.preset !== "manual" &&
+        selectedPreset &&
+        !selectedPreset.workshop ? (
+          <p className="text-xs text-warn">
+            This server provides battle rules only; the Workshop plan is
+            retained.
+          </p>
+        ) : null}
+        <p className="font-mono text-xs" data-testid="plan-coverage">
+          Battle: {policy.rules.filter((rule) => rule.enabled).length} enabled /{" "}
+          {policy.rules.length} planned · Workshop:{" "}
+          {value.shopping.workshop.filter((rule) => rule.enabled).length}{" "}
+          enabled / {value.shopping.workshop.length} planned
+        </p>
+        <p
+          className="text-xs text-muted-foreground"
+          data-testid="workshop-setup"
+        >
+          Workshop setup:{" "}
+          {value.shopping.enabled ? "Shopping enabled" : "Shopping off"} ·{" "}
+          {value.shopping.armed ? "Armed" : "Unarmed"} ·{" "}
+          {value.shopping.allow_unlocks ? "Unlocks allowed" : "Unlocks blocked"}{" "}
+          · Budget {value.shopping.coin_budget ?? 0}
+          {!(value.shopping.coin_budget ?? 0)
+            ? " (no coin spending)"
+            : " coins per visit"}
+          .{" "}
+          <a href="#shopping" className="underline">
+            Edit shopping controls
+          </a>
+        </p>
+        {selectedPreset?.notes?.length ? (
+          <ul className="list-disc space-y-1 pl-4 text-xs text-muted-foreground">
+            {selectedPreset.notes.map((note, index) => (
+              <li key={index}>{note}</li>
+            ))}
+          </ul>
+        ) : null}
+        {selectedPreset?.sources?.length ? (
+          <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs">
+            {selectedPreset.sources.map((source) => (
+              <a
+                key={source.url}
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                {source.title}
+              </a>
+            ))}
+          </p>
+        ) : null}
+      </div>
       <div className="flex flex-wrap gap-2" aria-label="Purchase context">
         {(["battle", "workshop"] as const).map((tab) => (
           <button
@@ -251,34 +376,6 @@ export function AutopilotEditor({
               }
             />
             Enable battle autopilot
-          </label>
-          <label className="flex items-center justify-between gap-2 text-sm">
-            Guide preset
-            <select
-              aria-label="Guide preset"
-              className="rounded-md border bg-background p-2"
-              value={policy.preset}
-              disabled={disabled}
-              onChange={(event) => {
-                const preset = presets.find(
-                  (row) => row.name === event.target.value,
-                );
-                if (preset)
-                  updatePolicy({
-                    preset: preset.name,
-                    rules: preset.rules.map((rule) => ({ ...rule })),
-                  });
-              }}
-            >
-              {!presets.some((row) => row.name === "manual") ? (
-                <option value="manual">Manual</option>
-              ) : null}
-              {presets.map((preset) => (
-                <option key={preset.name} value={preset.name}>
-                  {label(preset.name)}
-                </option>
-              ))}
-            </select>
           </label>
           <label className="flex items-center justify-between gap-2 text-sm">
             Run purpose
@@ -462,6 +559,18 @@ export function AutopilotEditor({
                         ? " · discovered, identity unconfirmed"
                         : ""}
                     </span>
+                    {upgrade.unlocks?.length ? (
+                      <span className="block max-w-xs text-xs text-muted-foreground">
+                        Unlocks{" "}
+                        {upgrade.unlocks
+                          .map(
+                            (id) =>
+                              catalog.find((row) => row.id === id)?.name ??
+                              id.replace(/_/g, " "),
+                          )
+                          .join(", ")}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="p-2">
                     <span

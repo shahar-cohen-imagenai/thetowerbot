@@ -1,0 +1,9 @@
+Energy Net is a defensive card that targets bosses. When a boss gets close enough to your tower, the card fires a net that stuns it, buying you time to finish it off before it reaches you.
+Description
+Energy Net fires a net projectile at bosses, stunning them for a period of time when it hits. The stun only applies to bosses, so the card has no effect on regular enemies.
+Use
+The card fires automatically once a boss enters your tower's range, so you do not need to trigger it yourself. The net travels at its own movement speed, which scales with your attack speed, and it is not affected by Light Speed Shot. Because the net takes time to travel, a boss will not always be stunned exactly at the tower range line — it may move closer before the net connects. Keep this delay in mind when judging how much safety the stun actually gives you.
+Related pages
+Attack Speed
+Cards
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-11-13) . Something out of date? Tell us in the Discord .

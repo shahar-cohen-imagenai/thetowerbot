@@ -1,0 +1,44 @@
+Labs are where you research permanent upgrades that raise your scaling and maximum caps. Most lab upgrades must first be unlocked through Milestones before you can research them, and each research takes real time to complete.
+On this page
+Description
+Features of Research
+Number of Labs
+Rushing Labs
+Boosting Labs
+List of Lab Upgrades
+Description
+Lab upgrades are permanent improvements bought through the lab screen. They cover a wide range of effects, from improving how your tower scales to raising maximum caps on stats. Most individual labs are gated behind Milestones, so you need to hit the required milestone before the research becomes available.
+Features of Research
+The labs page includes several features that affect how research works or improve quality of life.
+Switching labs: If you are partway through a research, you can tap the lab and swap to a different one. The coins you paid are refunded, and your progress is kept and shown as a green lab time. When you return to that research later, you pay the coin cost again but keep the time progress.
+Auto Research: A small clock icon sits to the left of the progress bar on each lab. Turning it on makes that lab automatically begin the next level of the same research as soon as the current one finishes.
+Lab Search: When picking a new research, you can type a lab's name into the search bar to filter the list instead of scrolling.
+Lab History: The History tab shows every lab you have completed in chronological order, along with the date and time each one finished.
+Number of Labs
+You start with a single lab slot, unlocked through Milestones at tier 1 wave 30. Additional slots can be purchased with gems, up to a maximum of five labs running in parallel. Buying all of them costs 4,900 gems in total; the per-slot breakdown is in the cost table below.
+Rushing Labs
+You can spend gems to skip lab time, but only the entire remaining duration of a research — partial skips are not possible. Longer researches have built-in discounts, so rushing them costs fewer gems per unit of time than rushing short ones.
+Gold-boxing a lab (completing every level of it) improves your gem rush efficiency. Each fully gold-boxed lab adds 0.015x to your gem efficiency, stacking additively, so the more labs you finish, the cheaper rushing becomes. Exact rush costs are shown in the table below.
+Credit to Shantymatic for calculations (Outdated due to gem rush efficiency update)
+Boosting Labs
+Labs can be sped up using Elite Cells. Open the lab, select "Speed Up", pick a duration of 1, 8, or 24 hours, then pick a multiplier from 1.5x up to 8x. The lab then shows the Elite Cell cost for that combination. Since v25.5, all boosts use a flat rate.
+Boost costs rise much faster than the multiplier itself. Going from 1.5x to 2x is a ~33% relative speed increase, but the cost jumps by roughly 6.67 times. Because of this, spreading boosts across several labs is usually better value than pushing one lab to a high multiplier — unless your cell generation is strong enough to refill the cost before the boost expires. As an example, seven separate 1.5x one-hour boosts cost 105 cells and skip 3.5 hours of research, while a single 2x one-hour boost costs 100 cells and only skips 1 hour.
+Boosts can also be set to queue automatically when they expire, configured through the same Speed Up menu with your chosen multiplier and duration. Note that a speed boost only ticks down while that lab is actively slotted for research.
+Show all 24 rows
+List of Lab Upgrades
+The full list of lab upgrades, including their effects and costs, is shown in the table below.
+Show all 103 rows
+Related pages
+Amplify Bot
+Assist Module Labs
+Attack Speed
+Black Hole
+Boss Labs
+Bot Bot
+Buy multiplier
+Card Presets
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-15) . Something out of date? Tell us in the Discord .

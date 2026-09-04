@@ -1,0 +1,89 @@
+The Workshop is where you spend coins on permanent upgrades for your tower, separate from the cash upgrades you buy mid-run. Once you progress far enough, it also houses Workshop Enhancements, a second layer of multipliers that sit on top of your existing stats.
+This page covers how the Workshop and its Enhancements are structured, when they unlock, and what each individual enhancement does.
+On this page
+Workshop
+Workshop Enhancement
+Unlock
+Workshop Enhancement Unlocks — Attack Enhancement — Damage
+Workshop Enhancement Unlocks — Attack Enhancement — Rend Max
+Workshop Enhancement Unlocks — Attack Enhancement — Critical Factor
+Workshop Enhancement Unlocks — Attack Enhancement — Damage/Meter
+Workshop Enhancement Unlocks — Attack Enhancement — Super Crit Multi
+Workshop Enhancement Unlocks — Attack Enhancement — Attack Speed
+Workshop Enhancement Unlocks — Super Crit Multi — Health
+Workshop Enhancement Unlocks — Super Crit Multi — Health Regen
+Workshop Enhancement Unlocks — Super Crit Multi — Defense Absolute
+Workshop Enhancement Unlocks — Super Crit Multi — Land Mines
+Workshop Enhancement Unlocks — Super Crit Multi — Wall Health
+Workshop Enhancement Unlocks — Super Crit Multi — Orb Size
+Workshop Enhancement Unlocks — Orb Size — Cash Bonus
+Workshop Enhancement Unlocks — Orb Size — Coin Bonus
+Workshop Enhancement Unlocks — Orb Size — Cells/Kill Bonus
+Workshop Enhancement Unlocks — Orb Size — Free Upgrades
+Workshop Enhancement Unlocks — Orb Size — Packages
+Workshop Enhancement Unlocks — Orb Size — Enemy Level Skips
+Workshop
+The Workshop offers three categories of upgrade: Attack, Defense and Utility. You buy them with coins between rounds, and anything purchased this way is permanent, unlike the cash upgrades bought during a round, which reset when the battle ends. If you want to redo your coin spending, a Workshop Respec will refund it.
+The Workshop menu is also where you unlock and upgrade Ultimate Weapons.
+Workshop Enhancement
+Workshop Enhancements mirror the same Attack, Defense and Utility split as the base Workshop. Each enhancement is a multiplier you level up with coins, and new ones within a category become available by sinking coins into the other enhancements of that same category.
+Unlock
+Workshop Enhancements become available once you reach tier 12 wave 60, and you also need to have finished the Workshop Enhancement lab research. The cost table below lists what each level costs once the feature is open.
+Workshop Enhancement Unlocks — Attack Enhancement — Damage
+The Damage enhancement comes free as soon as Workshop Enhancements are researched. It begins at a 1x multiplier and gains 0.01x per level, capping at 400 levels for a total of 5x. The level-by-level costs are shown in the table below.
+Show all 41 rows
+Workshop Enhancement Unlocks — Attack Enhancement — Rend Max
+Rend Max opens up after you have spent 50 billion coins on damage enhancements. Unlocking it applies a 1x multiplier to Rend Max, its chance and its mult, and each level adds 0.01x. It runs to 400 levels, topping out at a 5x bonus.
+Workshop Enhancement Unlocks — Attack Enhancement — Critical Factor
+Critical Factor requires 500 billion coins spent on enhancements before it unlocks. It starts by adding 1.0x to your Crit Factor and grows by 0.1 per level, with 400 levels bringing it to a maximum of 5x.
+Workshop Enhancement Unlocks — Attack Enhancement — Damage/Meter
+Damage/Meter unlocks once 5 trillion coins have gone into attack enhancements. The multiplier starts at 1x and rises by 0.01x per level, reaching a 5x bonus at its cap of 400 levels.
+Workshop Enhancement Unlocks — Attack Enhancement — Super Crit Multi
+Super Crit Multi is gated behind 50 trillion coins spent on enhancements. It adds 1.0x to your Super Crit Multi when unlocked and increases by 0.1 per level, maxing out at 400 levels for a 5x multiplier.
+Workshop Enhancement Unlocks — Attack Enhancement — Attack Speed
+Attack Speed is the final attack enhancement, requiring 500 trillion coins spent on enhancements. It starts at 1x and gains 0.01 per level, but only runs to 75 levels, giving a maximum of 1.75x. See the table below for per-level costs.
+Show all 75 rows
+Workshop Enhancement Unlocks — Super Crit Multi — Health
+The Health enhancement is free once the Workshop Enhancement lab is done. It multiplies Health starting at 1x, adding 0.01x per level, and caps at 400 levels for a 5x multiplier.
+Workshop Enhancement Unlocks — Super Crit Multi — Health Regen
+Health Regen unlocks after 50 billion coins have been spent on defense enhancements. It starts at a 1x regen multiplier and grows by 0.01x per level, reaching a 5x bonus at the 400-level cap.
+Workshop Enhancement Unlocks — Super Crit Multi — Defense Absolute
+Defense Absolute requires 500 billion coins spent on defense enhancements. The multiplier begins at 1x, increases by 0.01x per level, and tops out at 400 levels for 5x.
+Workshop Enhancement Unlocks — Super Crit Multi — Land Mines
+Land Mines unlock once 5 trillion coins have gone into defense enhancements. Each level adds 0.06x to the Land Mine Damage multiplier starting from 1x, so the 400-level cap yields a much larger 25x bonus. The cost table below breaks down the per-level pricing.
+Show all 41 rows
+Workshop Enhancement Unlocks — Super Crit Multi — Wall Health
+Wall Health needs 50 trillion coins spent on defense enhancements to unlock. It starts at 1x, gains 0.01x per level, and maxes at 400 levels for a 5x bonus.
+Workshop Enhancement Unlocks — Super Crit Multi — Orb Size
+Orb Size is the last defense enhancement, requiring 500 trillion coins spent in the category. It starts at 1x and adds 0.01x per level, but caps at 200 levels, giving a maximum of 3x orb size. Per-level costs are in the table below.
+Show all 21 rows
+Workshop Enhancement Unlocks — Orb Size — Cash Bonus
+Cash Bonus is free once the Workshop Enhancement lab is complete. Beyond raising the Cash Bonus multiplier from 1x by 0.01x per level, each upgrade also adds 1% to cash per wave, interest percentage and the max interest per wave. It caps at 400 levels for a 5x bonus.
+Workshop Enhancement Unlocks — Orb Size — Coin Bonus
+Coin Bonus unlocks after 50 billion coins spent on Utility enhancements. It starts at 1x and gains 0.01x per level, capping at 200 levels for a 3x bonus. Because it multiplies both the tier bonus and coins per kill, its effective benefit is squared, making it stronger than the raw number suggests. The table below shows level costs.
+Show all 200 rows
+Workshop Enhancement Unlocks — Orb Size — Cells/Kill Bonus
+Cells/Kill Bonus requires 500 billion coins spent on Utility enhancements. It starts at 1x, increases by 0.01x per level, and caps at 200 levels for a 3x bonus.
+Workshop Enhancement Unlocks — Orb Size — Free Upgrades
+Free Upgrades unlocks once 5 trillion coins have been spent on Utility enhancements. It boosts all free upgrade chances from 1x, adding 0.01x per level, with a cap of 100 levels for a 2x bonus. Costs per level are listed in the table below.
+Show all 100 rows
+Workshop Enhancement Unlocks — Orb Size — Packages
+Packages requires 50 trillion coins spent on Utility enhancements. It multiplies both Max Recovery Package and Recovery Amount, starting at 1x and gaining 0.01x per level, up to 300 levels for a 4x bonus. See the table below for pricing.
+Show all 31 rows
+Workshop Enhancement Unlocks — Orb Size — Enemy Level Skips
+Enemy Level Skips is the final Utility enhancement, needing 500 trillion coins spent in the category. It raises both the Enemy Health and Enemy Damage Level Skip multipliers from 1x by 0.01x per level, capping at just 60 levels for a 1.6x bonus. The table below lists the cost per level.
+Show all 60 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-03-18) . Something out of date? Tell us in the Discord .

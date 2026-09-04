@@ -1,0 +1,14 @@
+Assist Module Main Effect / Substat Labs
+Level Time Cost (Q Coins) Value
+1 10d 19h 11m 0.25 1%
+2 21d 14h 22m 0.5 2%
+3 32d 9h 33m 0.75 3%
+4 43d 4h 45m 1 4%
+5 53d 23h 56m 1.25 5%
+6 64d 19h 7m 1.5 6%
+7 75d 14h 19m 1.75 7%
+8 86d 9h 30m 2 8%
+9 97d 4h 41m 2.25 9%
+10 107d 23h 53m 2.5 10%
+Show all 30 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-21) . Something out of date? Tell us in the Discord .

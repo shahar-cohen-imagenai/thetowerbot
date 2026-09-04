@@ -1,0 +1,10 @@
+Super Tower is an epic card that gives your tower a short burst of extra damage. When it triggers, your tower enters a super state for 15 seconds, during which its damage is increased by the card's listed multiplier. After each activation, the card goes on a 30-second cooldown before it can trigger again.
+Super Tower
+Super Tower is an epic card. Its effect reads: the tower becomes super for 15 seconds, with tower damage increased by a set multiplier, followed by a 30-second cooldown.
+Because the boost only lasts 15 seconds out of every 45-second cycle at most, Super Tower works as a periodic damage spike rather than a constant bonus. The exact damage multiplier scales with the card's level — see the table below for the values at each tier.
+Super Tower value per card level
+Card Mastery
+Unlocking the Super Tower mastery costs 1000 stones. Once unlocked, 35% of the super tower damage bonus is also applied to your Ultimate Weapons while the super state is active, and the card's cooldown is reduced.
+The mastery only functions while Super Tower is equipped in your active loadout. If you swap the card out, you lose the mastery benefit until you equip it again. The reduced cooldown means more frequent super windows, which in turn means more uptime on both the tower damage boost and the Ultimate Weapon bonus. See the table below for the cooldown values at each level.
+Super Tower mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

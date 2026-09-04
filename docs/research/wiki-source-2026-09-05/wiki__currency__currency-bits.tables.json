@@ -1,0 +1,93 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Guild Contribution",
+      "Bits"
+    ],
+    "rows": [
+      [
+        "100",
+        "10"
+      ],
+      [
+        "250",
+        "25"
+      ],
+      [
+        "500",
+        "50"
+      ],
+      [
+        "750",
+        "100"
+      ],
+      [
+        "Weekly Total (Max)",
+        "185"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Purchase",
+      "Cost ( Tokens )",
+      "Bits Received"
+    ],
+    "rows": [
+      [
+        "1st",
+        "25",
+        "25"
+      ],
+      [
+        "2nd",
+        "50",
+        "25"
+      ],
+      [
+        "3rd",
+        "75",
+        "25"
+      ],
+      [
+        "Season Total",
+        "150",
+        "75"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Unlock",
+      "Cost ( Bits )"
+    ],
+    "rows": [
+      [
+        "Guardian (includes 1st Chip slot)",
+        "100"
+      ],
+      [
+        "2nd Chip slot",
+        "200"
+      ],
+      [
+        "3rd Chip slot",
+        "300"
+      ],
+      [
+        "4th Chip slot",
+        "Currently unavailable"
+      ],
+      [
+        "Total (available)",
+        "600"
+      ]
+    ]
+  }
+]

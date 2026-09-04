@@ -1,0 +1,77 @@
+Version 0.19 added daily missions with weekly rewards, four new workshop upgrades including The Wall and Render Armor, and eight supporting labs. A major bug fix removed double-counted multipliers on amplify, spotlight, shock, and protectors, with partial compensation buffs to amp bot and spotlight damage. Economy changes raised coin bonuses at tier 10+ while cutting coins from long-juggled enemies, and tournaments got shorter rounds with reduced enemy speed. Quality-of-life additions included boss damage breakdowns, collapsible buttons, round stats, and improved cloud saves.
+Change list
+Reproduced from the developer's release notes.
+• Daily missions added. 2 new missions added every 8 hours to an inventory of missions to complete. Max of 6 can be available at anytime. Complete for daily rewards and a weekly reward based on how many you've completed
+• New Utility Upgrade: Enemy Attack Level Skip
+• New Utility Upgrade: Enemy Defense Level Skip
+• New Defense Upgrade: The Wall - Wall Health and Wall Rebuild Time
+• New Attack Upgrade: Render Armor - Chance and Multiplier
+• Health regen above level 500 buffed a lot
+• 8 new Labs surrounding all the new workshop upgrades added, make sure to check your milestone unlocks for them
+• After boss is destroyed, tap the boss health bar at the top to see damage breakdown
+• Floating text pop ups no longer go over upgrade panel
+• Enemy mass scaled up
+• Fast enemy speed scaling reduced
+• Tiers 10 and above coin bonus increased, more for higher tiers
+• Enemies that live for greater than 3 waves earn 50% less coins when killed (prevent extreme enemy juggling)
+• Absolute max speed of enemies reduced
+• Protectors nerfed (see below to the bug pertaining to this)
+• When in round, top right buttons are now collapsible
+• In active game, tap upper left currencies to switch from amount in hand and rate of gain
+• If perk bar isn't active, boss health bar takes it's spot in a vertical layout
+• IAP button in gameplay screen now shows a notification bubble if daily reward is not claimed
+• During active round, tap the wave bar to access round stats including new ones like coins per minute
+• Stones earned stat added
+• Highest coins earned per tier (starts recording now)
+• Some other stats added I've forgotten
+• Super tower card shows cooldown seconds in description
+• Super tower is now a locked card
+• Second wind now shows invincibility timer on screen
+• Bots radius now grows based on tower range. Bigger tower range, bigger bot radius
+• Amp bot base damage mult increased from x3.0 to x3.5, increase per level from .3 to .4 (buffed due to bug posted below)
+• Flame bot base damage increased from 4000% to 5000%, increase per level from 600% to 800%
+• Confirm panel added for theme and song purchases
+• Any missions that are complete, but medals not collected are now sent to your mail box at the event end
+• Damage max level for smart missiles, chain lightning, death wave, inner land mines and poison swamp increased to 30
+• Base damage increased from 900 to 1400%, scaling increased per level
+• Damage number format changed from % to x due to larger numbers
+• Damage max level increased from 20 to 30
+• Base damage increased from 80 to 110%, scaling increased slightly
+• Damage per level increased a bit
+• Blackhole distance calculation altered to reduce harm larger radiuses can do
+• Base damage increased from 1200 to 2000%, increase per level from 150 to 300%, exponential factor also increased a bit
+• Damage max level increased from 20 to 25
+• Base damage increased from 80 to 120%, increase per level from 25 to 40%, exp factor increased considerably
+• Base damage mult increased from x6 to x8, upgrade per level increased from +1.0 to +1.3 (buffed due to bug posted below)
+• Difficulty scaled up for all leagues to shorten rounds
+• Enemy speed for tourneys reduced a bit
+• Functions for joining tournaments improved to prevent buggy brackets
+• On first open of the app, better guidance of upgrades and game speed increase
+• Cloud save reliability improved in several areas
+• Ability to disable floating text in settings panel
+• Floating text performance improved
+• Intro tutorial and guidance improved
+• Anti cheat improved
+• A lot of backend tools to help us manage the game better
+• File converted from apk to aab, reduced file size and updates no longer require full re-downloads
+• Large bug - some hit multipliers are counting twice multiplicatively (amplify, spotlight, and shock). Protectors are also providing double protection multiplicatively often, so this is a large protector nerf. This double multiplier will be fixed and to meet the balance partway the following is adjusted… Amp bot mult, spotlight damage mult will be buffed, see above for amounts)
+• Update notes panel in front of resume panel now
+• When claiming tournament rewards, game saves right after to avoid issues
+• Store IAP costs best fit now for different currencies
+• Spotlight size not always being correct on resume
+• Buying upgrades with multiplier sometimes not applying mission progress for events properly
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

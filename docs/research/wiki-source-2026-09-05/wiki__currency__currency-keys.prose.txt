@@ -1,0 +1,7 @@
+Keys are a special currency you earn by competing in Legend Tournaments. Unlike coins or gems, they have a single purpose: unlocking unique Tower upgrades through the Tech Trees found in the Vault.
+Keys
+You earn Keys by placing anywhere from 1st to 15th in a Legend Tournament, so you do not need to win the event to come away with some.
+Once you have them, Keys are spent in the Vault, where they pay for unique Tower upgrades within the Tech Trees. If you want to progress those upgrades, consistent high placements in Legend Tournaments are your only source, so treat each tournament as a chance to stock up.
+Related pages
+Tournaments
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-10) . Something out of date? Tell us in the Discord .

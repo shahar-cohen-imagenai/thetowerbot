@@ -1,0 +1,10 @@
+Critical Coin is a rare card you can equip in The Tower: Idle Tower Defense. It adds a coin-drop effect tied to critical kills on basic enemies, making it a modest economy boost for runs where your crit rate is high.
+Critical Coin
+When you have Critical Coin equipped, any basic enemy killed by a critical shot has a percentage chance to drop coins. The exact chance scales with the card's level, which you can see in the table below.
+Note that the effect only triggers on basic enemies, not elites, bosses, or other special types, and the killing hit must be a critical. If your build rarely lands crits, this card will do very little for you.
+Critical Coin value per card level
+Card Mastery
+Unlocking the Critical Coin mastery costs 1000 stones. Once unlocked, it changes the card's effect so that a successful trigger drops two coins instead of one.
+In practical terms, the base card gives a 33% chance to drop one coin on qualifying basic kills; with the mastery, that same 33% chance drops two coins instead. The mastery only works while Critical Coin is in your active loadout, so you still need to spend a card slot on it to benefit.
+Critical Coin mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,376 @@
+[
+  {
+    "type": "table",
+    "caption": "Fleet Enemy Overview",
+    "headers": [
+      "Fleet Enemy",
+      "Description",
+      "Speed",
+      "Health",
+      "Attack"
+    ],
+    "rows": [
+      [
+        "Saboteur",
+        "Selects an ultimate weapon on tower hit, decreasing its upgrade level by 1 and deactivating the ultimate weapon if it reaches 0. Wall hits do not affect ultimate weapons.",
+        "2x",
+        "20x",
+        "0*"
+      ],
+      [
+        "Commander",
+        "Empowers enemies within an area, providing a 1.15x boost to health, mass, and speed with each pulse, capped to 8 boosts per enemy. This pulse does not affect bosses.",
+        "0.5x",
+        "20x",
+        "N/A"
+      ],
+      [
+        "Overcharge",
+        "Shoots a returning projectile at the Tower, dealing 1.4x damage with each hit. Fires a final projectile on death.",
+        "1x",
+        "20x",
+        "Wave 1**"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Fleet Rewards",
+    "headers": [
+      "Tiers",
+      "Reroll Shards (80%)",
+      "Wave",
+      "Module Shards (20%, 5% per type)"
+    ],
+    "rows": [
+      [
+        "T14",
+        "1080",
+        "1",
+        "5"
+      ],
+      [
+        "T15",
+        "1200",
+        "250",
+        "6"
+      ],
+      [
+        "T16",
+        "1350",
+        "500",
+        "7"
+      ],
+      [
+        "T17",
+        "1500",
+        "750",
+        "8"
+      ],
+      [
+        "T18",
+        "1650",
+        "1000",
+        "9"
+      ],
+      [
+        "T19",
+        "1800",
+        "1250",
+        "10"
+      ],
+      [
+        "T20",
+        "1950",
+        "1500",
+        "11"
+      ],
+      [
+        "T21",
+        "2100",
+        "1750",
+        "12"
+      ],
+      [
+        "",
+        "",
+        "2000",
+        "13"
+      ],
+      [
+        "",
+        "",
+        "2250",
+        "14"
+      ],
+      [
+        "",
+        "",
+        "2500",
+        "15"
+      ],
+      [
+        "",
+        "",
+        "2750",
+        "16"
+      ],
+      [
+        "",
+        "",
+        "3000",
+        "17"
+      ],
+      [
+        "",
+        "",
+        "3250",
+        "18"
+      ],
+      [
+        "",
+        "",
+        "3500",
+        "19"
+      ],
+      [
+        "",
+        "",
+        "3750",
+        "20"
+      ],
+      [
+        "",
+        "",
+        "4000",
+        "21"
+      ],
+      [
+        "",
+        "",
+        "4250",
+        "22"
+      ],
+      [
+        "",
+        "",
+        "4500",
+        "23"
+      ],
+      [
+        "",
+        "",
+        "4750",
+        "24"
+      ],
+      [
+        "",
+        "",
+        "5000+",
+        "25"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Fleet Companions",
+    "headers": [
+      "Fleet",
+      "Companions"
+    ],
+    "rows": [
+      [
+        "Overcharge",
+        "Ranged"
+      ],
+      [
+        "Commander",
+        "Tank"
+      ],
+      [
+        "Saboteur",
+        "Fast"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Low Tier Spawning",
+    "headers": [
+      "Tier",
+      "First Spawn Wave",
+      "Spawn Frequency Waves / Fleet"
+    ],
+    "rows": [
+      [
+        "Tier 1",
+        "15,000",
+        "100"
+      ],
+      [
+        "Tier 2",
+        "14,750",
+        "100"
+      ],
+      [
+        "Tier 3",
+        "14,500",
+        "100"
+      ],
+      [
+        "Tier 4",
+        "14,250",
+        "100"
+      ],
+      [
+        "Tier 5",
+        "14,000",
+        "100"
+      ],
+      [
+        "Tier 6",
+        "13,750",
+        "100"
+      ],
+      [
+        "Tier 7",
+        "13,500",
+        "100"
+      ],
+      [
+        "Tier 8",
+        "13,250",
+        "100"
+      ],
+      [
+        "Tier 9",
+        "13,000",
+        "100"
+      ],
+      [
+        "Tier 10",
+        "12,750",
+        "100"
+      ],
+      [
+        "Tier 11",
+        "12,500",
+        "100"
+      ],
+      [
+        "Tier 12",
+        "12,250",
+        "100"
+      ],
+      [
+        "Tier 13",
+        "12,000",
+        "100"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Spawning Behavior",
+    "headers": [
+      "Tier",
+      "First Wave",
+      "Frequency Wave/fleet",
+      "Bonus Spawn First Wave",
+      "Frequency Wave / Fleet"
+    ],
+    "rows": [
+      [
+        "Tier 14+ (Legends prior to V27.3)",
+        "895",
+        "30",
+        "N/A",
+        "N/A"
+      ],
+      [
+        "Tier 14",
+        "2495",
+        "1000",
+        "11,750",
+        "100"
+      ],
+      [
+        "Tier 15",
+        "1495",
+        "750",
+        "11,500",
+        "100"
+      ],
+      [
+        "Tier 16",
+        "995",
+        "500",
+        "11,250",
+        "100"
+      ],
+      [
+        "Tier 17",
+        "495",
+        "250",
+        "11,000",
+        "100"
+      ],
+      [
+        "Tier 17+ (Legends from V27.3+)",
+        "895",
+        "30",
+        "",
+        ""
+      ],
+      [
+        "Tier 18",
+        "95",
+        "100",
+        "10,750",
+        "100"
+      ],
+      [
+        "Tier 19",
+        "45",
+        "50",
+        "10,500",
+        "100"
+      ],
+      [
+        "Tier 20",
+        "5",
+        "10 waves/1 fleet",
+        "10,250",
+        "100"
+      ],
+      [
+        "Tier 21",
+        "5",
+        "10 waves/2 fleets",
+        "10,000",
+        "100"
+      ],
+      [
+        "Tier 22",
+        "5",
+        "10 waves/3 fleets",
+        "9,750",
+        "100"
+      ],
+      [
+        "Tier 23",
+        "5",
+        "10 waves/3 fleets",
+        "9,500",
+        "100"
+      ],
+      [
+        "Tier 24",
+        "5",
+        "10 waves/3 fleets",
+        "9,250",
+        "100"
+      ]
+    ]
+  }
+]

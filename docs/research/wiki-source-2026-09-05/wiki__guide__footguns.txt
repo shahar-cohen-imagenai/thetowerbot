@@ -1,0 +1,41 @@
+Footguns are upgrades that can actively set your account behind, sometimes taking months or even years to correct if they can be corrected at all. In the current state of the game, most footguns will lower your maximum potential rather than completely remove your ability to compete with other players.
+A footgun is not the same thing as ordinary resource misallocation. Waiting too long to unlock five lab slots, skipping tournaments and missing stones, or unlocking the Wall early and needing a respec are all setbacks, but they are not footguns in this sense.
+On this page
+Overview
+Ultimate Weapons:
+Choosing an ultimate weapon
+Black Hole Cooldown
+Changing the cooldown of any ultimate weapon
+Not immediately going straight for natural GT/BH sync when possible
+Lab upgrades:
+Bot Cooldowns
+Chrono field range
+Overview
+Footguns are upgrades that can actively set your account behind, sometimes taking months or even years to correct if they can be corrected at all. In the current state of the game, most footguns will lower your maximum potential rather than completely remove your ability to compete with other players.
+A footgun is not the same thing as ordinary resource misallocation. Waiting too long to unlock five lab slots, skipping tournaments and missing stones, or unlocking the Wall early and needing a respec are all setbacks, but they are not footguns in this sense.
+Ultimate Weapons:
+Ultimate weapon picks are permanent, even though you will eventually own all of them. Upgrades to ultimate weapons are also permanent and cannot be undone, so the decisions below deserve real care.
+Choosing an ultimate weapon
+Picking an ultimate weapon cannot be reversed, and each new pick costs more than the last. Grabbing a weaker option early when a stronger choice exists can leave your account meaningfully behind.
+The fix is simply to unlock more ultimate weapons until you have what you need, but that becomes an expensive path. To sidestep this entirely, consult the ultimate weapon guide before spending.
+Black Hole Cooldown
+Lowering Black Hole's cooldown before Golden Tower is synced to it can hurt you. Each cooldown reduction makes it more expensive to bring Golden Tower to a 1:1 sync ratio, and that sync is central to your coin income (see the coin guide for the reasoning).
+The good news is that this footgun eventually self-corrects: either you invest enough to bring Golden Tower back to 1:1, or Black Hole's cooldown maxes out and settles into its best sync with a maxed Golden Tower cooldown at 2:1.
+Changing the cooldown of any ultimate weapon
+Many strategies depend on ultimate weapons being synced, even between weapons that do not obviously pair. One version of devo, for example, relies on Smart Missiles to weaken enemies and extend the run, and that only works if Smart Missiles is timed correctly.
+Before touching any cooldown, check which strategies exist and which syncs they demand. Some setups tolerate being off a 1:1 ratio, but many require it, and missing those syncs can lock you out of entire strategies.
+Not immediately going straight for natural GT/BH sync when possible
+This is a common misconception. Players often underestimate or simply do not know that your bonus per Golden Tower activation jumps by an entire order of magnitude and then some. Many also assume Multiverse Nexus is a simple "get out of natural sync" card early on, which is absolutely not the case. Even up to mythic, MVN shaves potential uptime off your cooldowns by adding seconds to your average ultimate weapon cooldowns, making the module itself a minor footgun until it is levelled further or you reach later sync with Death Wave and eventually permanent or very low cooldown GT/BH/DW. MVN works best as training wheels to support farming while you push toward natural sync, since ultimate weapon desync as a strategy usually means either pouring all future stones into the same weapon for a long stretch (think maxed Black Hole cooldown) or having a failsafe that will not wreck your economy.
+Even while running MVN on the road to GT/BH sync, keep putting stones in so you reach at least a 3:20 natural sync. You will thank yourself in the long run.
+Lab upgrades:
+Lab upgrades are permanent and, with the exception of range, cannot be switched off once researched. At the moment, the only labs where having more upgrades can be worse than having fewer are the ones below.
+Bot Cooldowns
+Bot medal upgrades can be respecced, but lab upgrades cannot, which makes resyncing bots to your ultimate weapons or to each other expensive and difficult. This matters less early on, but it becomes a real hindrance later when bot effects grow stronger, since bots synergise very well with ultimate weapons and with each other once their stats are decent. A sync with Golden Bot is crucial for some farming strategies, so it pays to know which cooldowns you want to hit. A 69-second MVN sync, for instance, is something a maxed Golden Bot cannot respec down to match.
+To avoid this, sync your bots (excluding Flame Bot) by taking 6 medal and 2 lab cooldown upgrades to reach a 100-second cooldown, then adding further upgrades in intervals of 5 seconds (1 medal plus 2 labs) or 10 seconds (3 medals plus 1 lab) until the bot sits at half of your GT/DW sync cooldown. This gives you a 2:1 sync against any ultimate weapon sync that is a multiple of 10 seconds. If a bot clashes with your strategy, you can simply turn it off in the medals menu.
+At max cooldowns, all bots (excluding Flame Bot) along with Black Hole and Death Wave land on a 50-second cooldown while Golden Tower sits at 100. There is also a tech tree upgrade that adds sliders to bot cooldowns for more precise syncing.
+Chrono field range
+Chrono Field range zooms the screen out, which makes enemies spawn further from the tower and take longer to kill, lowering your coins per hour.
+In practice the CPH difference is minimal and is usually outweighed by the benefit in tournaments. You will want to max this lab despite the downside, since it is typically a net positive.
+Related pages
+Coin Guide - Basics
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-01-16) . Something out of date? Tell us in the Discord .

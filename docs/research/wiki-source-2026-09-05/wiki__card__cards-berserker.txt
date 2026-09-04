@@ -1,0 +1,29 @@
+Berserker is an epic card in The Tower: Idle Tower Defense that turns punishment into power. The more damage your tower soaks up during a round, the harder it hits back, up to a fixed ceiling.
+Berserker
+While Berserker is equipped, your tower gains bonus damage based on a portion of the total damage it has absorbed during the current round. The bonus keeps building as you take hits, but it cannot push your damage beyond eight times your tower's normal damage, so there is a hard cap on how much value a single round can give you.
+Because the effect scales with absorbed damage, Berserker matters most in runs where your tower is surviving heavy incoming fire rather than avoiding it entirely. The exact percentage values per card level are listed in the table below.
+Berserker value per card level
+Card Level Effect
+1 0.8%
+2 0.9%
+3 1.0%
+4 1.1%
+5 1.2%
+6 1.3%
+7 1.4%
+Card Mastery
+Unlocking the Berserker card mastery costs 750 stones. Once unlocked, it raises the berserk damage cap to x500 for a limited window after you trigger a death defy, letting the card spike far past its usual x8 ceiling in that brief period.
+Keep in mind the mastery only functions while Berserker is equipped in your active loadout. If you swap the card out, you lose the benefit until you equip it again. Per-level mastery values are shown in the table below.
+Berserker mastery value per lab level
+Mastery Level Value
+0 30s
+1 60s
+2 90s
+3 120s
+4 150s
+5 180s
+6 210s
+7 240s
+8 270s
+9 300s
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

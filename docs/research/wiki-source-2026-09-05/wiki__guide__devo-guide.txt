@@ -1,0 +1,71 @@
+Devo is a farming approach where you deliberately weaken your tower, stripping most stats back to basics so your bullets stop killing enemies. Instead, enemies pile up and your Death Wave ultimate weapon finishes them off, letting you push the DW health bonus to its x7 cap and, in more advanced setups, stack large coin bonuses.
+This page currently covers Basic Devo only and is a work in progress. Note that as of version 0.24.4, a major Death Wave update means parts of this guide no longer apply.
+On this page
+Types of Devo
+Full Devo Explanation
+Requirements
+UW Sync
+Death Wave Investment
+Cards
+Workshop
+Stats to Max
+Stats to Ignore
+Optional Stats
+Maxable
+Special Notes
+Early Devo
+Tips and Tricks
+Surviving
+This page is a work in progress and only covers Basic Devo for now.
+Important: as of version 0.24.4, a major update to the Death Wave ultimate weapon means this guide is out of date and no longer fully applicable.
+Devo is short for devolving your tower, and the term covers any variant of that strategy used to farm coins. The default form of devo focuses on raising tower HP by up to x7 so you can survive longer runs.
+Types of Devo
+The main variants are Max Devo, Crescent Devo, Orb Devo, LM Devo, and SM Devo.
+Full Devo Explanation
+Devo means running your tower in a deliberately weakened state, with most stats kept at bare minimum so your bullets kill as few enemies as possible. Survivors accumulate on screen until Death Wave sweeps through and kills them, which at the basic level is enough to max the DW health bonus at x7. The more advanced variants build on that foundation to chase coin bonuses instead.
+You can hold this weakened state for a long stretch of a run by combining high workshop damage with selective stat increases partway through, sustaining yourself on lifesteal alone.
+Requirements
+You can technically start around 1 billion lifetime coins, but at that point the gains over a blender build are modest. For a meaningful improvement, 10 to 15 billion lifetime coins is the recommended range.
+UW Sync
+Black Hole and Golden Tower must be synced together, otherwise your coin gains will be underwhelming.
+Syncing Death Wave as well makes Max Devo run at its most efficient, and syncing Smart Missiles matters if you plan to run SM Devo.
+Death Wave Investment
+There are several viable paths for DW spending. Since modules were introduced, you can compensate for fewer DW upgrades by levelling core and cannon modules and rerolling for higher-rarity DW effects on them.
+Minimal investment means either no upgrades at all or a handful of damage upgrades plus the second wave. The sole goal here is reaching x7 HP, after which you switch to whatever farming method you prefer. The higher your lifetime coins, the easier x7 becomes even with a weak DW.
+Optimal investment is about 800 stones: syncing DW with GT and BH at 3:20 on top of the minimal setup. The shorter cooldown makes reaching x7 far more consistent and opens up the Max Devo strategy. Multiverse Nexus can give you that sync earlier than the stone cost suggests, but its cooldown penalty means you should still aim to sync naturally if you go down that route.
+Investing beyond that point does raise coin output, but DW, GT, and BH all get pricey as their cooldowns drop. If you want to spend more, maxing Chrono Field first is the recommended move.
+Cards
+Core cards: Enemy Balance, Cash, Coins, Crit Coin, HP, Fortress, Def %, Damage, Berzerker (which helps DW enormously), and Wave Skip.
+For early devo, keep damage cards unequipped at the start of a run and only slot them in once DW stops being able to kill, so your early waves stay optimised.
+Once you have spare slots, Crit Chance is a strong pickup. The ASPD card can lift your lifesteal after your bullets no longer one-shot enemies, and it is easy to test when that point arrives. Slow Aura is also useful for taking the edge off incoming damage.
+Workshop
+Finish the respec lab before you start.
+Open with equal levels in HP and Damage, plus enough Def Abs to carry you through at least the first few hundred waves while your HP builds up.
+From there, level HP at twice the rate of Damage until you can comfortably max HP during a run. Then pour levels into Damage until the two are equal, and after that level Damage at twice the rate of HP. Sprinkle in extra Def Abs levels whenever it helps.
+Stats to Max
+Defense %, Lifesteal, Cash Bonus, Cash / Wave, Coins / Kill, Coins / Wave, and Interest / Wave.
+Stats to Ignore
+Attack Speed, Multishot Chance, Rapid Fire Chance, Bounce Shot Chance, all free upgrades, Land Mine Chance, Thorns, and Range.
+Optional Stats
+These stats are situational: they suit setups like lazy devo, or help you transition into blender or GC mid-run by spending cash.
+Maxable
+Multi Shot Targets, Rapid Fire Duration, Bounce Shot Targets, Defy Death, Packages, Shock Wave Freq, and Knockback Chance can all be maxed.
+Crit Chance can be maxed for lazy devo, but early on it works against you because your bullets keep killing and x7 becomes harder to reach.
+Crit Factor is fairly cheap for 100 levels; only push beyond that if the cost is trivial for you. The same goes for DPM at 100 levels.
+Thorns needs restraint: experiment during runs and find a sweet spot, starting somewhere between 5% and 20%, then top up with cash mid-run if needed.
+Knockback Force can be maxed, but if you do, avoid adding multishot chance during the run. This pairing smooths out transitions.
+Special Notes
+Orbs offer a lot of flexibility in devo: you might max orb speed and pick up an orb or two during the run, or ignore them entirely.
+Super Crit is worth unlocking as soon as it is comfortably affordable. Buy a few cheap upgrades, then finish it with cash. It boosts your DW dramatically.
+For Shockwave Size, aim for 1.7 to 1.9 to support orb devo.
+Early Devo
+Early devo is the default form of the strategy, and its goal is simply maxing the HP multiplier. It can be a slog without solid damage behind you, since weak bullets limit both your lifesteal and how long DW keeps killing. Begin the run with no crit chance and no damage cards so enemies stack up properly in the early waves, then equip those cards as you start needing the kills.
+High Def Abs pulls a lot of weight here, keeping incoming damage low even deep into a run. Once your coin income is strong enough that x7 comes easily, you can graduate to lazy devo, where certain stats get maxed and the run mostly plays itself.
+Tips and Tricks
+Overdid it on bullet output? Pull your damage or berzerker card out of the slot and enemies will start piling up again. Watch your lifesteal while you do this, and it works best when your workshop HP is very high.
+Aim for a tower range of 40 to 45m. Dropping to 30m is acceptable for Max Devo but usually too tight for orb devo, and you lose coin bot coverage twice over: the bot shrinks at smaller ranges, and the orb line's tighter travel pattern leaves less of it covered.
+You no longer need to offset DW, and doing so early in a run can actually cost you coins. Later in a max devo run, though, offsetting can extend your run: switch DW off, then reactivate it when roughly 5 seconds of BH remain so BH damage softens the pack first.
+Surviving
+Low lifetime coins make this harder, but it gets easier as you progress. Def Abs is the single biggest survival tool: with enough levels, you can go several hundred waves without taking damage, even on mid tiers.
+Eventually you will shift into lifesteal mode. Ease in attack speed first, then bounce shot or rapid fire, testing the timing as you go. Once your workshop is strong enough, you can skip the gradual approach entirely and simply wait until you can max attack speed in one go.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-01-06) . Something out of date? Tell us in the Discord .

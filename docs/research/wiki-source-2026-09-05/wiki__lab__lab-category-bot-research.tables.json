@@ -1,0 +1,27 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Bot Research"
+    ],
+    "rows": [
+      [
+        "Flame Bot Cooldown Max Lv 25",
+        "Thunder Bot Cooldown Max Lv 25"
+      ],
+      [
+        "Golden Bot Cooldown Max Lv 25",
+        "Amplify Bot Cooldown Max Lv 25"
+      ],
+      [
+        "Flame Bot - Burn Stacks Max lv 5",
+        "Thunder Bot - Linger Time Max lv 20"
+      ],
+      [
+        "Golden Bot - Duration Max lv 20",
+        "Amplify Bot - Duration Max lv 20"
+      ]
+    ]
+  }
+]

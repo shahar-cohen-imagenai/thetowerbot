@@ -1,0 +1,56 @@
+The Guardian is an add-on for your tower that you buy for 200 bits from the guild menu. Once you own it, it fights alongside your tower using chips, each of which grants a distinct ability.
+Every chip has its own upgrades, paid for with bits, and the Guardian only has one chip slot to begin with. You can purchase additional slots with more bits if you want to run several chips at once.
+On this page
+Chips
+Attack
+Attack — Usage
+Ally
+Ally — Usage
+Bounty
+Bounty — Usage
+Fetch
+Fetch — Usage
+Summon
+Summon — Usage
+The Guardian is purchased from the guild menu for 200 bits. After that purchase it becomes part of your setup and can be equipped with chips that give it active abilities during a round.
+Chips
+The Guardian comes with two chips already available: Attack and Ally. Three more chips can be bought separately: Steal, Fetch and Summon. In broad terms, Attack fires a projectile that scales with the damage an enemy has already taken, Ally turns an enemy into a recovery package, Bounty attaches a coin bonus to enemies, Fetch sends the Guardian out to find various currencies, and Summon spawns extra enemies while applying a cash multiplier.
+Most chips share the same upgrade structure: one upgrade for cooldown, one for the number of targets, and one for the chip's signature effect. Fetch and Summon are the exceptions, each having two unique upgrades instead of one. Every chip upgrade is bought with bits.
+The Guardian starts with a single chip slot. Extra slots can be bought with bits, letting you combine multiple chips in one run.
+Attack
+Attack makes the Guardian fire a small red projectile at the lowest-health enemy. The hit deals a percentage of the damage that enemy has already taken, so the more hurt the target is, the harder the projectile lands. The chip has its own cooldown and a set number of targets it can hit per activation.
+At base level it deals 1% of damage taken, fires every 120 seconds, and hits a single target.
+Attack — Usage
+Treat this chip as an execute. Because its damage is a percentage of missing health, it finishes off enemies that your tower has already worn down rather than doing meaningful work on fresh targets.
+It pairs naturally with percentage-based damage sources such as black hole or plasma cannon, since it adds its own scaling on top of theirs. At higher upgrade levels this interaction becomes significant: a 20% Attack chip can, for example, push a 54% plasma cannon hit up to an effective 64%.
+Time the cooldown so it fires alongside your ultimate weapons and benefits from the damage they have just dealt. Raising the target count improves overall efficiency and raises the odds of the projectile landing on high-priority enemies like bosses and protectors.
+Ally
+Ally converts an enemy into a recovery package. The package heals for a percentage, with a cap on the effect that scales off your current maximum recovery, and the chip runs on its own cooldown.
+Ally — Usage
+Because Ally's packages can push your HP above the normal recovery package maximum, it is a useful tool for eHP builds. Its value drops off later in the game, where HP scaling becomes comparatively weak, but it can still pull weight when farming earlier tiers.
+If you want the raised recovery cap to matter, invest heavily in both the recovery amount and the cooldown upgrades so the effect triggers often and heals for more each time.
+Bounty
+Bounty tags enemies with a coin bonus. It has a cooldown and affects a set number of targets each time it activates. It starts at a 0.01x bonus, a 120 second cooldown, and one target.
+Bounty — Usage
+Bounty has no direct combat impact, much like golden bot. Its entire purpose is coin farming.
+As with other coin multipliers, you get the most out of it by syncing its cooldown to Golden Bot so the tagged enemies are killed while the GT multiplier is running.
+Fetch
+Fetch sends the Guardian searching for gems, medals, a module, module shards, or coins. Each activation has a percentage chance to find something, runs on a cooldown, and carries a separate percentage chance of finding double in a single proc. It begins at a 10% find chance, a 120 second cooldown, and a 2% double-find chance.
+Its cooldown upgrade costs 2 extra bits per level compared to the norm and caps out at 60 seconds.
+Fetch — Usage
+Like Bounty, Fetch does nothing for you in combat. Its worth is in the currencies it digs up: gems, medals and similar resources become far easier to farm once you have some luck invested.
+Prioritise find chance over the other two upgrades. A point of double-find is worth picking up roughly every four to five standard upgrades, and the cooldown should be levelled regularly so the sheer number of attempts generates more procs. There is no need to sync Fetch with ultimate weapons, since it gains nothing from their bonuses.
+Summon
+Summon opens a portal that spawns enemies at a rate of 2 per second. The portal stays open for a set duration, the chip has a cooldown, and while active it applies a global cash multiplier. It starts with a 140 second cooldown, a 5 second duration, and a 1x cash bonus.
+Summon — Usage
+Summon mainly exists to feed enemies into Golden Bot, which strengthens GT+. Even before you have GT+, it provides a modest but real bump in coin income because the spawned enemies drop coins, tanks especially.
+The cash multiplier is also worthwhile, particularly at higher duration upgrades, though it loses relevance late game when cash matters less to your build. Syncing the chip to Golden Bot is strongly recommended: the cash bonuses stack, and the extra enemies are killed while GT is active.
+Related pages
+Chips
+Bits
+Coins
+Golden Bot
+Golden Tower
+Guilds
+Health Build
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-18) . Something out of date? Tell us in the Discord .

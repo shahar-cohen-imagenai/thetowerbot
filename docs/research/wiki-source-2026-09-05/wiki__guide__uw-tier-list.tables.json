@@ -1,0 +1,244 @@
+[
+  {
+    "type": "table",
+    "caption": "Pick-and-invest priority for a farming-focused account",
+    "headers": [
+      "Tier",
+      "Ultimate Weapon",
+      "Role",
+      "Verdict"
+    ],
+    "rows": [
+      [
+        "S",
+        "Golden Tower",
+        "Economy",
+        "First pick, no contest. Unlocking it already boosts cash and coins, and its Golden Combo ability becomes your single biggest coin source."
+      ],
+      [
+        "S",
+        "Black Hole",
+        "Economy + control",
+        "Feels weak on unlock, becomes an economy and protector-killing pillar once its labs come in. Sync it with Golden Tower; the bonuses stack multiplicatively."
+      ],
+      [
+        "A",
+        "Death Wave",
+        "Economy + health",
+        "Strong at nearly every stage since its rework: coin bonus and health multiplier apply on hit, so it stays useful long after it stops killing."
+      ],
+      [
+        "A",
+        "Spotlight",
+        "Damage + coins",
+        "A 3x coin bonus with constant uptime plus a serious damage multiplier through the mid game."
+      ],
+      [
+        "A",
+        "Chrono Field",
+        "Crowd control",
+        "The king of crowd control. After its first activation it can stay up permanently. Second-biggest stone investment on my account for a reason."
+      ],
+      [
+        "B",
+        "Chain Lightning",
+        "Damage",
+        "Cheap to make strong; carries mid-game damage. On my CL-focused build it deals over half of all damage in logged runs."
+      ],
+      [
+        "C",
+        "Inner Land Mines",
+        "Utility (stun)",
+        "A cheap, wide stun that keeps bosses and elites off you. 625 stones on my account bought a real effect. Shines in a damage meta, less in today's hybrid meta."
+      ],
+      [
+        "C",
+        "Poison Swamp",
+        "Damage (situational)",
+        "Reworked in v26; needs a developed Chrono Field to keep enemies in the swamp. Before that point it underperforms almost everything."
+      ],
+      [
+        "C",
+        "Smart Missiles",
+        "Damage (late)",
+        "The classic guides call it the late-game damage ceiling, but the investment needed before it outperforms Chain Lightning is enormous, and in the current hybrid meta that payoff sits at the very end of the road. Last project on this list, and my account agrees: 0 stones."
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Stone cost per unlock slot (verified against the cost tables)",
+    "headers": [
+      "Slot",
+      "1st",
+      "2nd",
+      "3rd",
+      "4th",
+      "5th",
+      "6th",
+      "7th",
+      "8th",
+      "9th"
+    ],
+    "rows": [
+      [
+        "Stones",
+        "5",
+        "50",
+        "150",
+        "300",
+        "800",
+        "1,250",
+        "1,750",
+        "2,400",
+        "3,000"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Upgrade stones per UW (decoded save, August 2026)",
+    "headers": [
+      "Ultimate Weapon",
+      "Upgrade stones",
+      "UW+ ability",
+      "UW+ status"
+    ],
+    "rows": [
+      [
+        "Golden Tower",
+        "13,838",
+        "Golden Combo",
+        "Unlocked, level 7"
+      ],
+      [
+        "Chrono Field",
+        "10,456",
+        "Chrono Loop",
+        "Unlocked, level 4"
+      ],
+      [
+        "Black Hole",
+        "5,740",
+        "Consume",
+        "Locked"
+      ],
+      [
+        "Death Wave",
+        "5,393",
+        "Kill Wall",
+        "Locked"
+      ],
+      [
+        "Spotlight",
+        "4,374",
+        "Light Range",
+        "Unlocked, level 0"
+      ],
+      [
+        "Chain Lightning",
+        "3,416",
+        "Smite",
+        "Locked"
+      ],
+      [
+        "Inner Land Mines",
+        "625",
+        "Charged Mine",
+        "Locked"
+      ],
+      [
+        "Smart Missiles",
+        "0",
+        "Cover Fire",
+        "Locked"
+      ],
+      [
+        "Poison Swamp",
+        "0",
+        "Death Creep",
+        "Locked"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Average share of total damage per source, last 50 long runs",
+    "headers": [
+      "Damage source",
+      "Avg. share of run damage"
+    ],
+    "rows": [
+      [
+        "Chain Lightning",
+        "53.5%"
+      ],
+      [
+        "Orbs",
+        "32.7%"
+      ],
+      [
+        "Guardian (electrons)",
+        "9.0%"
+      ],
+      [
+        "Black Hole",
+        "4.2%"
+      ],
+      [
+        "Projectiles",
+        "0.5%"
+      ],
+      [
+        "Everything else (Thorns, Death Wave, mines, swamp, missiles)",
+        "< 0.2% combined"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Average coin-bonus lines relative to total coins, last 50 long runs",
+    "headers": [
+      "Coin source",
+      "Avg. share of total coins"
+    ],
+    "rows": [
+      [
+        "Golden Combo (Golden Tower's UW+ ability)",
+        "46.2%"
+      ],
+      [
+        "Wave skip",
+        "35.5%"
+      ],
+      [
+        "Golden Tower (base)",
+        "17.5%"
+      ],
+      [
+        "Black Hole",
+        "16.4%"
+      ],
+      [
+        "Golden Bot",
+        "14.4%"
+      ],
+      [
+        "Spotlight",
+        "11.2%"
+      ],
+      [
+        "Death Wave",
+        "9.9%"
+      ],
+      [
+        "Orbs",
+        "4.3%"
+      ],
+      [
+        "Critical coin",
+        "0.5%"
+      ]
+    ]
+  }
+]

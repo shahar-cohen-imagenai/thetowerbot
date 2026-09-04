@@ -1,0 +1,23 @@
+Main Research
+Game Speed Max Lv 7 Starting Cash Max Lv 99
+Workshop Attack Discount Max Lv 99 Workshop Defense Discount Max Lv 99
+Workshop Utility Discount Max Lv 99 Labs Coin Discount Max Lv 99
+Labs Speed Max Lv 99 Buy multiplier Max Lv 4
+More Round Stats Max Lv 1 Target Priority Max Lv 2
+Card Presets Max Lv 1 Workshop Respec Max Lv 1
+Reroll Daily Missions Max Lv 1 Workshop Enhancement Max Lv 1
+Enhancment Coin Discount Max Lv 100
+Related pages
+Buy multiplier
+Card Presets
+Daily Missions
+Game Speed
+Workshop Enhancement
+Labs Coin Discount
+Labs Speed
+More Round Stats
+Starting Cash
+Target Priority
+Workshop Attack Discount
+Workshop Defense Discount
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-09-02) . Something out of date? Tell us in the Discord .

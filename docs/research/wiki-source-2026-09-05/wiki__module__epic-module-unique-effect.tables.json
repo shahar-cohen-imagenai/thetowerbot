@@ -1,0 +1,250 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Module",
+      "Ability",
+      "Epic",
+      "Legendary",
+      "Mythic",
+      "Ancestral"
+    ],
+    "rows": [
+      [
+        "Astral Deliverance",
+        "Bounce shot's range is increased by 3% of the tower's total range.  Each bounce increases the projectile's damage by [x]%",
+        "20",
+        "40",
+        "60",
+        "80"
+      ],
+      [
+        "Being Annihilator",
+        "Increase Super Crit chance by [x]%. On Super Crit: Next 5 Shots guarantee a Super Crit.",
+        "5",
+        "7",
+        "10",
+        "14"
+      ],
+      [
+        "Death Penalty",
+        "Chance of [x]% to mark an enemy for death when it spawns, causing the first hit to destroy it.",
+        "5",
+        "8",
+        "11",
+        "15"
+      ],
+      [
+        "Havoc Bringer",
+        "[x]% chance for rend armor to instantly go to max.",
+        "10",
+        "13",
+        "15",
+        "20"
+      ],
+      [
+        "Shrink Ray",
+        "Attacks have a 1% chance to apply a non-stacking effect that decreases the enemy's mass by [x]%",
+        "10",
+        "20",
+        "30",
+        "40"
+      ],
+      [
+        "Amplifying Strike",
+        "On Boss, Elite, or Fleet Kill: Increases Tower Damage by 5x for [x]s.",
+        "5",
+        "11",
+        "18",
+        "26"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Module",
+      "Ability",
+      "Epic",
+      "Legendary",
+      "Mythic",
+      "Ancestral"
+    ],
+    "rows": [
+      [
+        "Anti-Cube Portal",
+        "Enemies take [x]x damage for 7s after they are hit by a shockwave.",
+        "10",
+        "15",
+        "20",
+        "25"
+      ],
+      [
+        "Negative Mass Projector",
+        "If an orb doesn't kill the enemy it will apply a stacking debuff, reducing its damage and speed by [x]% per hit, to a max reduction of 50%",
+        "1.0",
+        "1.5",
+        "2.0",
+        "2.5"
+      ],
+      [
+        "Wormhole Redirector",
+        "Health Regen can heal up to [x]% of Package Max Recovery",
+        "25",
+        "50",
+        "75",
+        "100"
+      ],
+      [
+        "Space Displacer",
+        "Landmines have a [x]% chance to spawn as an Inner Land Mine (20 max) instead of a normal mine.  These mines autonomously move and organize around the tower.",
+        "15",
+        "20",
+        "25",
+        "30"
+      ],
+      [
+        "Sharp Fortitude",
+        "Increase the Wall's health and regen by x[x]. Enemies take +1% increased damage from wall thorns per subsequent hit.",
+        "1.25",
+        "1.5",
+        "2",
+        "2.5"
+      ],
+      [
+        "Orbital Augment",
+        "Adds [x] orbiting Electrons around the tower. Each Electron deals damage equal to 15% of the enemy's remaining health (quarter effective against Bosses and Fleets)",
+        "2",
+        "4",
+        "6",
+        "8"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Module",
+      "Ability",
+      "Epic",
+      "Legendary",
+      "Mythic",
+      "Ancestral"
+    ],
+    "rows": [
+      [
+        "Singularity Harness",
+        "Increase the range of each bot by +[x]m.  Enemies hit by the Flame Bot receive double damage.",
+        "5",
+        "8",
+        "11",
+        "15"
+      ],
+      [
+        "Galaxy Compressor",
+        "Collecting a recovery package reduced the cooldown of all Ultimate Weapons except Poison Swamp by [x]s.",
+        "10",
+        "13",
+        "17",
+        "20"
+      ],
+      [
+        "Pulsar Harvester",
+        "Each time a projectile hits an enemy, there is a [x]% chance that it will reduce the enemy's Health and Attack level by 1 (diminishing returns after 100 reductions)",
+        "1.0",
+        "1.5",
+        "2.0",
+        "2.5"
+      ],
+      [
+        "Black Hole Digestor",
+        "Temporarily get [x]% extra Coins/ Kill Bonus for each free upgrade you got on the current wave.  Free Upgrades can not increase Tower Range.",
+        "3",
+        "5",
+        "7",
+        "10"
+      ],
+      [
+        "Project Funding",
+        "Tower damage is multiplied by [x]% of the number of digits in your current cash",
+        "12.5",
+        "25",
+        "50",
+        "100"
+      ],
+      [
+        "Restorative Bonus",
+        "Packages grant a 50% attack speed boost for [x]s, decaying for 60 seconds.",
+        "15",
+        "20",
+        "25",
+        "30"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Module",
+      "Ability",
+      "Epic",
+      "Legendary",
+      "Mythic",
+      "Ancestral"
+    ],
+    "rows": [
+      [
+        "Om Chip",
+        "Spotlight will rotate to focus a boss. Bosses reflect the light around it to nearby enemies, increasing by x[x] the damage they receive.",
+        "2",
+        "4",
+        "7",
+        "15"
+      ],
+      [
+        "Harmony Conductor",
+        "[x]% chance of poisoned enemies to miss-attack (bosses chance is halved).",
+        "15",
+        "20",
+        "25",
+        "30"
+      ],
+      [
+        "Dimension Core",
+        "Chain lightning have 60% chance of hitting the initial target. Shock chance and multiplier is doubled. If shock is applied again to the same enemy the shock multiplier will add up to a max stack of [x].",
+        "5",
+        "10",
+        "15",
+        "20"
+      ],
+      [
+        "Multiverse Nexus",
+        "Death Wave, Golden Tower and Black Hole will always activate at the same time, but the cooldown will be the average of those +/-[x]s.",
+        "20",
+        "10",
+        "1",
+        "-10"
+      ],
+      [
+        "Magnetic Hook",
+        "[x] Inner Land Mines are fired at Bosses and Fleets as they enter Tower range. 25% of Elites have Inner Land Mines fired at them as they enter Tower range.",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      [
+        "Primordial Collapse",
+        "Spawns one additional Black Hole. Damage from enemies within a Black Hole is decreased by [x]%",
+        "60",
+        "65",
+        "75",
+        "90"
+      ]
+    ]
+  }
+]

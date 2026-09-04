@@ -1,0 +1,86 @@
+Version 0.13 introduced the perk system, letting players on tier 3 and higher pick randomized perks at set wave milestones, alongside seven new lab researches to customize how perks work. The update also brought cross-platform cloud saves, a tournament info panel, and quality-of-life additions like remembered workshop multipliers, a x100 buy option, and an ultimate weapon toggle. Numerous balance tweaks adjusted health regen and defense scaling, golden tower coin bonuses, land mines, poison swamp, smart missiles, and several trade-off perk values. A long list of bug fixes addressed crashes, perk display issues, and translation errors.
+Change list
+Reproduced from the developer's release notes.
+New perk system. Reach specified waves to choose from randomized options of powerful perks. Available tier 3 and higher
+7 new lab research options revolving around the perk system (wave requirement, perk bonus, ban perks, etc)
+Health regen exponential growth increased slightly
+Defense Absolute exponential growth increased slightly • Intro sprint card coin reduction increased from -60 to -80%
+Intro sprint card effects waves skipped now
+Workshop respec price increased from 100 to 150 gems
+Tank mass increased from 3 to 5 to reduce knockback against it
+Boss mass increased from 7 to 12
+Tournament rewards claim window increased from 24 to 36 hours
+Tournament info panel added to the tournament panel to explain exactly how they work better
+Perk for health regen increased from x1.30 to x1.50
+Perk for free upgrade for all math fixed
+Perk for golden tower bonus reduced from x2.0 to x1.5
+Trade off perk for x2.0 coins but -50% tower health reduced to x1.8 coins Lab for standard perk bonus math fixed
+More translation fixes
+Added standard perk: +1 game speed
+Workshop buy multiplier now will be remembered between sessions
+Lab Hide Completed now will be remembered between sessions, also changed visual to better show that it is enabled
+Added a button on game end panel to show perks selected on last round
+Added extra buy multiplier x100. Added an extra level on the research to unlock it
+Defense Absolute scaling increased slightly again
+Health Regen scaling increased slightly again
+Golden Tower coin bonus per level decreased from 1.0 to 0.8
+Golden Tower lab for coin bonus per level decreased from .20 to .15 Golden Tower coin bonus lab max level increased from 20 to 25 Smart missiles damage per level increased from 80 to 100%
+Inner land mines damage per level increased from 100 to 130% Inner land mines base cooldown reduced from 210 to 200 seconds Poison swamp base damage increased from 75 to 80%
+Poison swamp damage per level increased from 15 to 20%
+Trade off perk for x5 health regen but -35% max tower health improved to x8 health regen but -30% max tower health
+Perk for more smart missiles increased from 3 to 4 missiles
+Perk for land mine damage increased from x2.50 to x3.50
+Perk for health regen increased again from x1.50 to x.160
+Trade off perk for x10 cash per wave but enemy kill don't give cash increased to x12 cash per wave Trade off perk for enemies speed -40% but enemies damage x2.5 changed to -45% speed
+Fixed Chrono Field perk increased size not working
+Fixed death ray freezing occasionally (hopefully got it this time)
+Fixed perk visual slider button counting from start instead of last perk
+Fixed current wave enemy HP and attack not being affected by perks on wave panel Fixed wave skip text sometimes not showing up if there is too much text on screen
+Fixed workshop panels titles not being uppercase in other languages than english
+Translation fixes (mostly some showing in spanish when they shouldn't) Auto perk toggle causing crashes when no perks were left to pick
+Other bugs relating to occasional game crashes
+iOS Cloud save added, access in settings panel (better system coming to android soon once this one seems stable)
+Perk progress slider fixed
+Trade off perk for x8 health regen but -70% max tower health buffed to -60% max tower health as initially intended
+More translation fixes
+Falling outside of the minimum tournament bracket now demotes and doesn't show an incorrect prize
+Research select panel background scaled correctly to device
+Quality of Life: Make autopick pick your "first perk❞ choice automatically if enabled
+Quality of Life: Toggle for ultimate weapons
+Quality of Life: When getting increase game speed perk, automatically max current game speed
+Quality of Life: Ability to tap labs research they can't afford. Make the next panel's research button
+inactive if they can't afford instead. Now the tile turns red if can't afford, and gold if already maxed. Increase ban perks max by 1 (expensive research)
+Ultimate weapons sometimes unlocking when they can't be afforded Translation fixes and additions like ultimate weapon descriptions
+Shockwave size (tier 3)
+Missile Barrage (tier 8)
+Missile Barrage Quantity (tier 8) Missile Amplifier (tier 7)
+Inner Mine Stun (tier 7)
+Replaced Google play services with new multiplatform cloud save on android
+Save files are now cross platform and can move between iOS and Android devices with a login
+Outside of rounds cards now show an open lock icon, to show which cards will be locked inside round
+Tier 10 coin bonus increased by +0.1, Tier 11 coin bonus increased by +0.3.
+Not being able to select lab research that can be afforded sometimes Fixed 4th ban perk
+Poison swamp description for duration was incorrect
+Incorrect tier shown for tournament end round stats
+More translation fixes
+Ability to change card presets inside rounds if presets have the exact same locked cards
+Cash "$" symbol will become green when you have enough cash to reach max interest per wave
+Damage dealt to enemies not showing floating text
+Critical hits not showing text
+Purchase reliability increased
+Video ad reliability increased (I think)
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

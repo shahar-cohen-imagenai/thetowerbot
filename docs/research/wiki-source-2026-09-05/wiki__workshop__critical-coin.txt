@@ -1,0 +1,10 @@
+Critical Coin is a Workshop upgrade that ties your coin income to critical hits. Once unlocked, basic enemies have a chance to drop coins when they die to a critical hit, giving you an extra source of income during a run.
+Description
+Critical Coin gives basic enemies a chance to drop coins when they are killed by a critical hit. It only applies to basic enemies, so elites and bosses are not affected by this upgrade.
+Use
+The Critical Coin card lets basic enemies drop 1 coin, multiplied by your coins per kill, when they are killed by anything other than a non-critical bullet. That means kills from Ultimate Weapons, Orbs, Thorns, Death Ray, Nuke and similar sources can all trigger the drop.
+Note that this is broader than what counts for critical hit events. Those events specifically require critical bullets, even though the card itself works with a much wider range of kill sources.
+Related pages
+Cards
+Coins Per Kill Bonus
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-26) . Something out of date? Tell us in the Discord .

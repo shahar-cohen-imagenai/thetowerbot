@@ -1,0 +1,88 @@
+Legend is the only league that runs thirteen conditions at once: four fixed slots, five drawn at random from a pool of sixteen, and four Overheats that only exist in Legend. On top of that, three decay mechanics run in every tournament and every regular tier without ever appearing on the conditions panel.
+Most of what circulates about these numbers is second hand, and some of it is quietly wrong because one player's research level got published as the game's base rate. Everything on this page marked as verified was read directly out of the game's code, and where the community figure and the game disagree, we say so.
+On this page
+How a Battle Condition is built
+The four Legend Overheats
+Damage Decay and Health Decay
+Enemy Level Skip and Skip Decay
+What Legend can actually draw
+Stun, Miss and Death Defy decay
+What this changes about stun locks
+Reading the conditions before a run
+Sources and credit
+How a Battle Condition is built
+Legend's condition table holds exactly 26 entries. Sixteen of those are the random pool, four are the Overheats, and the remaining six cover the fixed slots — including both halves of the Death Defy Down / Energy Shields Down pair, which the table carries together even though only one is active per tournament. That accounts for five of the six; the last entry we have not identified. Legend is the fifth of five league tables and the only one carrying Overheats at all; the others hold 21 entries each.
+Every entry has three parts: which condition it is, the wave it switches on at, and a list of values — one per heat level. Twenty-two of Legend's twenty-six carry a full nineteen-value list. Only the four Overheats use a flat number, which is why they are the ones that can be quoted as a single figure.
+The heat level is global. It is not tracked per condition: it starts at 1 and steps up each time you pass one of the tournament's heat increase waves. A condition then contributes the value sitting at that heat level, and contributes exactly zero while you are below its activation wave.
+That single detail explains a lot of confusing behaviour. Conditions do not each ramp on their own schedule — they share one schedule and differ only in the numbers attached to it. It is also why the Overheats seem to appear out of nowhere: they carry an activation wave deep into the run instead of scaling from wave 1.
+The four Legend Overheats
+These four are Legend-only and sit as one block in the game's condition table. Two of them strip your Workshop, two of them add enemies.
+More Fleets and More Elites share one formula: they fire every max(1, 101 − value) waves. More Fleets has a value of 1, giving 100 waves. More Elites has a value of 96, giving 5. Both run on their own counters and neither replaces the normal Fleet and Elite spawn cycles, which keep going underneath.
+Legend Overheats, read from the game's condition table
+Overheat From wave Interval Effect per step
+More Fleets 1000 every 100 waves one extra Fleet
+Damage Decay 1500 every 10 waves Attack Workshop levels removed
+Health Decay 1500 every 10 waves Defense Workshop levels removed
+More Elites 2000 every 5 waves one extra Elite
+Damage Decay and Health Decay
+Both switch on at wave 1500 and both tick every 10 waves. The game's own values are 35 for Damage Decay and 50 for Health Decay, and what actually gets removed each step is that value scaled by your Battle Condition Reduction research, rounded up.
+This is where the widely quoted "28 and 40 levels" comes from. Those are the base values after a 20% Battle Condition Reduction — 35 × 0.8 = 28 and 50 × 0.8 = 40. They are one player's numbers, not the game's, and if your research sits anywhere else your own figures differ. The table below is the honest version.
+The practical consequence is unchanged either way: Health drains faster than Damage because 50 is simply a bigger number than 35 on the same clock. Survivability collapses before damage does, and that ordering is not a separate mechanic.
+Workshop levels removed every 10 waves from wave 1500
+Battle Condition Reduction Damage Decay (base 35) Health Decay (base 50)
+0% 35 50
+10% 32 45
+20% 28 40
+30% 25 35
+40% 21 30
+Enemy Level Skip and Skip Decay
+The Skip Reduction condition does not remove your Enemy Level Skip , it scales it. The multiplier is 1 − value × 0.01, further softened by your reduction research — and here two research lines add together rather than multiplying: the general Battle Condition Reduction and the dedicated Enemy Level Skip line.
+A value of 55 gives ×0.45 with no research, and 1 − 55 × 0.01 × 0.71 = ×0.6095 at 29% total reduction. Those are the figures everyone quotes and the formula reproduces them exactly. Reduction research buys back a fixed fraction of what the condition took, which is why it feels weak early and compounds well later.
+Skip Decay then eats what is left. The step is 1 percentage point scaled by Battle Condition Reduction only — and note precisely what that does: it shrinks the size of each step, never the interval. The interval itself is 100 − value waves, which is 20 waves at a value of 80.
+One caveat applies to both, and to every tournament condition figure you will ever read: these values are not single numbers. In Legend each of them is a list of nineteen values, one per heat level, and the condition steps up as you cross the tournament's heat increase waves. There are eighteen of those waves, and the schedule appears to finish at wave 1000.
+So ×0.45 and "every 20 waves" are the values at maximum heat. For anyone running deep they are simply correct, because you are at maximum heat for the whole run that matters. They are only too harsh for the first thousand waves, where both conditions are genuinely milder than the quoted figure.
+What Legend can actually draw
+The five random slots are drawn from a fixed list, and Legend's list holds sixteen conditions — not the seventeen usually quoted. Every league has its own list: Silver, Gold and Platinum share the same fourteen, Champion adds Ultimate Weapon Durations for fifteen, and Legend adds Mass Enforcement on top of that for sixteen.
+The difference from the community figure is one single entry, and it is worth knowing which: Orb Resistance is in the game — it scales the damage your orbs deal — but it is in no league's pool. Legend cannot draw it. Everything else in the usual list checks out exactly.
+Legend's 16 drawable conditions
+Category Conditions
+Resistances (5) Death Ray, Thorns, Knockback, Armored Enemies, Plasma Cannon
+Enhancements (4) Enemy Speed, Enemy Attack Speed, More Enemies, Mass Enforcement
+Ultimate enemies (6) Protector, Tank, Boss, Basic, Fast, Ranged
+Other (1) Ultimate Weapon Durations
+Pool size by league
+League Pool size Adds
+Silver / Gold / Platinum 14 —
+Champion 15 Ultimate Weapon Durations
+Legend 16 + Mass Enforcement
+Stun, Miss and Death Defy decay
+These three are not Battle Conditions. They are always on, in tournaments and in regular tiers, and nothing displays them. Each enemy carries its own three counters, and a fresh enemy always starts at full effectiveness — which is the whole point. They punish holding one enemy alive indefinitely and barely touch a build that kills things, because the counters die with the enemy.
+Stun decay is the one most people get slightly wrong. It runs on cumulative stunned seconds, not on the number of stuns applied. Each stun's effective length is the raw duration scaled by the enemy's current stun effectiveness, and effectiveness is then multiplied by 0.995 raised to the power of that effective length. One long stun costs exactly as much as several short ones adding to the same time — but short stuns burn the budget more slowly per application, which is why a 2.5-second Inner Land Mine stun outlasts a 10-second Poison Swamp stun over a long fight. Stuns also do not stack: the enemy takes the longer of its current and new stun timer.
+Miss decay only advances when a miss actually happens. The multiply sits inside the branch that runs on a successful miss, so an enemy that keeps connecting never degrades your miss chance against it. Death Defy decay works the same way and is the mildest of the three, because it takes lethal damage from the same enemy to trigger at all.
+The three decay constants, read from the game
+Mechanic Constant Advances on After 3 triggers
+Stun Decay 0.995 each cumulative stunned second 10s stun → about 9.07s
+Miss Decay 0.875 each successful miss 30% → 20.1%
+Death Defy Decay 0.9 each successful Death Defy 42% → 30.6%
+A 10-second stun applied repeatedly to the same enemy
+Application 1 2 3 4 5 6 7 8 9 10
+Effective stun (s) 10.00 9.51 9.07 8.67 8.30 7.96 7.65 7.36 7.09 6.85
+What this changes about stun locks
+By the tenth application, a 10-second stun is down to 6.85 seconds — below a 7-second Shockwave interval. That is the wave at which a stun lock stops holding, and it is a hard ceiling no amount of stun research moves.
+It is also why Inner Land Mine stun behaves so differently from Poison Swamp stun in practice despite both being "stun". At 2.5 seconds per hit, ten applications still leave about 2.25 seconds and twenty leave about 2.02. The numbers look unimpressive and the behaviour is the opposite: a Boss that used to be held indefinitely now starts walking after roughly one full cycle of mines.
+Reading the conditions before a run
+A useful order of operations, rather than memorising all seventeen: check which Ultimate Enemy conditions are active, check which of them ignore the crowd control you actually rely on, and only then decide your Black Hole configuration and module split.
+Black Hole is the first real decision because Ultimate Fast, Ultimate Tank and Ultimate Ranged are not attracted by it and take no damage from it. With none of those three active, permanent uptime traps most regular enemies indefinitely. With Ranged Ultimate active it can work against you: your projectiles concentrate on the trapped enemies while the Ultimate Ranged walks to firing position with nothing pushing it back.
+Ultimate Protector is the condition that no amount of crowd control answers. While its Ultimate is up it ignores Chrono Field slow and rotation, knockback, Shockwave and every stun source, and walks straight at you. Black Hole still pulls it but deals it no damage. If Protector's Ultimate is drawn alongside Fast, Tank or Ranged Ultimate, you need a damage answer, not a control one.
+Sources and credit
+The constants, activation waves and formulas on this page were read out of the game's v28 build directly: the condition table, the wave counters in the new-wave routine, and the three decay constants on the enemy object.
+The framing, the condition interactions and the practical advice come from hiro29's Legend Battle Conditions guide, which is the most thorough public write-up of this system that exists and is worth reading in full. We checked its numbers rather than repeating them — nearly all of them held up exactly, including a worked stun example that reproduces to within a hundredth of a second. Two things came out differently: the 28/40 decay figures, which turned out to be one player's research level rather than the game's rate, and the size of the random pool, which is sixteen rather than seventeen because Legend cannot draw Orb Resistance.
+Where hiro29 flags something as untested — the More Elites scenarios around Scatters, simultaneous Ray shots and Commander-buffed Vampires, and whether Thunder Bot's Fleet resistance behaves like its Boss and Elite resistance — we have not verified those either, and they are open questions rather than mechanics.
+Related pages
+Tournaments
+Battle Condition
+Enemy Level Skip
+Elite Enemies
+Fleet Enemies
+Demon Mode
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and hiro29's Legend Battle Conditions guide (last edited 2026-08-02) . Something out of date? Tell us in the Discord .

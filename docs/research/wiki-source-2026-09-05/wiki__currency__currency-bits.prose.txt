@@ -1,0 +1,22 @@
+Bits are one of the guild-linked currencies in The Tower: Idle Tower Defense. Their entire purpose is feeding the Chip system: you spend them to unlock and upgrade Chips and to open additional Chip Slots, so your Bit income directly limits how fast your Chips develop.
+On this page
+Bits
+Sources
+Weekly Reward Chest Breakdown
+Guild Store Breakdown
+Uses
+Bits
+Bits are a dedicated currency with a single focus: the Chip system. You spend them to unlock and upgrade Chips, and to purchase extra Chip Slots. Because they have no other use, every Bit you earn goes toward strengthening your Chips in some way.
+Sources
+You get Bits from two places, both tied to guilds. The first is Guild Weekly Reward Chests, which pay out Bits based on your weekly results. The second is the Guild Store, where you can buy Bits with Tokens. Guild Store stock resets when a new Guild Season begins, so each season gives you a fresh set of purchases.
+Weekly Reward Chest Breakdown
+If you hit the maximum weekly reward total every week, you build up roughly 740 Bits over a four-week month and about 1,480 Bits across a full eight-week Guild Season. The table below shows how the chest rewards break down by week.
+Guild Store Breakdown
+Bits can also be bought from the Guild Store with Tokens, giving you a way to top up beyond what the weekly chests provide. The table below lists the available purchases; remember that the store resets at the start of each Guild Season.
+Uses
+Bits have exactly two uses: upgrading Chips you already own and buying additional Chip Slots so you can equip more Chips at once. The cost table below details what each upgrade and slot costs.
+Related pages
+Tokens
+Guardian
+Guilds
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-06) . Something out of date? Tell us in the Discord .

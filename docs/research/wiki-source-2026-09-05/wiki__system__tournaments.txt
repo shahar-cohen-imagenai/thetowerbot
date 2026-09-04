@@ -1,0 +1,207 @@
+Tournaments are competitive events where you and 29 other players in the same league each submit a run, and your highest wave decides your placement. Finishing well pays out Gems and Power Stones — the main way to earn the stones you need for Ultimate Weapons — and the top league also awards Keys for Vault upgrades.
+There are six leagues: Copper, Silver, Gold, Platinum, Champion and Legend. Higher leagues mean tougher enemy scaling, more battle conditions, and better rewards.
+On this page
+Description
+Entering A Tournament
+Getting Tickets
+Promoting
+Tournament Difficulty
+Enemy Stat Scaling
+Battle Conditions
+List of Battle conditions
+Rewards
+Copper Rewards
+Silver Rewards
+Gold Rewards
+Platinum Rewards
+Champion Rewards
+Legend Rewards
+Lab: Battle Condition Reduction
+Lab: Battle Conditions Group 1
+Lab: Battle Conditions Group 2
+Lab: Battle Conditions Group 3
+Lab: Battle Conditions Group 4
+Description
+A tournament brackets you with 30 players from your league, and everyone is ranked by the highest wave they reach. Payouts are Gems and Power Stones based on your final position, with Legend league adding Keys on top. Since Power Stones buy Ultimate Weapons, tournaments are their primary source, so placing well here directly speeds up your long-term progression.
+Entering A Tournament
+Tournaments unlock through Milestones at tier 1 wave 60. Entering costs 1 Tournament Ticket per run, and the highest wave of that run is what gets submitted. Your wave total is compared against the rest of the bracket to set your position and rewards.
+You cannot join a tournament while a run is active, so finish or end your current run first. Tournaments run every Wednesday and Saturday at 0:00 AM UTC.
+Getting Tickets
+You receive one free ticket each time a tournament begins. If you want more attempts, extra tickets come from watching an ad or paying gems — 10 gems for the first, with the price rising by another 10 gems for each additional ticket you buy.
+Promoting
+As of v25, the top 4 finishers in each bracket move up to the next league. From Platinum onward, the bottom 6 are demoted to the league below. Copper, Silver and Gold are protected tiers — once you have climbed out of Copper or Silver, you cannot be dropped back into them.
+Tournament Difficulty
+Leagues are described as "tier +", where the plus signals that enemies scale harder than they do in the normal tier of the same name. Two things create that extra difficulty: enemy stats ramp up faster, and Heat (Battle Conditions) adds modifiers on top.
+Enemy Stat Scaling
+Each league sits between two normal tiers in raw stats. Copper is harder than Tier 1 but easier than Tier 2, and the pattern continues up to Champion, which lands between Tier 11 and Tier 12. Every stat scales faster than usual, including enemy mass — which affects knockback — and enemy speed.
+Battle Conditions
+Every league except Copper applies Heat, a set of modifiers that make tournament runs play differently from normal ones. Heat starts weak and grows stronger as you clear waves, hitting full strength at wave 1000.
+The exception is the "More bosses" condition, which is an Overheat effect — it stays fixed rather than scaling with waves. Copper spawns a boss every 10 waves, Silver every 9, Gold every 8, and so on down to every 5 waves in Legend.
+List of Battle conditions
+From Platinum up, either the Death Defy or Energy Shield condition is always active. On top of that, Silver adds one random battle condition, Gold adds two, and the count rises by one per league until Legend, which runs five at once. Gold, Platinum, Champion and Legend also always carry the Enemy Level Skip condition at 10%, 20%, 30% and 50% respectively. The table below lists every battle condition.
+Name Description Appears In (TBD)
+Death Ray Resistance Instead of destroying enemies, death ray deals x% enemy health as damage Tiers/Tournament
+Thorns Resistance Thorns Deals x% damage Tiers/Tournament
+Enemy Attack Speed Enemy attack speed is increased by x% Tiers/Tournament
+Knockback Resistance Knockback force applies to enemies is reduced by x% Tiers/Tournament
+Plasma Cannon Resistance Plasma Cannon deals x% of normal damage Tiers/Tournament
+More Enemies x% more enemies spawn Tiers/Tournament
+Orb Resistance Instead of destroying enemies, orbs deal x% enemy health as damage Tiers/Tournament
+More Bosses Bosses spawn every x waves instead of 10 Tiers/Tournament
+More Fleet An additional fleet spawns every x waves. Tiers (Overheat)
+Enemy Speed Enemies move x% faster Tiers/Tournament
+Show all 30 rows
+Rewards
+Ties are resolved in favour of the lower placement: if players finish level on waves, every tied player receives the rewards of the lowest rank among them.
+Copper Rewards
+Copper pays out Gems and Power Stones based on your final placement — see the rewards table below for the per-rank breakdown.
+Rank Gems Stones
+1 100 20
+2 80 18
+3 - 4 65 16
+5 - 6 50 12
+7 - 8 45 10
+9 - 10 40 9
+11 - 12 30 8
+13 - 15 20 7
+16 - 22 15 6
+23 - 30 10 5
+Silver Rewards
+Silver pays out Gems and Power Stones based on your final placement — see the rewards table below for the per-rank breakdown.
+Rank Gems Stones
+1 200 40
+2 150 35
+3 - 4 100 30
+5 - 6 75 20
+7 - 8 65 19
+9 - 10 60 18
+11 - 12 55 17
+13 - 15 50 16
+16 - 22 45 14
+23 - 30 40 12
+Gold Rewards
+Gold pays out Gems and Power Stones based on your final placement — see the rewards table below for the per-rank breakdown.
+Rank Gems Stones
+1 300 80
+2 250 70
+3 - 4 200 60
+5 - 6 150 40
+7 - 8 125 30
+9 - 10 100 28
+11 - 12 90 26
+13 - 15 80 24
+16 - 22 70 22
+23 - 30 50 20
+Platinum Rewards
+Platinum pays out Gems and Power Stones based on your final placement — see the rewards table below for the per-rank breakdown.
+Rank Gems Stones
+1 400 160
+2 350 140
+3 - 4 300 120
+5 - 6 250 70
+7 - 8 225 65
+9 - 10 200 60
+11 - 12 175 56
+13 - 15 150 53
+16 - 24 125 50
+25 - 30 100 20
+Champion Rewards
+Champion pays out Gems and Power Stones based on your final placement — see the rewards table below for the per-rank breakdown.
+Rank Gems Stones
+1 600 320
+2 500 300
+3-4 400 280
+5-6 350 200
+7-8 325 175
+9-10 300 150
+11-12 275 125
+13-15 250 100
+16-24 200 90
+25-30 150 20
+Legend Rewards
+Legend adds Keys to the usual Gem and Power Stone payouts. Keys are spent on Tech Tree upgrades in the Vault, which makes Legend placement valuable beyond the standard currencies. The table below shows the per-rank rewards.
+Rank Gems Stones Keys
+1 800 425 25
+2 700 400 20
+3 - 4 600 375 15
+5 - 6 500 350 10
+7 - 8 475 325 8
+9 - 10 450 300 6
+11 - 12 425 275 4
+13 - 15 400 250 2
+16 - 24 375 225 0
+25 - 30 200 120 0
+Lab: Battle Condition Reduction
+This lab unlocks at Tier 18 Wave 1000 and reduces the effect of all active battle conditions by a percentage per level, across 10 levels. It does not apply to the Ultimate Weapon Duration battle condition. The table below shows the reduction per level.
+Level Time Cost Value
+1 16d 16h 0m 0s 1.00q 2
+2 33d 8h 0m 0s 2.10q 4
+3 50d 0h 0m 0s 4.20q 6
+4 66d 16h 0m 0s 8.6q 8
+5 83d 8h 0m 0s 17.7q 10
+6 100d 0h 10m 0s 36.2q 12
+7 116d 16h 0m 0s 74.2q 14
+8 133d 8h 0m 0s 152.2q 16
+9 150d 0h 0m 0s 311.9q 18
+10 166d 16h 0m 0s 639.4q 20
+Lab: Battle Conditions Group 1
+Unlocked at Tier 19 Wave 100. Each battle condition in this group has its own lab that reduces that condition's effect by a percentage per level, with 20 levels each. The group covers Knockback Resistance, Thorns Resistance, Orb Resistance, Plasma Cannon Resistance and Death Ray Resistance.
+Level Time Cost(Q) Value
+1 13d 11h 59m 0.2 1%
+2 26d 23h 58m 0.4 2%
+3 40d 11h 57m 0.6 3%
+4 53d 23h 56m 0.8 4%
+5 67d 11h 55m 1 5%
+6 80d 23h 54m 1.2 6%
+7 94d 11h 53m 1.4 7%
+8 107d 23h 53m 1.6 8%
+9 121d 11h 52m 1.8 9%
+10 134d 23h 51m 2 10%
+Show all 20 rows
+Lab: Battle Conditions Group 2
+Unlocked at Tier 20 Wave 60. Each condition here has its own lab reducing its effect by a percentage per level, with 20 levels each. The group covers Armored Enemies, Enemy Speed, More Enemies and Enemy Attack Speed.
+Level Time Cost(Q) Value
+1 16d 4h 46m 0.5 1%
+2 32d 9h 33m 1 2%
+3 48d 14h 20m 1.5 3%
+4 64d 19h 7m 2 4%
+5 80d 23h 54m 2.5 5%
+6 97d 4h 41m 3 6%
+7 113d 9h 28m 3.5 7%
+8 129d 14h 15m 4 8%
+9 145d 19h 2m 4.5 9%
+10 161d 23h 49m 5 10%
+Show all 20 rows
+Lab: Battle Conditions Group 3
+Unlocked at Tier 19 Wave 500. Each condition in this group has its own lab reducing its effect by a percentage per level, with 10 levels each. The group covers the ultimate conditions for each enemy type: Fast's Ultimate, Ranged Ultimate, Boss's Ultimate, Basic's Ultimate, Tank's Ultimate and Protector's Ultimate.
+Level Time Cost(Q) Value
+1 26d 23h 58m 1.00 1%
+2 37d 19h 9m 1.50 2%
+3 48d 14h 20m 2.25 3%
+4 59d 9h 32m 3.38 4%
+5 70d 4h 43m 5.06 5%
+6 80d 23h 54m 7.59 6%
+7 91d 19h 6m 11.39 7%
+8 102d 14h 17m 17.09 8%
+9 113d 9h 28m 25.63 9%
+10 124d 4h 40m 38.44 10%
+Lab: Battle Conditions Group 4
+Unlocked at Tier 21 Wave 1000. Each condition here has its own lab reducing its effect by a percentage per level, with 10 levels each. The group covers Ultimate Weapon Durations, Death Defy Down, Energy Shields Down and Enemy Level Skip Reduction.
+Level Time Cost(Q) Value
+1 26d 23h 58m 2 1%
+2 44d 19h 37m 4 2%
+3 62d 15h 17m 8 3%
+4 80d 10h 57m 16 4%
+5 98d 6h 36m 32 5%
+6 116d 2h 16m 64 6%
+7 133d 21h 56m 128 7%
+8 151d 17h 35m 256 8%
+9 169d 13h 15m 512 9%
+10 187d 8h 55m 1024 10%
+Related pages
+Gems
+Keys
+Milestones
+Tickets
+Ultimate Weapons
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-09) . Something out of date? Tell us in the Discord .

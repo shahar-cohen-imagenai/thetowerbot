@@ -1,0 +1,47 @@
+Inner Land Mines is an ultimate weapon that periodically deploys a set of mines around your tower. When an enemy touches one, it detonates and deals area-of-effect damage calculated as a percentage of your tower's damage, with crit and super crit chance and multipliers factored in.
+The weapon's activation cooldown has a hard cap of 37 seconds, so no amount of upgrading will push it below that point.
+On this page
+Description
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Labs — Inner Mine Blast Radius
+Labs — Inner Mine Rotation Speed
+Labs — Inner Mine Stun
+Labs — Inner Land Mine - Chrono Jump
+Labs
+Description
+Inner Land Mines is an ultimate weapon that periodically deploys a set of mines around your tower. When an enemy touches one, it detonates and deals area-of-effect damage calculated as a percentage of your tower's damage, with crit and super crit chance and multipliers factored in.
+The weapon's activation cooldown has a hard cap of 37 seconds, so no amount of upgrading will push it below that point.
+Workshop — Basic Upgrades
+Once you unlock Inner Land Mines, its basic upgrades become available in the Ultimate Weapon menu. You can spend stones on three tracks: Damage, Quantity, and Cooldown.
+Damage has 30 levels, Quantity has 3 levels, and Cooldown has 15 levels. Maxing all three costs 13,522 stones in total; per-level costs are shown in the table below.
+Show all 32 rows
+Workshop — Ultimate Weapon Plus
+Charged Mine becomes available once you have unlocked all 9 ultimate weapons. It causes each Inner Land Mine's damage to grow by a multiplier every second, and the charge only resets when that mine actually detonates.
+The multiplier is tracked per mine, so when one mine explodes, the others keep whatever charge they had built up. Active mines also retain their charge when the weapon's cooldown resets and a new set spawns.
+Labs — Inner Mine Blast Radius
+This lab increases the area that an Inner Land Mine damages when it triggers. It has 20 levels; per-level values are listed in the table below.
+Show all 20 rows
+Labs — Inner Mine Rotation Speed
+This lab raises the speed at which the mines orbit your tower. It has 20 levels; per-level values are listed in the table below.
+Show all 20 rows
+Labs — Inner Mine Stun
+With this lab researched, exploding inner mines stun nearby enemies for 2.5 seconds. It has a single level.
+Labs — Inner Land Mine - Chrono Jump
+This lab requires ILM+ (Charged Mine). When an enemy is hit by an Inner Land Mine, that mine's charge is boosted by this lab's value multiplied by the number of times that enemy has been hit by an Inner Land Mine. It has 10 levels; per-level values are listed in the table below.
+Labs
+The Inner Land Mine labs are unlocked by reaching Milestones Tier 7 wave 40. This unlocks Inner Mine Blast Radius, Inner Mine Rotation Speed, and Inner Mine Stun.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-14) . Something out of date? Tell us in the Discord .

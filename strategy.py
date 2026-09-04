@@ -320,6 +320,16 @@ class ShoppingRule:
         ):
             raise ControlError("target", "target must be finite and non-negative")
 
+    def to_dict(self) -> dict[str, Any]:
+        """Return the strict JSON shape accepted by ``Shopping.from_dict``."""
+
+        return {
+            "name": self.name,
+            "category": self.category,
+            "enabled": self.enabled,
+            "target": self.target,
+        }
+
 
 @dataclass(frozen=True)
 class CardPolicy:
@@ -397,12 +407,9 @@ class Shopping:
     def categories_in_priority_order(self) -> tuple[str, ...]:
         """Which tabs to visit, in the order the row list implies.
 
-        Derived rather than fixed. Only one tab is readable at a time, so
-        honouring a global priority order literally would mean re-checking
-        every tab after every purchase - thrashing tabs and burning the tap
-        budget on navigation. Visiting each tab once, in the order its
-        highest-priority row appears, spends in the intended order and costs
-        two tab taps.
+        Used to choose the initial tab. The shopping session subsequently
+        follows the highest-priority remaining row, returning to a category
+        when necessary. Each navigation counts against the visit tap budget.
 
         Tabs whose every row is disabled are skipped: visiting one is taps
         spent to read a page nothing will be bought from.
@@ -422,15 +429,7 @@ class Shopping:
             "coin_reserve": self.coin_reserve,
             "coin_budget": self.coin_budget,
             "allow_unlocks": self.allow_unlocks,
-            "workshop": [
-                {
-                    "name": r.name,
-                    "category": r.category,
-                    "enabled": r.enabled,
-                    "target": r.target,
-                }
-                for r in self.workshop
-            ],
+            "workshop": [rule.to_dict() for rule in self.workshop],
             "cards": self.cards.to_dict(),
         }
 

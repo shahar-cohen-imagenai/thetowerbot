@@ -1,0 +1,23 @@
+Attack enhancements are a set of Workshop Enhancement upgrades that multiply your tower's offensive stats. Each one is gated behind a total coin spend in earlier enhancement or damage upgrades, then levels up with coins for a stacking multiplier.
+On this page
+— Damage
+— Rend Max
+— Critical Factor
+— Damage/Meter
+— Super Crit Multi
+— Attack Speed
+— Damage
+The Damage enhancement is free to unlock once you have researched Workshop Enhancements. It begins at a x1 multiplier and each level adds 0.01x, so it grows steadily rather than in jumps. You can take it to 400 levels, which tops out at a x5 damage multiplier. The cost table below shows the coin price per level.
+Show all 41 rows
+— Rend Max
+Rend Max unlocks after you have spent 50 billion coins on damage enhancements. It boosts your Rend Max, including its chance and multiplier, starting at x1 and gaining 0.01x per level. The cap is 400 levels, giving a maximum 5x bonus to Rend.
+— Critical Factor
+Critical Factor becomes available once you have spent 500 billion coins on enhancements. Unlocking it applies a x1.0 increase to your Crit Factor, and each further level adds 0.1. With 400 levels available, it maxes out at a x5 Crit Factor multiplier.
+— Damage/Meter
+Damage/Meter requires 5 trillion coins spent on attack enhancements before it unlocks. It multiplies your Damage per Meter stat, starting at x1 and rising by 0.01x per level. It has a maximum of 400 levels, reaching a 5x bonus at the cap.
+— Super Crit Multi
+Super Crit Multi is gated behind 50 trillion coins spent on enhancements. When unlocked it adds x1.0 to your Super Crit multiplier, and every level after that adds another 0.1. It caps at 400 levels for a x5 Super Crit multiplier overall.
+— Attack Speed
+Attack Speed is the most expensive attack enhancement to open, needing 500 trillion coins spent on enhancements. It starts at a x1.0 multiplier and gains 0.01 per level. Unlike the other attack enhancements it only has 75 levels, so it maxes out at a 1.75x attack speed multiplier. The cost table below lists the price of each level.
+Show all 75 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

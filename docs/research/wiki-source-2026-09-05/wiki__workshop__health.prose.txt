@@ -1,0 +1,44 @@
+Health is the maximum hit points of your tower — the raw pool of damage you can absorb before a run ends. It is one of the core defensive stats you will invest in from the very start of the game, and it underpins the broader concept of Effective HP (eHP) used to measure real survivability.
+On this page
+Description
+Workshop
+Cost
+Cards
+Effective HP (eHP)
+Workshop Enhancement — Health
+Lab — Health
+Description
+Health sets the maximum HP of your tower. Every point of damage you take is subtracted from this pool, and the run is over when it reaches zero.
+Workshop
+Health is available in the Workshop for free from the start, unlocked alongside Health Regen. There are 6000 workshop upgrade levels for Health, making it one of the deepest coin sinks in the game. Beyond the workshop itself, you can push Health further through the health lab and the Health card.
+Cost
+The full cost of all 6000 workshop levels is shown in the cost table below. Because of the sheer number of levels, Health is a long-term investment you will keep buying throughout the game rather than something you finish early.
+Show all 61 rows
+Cards
+The Health card multiplies your workshop Health by its card multiplier. It stacks multiplicatively with your other multipliers, so its value grows as the rest of your Health scaling improves.
+Effective HP (eHP)
+Health is the foundation of Effective HP, the measure of how much total damage enemies must deal to bring you to 0 HP. The basic formula is:
+eHP = (Health + Defense Absolute) / (1 - Defense %)
+Other modifiers feed into this, including the Chrono Field Damage Reduction lab, Chrono Field Reduction % and Packages. With Chrono Field Reduction accounted for, the formula becomes:
+eHP = (Health / (1 - Chrono Field Reduction %) + Defense Absolute) / (1 - Defense %)
+The result tells you the damage an enemy must deal to kill you in a single hit. When Packages are involved, use your highest achievable health value rather than your base maximum. For example, if your fully modified max HP is 1,000 and max Packages give 16.5x (max workshop, no modifiers), you can reach 16,500 HP — so use 16,500 in the formula, unless you take so many hits that you cannot reliably hold the full package amount.
+Workshop Enhancement — Health
+Health enhancement is unlocked for free once you complete the Workshop Enhancement labs. It starts at a x1 multiplier and gains 0.01x per level, up to a maximum of 400 levels for a total multiplier of x5.00. The per-level costs are listed in the table below.
+Show all 41 rows
+Lab — Health
+The Health lab is unlocked from the start of the game. Its upgrades increase how much Health each workshop level adds and also raise the maximum Health achievable in the workshop, making it a direct multiplier on the value of your 6000 workshop levels. See the table below for the lab's level costs and effects.
+Show all 100 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-01-30) . Something out of date? Tell us in the Discord .

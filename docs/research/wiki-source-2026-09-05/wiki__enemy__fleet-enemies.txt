@@ -1,0 +1,76 @@
+Fleet Enemies are a special enemy class that shows up from Tier 14 onward, made up of three types: Saboteur, Commander, and Overcharge. They behave differently from standard enemies in almost every way — what hurts them, how they move, and what they drop.
+Everything here comes from community testing plus the V28.3 patch notes, so treat the details as best current knowledge rather than confirmed fact.
+On this page
+Fleet Enemies
+Overview
+Fleet Rewards
+Fleet Enemy Spawns
+Fleets at Higher Waves on All Tiers
+Fleets in Battle Condition Tiers and Tournaments
+Fleet Enemies
+Three enemy types fall under the Fleet umbrella: Saboteur, Commander, and Overcharge, and you will only meet them on T14 or higher. A long list of your usual tools simply does not work on them — Orbs, Death Ray, shockwave, knockback, and both Black Hole damage and pull all fail to connect. Chrono Field, Chrono Loop (CF+), Thunder Bot, Poison Swamp stun, and Land Mine stun do function, but only at half strength. The Plasma Cannon card will not even select them as a target.
+Fleets pass straight through other enemies instead of colliding with them. Where each type stops differs: Commander and Overcharge halt once they are inside your Tower Range, whereas the Saboteur keeps coming until it reaches the tower itself. Thorns are heavily blunted against them at 85% resistance, and whatever Thorn damage does land is calculated from their current health rather than their maximum.
+Their attack rate scales with wave count. At Wave 1 they attack extremely slowly, and this ramps up until hitting its ceiling at Wave 4000.
+Overview
+Two quirks are worth knowing. The Saboteur counts as attacking for the purposes of Thorn effects, yet it never triggers Energy Shield and cannot damage The Wall. Overcharge, meanwhile, never scales its damage — it stays fixed at whatever Wave 1 dealt on that tier.
+The table below summarises the per-type details.
+Fleet Enemy Overview
+Fleet Enemy Description Speed Health Attack
+Saboteur Selects an ultimate weapon on tower hit, decreasing its upgrade level by 1 and deactivating the ultimate weapon if it reaches 0. Wall hits do not affect ultimate weapons. 2x 20x 0*
+Commander Empowers enemies within an area, providing a 1.15x boost to health, mass, and speed with each pulse, capped to 8 boosts per enemy. This pulse does not affect bosses. 0.5x 20x N/A
+Overcharge Shoots a returning projectile at the Tower, dealing 1.4x damage with each hit. Fires a final projectile on death. 1x 20x Wave 1**
+Fleet Rewards
+Killing a Fleet enemy pays out one of two currencies. Reroll shards are the common result at an 80% drop chance, with module shards making up the remaining 20%.
+Exact amounts per enemy type are listed in the rewards table.
+Fleet Rewards
+Tiers Reroll Shards (80%) Wave Module Shards (20%, 5% per type)
+T14 1080 1 5
+T15 1200 250 6
+T16 1350 500 7
+T17 1500 750 8
+T18 1650 1000 9
+T19 1800 1250 10
+T20 1950 1500 11
+T21 2100 1750 12
+2000 13
+2250 14
+Show all 21 rows
+Fleet Enemy Spawns
+Fleet spawns are guaranteed — if a wave is due to produce one, it will, and wave-skipping past that point still forces the Fleet enemy to appear. Each one arrives alongside a pack of matching escort enemies, with the group size looking like a random roll somewhere between 10 and 14. The moment it appears within its assigned wave is also randomised.
+Since v28.3, these escort packs sit under their own separate cap. That means the whole group is guaranteed to spawn and can push the total enemy count above the normal limit.
+Fleet Companions
+Fleet Companions
+Overcharge Ranged
+Commander Tank
+Saboteur Fast
+Fleets at Higher Waves on All Tiers
+Fleets are no longer exclusive to the top tiers — every tier gets them eventually if you push far enough. On Tier 1 they begin appearing at wave 15,000, and each tier above that moves the first appearance 250 waves sooner: 14,750 on T2, 14,500 on T3, and so on down the line. After their debut, they keep coming back every 100 waves.
+Low Tier Spawning
+Tier First Spawn Wave Spawn Frequency Waves / Fleet
+Tier 1 15,000 100
+Tier 2 14,750 100
+Tier 3 14,500 100
+Tier 4 14,250 100
+Tier 5 14,000 100
+Tier 6 13,750 100
+Tier 7 13,500 100
+Tier 8 13,250 100
+Tier 9 13,000 100
+Tier 10 12,750 100
+Show all 13 rows
+Fleets in Battle Condition Tiers and Tournaments
+Bonus spawns carry the pattern over from the high-wave Fleets of lower tiers. One caveat: if a regular Fleet is present at the same time, the bonus ones drop nothing.
+Spawning Behavior
+Tier First Wave Frequency Wave/fleet Bonus Spawn First Wave Frequency Wave / Fleet
+Tier 14+ (Legends prior to V27.3) 895 30 N/A N/A
+Tier 14 2495 1000 11,750 100
+Tier 15 1495 750 11,500 100
+Tier 16 995 500 11,250 100
+Tier 17 495 250 11,000 100
+Tier 17+ (Legends from V27.3+) 895 30
+Tier 18 95 100 10,750 100
+Tier 19 45 50 10,500 100
+Tier 20 5 10 waves/1 fleet 10,250 100
+Tier 21 5 10 waves/2 fleets 10,000 100
+Show all 13 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-05) . Something out of date? Tell us in the Discord .

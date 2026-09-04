@@ -1,0 +1,10 @@
+Free Upgrades is a rare card that makes the free upgrade rolls during a wave trigger more often. If you rely on free upgrades to push your stats without spending cash mid-run, this card increases how frequently those free points land.
+Free Upgrades
+Free Upgrades increases all of your free upgrade chances per wave by a percentage shown on the card. Every free upgrade chance you have is boosted, so each wave gives you more opportunities to gain stats for free.
+The exact percentage per card level is listed in the data table below.
+Free Upgrades value per card level
+Card Mastery
+Unlocking the Free Upgrades mastery costs 500 stones. Once unlocked, it lets you lock a stat so it is excluded from free upgrades, giving you control over where your free points go.
+The mastery is only active while Free Upgrades is equipped in your active loadout, so you need a card slot for it to benefit from the lock.
+Free Upgrades mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

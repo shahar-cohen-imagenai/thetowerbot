@@ -1,0 +1,34 @@
+This page collects community guides for The Tower: Idle Tower Defense, grouped by how far into the game you are. Whether you are still clearing your first tiers or fine-tuning a late-game build, there is a guide here aimed at your stage.
+Each section below explains what its guides cover and when they are worth reading.
+On this page
+Beginner Guides
+Resource Guides
+Build Guides
+Advanced Guides
+Beginner Guides
+These guides are aimed at new players and focus on the decisions that matter in the opening stretch of the game. They are designed to carry you through tiers 1 and 2 and to help you make early choices you will not regret later.
+The Common Abbreviations list decodes the shorthand the community uses, which makes every other guide easier to follow. The Beginner Guide walks you through completing tiers 1 and 2 and introduces basic builds, while the Beginner's Exploration Guide takes a different stance: it argues you will have more fun figuring out the early tiers yourself, so it sticks to general objectives, specific mistakes to avoid, and a few pieces of concrete advice.
+The FAQ answers the questions new players ask most, many of which are actually intended mechanics rather than bugs. The Footguns guide covers upgrades you should avoid, or at least understand fully, before buying, because a wrong choice there can take months to undo or may be permanent. Thinking about Perks explains how to use perks well and get the most out of them, and Rushing Tiers covers features that help you squeeze extra waves out of the early to mid game.
+Resource Guides
+These guides help you spend the game's currencies and resources where they count. The Medals Guide gives a priority order for the event shop, covering bot unlocks and upgrades, and the Event Guide explains how to earn as many medals as possible from each event. The Gem Guide helps you find the best use for your gems.
+Which UW do I select? helps you decide which Ultimate Weapons to pick and why. The Coin Guide covers the fundamentals of earning more coins, including what syncing Ultimate Weapons means, how to do it, and why it matters. The Guardian guide explains how to use the guardian effectively within your build.
+Build Guides
+These guides help you progress by optimising your stats. The right strategy differs from player to player depending on your progress and which Ultimate Weapons you have, so rather than fixed instructions they teach the concepts and upgrades that lead to success. See the table below for the individual build guides.
+Show all 12 rows
+Advanced Guides
+These guides dig into the finer details of the game and help you optimise builds using its quirks. They assume you already have a solid grasp of the fundamentals, so they are best read once the earlier sections feel familiar.
+The Effective Paths Sheet is an external Google Sheet that lets you enter your own tower stats and see the most efficient use of coins, stones, and time across health, damage, and economy. It is a community-built tool, and the FAQ entry "Who are the coolest guys here?" credits everyone involved in making it.
+Related pages
+Beginner Guide
+Coin Guide - Basics
+Common Abbreviations
+Event Guide
+Footguns
+Frequently Asked Questions
+Gem Guide
+Guardian Guide
+Guides / Thinking about Perks
+50s SMax
+Health Build
+Medals Guide
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-03-09) . Something out of date? Tell us in the Discord .

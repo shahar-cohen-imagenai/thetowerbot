@@ -1,0 +1,71 @@
+Golden Bot is one of the bots you can buy in The Tower: Idle Tower Defense. While it is active, any enemy destroyed inside its range pays out extra coins, making it a core part of most coin-farming setups.
+On this page
+Description
+Unlocking/Upgrading
+Duration
+Cooldown
+Bonus
+Range
+Cost
+Labs — Golden Bot Cooldown
+Labs — Golden Bot Duration
+Description
+While Golden Bot is active, enemies destroyed inside its range award multiplied coins. It does not deal damage or slow enemies on its own — its job is purely to boost the coin value of kills that happen within its coverage area, so it pays off most when its range overlaps where your tower actually kills things.
+Unlocking/Upgrading
+Golden Bot is bought and levelled through the Event Shop, the same as every other bot. The medals you pay to unlock it scale with how many bots you already own, so buying it later costs more. Each of its four upgrades starts at 100 medals per level and rises by 40 medals with every level you buy.
+Duration
+The Duration upgrade extends how long Golden Bot stays active each time it triggers. It begins at 20 seconds and has 30 levels, each adding 0.5 seconds, for a maximum of 35 seconds from upgrades alone. Lab research can push this further, up to 45 seconds.
+Cooldown
+Cooldown sets the gap between activations. It starts at 120 seconds and has 15 levels, each shaving off 3 seconds, bringing the floor to 75 seconds from upgrades. With the cooldown lab maxed, that drops to 50 seconds.
+Bonus
+The Bonus upgrade raises the coin multiplier applied to enemies destroyed in the bot's range. It starts at 2.0x and has 30 levels, each adding 0.2x, topping out at 8.0x.
+Range
+Range determines the area Golden Bot covers while active. It starts at 20m and has 20 levels, each adding 2m, for a maximum of 60m from these upgrades. Relics and vault upgrades can extend it beyond that. On top of this, all bot ranges are amplified by your tower's range, so a longer tower range also widens the bot's effective coverage.
+Cost
+Each of Golden Bot's four upgrades begins at 100 medals and increases by 40 medals per level. The full per-level medal costs are listed in the cost table below.
+Level Cost Duration Cooldown Bonus Range
+1 100 20.5 117 2.2 22
+2 140 21.0 114 2.4 24
+3 180 21.5 111 2.6 26
+4 220 22.0 108 2.8 28
+5 260 22.5 105 3.0 30
+6 300 23.0 102 3.2 32
+7 340 23.5 99 3.4 34
+8 380 24.0 96 3.6 36
+9 420 24.5 93 3.8 38
+10 460 25.0 90 4.0 40
+Show all 31 rows
+Labs — Golden Bot Cooldown
+Golden Bot Cooldown is a lab unlocked through Milestones at tier 5 wave 80. Each of its 25 levels reduces the bot's cooldown by 1 second, for a total reduction of 25 seconds. Because it is a large, cheap-feeling reduction that is easy to over-prioritise early, it is flagged in the Footguns section — check the level costs in the table below before committing.
+Level Time Cost Value
+1 1d 14h 53m 30.00M -1
+2 1d 23h 14m 60.05M -2
+3 2d 7h 47m 91.60M -3
+4 2d 16h 54m 132.15M -4
+5 3d 3h 4m 201.20M -5
+6 3d 14h 56m 336.25M -6
+7 4d 5h 11m 598.80M -7
+8 4d 22h 39m 1.08B -8
+9 5d 20h 13m 1.91B -9
+10 6d 22h 51m 3.25B -10
+Show all 25 rows
+Labs — Golden Bot Duration
+Golden Bot Duration is a lab unlocked through Milestones at tier 10 wave 50. It has 20 levels, each adding 0.5 seconds to the bot's active time, for a maximum of 10 extra seconds. The per-level costs are shown in the table below.
+Level Time Cost Value
+1 8d 8h 0m 100.00B 0.50
+2 9d 14h 0m 150.00B 1.00
+3 11d 0h 30m 225.00B 1.50
+4 12d 16h 10m 337.50B 2.00
+5 14d 13h 48m 506.25B 2.50
+6 16d 18h 16m 759.38B 3.00
+7 19d 6h 36m 1.14T 3.50
+8 22d 4h 0m 1.71T 4.00
+9 25d 11h 48m 2.56T 4.50
+10 29d 7h 34m 3.84T 5.00
+Show all 20 rows
+Related pages
+Events
+Footguns
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-30) . Something out of date? Tell us in the Discord .

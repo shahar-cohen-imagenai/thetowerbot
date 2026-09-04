@@ -1,0 +1,50 @@
+Black Hole is an Ultimate Weapon that periodically opens a gravity well near your tower, dragging enemies towards its centre for as long as it stays active. It is one of the strongest crowd-control tools in the game, grouping enemies so your other damage sources can hit them together.
+You unlock and upgrade it from the Ultimate Weapon menu, and a set of lab researches later add damage, coin bonuses and extra effects on top.
+On this page
+Description
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Labs — Black Hole Damage
+Labs — Black Hole Coin Bonus
+Labs — Extra Black Hole
+Labs — Black Hole Disable Ranged Enemies
+Labs
+Description
+Once activated, Black Hole spawns after a set delay, holds enemies within its range for a fixed duration, then disappears until its cooldown completes. While active it continuously pulls enemies towards its centre, keeping them clustered and away from your tower.
+Where the Black Hole appears depends on your tower range. A larger tower range pushes the spawn point further out, and the distance grows faster than the range itself, so at high range the centre of the Black Hole sits well outside your tower range line.
+Workshop — Basic Upgrades
+Black Hole is bought and improved in the Ultimate Weapon menu. Unlocking it opens three stone-based upgrade tracks: Size, Duration and Cooldown.
+Size has 20 levels, Duration has 23 levels and Cooldown has 15 levels. Fully upgrading all three tracks costs 9,723 stones in total. The per-level costs are listed in the table below.
+Show all 25 rows
+Workshop — Ultimate Weapon Plus
+Ultimate Weapon Plus abilities become available only after you have purchased all 9 Ultimate Weapons. The Black Hole Plus ability makes each Black Hole deal a multiple of the current wave's HP to every enemy it affected when its activation ends.
+Unlocking Consume has an additional undocumented effect: it speeds up the pull that drags enemies towards the Black Hole's centre. The damage multipliers per level are shown in the table below.
+Labs — Black Hole Damage
+This research makes Black Hole deal damage equal to a percentage of each enemy's total health per second while they are inside it. Protectors do not reduce this damage, which makes it one of the few reliable ways to hurt protected enemies.
+The lab has 10 levels. The damage percentages per level are listed in the table below.
+Labs — Black Hole Coin Bonus
+This research awards bonus coins for enemies killed while inside a Black Hole. The kill does not need to come from the Black Hole itself, and the enemy does not even need to be caught by its pull — it only needs to be within the Black Hole when it dies.
+This makes the lab a strong economy pick once your Black Hole coverage is reliable. The bonus values per level are shown in the table below.
+Show all 20 rows
+Labs — Extra Black Hole
+This research spawns a second Black Hole whenever your Black Hole activates. The second one always appears on the opposite side of the tower and copies every stat and ability of the original, including any damage, coin bonus and Ultimate Weapon Plus effects you have unlocked.
+Doubling your coverage this way dramatically improves both crowd control and coin income. Costs per level are listed in the table below.
+Labs — Black Hole Disable Ranged Enemies
+With this research, ranged enemies caught inside a Black Hole cannot fire, even if your tower is within their attack range. This removes one of the main threats during late-tier runs, since ranged enemies are normally able to shoot while being pulled.
+The lab unlocks at Tier 14 Wave 20. Costs are shown in the table below.
+Labs
+Labs are unlocked through Milestones. The Black Hole Damage and Black Hole Coin Bonus researches both open at Tier 5 Wave 150, Extra Black Hole opens at Tier 5 Wave 500, and Black Hole Disable Ranged Enemies opens at Tier 14 Wave 20.
+Related pages
+Attack Speed
+Attack Upgrades
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Damage Per Meter
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-24) . Something out of date? Tell us in the Discord .

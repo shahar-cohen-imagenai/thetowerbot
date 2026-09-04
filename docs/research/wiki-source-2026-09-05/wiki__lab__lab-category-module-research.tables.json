@@ -1,0 +1,39 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Module Research"
+    ],
+    "rows": [
+      [
+        "Common Drop Chance Max Lv 10",
+        "Reroll Shards Max Lv 100"
+      ],
+      [
+        "Daily Mission Shards Max Lv 50",
+        "Module Shard Costs Max Lv 30"
+      ],
+      [
+        "Module Coin Cost Max Lv 30",
+        "Rare Drop Chance Max Lv 10"
+      ],
+      [
+        "Unmerge Module Max Lv 1",
+        "Shatter Shards Max lv 5"
+      ],
+      [
+        "Cannon Effect Bans Max Lv 4",
+        "Armor Effect Bans Max lv 4"
+      ],
+      [
+        "Generator Effect Bans Max Lv 3",
+        "Core Effect Bans Max lv 7"
+      ],
+      [
+        "Assist Module Substats Max Lv 30",
+        "Assist Module Bonus Max Lv 30"
+      ]
+    ]
+  }
+]

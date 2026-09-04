@@ -1,0 +1,380 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor
+Speak the language
+The Tower Glossary
+en de es ja
+159 terms you'll meet in chats, guides and tournament salt — every card, bot, Ultimate Weapon and battle condition, defined in plain English with the mechanics that actually matter. Written from a Legend-league account, not copied from a wiki.
+159 Currencies & Resources Combat & Stats Ultimate Weapons Enemies Workshop & Perks Cards Modules & Guardian Bots Labs & Progression Tournaments Builds & Community Slang
+Currencies & Resources
+Coins
+The main farming currency, earned from kills and wave bonuses during runs. Spent on workshop upgrades and labs — everything in the long game ultimately converts coins into permanent power.
+Cash
+The in-run currency. Earned during a single run and spent on temporary upgrades while you play; resets when the run ends.
+Gems
+Premium currency earned from ad chests, missions, events and "Bob". Spent on card draws, lab rushes, respecs and event stock.
+Stones
+The Ultimate Weapon currency — used to unlock UWs and buy their upgrades (and unlock card mastery / assist slots). Earned mainly from tournaments and events; long-term, stone investment into econ is the biggest multiplier on how fast your account grows.
+Cells
+Dropped by elite enemies (rays, vampires, scatters). Spent on lab speed-ups — the higher your farming tier, the faster your labs can run.
+Shards
+Module currency. Used together with coins to level modules; earned by shattering spare modules, daily missions and shops. Reroll shards are a separate type used to reroll substats.
+Medals
+Event currency invested into bots. Respeccing medals out of a bot costs gems, so plan the order.
+Bits
+Guild currency spent on guardian chip upgrades. Earned from guild mission chests and the guild store.
+Bob
+Community nickname for the floating gem that drifts across the screen during runs — tap it for bonus gems, up to a handful of times per run.
+Ad gems
+The small gem claim that appears on screen every few minutes. A vault upgrade lets claims stack so AFK farmers don't lose them.
+Interest
+An in-run mechanic that pays a percentage on your unspent cash — one of the reasons hoarding cash briefly can beat spending it instantly.
+Number suffixes (q vs Q)
+The game abbreviates big numbers case-sensitively: K, M, B, T, then q (quadrillion, 1e15), Q (quintillion, 1e18), s (sextillion, 1e21), S (septillion, 1e24). "Small q" and "big Q" are three orders of magnitude apart — misreading them is the classic screenshot mistake.
+Combat & Stats
+eHP
+Effective HP — how much punishment your tower actually survives once health, Death Wave healing, wall, recovery, Chrono Field slow and defense are multiplied together. The standard way to compare defensive builds.
+eDamage
+Effective damage — your real damage output combining bullet damage (with crits) and Ultimate Weapon damage as separate, additive streams. At high waves the UW stream usually dominates.
+Crit / Super Crit
+Chance-based damage multipliers on your projectiles. Super crits stack on top of crits and are a core scaling axis for bullet-damage builds.
+Multishot
+A chance for the tower to fire at several targets at once. More projectiles also means more on-hit procs — one of the quiet multipliers behind Chain Lightning builds.
+Rapid Fire
+A chance to temporarily fire in a rapid burst. Like all attack-speed effects, its hidden value is more procs per second, not just more bullets.
+Bounce Shot
+Projectiles can jump to additional enemies after a hit — chance, range and target count are separate upgrades. The Astral Deliverance module builds an entire archetype around it.
+Damage / Meter (DPM)
+Bonus damage based on how far a projectile has traveled. Nearly worthless on its own — but with Spotlight+ it becomes one of the better damage labs. The textbook "conditional priority".
+Defense % vs Defense Absolute
+Defense % multiplies all incoming damage down and stays useful forever. Defense Absolute subtracts a flat amount per hit — it falls off hard at high waves because it's additive in a multiplicative system.
+Wall
+A destructible barrier in front of your tower. It buys time, blocks hits and (with thorns) reflects percentage damage — one of the strongest defensive lines in the game.
+Thorns
+Reflects a percentage of an attacker's health as damage when they hit your wall or tower. Because it's percentage-based, it scales automatically with enemy health — which grows much faster than enemy damage.
+Orbs
+Projectiles that circle the tower and shred whatever walks into them. The backbone of the Blender playstyle — and deliberately skipped by Orbless builds that want enemies alive inside coin windows.
+Land Mines
+Workshop mines that arm around the tower and detonate on contact. Their chance, damage and radius are separate upgrades; the AoE card and Inner Land Mines UW build on the theme.
+Shockwave
+A periodic blast around the tower that damages and pushes nearby enemies. The Anti-Cube Portal module turns its hits into a damage amplifier.
+Knockback
+Pushes enemies away on hit. Underrated crowd control: distance bought is time bought, and time is damage.
+Death Defy
+A chance to survive a killing blow instead of dying. One of the key labs/cards for pushing deep waves.
+Crowd Control (CC)
+Everything that slows, stuns, knocks back or pulls enemies. CC is a hidden damage multiplier: enemies that stay in range longer eat more bullets, procs and UW ticks.
+Shock
+A debuff (from Chain Lightning's lab) that makes affected enemies take increased damage — it multiplies your whole damage stack, which is why CL-centric builds dominate.
+Coin Bonus
+The umbrella multiplier on coins earned, fed by many sources (workshop, GT, BH lab, modules, perks). The in-game "All Coins Bonuses" menu shows the full breakdown.
+Free Upgrades
+Chance for in-run upgrades to cost nothing. Beyond the economy, some module effects (like Black Hole Digestor) reward stacking free upgrades.
+Wave Skip
+Chance to skip a wave entirely while keeping rewards flowing. Compounds with everything else that scales per wave — a deceptively strong econ stat.
+Enemy Level Skip (ELS)
+Chance that the enemy level doesn't increase on a new wave. Slows enemy scaling relative to your run length — a big lever for pushing. Exists twice: as a utility upgrade and again in Workshop Enhancements (ELS+).
+Heat-up
+Enemies that repeatedly hit your wall or tower ramp up their damage per hit (~4% per hit). The reason a stable frontline eventually breaks if nothing dies.
+Recovery Packages
+Health pickups that drop during runs and heal the tower. Amount, drop chance and maximum are separate stats; the guardian's Ally chip can heal past the normal cap.
+Game Speed
+The in-run speed multiplier. Note the displayed speed and the real simulation speed can drift apart on weaker devices — the community has infographics measuring exactly that.
+Ultimate Weapons
+Ultimate Weapon (UW)
+The nine stone-powered weapons — Golden Tower, Black Hole, Death Wave, Chain Lightning, Chrono Field, Smart Missiles, Poison Swamp, Inner Land Mines, Spotlight. Each has stone upgrades, labs and a plus-ability (UW+).
+UW+
+The upgraded second ability of each Ultimate Weapon (e.g. Golden Combo for GT, Chrono Loop for CF), unlocked with stones after the base UW is developed.
+Golden Tower (GT)
+The econ backbone: multiplies coin income for its duration. Nearly every farming build is planned around GT uptime and syncing it with Black Hole.
+Golden Combo (GT+)
+Golden Tower's plus ability — extends the golden window as you keep killing during it. The efficient GT+/GT-duration path is a community infographic classic.
+Black Hole (BH)
+Pulls enemies into a small area — massive CC and, with its coin-bonus lab, a core econ tool. Perma-BH (100% uptime) is a defining milestone for farming builds.
+BH/GT Sync
+Aligning Black Hole and Golden Tower so their active windows overlap: enemies get pulled together and killed inside the coin-multiplier window. Desynced UWs waste most of their value.
+Death Wave (DW)
+A periodic wave that damages (and with labs, heals from) everything on screen. Doubles as offense and a defensive heartbeat in many builds.
+Chain Lightning (CL)
+Chance-on-hit lightning that arcs between enemies. With the Shock lab it's the strongest damage-side UW in the current meta — instant hit, no travel time, multiplies everything.
+Chrono Field (CF)
+Slows enemies inside its field — pure CC that also feeds your eHP by reducing incoming pressure. Perma-CF is the defensive equivalent of perma-BH.
+Chrono Loop (CF+)
+Chrono Field's plus ability — adds a rotating field with an additional hidden slow component that the community only mapped through testing.
+Smart Missiles (SM)
+Homing missiles with flat damage. Weak in the current meta: raw numbers can't keep pace with exponential enemy health, unlike percentage damage.
+Poison Swamp (PS)
+Damage-over-time pools under enemies. Percentage-flavored area damage that shines with size and uptime investment.
+Inner Land Mines (ILM)
+Mines that arm close to the tower and stun what they hit. The stun (time-in-range) is worth more than the damage.
+Spotlight (SL)
+A cone that multiplies damage dealt to enemies inside it. Positioning-dependent, but the multiplier applies to your entire damage stack — and SL+ is what makes Damage/Meter worth taking.
+UW stone upgrades
+Each UW levels a small set of stats with stones (duration, cooldown, size, damage, chance, quantity — depending on the weapon). Cooldown and duration are usually the uptime levers that matter first.
+UW substats
+Core-module substat rolls that push UW stats past their stone caps — extra duration, reduced cooldown and friends. The final ingredient in most perma-uptime math.
+Perma (BH / GT / CF)
+Shorthand for 100% uptime on an Ultimate Weapon — duration meets cooldown, usually via stones + substats + Multiverse Nexus. Each perma milestone reshapes how a build plays.
+Enemies
+Basic
+The filler enemy: no special traits, minimal reward. Exists to feed your orbs and procs.
+Fast
+Sprints ahead of the pack. Fasts are why pure slow-and-stall setups still need something that snipes.
+Tank
+Slow, oversized health pool. Tanks are where percentage damage (thorns, BH damage) visibly outclasses flat damage.
+Ranged
+Stops at distance and shoots the tower. The reason "kill it before it stops walking" is a defensive stat — and BH has a lab to shut them down entirely.
+Boss
+The big one at wave's end: massive health, real damage. Boss health/attack reduction labs and the boss trade-off perk exist purely for them.
+Protector
+Shields enemies around it until it dies. Kill priority number one — everything behind it is temporarily unkillable.
+Ray
+Elite that locks onto the tower with a beam. Drops cells; on kill-priority lists it sits high because the beam ignores your frontline.
+Scatter
+Elite that splits into smaller enemies when killed. Drops cells — and briefly multiplies the crowd, which proc-based builds actually enjoy.
+Vampire
+The sustain elite — it regenerates and punishes slow kill speed. Drops cells; burst damage handles it, chip damage doesn't.
+Elites
+Rays, scatters and vampires — tougher spawns that drop cells. Elite spawn rate rises with tier, which is why higher tiers fund faster labs.
+Fleet
+Late-game grouped formations that arrive as one package, with their own escort roles and crowd-control resistance. The reason "one big stun" stops being a full answer.
+Mass
+Enemies still alive grow stronger the longer they live (~4% per wave alive). Letting a boss walk for ten waves is how runs die.
+Workshop & Perks
+Workshop
+The permanent coin-powered upgrade tree (Attack / Defense / Utility). Slow, steady, and the foundation everything else multiplies.
+Workshop Enhancements
+A second layer on top of workshop stats that makes maxed lines keep scaling — including its own version of Enemy Level Skip (ELS+).
+Perks
+In-run choices offered as your run progresses — standard boosts, UW boosts and trade-offs. Perk order and bans are a real part of build strategy.
+Trade-off Perks
+High-impact perks with a cost attached. Whether to take one depends entirely on your build — hence all the community infographics.
+Coin Trade-off Perk
+More coins in exchange for a downside elsewhere. For pure farm runs it's usually a yes; the interesting question is how early to grab it.
+Cash Trade-off Perk
+Multiplies cash-per-wave but removes kill cash. Great for wave-bonus-heavy setups, poison for kill-econ ones — the archetypal "know your build" perk.
+50/50 Damage Trade-off Perk
+Halves enemy damage and your own damage at the same time. A defensive lifeline for eHP builds, a dead pick for glass cannons.
+Boss Trade-off Perk
+Weakens boss health but speeds bosses up. Reads scary, plays fine for most builds — a faster boss just meets your wall sooner.
+Perk Bans / Auto-pick
+Labs that let you ban perks from the pool, auto-pick, and rank auto-pick priority. Essential for AFK farming — your build chooses perks even when you're asleep.
+Cards
+Cards
+Equippable boosts drawn with gems and leveled with duplicates. Card slots limit how many you can run — choosing the loadout per situation (farm vs tourney) matters.
+Card Mastery
+A stone-powered upgrade on individual maxed cards that adds a second, stronger effect. Expensive and worth planning — mastery order is a popular community debate.
+Card Presets
+Saved card loadouts you can flip between — the farm-to-tournament switch in two taps.
+Damage / Attack Speed / Critical Chance Cards
+The bread-and-butter offense cards — flat multipliers on your core attack stats. Rarely exciting, rarely wrong.
+Health / Health Regen / Extra Defense Cards
+The defensive mirror image — straight multipliers on survivability for eHP-leaning builds.
+Cash / Coins / Critical Coin Cards
+The econ cards: more cash, more coins, and bonus coins on crits. Farming staples that pay for everything else.
+Range Card
+Extends tower range — more time shooting each enemy, better Spotlight geometry, earlier ranged-enemy kills.
+Slow Aura Card
+A slow field around the tower. Crowd control in card form — everything in range dies a little more thoroughly.
+Enemy Balance Card
+Shifts the spawn mix away from the swarm and toward fewer, meatier enemies. Loved by builds that profit per-enemy, mastered for even stronger control.
+Fortress Card
+Wall-focused defense card — the wall playstyle's best friend.
+Free Upgrades Card
+Raises the free-upgrade chance — economy on its own, and fuel for Black Hole Digestor setups.
+Extra Orb Card
+Adds another orb circling the tower. For Blender builds this is raw kill throughput.
+Plasma Cannon Card
+Empowers wall thorns damage — the card that turns a wall from a shield into a weapon. Its mastery is a fixture of thorn-build math.
+Wave Skip Card
+The card version of wave skip. Its mastery is famous for boosting skipped-wave rewards — a quiet farming powerhouse.
+Intro Sprint Card
+Fast-forwards the early waves of a run. Pure quality of life — the boring part of every run, shortened.
+Land Mine Stun Card
+Adds a stun to land mine hits. Remember: stun time is damage time — this card is CC dressed as utility.
+Recovery Package Chance Card
+More healing drops. Combined with the Shatter Shards lab it also feeds daily shard income — a card with two jobs.
+Death Ray Card
+A beam that periodically burns the strongest thing on screen. Elite and boss insurance in card form.
+Energy Net Card
+Catches and holds enemies in place. More time-in-range, more procs — the CC theme again.
+Super Tower Card
+Periodically supercharges the tower's combat stats. One of the flashiest cards in the game — and its mastery decision is a meme-tier debate.
+Second Wind Card
+A comeback mechanic after your defenses fail — one more chance to stabilize before the run truly ends.
+Demon Mode Card
+A temporary berserk state with boosted offense at a defensive cost. Timing-dependent and beloved by push builds.
+Energy Shield Card
+Blocks hits outright at intervals. Mediocre while farming, jumps to elite status in Legend tournaments where single hits actually threaten you.
+Wave Accelerator Card
+Speeds up enemy spawning. Sounds suicidal, is actually econ: more spawns per minute means more kills per minute — its mastery pushes spawn rates to the cap.
+Berserker Card
+Converts damage you've absorbed into bonus damage. The tankier you build, the harder it hits — an eHP build's favorite offense card.
+Ultimate Crit Card
+Lets Ultimate Weapon damage crit. Since UW damage dominates late, this card scales with your whole endgame.
+Nuke Card
+Periodically wipes the screen. Panic button, boss-wave opener and spawn-wave cleaner in one.
+Area of Effect Card
+Boosts the game's area-damage sources (mines, swamp, missiles, flame bot). A glue card for AoE-flavored builds.
+Modules & Guardian
+Modules
+Equippable gear in four slots — Cannon (damage), Armor (defense), Generator (econ), Core (UWs). Each has a main effect, rarity, substats and, at high rarity, a unique effect.
+Substats
+The secondary rolls on a module ("sub-module effects"). Rerolled with shards; ban labs let you exclude the junk rolls from the pool.
+Ancestral
+The top module rarity, upgradeable through 1–5 stars. Star progress gates the strongest unique effects.
+Assist Modules
+A late-game milestone feature: extra module slots (unlocked with stones) whose equipped modules contribute a scaled-down version of their effects.
+Module Merging
+Combining lower-rarity modules to climb the rarity ladder. The requirements get intricate enough that the community made flow diagrams for it.
+Astral Deliverance (AD)
+Cannon unique built around Bounce Shot: bigger bounce range and projectiles that gain damage with every bounce. The centerpiece of bounce-damage builds.
+Being Annihilator (BA)
+Cannon unique: after a super crit, your next several shots are guaranteed super crits. Streaky, brutal, and the reason super-crit chance thresholds matter.
+Anti-Cube Portal (ACP)
+Armor unique: enemies hit by your Shockwave temporarily take amplified damage. Turns a defensive pulse into a damage window.
+Sharp Fortitude (SF)
+Armor unique for wall builds — sharpens what the wall does back to attackers. The wall-thorns tables comparing it to a standard wall are a community staple.
+Black Hole Digestor (BHD)
+Generator unique: temporary bonus coin income for every free upgrade received on the current wave. Marries the free-upgrade stat to your econ — and loves Wave Skip's mastery.
+Project Funding (PF)
+Generator unique that scales damage with the cash you're holding. Suddenly "don't spend everything instantly" is a damage strategy.
+Dimension Core (DC)
+Core unique that roughly doubles Shock's value — which makes it the natural partner of every Chain Lightning build.
+Multiverse Nexus (MVN)
+The Core ancestral whose effect periodically re-triggers and aligns your Ultimate Weapons — the engine behind perma BH/GT math. Dedicated community calculators exist just for its sync timing.
+Galaxy Compressor (GComp)
+Core unique tied to UW cooldown compression — a load-bearing piece in permanent-uptime plans (perma-CF calculators budget around it).
+Guardian
+The guild companion that sits by your tower and uses chips, powered by bits from guild missions.
+Ally Chip
+Guardian chip that converts an enemy into a healing package that can push the tower's health past its normal recovery cap.
+Attack Chip
+Guardian chip that damages nearby enemies based on the damage they've already taken — a finisher, not an opener.
+Bounty Chip
+Guardian chip (formerly "Steal") that marks elites, bosses and fleets to drop bonus coins on death. Guild-flavored econ.
+Fetch Chip
+Guardian chip that goes and grabs drops for you. Quality of life with real value for AFK farming — its upgrade path even has a community-made optimization sheet.
+Bots
+Bots
+The four medal-powered drones that orbit your battlefield: Flame, Thunder, Golden and Amplify. Medal placement (and event-timed respecs) decides which carry your build.
+Flame Bot
+Sweeps an area with burning damage — the offensive workhorse, boosted further by the AoE card.
+Thunder Bot
+Stuns groups of enemies on its pass. Another entry in the "CC is secretly damage" ledger.
+Golden Bot
+Marks enemies to be worth bonus coins — an econ multiplier that farming builds sync into their GT/BH windows. Cooldown planning has its own labs, medals and community sheets.
+Amplify Bot
+Makes enemies inside its zone take extra damage. Multiplies everyone else's work — bots included.
+Bot Respec
+Resetting invested medals to redistribute them — costs gems, limited per event, discounted through the vault. Plan before you spend.
+Labs & Progression
+Labs
+The coin-powered research system (199 labs and counting) that runs in real time. Lab priority is the most-asked question in the community — speed-ups, discounts and tier lists all orbit it.
+Lab Speed-ups
+Cell-powered multipliers on lab slots. Because cells come from elites, your farming tier directly controls research speed.
+Lab Rushing (gems)
+Finishing a lab instantly with gems. Long labs get progressively discounted per hour rushed — the discount table is worth knowing before you spend.
+Buy Multiplier
+The lab that lets you buy workshop upgrades in bulk. Sounds like comfort, is actually mandatory — late-game numbers make single purchases absurd.
+Battle Condition Reduction
+The lab that blunts tournament battle conditions by a percentage. One of the quiet "tournament power" investments.
+Milestones
+Tier/wave checkpoints that unlock features (labs, assist modules) and pay one-time rewards. "Milestone runs" are pushes made specifically to reach the next unlock.
+Tier
+The difficulty level you start a run at. Higher tiers scale enemies harder but pay better coins, cells and milestones — "what tier should I farm?" is its own genre of tooling.
+Vault / Harmony Tree
+Quality-of-life upgrade tree (auto-restart, ad-gem stacking, preset unlocks, cooldown sliders). Small effects that compound into serious account speed.
+Auto Restart
+Vault upgrade that starts the next run automatically when you die. The single most important unlock for overnight farming.
+Relics
+Permanent stat boosts collected from events. Individually small, collectively a real multiplier.
+Events
+The rotating limited-time mode with its own missions, currency and shop — the main source of relics, medals, skins and themed rewards.
+Event Shop
+Where event currency becomes permanent value. Prioritizing relics and long-term unlocks over cosmetics is the standard advice — cosmetics forgive you later.
+Tournaments
+Tournaments
+Twice-weekly brackets of 30 players pushing one run for placement. The main renewable source of stones — league and placement decide the payout.
+Leagues
+The tournament ladder: Copper → Silver → Gold → Platinum → Champion → Legend. Promotion and relegation depend on placement.
+Battle Conditions (BC)
+Tournament modifiers that change how runs play. Higher leagues stack more of them; a lab reduces their impact. They also appear on high tiers (14+) outside tournaments.
+Armored Enemies (BC)
+The battle condition where enemies block your first hits entirely. Attack-speed and multishot builds shrug; slow heavy hitters suffer.
+Boss's Ultimate (BC)
+The battle condition where bosses spawn overhealed beyond their normal health. Boss insurance (Death Ray, thorns) earns its keep here.
+Basic's Ultimate (BC)
+The battle condition where basics can spawn as other enemy types. The wave composition you farmed against stops existing.
+Bracket luck
+Your 30-player bracket is drawn from whoever joins in your window — the same wave count can be rank 4 or rank 14. Tools like thetower.lol's live placement analysis quantify it.
+Respec
+Rebuilding your setup (workshop respec, bot respec, card swaps) specifically for tournaments, then switching back to farm. Serious players maintain two builds.
+Overheal
+Health above the normal maximum — bosses get it from their battle condition, your tower can get it from the guardian's Ally chip.
+Builds & Community Slang
+Glass Cannon (GC)
+All-in damage build that skips most defense: kill everything before it reaches you. Spikes hard in tournaments, falls apart when the killing stops — wall rebuild labs exist mostly for this build.
+eHP build
+The defensive counterpart — stack survivability and let percentage damage (thorns, BH) do the killing. Steady, AFK-friendly, slower spikes.
+Hybrid
+The middle path: enough eHP to survive, enough eDamage to push. Where most accounts end up between the extremes.
+Blender
+The classic early strategy: orbs shred everything that gets close while thorns handle the big stuff. Named for what the area around your tower looks like.
+Orbless
+Builds that deliberately drop orbs so enemies survive to be killed inside coin-multiplier windows (Spotlight, GT/BH) — trading kill speed for income per kill.
+Farming run
+A run tuned for income (coins/cells) at a tier you comfortably sustain, usually overnight. The opposite of a push.
+Push
+A run tuned to reach the highest possible wave or the next milestone, usually with a tournament-style setup.
+AFK-friendly
+A setup that survives and earns without being watched — auto-pick perks, auto-restart, stable eHP. What most farming builds optimize for.
+Creator code
+A code entered in the in-game shop that credits a content creator with supporting their channel — at no cost to the player. Ours is in the footer.
+Whale
+A player who buys the monthly stone packs at scale. Because bought stones compound through econ just like earned ones, stones-per-year is the community's informal whale detector.
+Theorycrafting
+The community sport of modeling the game's math — uptime formulas, eHP spreadsheets, RoI paths. Half the links on our resources page exist because of it.
+Want to go deeper? The community's Tower Compendium glossary by J Plays covers 500+ entries with images and cross-links — the encyclopedia to this phrasebook. And when a term here makes you wonder about your own build, the Tower Advisor turns it into concrete next steps.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Tower Wiki
+Every UW, lab, card & enemy, with verified numbers
+Resources
+Every Discord, tool & creator
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

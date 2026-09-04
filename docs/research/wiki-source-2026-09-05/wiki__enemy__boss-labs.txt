@@ -1,0 +1,28 @@
+Boss labs are a pair of lab researches that weaken boss enemies during your rounds. Both are unlocked through Milestones at tier 9 wave 20, and each one targets a single boss stat across every wave you face.
+On this page
+Description — Boss Health
+Description — Boss Attack
+Description
+Description — Boss Health
+Boss Health is a lab you unlock in Milestones at tier 9 wave 20. Each level you research lowers the health of boss enemies on every wave, not just boss waves at certain tiers. The lab has 30 levels in total, and the per-level costs and effects are listed in the table below.
+Level Time Cost Value
+1 2d 7h 33m 40,000,000,000 -0.30%
+2 2d 15h 54m 80,010,000,000 -0.60%
+3 3d 0h 27m 120,070,000,000 -0.90%
+4 3d 9h 34m 160,330,000,000 -1.20%
+5 3d 19h 44m 200,970,000,000 -1.50%
+6 4d 7h 36m 242,260,000,000 -1.80%
+7 4d 21h 51m 284,530,000,000 -2.10%
+8 5d 15h 19m 328,130,000,000 -2.40%
+9 6d 12h 53m 373,510,000,000 -2.70%
+10 7d 15h 31m 421,140,000,000 -3.00%
+Show all 30 rows
+Description — Boss Attack
+Boss Attack is a lab you unlock in Milestones at tier 9 wave 20. Researching it reduces the attack of boss enemies at all waves, so bosses deal less damage to your tower throughout the round. Like Boss Health, it has 30 levels.
+Description
+Boss labs directly modify the stats of boss enemies while a round is running. One thing to keep in mind: once you start researching labs that change enemy stats, the usual base relationships between enemy types stop holding true. For example, boss health will no longer reliably sit at twenty times basic enemy health if you have also been researching basic health reductions, so treat those baseline multipliers as a starting point rather than a fixed rule.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-05-01) . Something out of date? Tell us in the Discord .

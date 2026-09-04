@@ -1,0 +1,13 @@
+Workshop Utility Discount is a workshop upgrade that cuts the coin cost of your utility upgrades. If you find yourself saving up for expensive utility purchases, this discount helps those coins stretch further.
+Description
+Workshop Utility Discount reduces how many coins you spend on utility upgrades in the workshop. Each level of the discount shaves more off the price, so the savings grow as you invest in it.
+This only applies to the utility section of the workshop — it does not affect attack, defense, or other upgrade categories. If utility upgrades are a regular part of your build, the discount pays for itself over time by letting you afford higher levels sooner.
+Lab
+The Workshop Utility Discount lab becomes available once you reach wave 60 on tier 2 in Milestones. It has 99 levels, giving you plenty of room to keep pushing the discount higher as you progress.
+Check the table below for the cost and effect at each level.
+Show all 99 rows
+Related pages
+Lab Upgrades
+Milestones
+Workshop Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

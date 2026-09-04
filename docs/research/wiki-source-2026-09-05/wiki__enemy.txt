@@ -1,0 +1,75 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Enemies
+Enemies
+Every enemy type, how it spawns, what it immune to and which labs push it back.
+Boss Labs
+Boss Health and Boss Attack labs, unlocked at tier 9 wave 20, reduce boss stats at all waves. Learn how boss labs work and what they affect.
+Brick Discriptions
+A guide to Brick enemies in The Tower: Idle Tower Defense, explaining what they are and how they behave.
+Common Enemy Labs
+Common Enemy labs lower basic enemy health and attack on every wave. Learn what each lab does, how to unlock them, and how they affect enemy scaling.
+Elite Enemies
+Elite enemies (Vampire, Ray, Scatter) in The Tower: spawn limits, immunities, Elite Cell drops, and how single and double spawn chances scale by wave.
+Enemies
+Overview of enemy types in The Tower: Idle Tower Defense, including Normal, Elite, Fleet and Boss enemies, spawn rules, immunities and labs.
+Enemy Balance
+Enemy Balance is a card that raises cash per kill while spawning more enemies, averaging 1.8x spawns. Learn how it boosts cash and coins.
+Fast Enemy Labs
+Fast Enemy Labs reduce the health, attack, and speed of fast enemies at all waves, with unlocks at tier 9 milestones.
+Fleet Enemies
+Fleet enemies in The Tower — Saboteur, Commander and Overcharge: what each one does to you, their immunities, spawn rules and drops per tier.
+Protector Labs
+Protector labs reduce protector enemy health, radius and damage reduction. Unlock requirements and level counts for each lab.
+Ranged Enemy Labs
+Ranged Enemy labs reduce the health, attack and range of ranged enemies in The Tower. Unlock tiers, level counts and how they work.
+Ray Labs
+Ray Labs let you research permanent reductions to Ray enemy attack and health, with 30 levels each, unlocked at Tier 19 Wave 60.
+Scatter Labs
+Scatter Labs in The Tower: Idle Tower Defense let you weaken Scatter enemies and boost Chain Lightning damage against them.
+Tank Enemy Labs
+Tank Enemy labs reduce tank health and attack across all waves. Learn how they work and how they affect enemy stat ratios.
+Vampire Labs
+How Vampire labs work in The Tower: Idle Tower Defense, covering Vampire attack, health and Garlic Thorns research.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

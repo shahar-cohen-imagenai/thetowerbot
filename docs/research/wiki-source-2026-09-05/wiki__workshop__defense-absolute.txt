@@ -1,0 +1,72 @@
+Defense Absolute is a defensive stat that reduces the damage you take from enemy attacks by a fixed amount. Unlike Defense %, which reduces damage proportionally, Defense Absolute subtracts a flat value from the incoming hit. This makes it particularly effective against weaker enemies, as a high enough value can reduce their damage to zero.
+On this page
+Description
+Workshop
+Cost
+Card
+Calculation
+Workshop Enhancement — Defense Absolute
+Lab — Defense Absolute
+Description
+Defense Absolute reduces the damage you receive from enemy attacks by a flat amount. This reduction is applied after Defense % has already reduced the incoming damage, making the two stats work together to lower the final hit you take.
+Workshop
+You can unlock Defense Absolute in the Workshop for 75 coins after purchasing Health and Health Regen with Defense %. Once unlocked, there are 5000 upgrades available to purchase in the workshop.
+Cost
+Level Value Cost Total Cost
+1 1 50 50
+100 1.02K 77.24K 2.40M
+200 5.99K 610.39K 31.29M
+300 17.16K 1.50M 133.84M
+400 38.39K 2.86M 348.64M
+500 74.22K 4.70M 723.03M
+600 126.84K 7.05M 1.31B
+700 198.06K 9.94M 2.15B
+800 289.48K 13.39M 3.32B
+900 402.57K 17.41M 4.86B
+Show all 51 rows
+Card
+The Fortress card increases the workshop value of Defense Absolute. This card's effect is multiplied with the lab upgrades, so having both can significantly boost your total damage reduction.
+Calculation
+Defense Absolute is calculated after Defense % has been applied to the incoming damage. For example, if an enemy deals 100 damage, you have 25% Defense %, and 50 Defense Absolute, the calculation is: 100 * (1 - 0.25) - 50 = 25 damage received. Keep in mind that enemies have a heat-up ability, increasing their damage by x1.04 for each hit they land. This means the damage displayed may not reflect the actual damage they are dealing if you are being hit frequently.
+Workshop Enhancement — Defense Absolute
+This enhancement requires you to spend 500 billion coins on defense enhancements to unlock. Once unlocked, it increases the Defense Absolute multiplier by x1, and each level adds 0.01x to this multiplier. It has a maximum level of 400, providing a total 5x bonus to your Defense Absolute value.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+10 1.10x 6.53B 55.54B
+20 1.20x 48.30B 217.10B
+30 1.30x 313.07B 1.95T
+40 1.40x 2.54T 14.48T
+50 1.50x 9.59T 73.23T
+60 1.60x 60.08T 385.56T
+70 1.70x 216.08T 1.72q
+80 1.80x 580.27T 5.66q
+90 1.90x 1.31q 15.10q
+Show all 41 rows
+Lab — Defense Absolute
+The Defense Absolute lab is unlocked from the start. It increases the increment of each workshop level and raises the maximum workshop value for Defense Absolute. There are 100 levels available in this lab.
+Level Time Cost Value
+1 0d 0h 0m 30 1.03
+2 0d 0h 6m 71 1.06
+3 0d 0h 16m 178 1.09
+4 0d 0h 31m 398 1.12
+5 0d 0h 52m 772 1.15
+6 0d 1h 20m 1,340 1.18
+7 0d 1h 56m 2,120 1.21
+8 0d 2h 39m 3,170 1.24
+9 0d 3h 31m 4,510 1.27
+10 0d 4h 32m 6,170 1.30
+Show all 100 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-01-07) . Something out of date? Tell us in the Discord .

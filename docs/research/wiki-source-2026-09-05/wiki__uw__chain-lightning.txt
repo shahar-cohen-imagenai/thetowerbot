@@ -1,0 +1,152 @@
+Chain Lightning is an Ultimate Weapon that gives your tower a percent chance on each enemy hit to spawn a number of chain lightnings. Each lightning deals a percent of your tower damage, and that damage accounts for your crit and super crit factor and chance.
+It is one of nine Ultimate Weapons, and its power is split between stone upgrades in the workshop and several lab researches that add shock effects and bonus damage against specific enemies.
+On this page
+Description
+Damage calculation
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Labs — Chain Lightning Shock
+Labs — Shock Chance
+Labs — Shock Multiplier
+Shock stacking
+Labs — Chain Thunder
+Labs — Lightning Amplifier-Scatter
+Labs
+On-screen limit
+Description
+Chain Lightning gives your tower a percent chance, whenever you hit an enemy, to spawn a number of chain lightnings. Each lightning deals a percent of your tower damage, and the calculation includes your crit and super crit factor and chance, so it scales with your existing damage stats.
+Damage calculation
+When one of your shots hits an enemy, Chain Lightning does not reuse the damage that shot just dealt. The game discards that number and builds a new one from your tower damage , in a fixed order.
+Crit is the part that surprises people. Chain Lightning never rolls a critical hit. Your crit chance and crit factor are multiplied in as an average on every single lightning, and super crit works the same way. That means there are no lucky or unlucky bolts: against the same target, every lightning deals the same number.
+The Ultimate Crit card is the exception, and it behaves differently from how most players assume. It rolls once per proc, before the chain fires, so either every enemy in that chain crits or none of them do. The card also has no crit multiplier of its own — when it lands, it applies your tower's crit factor.
+One more card is worth checking: Super Tower gives your Ultimate Weapons nothing at all unless its mastery is unlocked and switched on. It is not a reduced bonus without the mastery — the game skips the multiplier entirely.
+These figures come from reading the game's own code rather than from in-game testing, and describe the build current at the time of writing.
+What Chain Lightning multiplies together, in order
+Factor What it is
+Tower damage your current per-shot damage, bought up with cash during the run
+x Core module the Ultimate Weapon Damage bonus on your equipped core
+x Chain Lightning damage the weapon's own Damage sub-stat
+x Enemy debuffs shock, Spotlight, spot reflect, Amplify Bot, Flame Bot, Shockwave and Energy Net all multiply together
+x (1 + crit chance x crit factor) crit is averaged in, never rolled
+x (1 + crit chance x super crit chance x super crit multiplier) super crit is averaged in too, and is gated behind landing a crit
+Our own breakdown of the damage order, the crit averaging and the 20-bolt draw cap.
+Workshop — Basic Upgrades
+Like all Ultimate Weapons, Chain Lightning's basic upgrades live in the Ultimate Weapon menu once you have unlocked the weapon itself. You spend stones on three stats: Damage, Quantity and Chance.
+Damage has 31 levels, Quantity has 4 levels and Chance has 15 levels. Maxing all three costs 18,375 stones in total; the cost table below breaks this down per level.
+Damage Stones (Damage) Quantity Stones (Quantity) Chance Stones (Chance)
+2x 0 1# 0 5.0% 0
+3x 5 2# 30 6.5% 8
+5x 11 3# 75 8.0% 26
+9x 17 4# 150 9.5% 44
+14x 23 5# 400 11.0% 62
+22x 29 12.5% 80
+32x 35 14.0% 98
+46x 41 15.5% 116
+63x 47 17.0% 134
+85x 53 18.5% 152
+Show all 33 rows
+Workshop — Ultimate Weapon Plus
+Ultimate Weapon Plus abilities become available only after you have purchased all nine Ultimate Weapons. Chain Lightning's Plus ability gives every Chain Lightning a chance, equal to your Chain Lightning Chance stat, to deal extra damage equal to a multiple of the current wave's HP.
+This bonus can activate up to 100 times per enemy, which makes it a significant source of scaling damage on high-HP waves.
+UW+ Cost Table
+Level 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+Cost Unlocked 300 375 475 600 725 925 1150 1450 1800 2200 2650 3150 3700 4300
+Value 0.0005x 0.0010x 0.0015x 0.0020x 0.0025x 0.0030x 0.0035x 0.0040x 0.0045x 0.0050x 0.0055x 0.0060x N/A N/A N/A
+Labs — Chain Lightning Shock
+Chain Lightning Shock is the first lab you unlock for this weapon. It gives your chain lightnings a chance to apply shock to enemies they hit, and shocked enemies take increased damage from your tower.
+The lab has a single level. At that level the shock chance starts at 2.50% and the damage multiplier starts at x1.10.
+Level TIme Cost Value
+1 0d 23h 53m 950,000 Unlocked
+Labs — Shock Chance
+Shock Chance raises the probability that Chain Lightning applies shock to the enemies it hits. It has 30 levels and becomes available after you have researched Chain Lightning Shock to level 1.
+Level TIme Cost Value
+1 0d 20h 0m 250,000 3.00%
+2 1d 4h 21m 560,000 3.50%
+3 1d 12h 53m 1,100,000 4.00%
+4 1d 21h 54m 2,800,000 4.50%
+5 2d 7h 49m 7,750,000 5.00%
+6 2d 19h 6m 19,540,000 5.50%
+7 3d 8h 17m 43,580,000 6.00%
+8 3d 23h 58m 87,410,000 6.50%
+9 4d 18h 49m 160,910,000 7.00%
+10 5d 17h 31m 276,620,000 7.50%
+Show all 30 rows
+Labs — Shock Multiplier
+Shock Multiplier increases the extra damage that shocked enemies receive. It has 14 levels and, like Shock Chance, requires Chain Lightning Shock at level 1 before it unlocks.
+Level TIme Cost Value
+1 0d 20h 0m 250,000 1.14
+2 1d 4h 21m 560,000 1.18
+3 1d 12h 53m 1,100,000 1.22
+4 1d 21h 54m 2,800,000 1.26
+5 2d 7h 49m 7,750,000 1.30
+6 2d 19h 6m 19,540,000 1.34
+7 3d 8h 17m 43,580,000 1.38
+8 3d 23h 58m 87,410,000 1.42
+9 4d 18h 49m 160,910,000 1.46
+10 5d 17h 31m 276,620,000 1.50
+Show all 14 rows
+Shock stacking
+Shock Chance and Shock Multiplier only tell half the story. Whether shock stacks at all depends on the Dimension Core module unique: without it, the game resets the stack count to zero every time shock is applied, so it never builds up. With Dimension Core equipped, stacks increase up to the cap that module defines, and that cap scales with its rarity — 5 at Epic, 10 at Legendary, 15 at Mythic and 20 at Ancestral.
+The bonus is linear in the stack count: 1 + (shock multiplier - 1) x stacks. With the shock lab maxed and Dimension Core doubling it, the multiplier is 2.32x, so five stacks give 1 + 1.32 x 5. Five stacks are exactly five times the bonus of one — the stacks do not compound.
+Shock is only one of the debuffs Chain Lightning multiplies in. Spotlight , Amplify Bot , Flame Bot , Shockwave and Energy Net all fold into the same figure.
+These figures come from reading the game's own code rather than from in-game testing, and describe the build current at the time of writing.
+Labs — Chain Thunder
+Chain Thunder is unlocked in Milestones at tier 16 wave 60. While it is active, an enemy's damage is reduced by 10% for every 6% of its health that it has lost to Chain Lightning damage, up to a maximum reduction.
+The lab has 30 levels, and each level raises that maximum reduction by 3%, reaching a cap of 90% at max level.
+level Time Cost Value
+1 8d 7h 59m 100.00B 3%
+2 9d 8h 0m 150.00B 6%
+3 10d 10h 52m 225.00B 9%
+4 11d 16h 59m 337.50B 12%
+5 13d 2h 42m 506.25B 15%
+6 14d 16h 28m 759.38B 18%
+7 16d 10h 45m 1.14T 21%
+8 18d 10h 8m 1.71T 24%
+9 20d 15h 11m 2.56T 27%
+10 23d 2h 36m 3.84T 30%
+Show all 30 rows
+Labs — Lightning Amplifier-Scatter
+Lightning Amplifier-Scatter is also unlocked in Milestones at tier 16 wave 60. It increases the damage Chain Lightning deals to Scatter enemies for each consecutive hit on them.
+The bonus is additive, meaning each consecutive hit adds its value on top of the original damage from the first hit rather than multiplying it.
+level Time Cost Value
+1 8d 8h 0m 100.00B x1.25
+2 9d 8h 0m 150.00B x2.5
+3 10d 10h 52m 225.00B x3.75
+4 11d 16h 59m 337.50B x5
+5 13d 2h 42m 506.25B x6.25
+6 14d 16h 28m 759.38B x7.5
+7 16d 10h 45m 1.14T x8.75
+8 18d 10h 8m 1.71T x10
+9 20d 15h 11m 2.56T x11.25
+10 23d 2h 36m 3.84T x12.5
+Show all 30 rows
+Labs
+Chain Lightning's labs are unlocked in Milestones at tier 7 wave 60. The initial unlock gives you access to Chain Lightning Shock; once that lab reaches level 1, Shock Chance and Shock Multiplier become available to research. Chain Thunder and Lightning Amplifier-Scatter are separate Milestone unlocks at tier 16 wave 60.
+On-screen limit
+Chain Lightning has a hard cap on how many bolts can be drawn at once. The pool holds 20 lightning objects and at most 3 new ones are started per frame. Anything beyond that is simply not drawn, and once every object is in use the oldest one is recycled early.
+Those two numbers are not in the game's code — `pool` and `MaxPlaysPerFrame` on the Chain Lightning pool are Unity-serialised, so they were read out of the scene data instead. The code only shows the mechanism: `playsThisFrame < MaxPlaysPerFrame` gates each new bolt, and the pool is walked round-robin.
+What matters is that this is a rendering limit only. Damage is applied in a separate loop that never checks the pool, so a proc you never see on screen still deals its full damage. Hitting the cap costs you the light show, not the damage.
+Read from the game's own code and scene data rather than from in-game testing, for the build current at the time of writing.
+Related pages
+Amplify Bot
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Super Tower Card
+Ultimate Crit Card
+Cash Bonus
+Cash Per Wave
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Damage Per Meter
+Energy Net
+Epic Module Unique Effect
+Flame Bot
+Shockwave
+Spotlight
+Super Critical
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-16) . Something out of date? Tell us in the Discord .

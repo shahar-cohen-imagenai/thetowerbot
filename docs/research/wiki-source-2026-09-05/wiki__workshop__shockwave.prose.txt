@@ -1,0 +1,48 @@
+Shockwave is a defensive Workshop upgrade that periodically emits a wave from your tower, shoving enemies back and buying you extra time before they reach you. It is one of the core knockback tools in the game, and its two stats — how far the wave reaches and how often it fires — are upgraded separately.
+On this page
+Overview
+Workshop
+Workshop — Shockwave Size
+Workshop — Shockwave Frequency
+Cost — Shockwave Size
+Cost — Shockwave Frequency
+Lab — Shockwave Size
+Shockwave Frequency
+Overview
+Shockwave spawns a wave on a repeating timer that pushes enemies away from the tower. It works on regular enemies but does not move bosses, so it is a crowd-control tool rather than an answer to boss waves.
+The upgrade has two components you can improve: Shockwave Size, which controls how far the wave pushes, and Shockwave Frequency, which controls how often the wave goes off.
+Workshop
+Shockwave becomes available in the Workshop once you have unlocked Orbs, and costs 100,000 coins to open up. Buying it gives you access to both of its upgrade tracks: Shockwave Size and Shockwave Frequency.
+Workshop — Shockwave Size
+Shockwave Size determines how far the wave pushes enemies back. Bosses are immune to the push regardless of how large the wave gets.
+The workshop track has 35 levels, starting from a base value of 0.6. Each level adds 0.05 to the size, bringing the maximum workshop value to 2.35.
+Workshop — Shockwave Frequency
+Shockwave Frequency controls the time between waves. The workshop track has 40 levels and starts at a base of 20 seconds, with each level shaving off 0.15 seconds, down to a minimum of 14.00 seconds from the workshop alone.
+Note that the workshop minimum is not the true floor for this stat. The hard cap for Shockwave Frequency is 7 seconds, which can only be approached through other means beyond the workshop levels.
+Cost — Shockwave Size
+The cost table below lists the coin cost for each of the 35 Shockwave Size levels in the Workshop.
+Show all 35 rows
+Cost — Shockwave Frequency
+The cost table below lists the coin cost for each of the 40 Shockwave Frequency levels in the Workshop.
+Show all 40 rows
+Lab — Shockwave Size
+The Shockwave Size lab is unlocked through Milestones by reaching tier 3 wave 50. Each lab level adds to the Shockwave Size value you have from the workshop, letting you push enemies further than the workshop cap allows. There are 20 lab upgrades in total.
+The lab screen includes an adjuster, so when you are not in a round you can set Shockwave Size to any level up to the highest you have researched. This is useful if you want a smaller push for a particular setup without losing your progress.
+The table below shows the research times and costs for each lab level.
+Show all 20 rows
+Shockwave Frequency
+See the Overview and Workshop sections above for how Shockwave Frequency works and its workshop upgrade track.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-14) . Something out of date? Tell us in the Discord .

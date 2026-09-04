@@ -1,0 +1,39 @@
+Tiers are the difficulty levels of The Tower: Idle Tower Defense. The game has 24 tiers in total, and climbing to a higher tier means facing tougher waves for greater rewards.
+On this page
+Description
+List of Tiers
+List of Battle conditions
+Description
+Tiers represent the difficulty of the game, ranging from tier 1 up to tier 24.
+You unlock the next tier through Milestones by reaching 100 waves on your current tier. The requirement increases at the top end: tiers 16 through 21 each ask for 300 waves on the previous tier before they open up.
+List of Tiers
+From tier 14 onwards, tiers also carry battle conditions, much like the ones you see in tournaments. The difference is that these conditions are static rather than rotating. The table below lists every tier along with the battle conditions that apply to it.
+Tier Coin Bonus Battle Conditions
+1 1 None
+2 1.8 None
+3 2.6 None
+4 3.4 None
+5 4.2 None
+6 5 None
+7 5.8 None
+8 6.6 None
+9 7.5 None
+10 8.7 None
+Show all 21 rows
+List of Battle conditions
+The table below shows the battle conditions in effect for each tier from tier 14 upward. Because these conditions are fixed, you can plan your build around them before pushing into a new tier.
+Name Description Appears In (TBD)
+Death Ray Resistance Instead of destroying enemies, death ray deals x% enemy health as damage Tiers/Tournament
+Thorns Resistance Thorns Deals x% damage Tiers/Tournament
+Enemy Attack Speed Enemy attack speed is increased by x% Tiers/Tournament
+Knockback Resistance Knockback force applies to enemies is reduced by x% Tiers/Tournament
+Plasma Cannon Resistance Plasma Cannon deals x% of normal damage Tiers/Tournament
+More Enemies x% more enemies spawn Tiers/Tournament
+Orb Resistance Instead of destroying enemies, orbs deal x% enemy health as damage Tiers/Tournament
+More Bosses Bosses spawn every x waves instead of 10 Tiers/Tournament
+More Fleet An additional fleet spawns every x waves. Tiers (Overheat)
+Enemy Speed Enemies move x% faster Tiers/Tournament
+Show all 30 rows
+Related pages
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-30) . Something out of date? Tell us in the Discord .

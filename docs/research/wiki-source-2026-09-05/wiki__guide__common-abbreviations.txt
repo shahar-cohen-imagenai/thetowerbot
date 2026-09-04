@@ -1,0 +1,106 @@
+The Tower community uses a lot of shorthand when discussing builds, stats, and progress. This page collects the most common abbreviations so you can follow guides and forum posts without guessing what each acronym means.
+Keep in mind that some abbreviations have more than one meaning. Always check the context to make sure the definition matches how the term is being used.
+On this page
+Ultimate Weapons (UW)
+Cards
+Labs
+Workshop (WS)
+Modules
+Common Lazy Talk
+Number notation
+Some acronyms in this game carry multiple meanings depending on the situation. When you come across an abbreviation, look at the surrounding context to confirm which definition applies before assuming.
+Ultimate Weapons (UW)
+When you see a "+" attached to an Ultimate Weapon abbreviation, it refers to the Ultimate Weapon Plus (UW+) ability. UW+ abilities are unlocked with stones after you have unlocked all 9 Ultimate Weapons. The number that follows the "+" indicates the level of that UW+ ability, starting at 0 when first unlocked.
+You may also see extra letters appended to a UW abbreviation. These suffixes point to a specific stat belonging to that Ultimate Weapon. The table below lists the known suffixes and what they stand for.
+BH - Black Hole
+CF - Chrono Field
+CL - Chain Lightning
+DW - Death Wave
+GT - Golden Tower
+ILM - Inner Land Mines
+PS - Poison Swamp
+SL - Spotlight
+SM - Smart Missiles
+d - Damage
+dur - Duration
+CD - CoolDown
+b - Bonus
+q - Quantity
+c - Chance
+A - Angle
+SR - Speed Reduction
+Cards
+A "#" or "m" after a card abbreviation refers to that card's Mastery. Card Mastery becomes available for purchase with stones once you reach Tier 16 Wave 100 and have maxed all cards. The number after the symbol indicates the lab level of that Mastery, starting at 0 at base unlock.
+The table below lists common card abbreviations.
+CC - Critical Chance or Critical Coin
+DM - Demon Mode
+DR - Death Ray
+EB - Enemy Balance
+EN - Energy Net
+EO - Extra Orbs
+ES - Energy Shield
+FU - Free Upgrades
+IS - Intro Sprint
+PC - Plasma Cannon
+Show all 18 rows
+Labs
+The table below lists abbreviations commonly used when referring to lab research topics.
+DDR - Double Death Ray
+CFR - Chrono Field Damage Reduction
+SLM - Spotlight Missile
+SPB - Standard Perk Bonus
+Workshop (WS)
+A "+" after a Workshop stat abbreviation points to the Workshop Enhancements (WS+) version of that stat. Not every Workshop stat has a WS+ counterpart, and some WS+ upgrades do not correspond to a base Workshop stat.
+The table below lists common Workshop abbreviations.
+ASPD - Attack Speed
+BSC - Bounce Shot Chance
+BSR - Bounce Shot range
+BST - Bounce Shot Target
+CPK - Coins per Kill
+C%/Crit Chance - Critical Chance
+CritF - Critical Factor
+DD - Death Defy
+DEF% - Defense $
+DPM (D/M) - Damage Per Meter
+Show all 24 rows
+Modules
+The table below lists abbreviations used for Modules and their related terms.
+ACP - Anti-Cube Portal
+AD - Astral Deliverance
+AS - Amplifying Strike
+BA - Being Annihilator
+BHD - Black Hole Digestor
+DC - Dimension Core
+DP - Death Penalty
+GComp - Galaxy Compressor
+HB - Havoc Bringer
+HC - Harmony Conductor
+Show all 22 rows
+Common Lazy Talk
+The table below covers informal shorthand and slang that players use in community discussions. These terms may not appear in the game itself but come up frequently in guides and chat.
+BC - Battle Condition
+BW - Bounce Web, a strategy that involves maximizing projectile counts to trigger Pulsar Harvester more frequently.
+CB - Coin Bonus
+CC - Crowd Control (anything that hinders enemies from hitting you)
+CPM - Coins per Minute
+CPH - Coins per Hour
+CTO - Coins Trade-off Perk (x1.80 coins, but Tower Max Health -70%)
+Disco - Dissonance
+Devo - Devolve, encompasses strategies that devolve killing power to a specific time or place for coin benefit
+DWEW - Death Wave Effective Wave
+Show all 25 rows
+Number notation
+The Tower uses its own notation for large numbers. It begins with the familiar K for thousand and M for million, then continues into less common prefixes. The table below shows the full sequence so you can read damage numbers, costs, and other large values correctly.
+Letter(s) Name Scientific Notation
+K Thousand 10 3
+M Million 10 6
+B Billion 10 9
+T Trillion 10 12
+q Quadrillion 10 15
+Q Quintillion 10 18
+s Sextillion 10 21
+S Septillion 10 24
+O Octillion 10 27
+N Nonillion 10 30
+Show all 33 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-02) . Something out of date? Tell us in the Discord .

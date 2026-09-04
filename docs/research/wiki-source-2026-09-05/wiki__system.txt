@@ -1,0 +1,95 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Game Systems
+Game Systems
+Tournaments, guilds, milestones, perks, relics and the rest of the systems around the runs.
+Challenges
+Overview of The Tower's recurring challenges, including tournaments, events, milestones, daily missions and tiers.
+Chips
+Every Guardian chip in The Tower explained — Attack, Ally, Bounty, Fetch, Summon and Scout, with the targeting rules most players never notice.
+Content Creator Page
+How The Tower's creator code system works: where to enter codes, revenue share rates, 30-day duration, and current closed access status.
+Contributors
+A hub page for wiki contributors: action lists, change logs, editing help, trusted information sources, tools, and contact details.
+Daily Missions
+How daily missions work in The Tower: challenge types, gem and coin rewards, weekly milestones and the mission reroll unlock.
+Dissonance
+Dissonance in The Tower: the second difficulty layer from Tier 4 — what it restricts, what it permanently boosts, and how the stacks add up.
+Events
+How The Tower's biweekly events work: missions, medals, relics, the event shop, themes, songs, bots, Bot+ abilities and Synchronicity.
+Gameplay
+How rounds, waves, the tower interface, enemies, and all seven currencies work in The Tower: Idle Tower Defense.
+Guardian
+The Guardian is a guild-exclusive tower companion with upgradeable chips that heal, attack, fetch loot, and boost coins.
+Guilds
+How guilds work in The Tower: unlocking, creating or joining, weekly reward chests, the guild store, tokens, themes, relics and guardian chips.
+IceTæ's Gem and Card Priority List
+IceTæ's community guide on how to spend gems and which cards to unlock first in The Tower: Idle Tower Defense, from lab slots to Death Ray.
+In-Game Support
+How to contact support in The Tower: Idle Tower Defense, including in-game tickets and the official Tech Tree support page.
+Perks
+How perks work in The Tower: Idle Tower Defense, including unlock requirements, wave costs, perk types, and all related lab upgrades.
+Profile
+The player profile in The Tower: Idle Tower Defense lets you show off a tower skin, five relics, your best tournament results and your guild to other players.
+Relics
+Every Relic in The Tower: how to unlock each one, how the passive bonuses stack, and what they add up to across a full account.
+Seasons
+How the 8-week season cycle works in The Tower: Idle Tower Defense, including what happens to unspent tokens and Bits at season end.
+The Tower
+Overview of The Tower, the central unit you upgrade through the workshop, lab, cards, ultimate weapons and perks to push higher tiers and rankings.
+The Tower - Idle Tower Defense Wiki
+Overview of a late-year The Tower: Idle Tower Defense update, covering new settings toggles, tournament battle condition changes, and quality-of-life fixes.
+The Vault
+The Vault in The Tower after the 2026 expansion: all three trees — Power, Harmony and the new Enemy tree — every upgrade with keys per level and max levels, plus what it costs to max everything.
+Themes Menu
+The Themes Menu lets you change your tower's look, music, and backgrounds while earning passive coin bonuses from every cosmetic you own.
+Tickets
+How to get Tournament tickets in The Tower — every ticket source, how the entry cost works, and what to do when you run out.
+Tiers
+Tiers are The Tower's difficulty levels, running from tier 1 to tier 24. Learn how to unlock higher tiers and where battle conditions apply.
+Tournaments
+How Tournaments work in The Tower: leagues, tickets, promotion, battle conditions, rewards and the labs that reduce heat effects.
+Workshop Defense Discount
+Workshop Defense Discount lowers the coin cost of defense workshop upgrades. Learn what it does and how to unlock its lab.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

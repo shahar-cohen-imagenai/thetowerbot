@@ -1,0 +1,41 @@
+Coins are the core currency of The Tower: Idle Tower Defense. You spend them in the workshop to strengthen your tower before a run, and in the lab on permanent research, so almost every part of progression ties back to how many coins you can bring in.
+On this page
+Coins
+Getting Coins
+Improving Coin Flow
+Coin Bonus
+Coins
+Coins are the backbone of the game's economy. Before a run starts, you can put coins into workshop upgrades that shape how your tower performs, and outside of runs the lab offers further upgrades that also cost coins. Because both of these systems draw on the same pool, your long-term progress is largely a question of how efficiently you can earn and reinvest coins.
+Getting Coins
+There are four ways to earn coins. Killing enemies pays out coins for every enemy type except Basic Enemies. The Coins / Wave upgrade gives you a steady income each wave. Completing daily missions rewards coins, and reaching milestones pays out as well.
+Improving Coin Flow
+How many coins you earn comes down to two things: how far into a run you can push, and which upgrades you have invested in. There are many ways to raise your income. Playing on a higher tier increases coin yield, and the workshop and lab both offer upgrades to Coins / Kill and Coins / Wave. Several cards help too: the Coins card, the Enemy Balance card, and the Critical Coin card can all be used and upgraded. On the ultimate weapon side, buying and upgrading Golden Tower boosts income, and there are dedicated lab upgrades for the Black Hole, Spotlight, and Death Wave coin bonuses. Generator modules contribute as well, and certain sub-module effects improve things like Coins / Kill, Coins / Wave, Golden Tower bonus, duration, cooldown, Black Hole size, Death Wave quantity, or Spotlight angle. Perks can raise your coin bonus, Death Wave quantity, Golden Tower bonus, or Black Hole duration, or grant a random coin-generating ultimate weapon, and the Standard Perks Bonus lab upgrade amplifies those perks. The Improve Trade-Off Perks lab upgrade pairs with the Coin Trade-Off perk, and the guardian's Bounty Chip adds a small bonus on top.
+Keep in mind that higher tiers only pay off if you can survive deep enough into the run. Spawn rates and the share of non-basic enemies grow with each wave, so a tier where you stall early can earn less than a lower tier you clear comfortably. Finding the right balance between tier and your highest reachable wave is strongly recommended.
+Coin Bonus
+The Coin Bonus enhancement unlocks after you have spent 50 billion coins on Utility enhancements. Unlocking it raises your Coin Bonus multiplier by x1, and each level beyond that adds 0.01x, up to a maximum level of 200 for a 3x bonus in total. Because the enhancement applies to both the tier bonus and Coins / Kill, its effective benefit is squared, making it one of the strongest coin investments once you can afford it. The cost table below lists the per-level prices.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+2 1.02x 6.25B 11.25B
+3 1.03x 12.46B 23.71B
+4 1.04x 27.42B 51.14B
+5 1.05x 54.50B 105.64B
+6 1.06x 96.85B 202.49B
+7 1.07x 157.45B 359.94B
+8 1.08x 239.17B 599.11B
+9 1.09x 344.79B 943.90B
+10 1.10x 477.01B 1.42T
+Show all 200 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Cards
+Cash Bonus
+Chips
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Coin
+Critical Hits
+Currency
+Daily Missions
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-10) . Something out of date? Tell us in the Discord .

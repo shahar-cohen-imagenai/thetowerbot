@@ -1,0 +1,49 @@
+Golden Tower is an Ultimate Weapon that, once triggered, turns your tower golden for a limited window. During that window every enemy kill pays out multiplied cash and coins, making it one of the core economy tools in the game.
+Because its value scales with how many enemies you kill while it is running, Golden Tower rewards investment in both its own stats and the labs that extend it.
+On this page
+Description
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Labs — Golden Tower Bonus
+Labs — Golden Tower Duration
+Labs
+Ultimate Weapon Plus
+Description
+Golden Tower activates on a repeating cycle: after a set period, your tower turns golden for a set period. While the golden effect is running, kills award a multiplier to the cash and coins you receive. Once the effect ends, you wait out the cooldown before it can trigger again.
+Workshop — Basic Upgrades
+Like every Ultimate Weapon, Golden Tower's basic upgrades sit in the Ultimate Weapon menu once you have unlocked the weapon itself. You can spend stones on three stats: Multiplier, Duration and Cooldown. Multiplier has 20 levels, Duration has 38 levels and Cooldown has 20 levels, and fully upgrading all three costs 27,186 stones in total. The cost table below breaks this down level by level.
+Show all 40 rows
+Workshop — Ultimate Weapon Plus
+Ultimate Weapon Plus abilities become available only after you have unlocked all nine Ultimate Weapons. Golden Tower's plus ability is Golden Combo: when a Golden Tower activation ends, you gain an extra percentage of cash and coins for each kill scored during that activation.
+The bonus follows this formula:
+Bonus multiplier = ((1 + 0.0003 x (Level + 1))^Kills) - 1
+Only enemies that spawned during the activation count towards the kill total. Anything already on the field when Golden Tower started is excluded, so the bonus depends heavily on how long the activation lasts and how quickly enemies spawn and die within it.
+Working through the maths, your final income scales with kills per second multiplied by duration, compounded by the Golden Combo formula. In practical terms, longer activations and higher GT+ levels compound each other: at 40 seconds duration a GT+10 earns roughly 213% more than a GT+1, and at 80 seconds that gap grows to about 504%. Similarly, a GT+10 running for 80 seconds earns around 231% more than the same level at 60 seconds. The tables below show the expected relative income across GT+ levels and durations.
+If you already have 100% uptime on Golden Tower (for example through MVN or GC), the calculation shifts: the number of activations is now total run time divided by duration rather than by cooldown, which changes how much extra duration is worth.
+Relative income when comparing both GT+ levels and duration. Assumes 5s of mobs at the start of the GT+ that is not included the GT+ bonus and Kps=8. Numbers are relative to GT+10 at 60s.
+Show all 42 rows Relative income when comparing both GT+ levels and duration for GT duration >= 100%. Assumes 5s of mobs at the start of the GT+ that is not included the GT+ bonus and Kps=8. Numbers are relative to GT+10 at 60s. You CANNOT compare the numbers in the above table with numbers in this table. That's like comparing apples to oranges. The calculations are based on difference premises.
+Show all 22 rows
+Labs — Golden Tower Bonus
+The Golden Tower Bonus lab has 25 levels. Each level adds 0.15 to the Golden Tower bonus, giving a total additional bonus of 3.75 when maxed. See the table below for per-level costs.
+Show all 25 rows
+Labs — Golden Tower Duration
+The Golden Tower Duration lab has 20 levels, and each level extends the activation. Maxing the lab adds 20 seconds of duration in total. Per-level costs are listed in the table below.
+Show all 20 rows
+Labs
+Golden Tower's labs are unlocked through Milestones at tier 4 wave 200, opening up Golden Tower Bonus and Golden Tower Duration research. Each lab raises the base value of its matching workshop stat, stacking with whatever you have upgraded with stones.
+Ultimate Weapon Plus
+As the income comparisons show, GT+ level keeps the same scaling whether or not you have full uptime, but extra duration loses some of its value once Golden Tower is already active permanently.
+Related pages
+Amplify Bot
+Attack Speed
+Attack Upgrades
+Black Hole
+Boss Labs
+Bot Bot
+Bounce Shot
+Buy multiplier
+Card Presets
+Cards
+Cash Bonus
+Cash Per Wave
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-23) . Something out of date? Tell us in the Discord .

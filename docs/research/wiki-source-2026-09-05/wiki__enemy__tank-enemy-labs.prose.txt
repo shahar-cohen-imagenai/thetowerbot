@@ -1,0 +1,17 @@
+Tank Enemy labs let you directly weaken one of the tougher regular enemy types you face during rounds. By researching them, you lower the health and attack of tank enemies at every wave, making them easier to kill and less punishing when they reach your tower.
+On this page
+Description — Tank Enemy Health
+Description — Tank Enemy Attack
+Description
+Description — Tank Enemy Health
+Tank Enemy Health is a lab you unlock through Milestones by reaching tier 9 wave 20. Once researched, it reduces the health of tank enemies on every wave, so they take less damage to bring down. The lab has 30 levels, with each level lowering tank health further. The per-level values are listed in the cost table below.
+Show all 30 rows
+Description — Tank Enemy Attack
+Tank Enemy Attack is unlocked through Milestones at tier 9 wave 20, the same requirement as the health lab. Researching it decreases the attack of tank enemies at all waves, reducing the damage they deal to your tower. It has 30 levels in total.
+Description
+Both Tank Enemy labs modify the stats of tank enemies during rounds rather than boosting your own tower. One thing to keep in mind: because these labs change individual enemy stats, the default ratios between enemy types stop being reliable once you invest in them. For example, boss health is normally a fixed multiple of basic enemy health, but researching basic health breaks that relationship. Plan your lab spending with this in mind if you rely on those ratios for comparisons.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-12-12) . Something out of date? Tell us in the Discord .

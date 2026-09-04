@@ -9,6 +9,8 @@ unknown/
 tower_bot.db
 tower_bot.db-wal
 tower_bot.db-shm
+advisor.json
+.advisor*.tmp
 
 # Next.js UI build artefacts. web/static/ is deliberately NOT ignored - it is
 # the committed build the bot serves with no node installed.

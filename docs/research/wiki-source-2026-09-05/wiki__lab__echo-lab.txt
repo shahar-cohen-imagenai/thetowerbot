@@ -1,0 +1,38 @@
+Echo Lab refers to the four Dissonant Echo labs, which let a slice of the Dissonance Boost you earn on one tier carry over to every other tier. Each lab targets a different stat category, so you choose whether the echoed boost improves your damage, survivability, economy or ultimate weapons.
+On this page
+Description
+Labs
+Dissonant Echo Boost per Tier
+Description
+Dissonant Echo Boost can raise tower damage, tower health, your coin multiplier or ultimate weapon damage, depending on which lab you level. The strength of the echo is tied to the Dissonance Boost you reach on a given tier.
+There is one lab for each Dissonant category: Dissonant Echo - Attack, Dissonant Echo - Defense, Dissonant Echo - Utility and Dissonant Echo - Ultimate Weapon. Putting more levels into a lab raises the percentage of your Dissonance Boost that echoes across to all tiers.
+Labs
+Each of the four labs has 20 levels. The echo chance starts at 0.5% and every level adds another 0.5%, topping out at 10.5% Dissonant Echo Boost when maxed.
+The cost of each level doubles over the previous one, so the later levels get expensive quickly. The figures in the cost table below were recorded with level 0 lab speed, no lab discount and no relics that reduce lab costs, so your own costs and times may be lower.
+Level Value Time Coins
+1 1.0% 20d 20h 1q
+2 1.5% 41d 16h 2.25q
+3 2.0% 62d 12h 5.06q
+4 2.5% 83d 8h 11.39q
+5 3.0% 104d 4h 25.63q
+6 3.5% 125d 57.67q
+7 4.0% 145d 20h 129.75q
+8 4.5% 166d 16h 291.93q
+9 5.0% 187d 12h 656.84q
+10 5.5% 208d 8h 1.48Q
+Show all 20 rows
+Dissonant Echo Boost per Tier
+The echoed boost for each tier is worked out as: (Dissonant Boost - 1) multiplied by your lab percentage. The resulting bonus is additive with the boost already on the receiving tier.
+For example, with the lab at level 0 (0.5%) and the maximum Dissonance Boosts reached on tiers 1 through 10: a 3x Dissonance Boost echoes a 0.10x bonus to all tiers, while a 5x boost echoes 0.20x. A tier sitting at 5x would then effectively run at 5.20x, or 3.10x if it was at 3x. The table below lists the echoed boost per lab level for the maximum 3x and 5x Dissonance Boosts.
+Lab Percent 3x 5x
+0 0.5% 0.01 0.02
+1 1.0% 0.02 0.04
+2 1.5% 0.03 0.06
+3 2.0% 0.04 0.08
+4 2.5% 0.05 0.1
+5 3.0% 0.06 0.12
+6 3.5% 0.07 0.14
+7 4.0% 0.08 0.16
+8 4.5% 0.09 0.18
+Show all 22 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-19) . Something out of date? Tell us in the Discord .

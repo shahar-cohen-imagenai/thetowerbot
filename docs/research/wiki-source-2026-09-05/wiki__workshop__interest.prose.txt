@@ -1,0 +1,37 @@
+Interest rewards you for holding onto cash. At the end of each wave, you earn a percentage of the cash you still have on hand, so money you don't spend keeps working for you. It sits in the Workshop Upgrades category and is supported by two related lab researches.
+On this page
+Overview
+Workshop
+Cost
+Labs — Interest
+Labs — Max Interest
+Labs
+Overview
+Interest pays out a percentage of your unspent cash when a wave ends. The larger the balance you carry into the end of a wave, the more interest you collect, which encourages saving rather than spending everything immediately.
+Workshop
+Interest/Wave is bought in the workshop for 5000 coins once Free Upgrades is unlocked. It has 99 levels starting from a 0% base, and each level adds 0.06% to that base, reaching a maximum of 5.94%. The payout is worked out after Cash Per Wave is applied, using the formula: (Current Cash + Cash/Wave × Cash Bonus) × Interest/Wave %.
+Cost
+The cost of each Interest/Wave workshop level is listed in the cost table below.
+Show all 99 rows
+Labs — Interest
+The Interest lab raises how much each Interest/Wave workshop level adds and also lifts the workshop's maximum value. It has 99 levels, with the per-level values shown in the table below.
+Show all 99 rows
+Labs — Max Interest
+Max Interest raises the cap on how much interest you can earn, which starts at $50. It has 15 levels. You can tell when you've hit the cap because the $ symbol next to your cash display turns bright green.
+Show all 15 rows
+Labs
+The Interest labs are unlocked in the Labs menu through Milestones, at tier 2 wave 80.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-30) . Something out of date? Tell us in the Discord .

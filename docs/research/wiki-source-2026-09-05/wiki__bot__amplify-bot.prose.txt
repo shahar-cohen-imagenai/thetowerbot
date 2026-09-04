@@ -1,0 +1,38 @@
+Amplify Bot is one of the bots you can deploy alongside your tower. While active, it amplifies the damage dealt to enemies inside its range, making it a strong tool for pushing through tougher waves.
+On this page
+Description
+Unlocking/Upgrading
+Duration
+Cooldown
+Bonus
+Range
+Cost
+Labs — Amplify Bot Cooldown
+Labs — Amplify Bot Duration
+Description
+Amplify Bot increases the damage dealt to enemies caught within its area of effect while it is active. Anything inside the bot's range takes amplified damage for as long as the activation lasts.
+Unlocking/Upgrading
+Amplify Bot is bought and upgraded through the Event Shop menu, the same as every other bot. The medals needed to unlock it scale with how many other bots you already own. Each of its four upgrades begins at a base cost of 100 medals, with the price rising by 40 medals per level.
+Duration
+The Duration upgrade extends how long the bot stays active once triggered. It begins at 20 seconds and can be raised through 30 levels, with each level adding 0.5 seconds.
+Cooldown
+Cooldown sets the gap between the bot's activations. It starts at 120 seconds and has 15 levels, each one shaving 3 seconds off the wait.
+Bonus
+The Bonus upgrade raises the damage multiplier applied to enemies in range. It starts at x3.50 and runs for 30 levels, gaining 0.4 per level.
+Range
+Range determines how large an area the bot covers while active, and it scales with your tower's range. The upgrade starts at 25m and has 18 levels, each adding 2m.
+Cost
+The full medal costs for unlocking and upgrading Amplify Bot are listed in the cost table below.
+Show all 31 rows
+Labs — Amplify Bot Cooldown
+This lab is unlocked through Milestones at tier 5, wave 90. Each of its 25 levels reduces the bot's cooldown by 1 second, for a total possible reduction of 25 seconds. Be aware that this lab is flagged in the Footguns section, so consider the trade-offs before investing heavily.
+Show all 25 rows
+Labs — Amplify Bot Duration
+Unlocked through Milestones at tier 10, wave 50, this lab lengthens each activation of the bot. It has 20 levels that each add 0.5 seconds, giving up to 10 extra seconds of uptime at max level.
+Show all 20 rows
+Related pages
+Events
+Footguns
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-30) . Something out of date? Tell us in the Discord .

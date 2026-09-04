@@ -1,0 +1,23 @@
+Ultimate Weapon Research
+Missiles Despawn Time Max Lv 20 Missiles Explosion Max Lv 1
+Missiles Radius Max Lv 20 Chrono Field Duration Max Lv 30
+Chrono Field Damage Reduction Max Lv 1 Chrono Field Reduction % Max Lv 30
+Swamp Radius Max Lv 30 Swamp Stun Max Lv 1
+Swamp Stun Chance Max Lv 30 Swamp Stun Time Max Lv 30
+Golden Tower Bonus Max Lv 25 Golden Tower Duration Max Lv 20
+Chain Lightning Shock Max Lv 1 Shock Chance Max Lv 30
+Shock Multiplier Max Lv 14 Death Wave Health Max Lv 30
+Death Wave Coin Bonus Max Lv 20 Inner Mine Blast Radius Max Lv 20
+Inner Mine Rotation Speed Max Lv 20 Chrono Field Range Max Lv 20
+Show all 20 rows
+Related pages
+Black Hole
+Chain Lightning
+Chrono Field
+Death Wave
+Golden Tower
+Inner Land Mines
+Poison Swamp
+Smart Missiles
+Spotlight
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-03-12) . Something out of date? Tell us in the Discord .

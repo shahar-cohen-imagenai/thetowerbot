@@ -1,0 +1,31 @@
+Starting Cash is a workshop upgrade that boosts how much cash you have available when a round begins. This gives you a head start on purchasing upgrades and defenses right from the start.
+Description
+Starting Cash increases the amount of cash you begin each round with. This gives you more resources to spend on upgrades and defenses from the moment a round starts, helping you establish your build faster.
+Lab
+Starting Cash can be further enhanced through the lab system. The lab upgrade is unlocked through Milestones once you reach tier 1 wave 30. It has 99 levels available for research.
+Level Time Cost Value
+1 0d 0h 0m 30 5
+2 0d 0h 6m 71 10
+3 0d 0h 16m 178 15
+4 0d 0h 31m 398 20
+5 0d 0h 52m 772 25
+6 0d 1h 20m 1,340 30
+7 0d 1h 56m 2,120 35
+8 0d 2h 39m 3,170 40
+9 0d 3h 31m 4,510 45
+10 0d 4h 32m 6,170 50
+Show all 99 rows
+Related pages
+Amplify Bot
+Attack Speed
+Black Hole
+Boss Labs
+Bot Bot
+Buy multiplier
+Card Presets
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-05-01) . Something out of date? Tell us in the Discord .

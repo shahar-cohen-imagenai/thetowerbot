@@ -1,0 +1,98 @@
+Perk labs are the lab chain that opens up the perk system and then refines how perks behave during a run. Once you have access to perks, these labs let you earn them faster, make them stronger, and control which ones you are offered or automatically given.
+On this page
+Perk Labs — Unlock Perks
+Perk Labs — Waves Required
+Perk Labs — Standard Perk Bonus
+Perk Labs — First Perk Choice
+Perk Labs — Improve Trade-Off Perks
+Perk Labs — Auto Perk Pick
+Perk Labs — Perk Option Quantity
+Perk Labs — Ban Perks
+Perk Labs — Auto Pick Ranking
+Perk Labs
+Perk Labs — Unlock Perks
+This is the entry point of the perk lab chain. Completing it allows perks to appear during your rounds, and it is also the prerequisite for every other perk lab. It has a single level, so one completion is enough to open up the rest of the chain.
+Level Time Cost Value
+1 3d 11h 19m 1,500,000 Unlocked
+Perk Labs — Waves Required
+Available once Unlock Perks is finished, this lab lowers the base number of waves you need to clear before the next perk becomes available in a run. It has 100 levels, so it is a long-term sink that steadily speeds up how often perks arrive. The exact wave count follows the perk waves required calculation described on the Perks page.
+Level Time Cost Value
+1 0d 1h 39m 100K -1.00
+2 0d 5h 1m 220K -2.00
+3 0d 8h 33m 940K -3.00
+4 0d 12h 34m 5,26M -4.00
+5 0d 17h 29m 20,98M -5.00
+6 0d 23h 46m 63,1M -6.00
+7 1d 7h 57m 156,22M -7.00
+8 1d 18h 38m 336,94M -8.00
+9 2d 8h 29m 656,26M -9.00
+10 3d 2h 11m 1,18B -10.00
+Show all 100 rows
+Perk Labs — Standard Perk Bonus
+Unlocked after completing Unlock Perks, this lab adds a multiplier that strengthens standard perks. The bonus applies differently depending on the perk type. For multiplicative perks the calculation is (1 + perk base × quantity) × (1 + standard perk bonus), while additive perks use Perk Base × quantity × (1 + standard perk bonus). The Perks page covers how standard perks are calculated in more detail.
+Level Time Cost Value
+1 0d 1h 39m 100,000 1%
+2 0d 5h 34m 280,000 2%
+3 0d 9h 39m 1,360,000 3%
+4 0d 14h 14m 7,840,000 4%
+5 0d 19h 42m 31,420,000 5%
+6 1d 2h 32m 94,600,000 6%
+7 1d 11h 17m 234,280,000 7%
+8 1d 22h 32m 505,360,000 8%
+9 2d 12h 56m 984,340,000 9%
+10 3d 7h 11m 1,770,000,000 10%
+Show all 25 rows
+Perk Labs — First Perk Choice
+This lab unlocks through Milestones at tier 2 wave 250, provided Unlock Perks is done. It has 1 level and lets you nominate one standard perk that is guaranteed to appear as an option for the first perk of each round. You set it outside of a run, from the top right corner of the home screen.
+Level Time Cost Value
+1 4d 15h 6m 1,000,000,000 Unlocked
+Perk Labs — Improve Trade-Off Perks
+Unlocked via Milestones at tier 2 wave 400 after Unlock Perks is complete, this lab multiplies the upside you get from trade-off perks. It has 10 levels. Note that it does not boost the ranged enemy trade-off perk.
+Level Time Cost Value
+1 1d 0h 59m 600,000,000 1%
+2 1d 14h 54m 700,030,000 2%
+3 2d 5h 0m 801,180,000 3%
+4 2d 19h 40m 910,140,000 4%
+5 3d 11h 24m 1,050,000,000 5%
+6 4d 4h 49m 1,250,000,000 6%
+7 5d 0h 38m 1,600,000,000 7%
+8 5d 23h 39m 2,200,000,000 8%
+9 7d 2h 46m 3,230,000,000 9%
+10 8d 10h 58m 4,920,000,000 10%
+Perk Labs — Auto Perk Pick
+Unlocked through Milestones at tier 4 wave 50 once Unlock Perks is finished, this 1-level lab adds a toggleable auto-picker. When active, the game selects a perk for you whenever one is offered. You can switch it on or off mid-run by tapping the perk bar at the top of the screen. If a perk offering contains nothing from your auto perk ranking, the first perk in the list is taken.
+Level Time Cost Value
+1 4d 23h 26m 100,000,000 Unlocked
+Perk Labs — Perk Option Quantity
+Available from Milestones at tier 4 wave 80 after Unlock Perks, this lab adds extra choices to each perk offering. Its 2 levels raise the number of perks shown per selection up to a maximum of four, giving you more flexibility every time you pick.
+Level Time Cost Value
+1 4d 23h 26m 200,000,000 +1
+2 10d 4h 26m 2,000,000,000 +2
+Perk Labs — Ban Perks
+Unlocked at tier 5 wave 40 through Milestones, with Unlock Perks as a prerequisite. It lets you block specific perks from ever showing up as choices during a round, thinning the pool so the perks you actually want appear more often. Bans are managed from the home screen while you are not in a run. The lab has 8 levels.
+Level Time Cost Value
+1 2d 7h 33m 10.00M 1
+2 4d 15h 6m 100.00M 2
+3 9d 6h 13m 1.00B 3
+4 20d 19h 59m 15.00B 4
+5 41d 16h 0m 15m 100.00B 5
+6 83d 8h 0m 1.00T 6
+7 166d 15h 59m 100.00T 7
+8 333d 8h 0m 1.00q 8
+Perk Labs — Auto Pick Ranking
+This lab unlocks through Milestones at tier 6 wave 10 and requires Auto Pick Perks to be completed first. It lets you rank perks in priority order so the auto-picker takes your most valued options when several are available. Each of its 32 levels adds one more perk to your ranked list. The ranking takes precedence over First Perk Choice: for example, if your first choice is set to perk waves required but Golden Tower sits higher in your ranking and both appear in the opening offer, Golden Tower is picked instead.
+Level Time Cost Value
+1 1d 23h 46m 100.00K 1
+2 2d 5h 21m 180.00K 2
+3 2d 11h 18m 878.82K 3
+4 2d 18h 27m 4.46M 4
+5 3d 4h 11m 15.66M 5
+6 3d 18h 20m 42.28M 6
+7 4d 15h 12m 95.64M 7
+8 5d 21h 34m 191.02M 8
+9 7d 16h 38m 348.06M 9
+10 10d 4h 4m 591.04M 10
+Show all 32 rows
+Perk Labs
+Taken together, perk labs both grant access to perks and improve how they work over the course of a run, from how quickly they arrive to how strongly they perform and how much control you have over the selection.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-18) . Something out of date? Tell us in the Discord .

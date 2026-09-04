@@ -1,0 +1,38 @@
+Multishot is a workshop upgrade that gives your tower a chance to fire at more than one enemy each time it shoots. It is split into two separate upgrades: Multishot Chance, which controls how often the effect triggers, and Multishot Targets, which controls how many enemies are hit when it does.
+On this page
+Description
+Workshop
+Multishot Chance
+Multishot Targets
+Cost — Multishot Chance
+Cost — Multishot Targets
+Multishot Target
+Description
+Multishot gives your tower a chance to fire at multiple targets with a single shot. When the effect activates, your tower fires additional projectiles at enemies in range, letting you clear groups of enemies faster than single-target fire alone.
+Workshop
+Multishot is unlocked in the workshop for 400 coins once you have purchased Damage/Meter. Unlocking it gives you access to two separate upgrades: Multishot Chance and Multishot Targets, each of which can be levelled independently.
+Multishot Chance
+Multishot Chance determines how often the multishot effect triggers when your tower fires. The workshop offers 99 levels for this upgrade, with each level adding 0.50% to the activation chance. Fully maxed, this gives you a 49.50% chance for multishot to activate on any given shot.
+Multishot Targets
+Multishot Targets sets how many projectiles your tower fires when multishot activates, provided enough enemies are in range. It starts at 2 targets and has 7 levels, with each level adding 1 additional target, up to a maximum of 9 targets.
+Cost — Multishot Chance
+The cost table below shows the coin cost for each level of Multishot Chance. With 99 levels to work through, this is the longer of the two multishot upgrade paths, so plan your coin spending accordingly.
+Show all 99 rows
+Cost — Multishot Targets
+The cost table below shows the coin cost for each level of Multishot Targets. With only 7 levels, this upgrade is much shorter than Multishot Chance, but each level has a direct impact on how many enemies you can hit at once.
+Multishot Target
+See the Multishot section above for details on how targeting works.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-20) . Something out of date? Tell us in the Discord .

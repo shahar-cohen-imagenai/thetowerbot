@@ -217,6 +217,7 @@ class ShoppingSession:
         self._coin_spent = 0
         # Permanent unlock evidence outlives an individual shopping visit.
         self._completed_unlocks: set[str] = set()
+        self._missing_rows: set[str] = set()
 
     @property
     def active(self) -> bool:
@@ -275,6 +276,7 @@ class ShoppingSession:
         self._search = None
         self._cards_bought = 0
         self._exhausted = set()
+        self._missing_rows = set()
         self._off_page_streak = 0
         self._blind_streak = 0
         self._last_page = None
@@ -621,13 +623,18 @@ class ShoppingSession:
         if self._pending is not None:
             self._confirm_purchase(observation, coins, device, shopping, screen)
             return
-        rules = [r for r in shopping.rows_for(category) if r.name not in self._exhausted]
+        rules = [r for r in shopping.workshop if r.enabled and r.name not in self._exhausted]
         if not rules:
-            self._categories.pop(0)
+            self._categories = []
             self._search = None
-            self._step = Step.OPEN_TAB if self._categories else self._next_after_categories(shopping)
+            self._step = self._next_after_categories(shopping)
             return
         rule = rules[0]
+        self._categories = list(dict.fromkeys(r.category for r in rules))
+        if rule.category != category:
+            self._search = None
+            self._step = Step.OPEN_TAB
+            return
         entry = upgrades.resolve(rule.name, category)
         rule_id = entry.id if entry is not None else "discovered:" + tiles.normalise(rule.name)
         if rule_id in self._completed_unlocks:
@@ -652,6 +659,19 @@ class ShoppingSession:
             return
         seen = _row_named(rule.name, visible, category)
         if seen is None:
+            if entry is not None and self._child_proves_unlocked(entry, observation):
+                self._completed_unlocks.add(entry.id)
+                self._exhausted.add(rule.name)
+                self._search = None
+                self._bus.publish(events.PurchaseSkipped(
+                    item=rule.name, reason="already_unlocked", detail="an unlocked child upgrade was observed",
+                ))
+                if self.observations is not None:
+                    completed = ObservedUpgrade(entry.id, entry.name, entry.category, "workshop",
+                                                None, None, "unlocked", observation.observed_at,
+                                                config.Rect(0, 0, 0, 0), None)
+                    self.observations.observe(replace(observation, rows=(*observation.rows, completed)))
+                return
             self._find_row(rule.name, observation, device, shopping, screen, coins)
             return
         self._search = None
@@ -675,9 +695,21 @@ class ShoppingSession:
                                  or self._coin_spent + seen.price > shopping.coin_budget):
             reason, detail = "budget", "purchase would exceed the Workshop visit budget"
         if reason is not None:
+            saving_unlock = entry is not None and entry.unlock and reason in {"unaffordable", "reserve", "budget"}
+            if saving_unlock:
+                detail = (f"Workshop visit budget cannot cover {seen.name}; lower-priority purchases are deferred"
+                          if reason == "budget" else
+                          f"Saving coins for {seen.name}; lower-priority Workshop purchases are deferred")
             self._bus.publish(events.PurchaseSkipped(item=rule.name, reason=reason,
                                                     detail=detail, coins_before=coins))
             self._exhausted.add(rule.name)
+            if saving_unlock:
+                self._categories = []
+                self._search = None
+                self._step = self._next_after_categories(shopping)
+                if self.observations is not None:
+                    phase = "blocked" if reason == "budget" else "saving"
+                    self.observations.decision(phase, detail, seen.upgrade_id)
             return
         if not self._try_tap(*seen.tap, device, shopping, screen):
             return
@@ -688,6 +720,17 @@ class ShoppingSession:
                 self.observations.decision("verifying", f"Confirming Workshop purchase: {seen.name}", seen.upgrade_id)
         else:
             self._record_purchase(seen, coins, dry_run=True)
+
+    def _child_proves_unlocked(self, entry: upgrades.Upgrade, observation: Observation) -> bool:
+        """Permanent Workshop observations may prove a vanished prerequisite complete."""
+        if not entry.unlocks:
+            return False
+        candidates = [row.payload() for row in observation.rows]
+        if self.observations is not None:
+            candidates.extend(self.observations.snapshot()["observations"])
+        return any(row["context"] == "workshop" and row["category"] == entry.category
+                   and row["upgrade_id"] in entry.unlocks
+                   and row["status"] in {"available", "maxed"} for row in candidates)
 
     def _record_purchase(self, row: ObservedUpgrade, coins: int, *, dry_run: bool,
                          verified: ObservedUpgrade | None = None) -> None:
@@ -715,11 +758,16 @@ class ShoppingSession:
         )
         entry = upgrades.resolve(before.name, before.category)
         is_unlock = (entry is not None and entry.unlock) or tiles.normalise(before.name).startswith("unlock")
-        # A missing tile alone can be an OCR miss. Require newly visible rows
-        # and the matching coin debit as evidence of an unlock transition.
+        # A missing tile alone can be an OCR miss. Known unlocks must expose
+        # their own child upgrade, alongside the matching coin debit.
+        newly_visible = [r for r in observation.rows if r.upgrade_id not in pending.visible_ids
+                         and r.status in {"available", "maxed"}]
+        child_appeared = bool(newly_visible)
+        if entry is not None and entry.unlocks:
+            child_appeared = any(r.upgrade_id in entry.unlocks for r in newly_visible)
         unlocked = (same_category and is_unlock and after is None and coins is not None
                     and coins <= pending.coins - before.price
-                    and any(r.upgrade_id not in pending.visible_ids for r in observation.rows))
+                    and child_appeared)
         if changed or unlocked:
             confirmed = after if changed else replace(before, status="unlocked", price=None,
                                                      observed_at=observation.observed_at)
@@ -727,6 +775,13 @@ class ShoppingSession:
                 self.observations.observe(replace(observation, rows=(*observation.rows, confirmed)))
             if unlocked:
                 self._completed_unlocks.add(before.upgrade_id)
+                if entry is not None:
+                    children = set(entry.unlocks)
+                    for rule in shopping.workshop:
+                        child = upgrades.resolve(rule.name, rule.category)
+                        if child is not None and child.id in children and rule.name in self._missing_rows:
+                            self._exhausted.discard(rule.name)
+                            self._missing_rows.discard(rule.name)
             self._record_purchase(before, pending.coins, dry_run=False, verified=confirmed)
             self._pending = None
             return
@@ -755,6 +810,7 @@ class ShoppingSession:
             self._bus.publish(events.RowUnmatched(item=name, read=tuple(r.name for r in observation.rows)))
             self._bus.publish(events.PurchaseSkipped(item=name, reason="no_match", coins_before=coins))
             self._exhausted.add(name)
+            self._missing_rows.add(name)
             entry = upgrades.resolve(name, observation.category)
             if self.observations is not None:
                 if entry is not None:

@@ -1,0 +1,5 @@
+Shatter Shards is a lab that increases how many shards you receive when you shatter modules. If you regularly break down unwanted modules for shards, this lab raises the return on every shatter.
+Shatter Shards
+You unlock this lab through Milestones by reaching tier 16 wave 40. Once researched, each shatter of a module yields more shards than the base amount.
+The lab has 5 levels, and each level adds 20% more shards from shattering, for a maximum increase of 100% at max level. That means fully researched, every module you shatter gives double the shards. Check the table below for the per-level costs and timings.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-07-19) . Something out of date? Tell us in the Discord .

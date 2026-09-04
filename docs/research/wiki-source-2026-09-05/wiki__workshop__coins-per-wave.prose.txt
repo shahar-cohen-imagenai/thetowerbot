@@ -1,0 +1,30 @@
+Coins Per Wave is a workshop upgrade that pays you a flat amount of coins every time you complete a wave. Because it triggers on every wave regardless of kills, it provides a steady baseline of income that scales with how far you push in a run.
+On this page
+Description
+Workshop
+Cost
+Coins/Wave
+Description
+Coins Per Wave awards coins each time you finish a wave. Unlike kill-based income, it pays out simply for surviving a wave, so it keeps earning even against low-density waves or when your damage comes from sources that do not generate many kills.
+Workshop
+You unlock Coins Per Wave in the workshop for 100 coins, and it requires Coins/Kill Bonus, which itself sits behind Cash Bonus and Cash/Wave in the upgrade chain. The upgrade has 149 levels starting from a base value of 1, and each level adds 1 more coin per wave, topping out at 150 coins per wave. The payout is further boosted by the All Coins perk and by any multipliers shown in the tier coins bonus screen, so its real value in a run is higher than the workshop number suggests.
+Cost
+The cost of each workshop level is listed in the table below. Since every level only adds a single coin per wave, the value of each purchase depends on how many waves you expect to clear, so weigh later levels against other income upgrades.
+Show all 16 rows
+Coins/Wave
+The Coins/Wave lab is unlocked through Milestones by reaching tier 1 wave 30. It has 99 levels, and each level raises the increment that workshop levels provide, which also raises the maximum workshop value. The per-level costs are shown in the table below. This lab is what turns Coins Per Wave from a minor trickle into a meaningful income source over long runs.
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Critical Hits
+Damage
+Damage Per Meter
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-30) . Something out of date? Tell us in the Discord .

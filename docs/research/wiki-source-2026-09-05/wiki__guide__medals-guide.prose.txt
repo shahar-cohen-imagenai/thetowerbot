@@ -1,0 +1,21 @@
+Medals are a currency that builds up more slowly than stones, and while plenty of players rate stones as the more valuable of the two, medals are the harder one to stockpile in the amounts you need. That makes your spending order genuinely important, since a poor choice can set you back a long time.
+On this page
+Overview
+Order
+Bot Order
+Overview
+Medals are a currency that builds up more slowly than stones, and while plenty of players rate stones as the more valuable of the two, medals are the harder one to stockpile in the amounts you need. That makes your spending order genuinely important, since a poor choice can set you back a long time.
+Order
+A sensible spending order looks like this:
+1) Past event relics with high value. If a lab speed or coins relic from a previous event is up for sale, grab it first. The other relics are optional.
+2) Songs and Themes. The theme bonus is small on its own, but it stacks into a meaningful coin bonus over time. Picking up both costs 400 medals per event, and there are currently three songs available, each giving +0.6% coins.
+3) Stones. One or two packs at most. The rising cost makes each extra pack worse value, and many players skip stone packs entirely to keep medals free for bot upgrades.
+4) Gems. Only worth considering before you have all labs unlocked, and even then a single pack at most, purely to speed up lab unlocks. Gems are easy to come by elsewhere, so once all 5 labs are open, stop buying them.
+5) Bots. Spend the rest here, following the priority below.
+Bot Order
+Do not unlock all 4 bots before upgrading them. Bots are very weak when first unlocked, and nearly all of their value comes from upgrades, so unlock one and invest in it before moving on. Leave cooldown alone unless you know exactly what you are doing or are not concerned with optimisation.
+1) Golden Bot. After unlocking, put medals into range and bonus, with nothing in cooldown. Range is the strongest upgrade, but keep it only a couple of levels ahead of bonus. Move on to the next bot once range and bonus are maxed or at least well developed. Cooldown gives little benefit unless you are chasing a sync with GT/BH, and syncing Golden Bot only pays off when its range and bonus are already high and the GT/BH sync has strong multipliers.
+2) Amplify Bot. Focus on range and bonus. Range matters more, because it raises the chance of the boss passing through the bot's area. Once range is well upgraded, work on bonus for a better damage modifier.
+3) Thunder Bot. This one needs to be maxed to be useful. It is good for crowd control, but at low levels it can actually cause problems for some builds.
+4) Flame Bot. Only invest here once everything else is maxed or properly levelled.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-01-06) . Something out of date? Tell us in the Discord .

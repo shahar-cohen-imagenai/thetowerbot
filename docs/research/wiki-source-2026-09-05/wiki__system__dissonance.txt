@@ -1,0 +1,40 @@
+Dissonance adds a second layer of difficulty on top of the standard Tier system. When you enable it, you give up access to one whole category of tower upgrades for the run, and in return you build toward permanent buffs called Dissonance Boosts. You unlock the mechanic by hitting the Tier 4 Wave 90 milestone.
+On this page
+Dissonant Run
+Exceptions
+Attack
+Defense
+Utility
+Ultimate Weapons
+Echo
+Dissonant Boost
+Dissonant Echo
+Dissonance sits alongside Tiers as an extra challenge setting rather than a replacement for them. The trade is simple: certain upgrades and tower functions are shut off for the duration of a run, and completing waves under those restrictions earns you lasting bonuses. It becomes available once you reach Wave 90 on Tier 4.
+Dissonant Run
+You start a Dissonant Run from the main menu, where the option sits just below the Battle button. When you begin, you pick one of four upgrade categories to lock out for that run:
+- Attack: attack is fixed at 1, range at 30m, and attack speed at 1. - Defense: health is fixed at 1 and regen at 1.00 per second, with everything else in the category switched off. - Utility: Cash, Coins, Packages, Free Upgrades and Enemy Level Skips all stop working, and the only cash you can receive comes from the Starting Cash lab. - Ultimate Weapons: every ultimate weapon is turned off.
+Upgrades in the chosen category show as "DISABLED", much like the effect of the Saboteur Fleet enemy. Workshops, Workshop Enhancements, Cards and Modules either do nothing for the locked category or are heavily restricted.
+Exceptions
+Although a category is shut down, each one has at least one loophole that lets it still contribute something useful to your run.
+Attack
+Within the Attack category, the Death Penalty module stands alone as the only module whose effect continues to function while Dissonance is active.
+Defense
+A few defensive tools survive the lockout. The Extra Orbs card remains playable, which means the Negative Mass Projector can still do its job. Among modules, Orbital Augment is unique in offering an offensive effect that never touches defensive upgrades. The Death Wave Health lab can push your tower's health as high as 13 HP, and Recovery Package healing still lands, though the amount it restores is tiny.
+Utility
+Cash is essentially frozen: the Starting Cash lab is your sole source, with no other way to earn more during the run. Beyond that, the only remaining path to improving your tower is through Workshops applied to the categories that are still open. If you have Package After Boss researched, boss waves will still drop Recovery Packages; these grant no health, but they do feed Galaxy Compressor and Restorative Bonus. The Guardian Fetch Chip pays out coins, and the Wave Skip card produces coins based on Fetched amounts, but both yields are negligible.
+Ultimate Weapons
+Two ultimate weapons retain partial behaviour. Smart Missile Barrage can still fire Smart Missiles, though the missiles deal zero damage. Space Displacer is still able to place Inner Land Mines; the mines also deal no damage, but if you have researched Inner Land Mine Stun they will continue to stun enemies.
+Echo
+Echo lets the boost you earn on one tier carry over to others, so the bonus stacks across tiers. It begins at 0.5%, and you can increase it through the Echo Lab, which opens once you reach Tier 17 Wave 60.
+Dissonant Boost
+Reaching wave 5000 in a run caps the boost at 5x for Attack, Defense and Ultimate Weapons, while Utility tops out at 3x. For any wave before that point, the multiplier follows the formula 1 + (multiplier − 1) × (wave / 5000)^1.75. The table below charts that curve for both the 3x and 5x paths, marking the whole-number milestones along the way.
+Boost milestones by wave
+1524 2265 2855 3365 3823 4243 4633 5000
+3x 1.250 1.500 1.750 2.000 2.250 2.501 2.750 3.000
+5x 1.500 2.001 2.500 3.000 3.501 4.001 4.500 5.000
+Dissonant Echo
+Echo bonuses add together rather than multiply. For example, a tier already sitting at a 3x boost that receives a 1.5% echo from another tier ends up with a 3.015x bonus.
+Related pages
+Echo Lab
+Fleet Enemies
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-25) . Something out of date? Tell us in the Discord .

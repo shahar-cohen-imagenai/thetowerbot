@@ -1,0 +1,23 @@
+The Laboratory, often called the labs, is where you buy upgrades that are separate from those in the Workshop. These include scaling upgrades, maximum cap increases, and other improvements. Every lab upgrade costs coins and takes time to finish, and while it is running it occupies one of your labs. Because of this, time becomes a major limit on progress later in the game, so keeping your labs busy is important.
+On this page
+Description
+Amount Of Labs
+Cost
+Rushing Labs
+Lab Upgrades
+Description
+The Laboratory, often called the labs, is where you buy upgrades that are separate from those in the Workshop. These include scaling upgrades, maximum cap increases, and other improvements. Every lab upgrade costs coins and takes time to finish, and while it is running it occupies one of your labs. Because of this, time becomes a major limit on progress later in the game, so keeping your labs busy is important.
+Amount Of Labs
+You can have a maximum of 5 labs.
+Cost
+Unlocking all 5 labs costs 4900 Gems in total. Even though this is expensive if you are not spending real money, it is still worth unlocking them over time, or at least getting 4. The cost table below shows the full breakdown.
+Rushing Labs
+You can rush labs with Gems to finish them sooner. Before version 0.17, rushing cost 1 Gem for every 8 minutes skipped. In version 0.17, the developers changed the system and greatly lowered the cost for longer rush times. The tables below show the old and updated costs, with bold values marking the changed prices.
+Version 0.16
+Version 0.17
+Lab Upgrades
+For the full list of lab upgrades, see the linked lab upgrades page.
+Related pages
+Gems
+Lab Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-10-27) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,15 @@
+Ray Labs are a pair of enemy-focused lab researches that weaken Ray enemies during your rounds. Both become available once you reach Tier 19 Wave 60, and each one targets a single Ray stat, letting you chip away at how hard these enemies hit and how much punishment they can take.
+On this page
+Description — Ray Enemy Attack
+Description — Ray Enemy Health
+Description
+Description — Ray Enemy Attack
+This lab reduces the attack of Ray enemies by a percentage that grows with each level researched. It has 30 levels in total, and you can start researching it after reaching Tier 19 Wave 60. Because it cuts incoming Ray damage directly, it matters most on runs where Ray hits are a meaningful threat to your tower's survival. The per-level costs and reduction values are listed in the cost table below.
+Show all 30 rows
+Description — Ray Enemy Health
+This lab reduces the health of Ray enemies by a percentage that increases as you research more of its 30 levels. Like the attack lab, it unlocks at Tier 19 Wave 60. Lower Ray health means your damage output kills them faster, which is useful when Rays are surviving long enough to stack up or leak through your defences.
+Description
+Both Ray labs modify Ray enemy stats during rounds rather than in the background. One important side effect: once you have researched any of these reductions, the usual base stat relationships between enemy types stop holding true. For example, a boss is normally balanced around having twenty times the health of a basic enemy, but if you have reduced basic health through labs, that multiplier will no longer line up. Keep this in mind when comparing enemy stats or planning around specific breakpoints.
+Related pages
+Enemies
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

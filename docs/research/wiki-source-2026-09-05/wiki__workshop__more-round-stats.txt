@@ -1,0 +1,18 @@
+More Round Stats is a workshop upgrade that expands the statistics shown for each round and unlocks the Battle History feature. It is aimed at players who want a clearer record of what happened during a run, rather than relying only on the standard end-of-round information.
+On this page
+Description
+Battle History
+Lab
+Description
+More Round Stats adds extra statistics covering what happened in each round. Purchasing it also unlocks Battle History, giving you a way to look back over previous runs instead of only seeing stats for the run currently in progress.
+Battle History
+Once unlocked, Battle History becomes part of the More Stats lab and covers both your normal runs and tournament runs. You can reach it from the Battle menu, and it also appears in the settings menu while you are in a run.
+The history stores your last 20 runs, automatically overwriting the oldest entries as new ones are recorded. If you want to clear entries yourself, press and hold any entry, select the ones you wish to remove, then tap Delete at the bottom to confirm.
+Lab
+The lab for More Round Stats is unlocked through Milestones at tier 1 wave 250. It has a single level, so it is a one-time research rather than something you upgrade repeatedly; see the table below for the research details.
+Level Time Cost Value
+1 0d 11h 59m 250,000 Unlocked
+Related pages
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-07) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,158 @@
+Cards are purchasable items that grant a special effect while equipped. Each card costs 20 Gems to buy, and the number you can have active at once is limited by your card slots. Individual cards can be levelled up to a maximum of 7 stars by collecting duplicate copies.
+On this page
+Description
+Locked Cards
+Card Slots
+Costs
+Maxing A Card
+Costs Per Star
+Buying Cards
+Milestones
+Common Cards
+List of Cards — Rare Cards
+List of Cards — Epic Cards
+Card Mastery
+Card Mastery Lab Time and Coins
+Card Mastery Overview
+Common cards
+Epic Cards
+Lab: Light Speed Shots
+Lab: Shatter Shards
+Rare Cards
+Description
+Cards are items bought for 20 Gems each. Every card provides its own special effect, but only while it is equipped, and the number you can equip at once is capped by your available card slots. A card's level tops out at 7 stars.
+Locked Cards
+A card can show a locked icon. During a run, any card with this icon cannot be removed until the round ends. You can still swap to another card preset mid-run, but only if that preset contains exactly the same locked cards — any difference in the locked cards blocks the preset from being selected.
+While a boss or fleet enemy is alive, every card becomes locked. You cannot change any cards until all bosses and fleet enemies on the field have been killed.
+Card Slots
+Your equipped card limit is set by how many slots you have unlocked. You can reach 22 slots by spending Gems, at a combined cost of 58,400 Gems. The Key upgrades in the harmony tech tree raise the ceiling further, bringing the maximum to 28 slots in total.
+Costs
+The cost table below breaks down what you will spend on cards. In short, each new card costs 20 Gems, and raising a card through its star levels requires both duplicate copies and additional Gems.
+Slot Gem Cost
+1 Free
+2 50
+3 100
+4 200
+5 300
+6 400
+7 500
+8 600
+9 750
+10 1000
+Show all 22 rows
+Maxing A Card
+Maxing a single card takes 80 copies of that card, which works out to 1,600 Gems in total. Copies are obtained as you buy cards, so maxing happens gradually as you keep purchasing.
+Costs Per Star
+Each star level requires a set number of copies and a matching Gem spend. Unlocking a card (1 star) costs 20 Gems, and that unlock copy counts as the first of the 3 copies needed for 2 stars, which costs 40 Gems. From there, 3 stars needs 5 copies for 100 Gems, 4 stars needs 8 copies for 160 Gems, 5 stars needs 12 copies for 240 Gems, 6 stars needs 20 copies for 400 Gems, and 7 stars needs 32 copies for 640 Gems.
+Across all 31 cards, reaching maximum level on everything requires 49,600 Gems.
+Buying Cards
+Cards come in three rarities: Common, Rare and Epic. When you buy a card, the game rolls the rarity first and then picks a specific card within that rarity. The odds are 80% Common, 17% Rare and 3% Epic.
+Once a card is maxed, it drops out of the pool and you can no longer receive it. After every Common card is maxed, the Rare chance rises to 97%. When you own all cards at max level, the buy button stops working entirely, and any event mission asking you to buy a number of cards will complete instantly.
+Milestones
+A handful of cards cannot be bought until you unlock them through Milestones. If everything else is maxed before you reach these, card purchases stall until the relevant Milestone is cleared. The Milestone-locked cards are:
+- Recovery Package Chance (Rare) — Tier 2, Wave 750 - Land Mine Stun (Rare) — Tier 7, Wave 250 - Nuke (Epic) — Tier 11, Wave 10 - Ultimate Crit (Epic) — Tier 14, Wave 50 - Area of Effect (Epic) — Tier 20, Wave 80
+Despite what some players believe, Death Ray does not have a lower draw rate than other Epics, and there are no hidden requirements to pull it.
+Common Cards
+Rarity Name Description Lv. 1 Lv. 2 Lv. 3 Lv. 4 Lv. 5 Lv. 6 Lv. 7
+Common Damage Increase tower damage by [x] 1.50 2.00 2.40 2.80 3.20 3.60 4.00
+Common Attack Speed Increase tower attack speed by [x] 1.25 1.40 1.55 1.70 1.85 2.00 2.15
+Common Health Increase tower health by [x] 1.50 2.00 2.40 2.80 3.20 3.60 4.00
+Common Health Regen Increase tower health regen by [x] / sec 1.40 1.60 1.80 2.00 2.20 2.40 2.60
+Common Range Increase tower range by [x] 1.15 1.20 1.25 1.30 1.35 1.40 1.45
+Common Cash Increase all cash earned by [x] 1.20 1.40 1.60 1.80 2.00 2.20 2.40
+Common Coins Increase all coins earned by [x] 1.15 1.20 1.25 1.30 1.35 1.40 1.45
+Common Slow Aura All enemies in tower range speed decreased by [x]% 13% 16% 19% 22% 25% 28% 31%
+Common Critical Chance Increase critical chance by [x]% 5% 6% 7% 8% 9% 10% 11%
+Common Enemy Balance Increase enemies spawned each wave, cash earned per kill increased by [x] 1.30 1.40 1.50 1.60 1.70 1.80 1.90
+Show all 12 rows
+List of Cards — Rare Cards
+Rare cards sit between Commons and Epics, drawn at a 17% base rate. The table below lists all Rare cards and their effects.
+Rarity Name Description Lv. 1 Lv. 2 Lv. 3 Lv. 4 Lv. 5 Lv. 6 Lv. 7
+Rare Free Upgrades Increases all free upgrade chances per wave by [x]% 4% 5% 6% 7% 8% 9% 10%
+Rare Extra Orb A spinning orb with a speed of [x] that destroys enemies on contact (except bosses) .30 .40 .50 .60 .70 .80 0.90
+Rare Plasma Canon Fire one big plasma shot at a boss dropping its health by [x]% 30% 34% 38% 42% 46% 50% 54%
+Rare Critical Coin If a basic enemy dies from a critical shot it has a chance to drop coins of [x]% 15% 18% 21% 24% 27% 30% 33%
+Rare Wave Skip Chance to skip a wave and earning coins and cash equal to the previous wave x1.10 of [x]% 9% 10% 11% 13% 15% 17% 19%
+Rare Intro Sprint Waves Increases by 10 each time, for the first [x] waves or up to your highest wave. A Boss spawns every waves and no coins are earned during Intro Sprint. 20 30 40 50 60 80 100
+Rare Land Mine Stun Land mines have a 40% chance to stun enemies for [x] sec (except bosses) 1.4 1.8 2.2 2.6 3.0 3.4 3.8
+Rare Recovery Package Chance Increase recovery package spawn chance by [x]% 15% 18% 21% 24% 27% 30% 33%
+List of Cards — Epic Cards
+Epic cards are the scarcest pulls at a 3% base rate. The table below lists every Epic card and its effect.
+Rarity Name Description Lv. 1 Lv. 2 Lv. 3 Lv. 4 Lv. 5 Lv. 6 Lv. 7
+Epic Death Ray A powerful ray that destroys enemies on contact (except bosses), with a duration of # sec 2.3 sec 2.7 sec 3.1 sec 3.5 sec 3.9 sec 4.4 sec 4.9 sec
+Epic Energy Net Fire a special net at a boss immobilizing it for # sec 2.5 sec 2.8 sec 3.1 sec 3.4 sec 3.7 sec 4.0 sec 4.3 sec
+Epic Super Tower The tower becomes super for 15 seconds, tower damage increased by [x] (30 sec cooldown) 2.5 2.9 3.3 3.7 4.1 4.5 5.0
+Epic Second Wind Revive the tower with half health once per round and creates an invincible shield for [x] sec 10 sec 15 sec 20 sec 25 sec 30 sec 35 sec 40 sec
+Epic Demon Mode Once per Round: Activate Demon Mode. Grants 300x Projectile Damage & Invincibility for [x] sec 180 sec 200 sec 220 sec 240 sec 260 sec 280 sec 300 sec
+Epic Energy Shield Shield that ignores a single attack, replenishes after [x] min 20 min 18 min 16 min 14 min 12 min 10 min 8 min
+Epic Wave Accelerator Reduce the cooldown between waves by [x]% 30% 34% 38% 42% 46% 50% 54%
+Epic Berserker Increase damage by [x] of total damage absorbed this round (max of x8 tower damage) 0.8% 0.9% 1.0% 1.1% 1.2% 1.3% 1.4%
+Epic Ultimate Crit Ultimate weapons gain a [x]% chance to deal critical damage of (Tower Crit Factor) 1% 1.33% 1.66% 2% 2.33% 2.66% 3%
+Epic Nuke Destroys [x] of enemies. 25% 35% 45% 55% 65% 80% 100%
+Show all 11 rows
+Card Mastery
+Card Mastery becomes available once two conditions are met: 30 of your cards are maxed, and you have unlocked the Card Mastery Milestone at Tier 16, Wave 100. After that, masteries can be unlocked individually from the cards page.
+A mastery's effect is only active while that card is equipped. Unlocking a mastery costs a varying amount of stones and also opens up that card's Mastery Labs.
+Card Mastery Lab Time and Coins
+Every card mastery lab shares the same lab costs and research times, shown in the table below.
+Level Time Coins
+1 20d 20h 0m 0s 1.10q
+2 31d 6h 0m 0s 1.30q
+3 41d 16h 0m 0s 2.00q
+4 52d 2h 0m 0s 3.40q
+5 62d 12h 0m 0s 5.60q
+6 72d 22h 0m 0s 7.70q
+7 83d 8h 0m 0s 9.10q
+8 93d 18h 0m 0s 9.80q
+9 104d 4h 0m 0s 10.00q
+Card Mastery Overview
+The table below shows each Card Mastery, its stone cost, and how the effect scales with levels. Note that the Land Mine Stun figures reflect older scaling values. For deeper analysis of each mastery's impact, see the Advanced Analysis page.
+Card Mastery Description Stone Cost 0 1 2 3 4 5 6 7 8 9
+Damage Increases card stat multiplier 750 x1.4 x1.8 x2.2 x2.6 x3 x3.4 x3.8 x4.2 x4.6 x5
+Attack Speed Increases card stat multiplier 750 x1.03 x1.06 x1.09 x1.12 x1.15 x1.18 x1.21 x1.24 x1.27 x1.3
+Health Increases card stat multiplier 750 x1.2 x1.4 x1.6 x1.8 x2 x2.2 x2.4 x2.6 x2.8 x3
+Health Regen Increases card stat multiplier 750 x1.4 x1.8 x2.2 x2.6 x3 x3.4 x3.8 x4.2 x4.6 x5
+Range Adds damage per meter bonus multiplier 750 x1.2 x1.4 x1.6 x1.8 x2 x2.2 x2.4 x2.6 x2.8 x3
+Cash Adds chance for elites to drop reroll dice 500 0.4% 0.8% 1.2% 1.6% 2% 2.4% 2.8% 3.2% 3.6% 4%
+Coins Increases card stat multiplier 1250 x1.03 x1.06 x1.09 x1.12 x1.15 x1.18 x1.21 x1.24 x1.27 x1.3
+Slow Aura Reduces enemy attack speed 1000 x1.05 x1.1 x1.15 x1.2 x1.25 x1.3 x1.35 x1.4 x1.45 x1.5
+Critical Chance Bonus to Crit Chance, super Crit chance, and Super Crit Factor 750 +1% +2% +3% +4% +5% +6% +7% +8% +9% +10%
+Enemy Balance Chance for double elite spawn 1000 6% 12% 18% 24% 30% 36% 42% 48% 54% 60%
+Show all 31 rows
+Common cards
+The table below lists the Common cards.
+Name Description Lv. 1 Lv. 2 Lv. 3 Lv. 4 Lv. 5 Lv. 6
+Coins Increase all coins earned 1.15 1.20 1.25 1.30 1.35 1.40
+Damage Increase tower damage 1.50 2.00 2.40 2.80 3.20 3.60
+Extra Defense Increase defense percent 5% 6% 7% 8% 9% 10%
+Epic Cards
+Epic cards are the rarest of the three card rarities, with a 3% draw chance when buying cards. Several of them are also gated behind Milestones before they can enter your pool.
+Lab: Light Speed Shots
+Light Speed Shots is unlocked in Milestones at Tier 7, Wave 10. Once researched, your projectiles travel to their target instantly after being fired.
+A shot can still be intercepted: if an untargeted enemy sits between your tower and the target, it blocks the shot and takes the damage instead.
+Level Time Cost Value
+1 0d 19h 59m 3,000,000 Unlocked
+Lab: Shatter Shards
+Shatter Shards is unlocked in Milestones at Tier 16, Wave 40. The lab increases how many shards you earn when shattering modules. It has 5 levels, each adding 20% more shards, for a total increase of 100% at max level.
+Level Time Cost Value
+1 142d 14h 13m 10.00T 20%
+2 191d 4h 53m 87.00T 40%
+3 256d 10h 58m 229.20T 60%
+4 359d 8h 9m 547.36T 80%
+5 1y 158d 6h 15m 1.19q 100%
+Rare Cards
+Rare cards are the middle rarity, drawn at a 17% base rate when buying cards. Two of them — Recovery Package Chance and Land Mine Stun — must first be unlocked through Milestones before they can appear.
+Related pages
+AdvancedAnalysis
+Attack Speed
+Cash Bonus
+Critical Coin
+Critical Hits
+Gems
+Keys
+Damage
+Death Ray
+Defense Absolute
+Defense Percent
+Demon Mode
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

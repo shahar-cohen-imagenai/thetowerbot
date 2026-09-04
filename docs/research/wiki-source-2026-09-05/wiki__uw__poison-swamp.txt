@@ -1,0 +1,124 @@
+Poison Swamp is an Ultimate Weapon that creates a damaging zone on the battlefield. Enemies caught in it take damage every second for as long as the swamp stays active, and anything it hurts keeps a Poisoned tag until it dies. Poisoned enemies move 25% slower while standing in a swamp and interact with the Harmony Conductor mod if you have it equipped.
+The damage shown in-game accounts for your crit and super crit factor and chance. One undocumented behaviour worth knowing: each tick of swamp damage ramps up. The second tick applies the listed ramp bonus (50% at base), and every tick after that grows by that bonus plus 100%. So a swamp dealing 100x damage with base ramping ticks for 100x, 150x, 300x, 450x, 600x and so on.
+On this page
+Description
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Labs — Swamp Radius
+Labs — Poison Swamp Stun
+Labs — Swamp Stun Chance
+Labs — Swamp Stun Time
+Labs — Swamp Rend - Basic Enemies
+Labs — Swamp Rend - Additional Enemies
+Labs
+Description
+Poison Swamp spawns a zone that damages enemies every second for its duration, with the damage figure factoring in your crit and super crit stats. Anything damaged by it gains the Poisoned tag until death, which slows the enemy by 25% while it stands in a swamp and makes it eligible for Harmony Conductor mod effects.
+Although never listed in release notes, Poison Swamp's damage ramps each tick, matching the old PS+0 behaviour. The second tick gains the documented ramp value (50% at base), and later ticks grow by that value plus 100%. A 100x swamp at base ramping therefore ticks 100x, 150x, 300x, 450x, 600x and so on.
+Workshop — Basic Upgrades
+Once you unlock Poison Swamp, its basic upgrades appear in the Ultimate Weapon menu alongside every other Ultimate Weapon. You can spend stones on Damage, Duration and Cooldown. Damage has 30 levels, Duration has 14 and Cooldown has 15, with a combined stone cost of 19196 across all three tracks (see the cost table below).
+Enemies standing where two swamps overlap only take damage from one of them, so stacking swamps on the same spot does not multiply your damage.
+Damage Stones (Damage) Duration Stones (Duration) Cooldown Stones (Cooldown)
+10.00x 0 30s 0 125s 0
+11.00x 5 35s 10 120s 8
+13.00x 11 40s 20 115s 26
+16.00x 17 45s 35 110s 44
+20.00x 23 50s 55 105s 62
+26.00x 29 55s 100 100s 80
+34.00x 35 60s 120 95s 98
+43.00x 41 65s 150 90s 116
+55.00x 47 70s 200 85s 134
+69.00x 53 75s 260 80s 152
+Show all 32 rows
+Workshop — Ultimate Weapon Plus
+Ultimate Weapon Plus abilities become available only after you have purchased all nine Ultimate Weapons. Poison Swamp's plus ability is Death Creep, which adds damage to each Poison Swamp tick equal to a percentage of Poison Swamp's damage. The per-level values are listed in the table below.
+UW+ Cost Table
+Level 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+Cost Unlocked 300 375 475 600 725 925 1150 1450 1800 2200 2650 3150 3700 4300
+Value 120% 190% 260% 330% 400% 470% 540% 610% 680% 750% 820% 890% 960% 1030% 1110%
+Labs — Swamp Radius
+Swamp Radius increases the size of your Poison Swamp, letting it cover more ground and catch more enemies at once. The lab has 30 levels; per-level values are in the table below.
+Level Time Cost Value
+1 0d 19h 59m 250,000 0.04
+2 0d 23h 21m 285,000 0.08
+3 1d 2h 53m 496,980 0.12
+4 1d 6h 54m 1,450,000 0.16
+5 1d 11h 49m 4,230,000 0.2
+6 1d 18h 6m 10,500,000 0.24
+7 2d 2h 17m 22,580,000 0.28
+8 2d 12h 58m 43,470,000 0.32
+9 3d 2h 49m 76,880,000 0.36
+10 3d 20h 31m 127,310,000 0.4
+Show all 30 rows
+Labs — Poison Swamp Stun
+Poison Swamp Stun gives enemies a chance to be stunned when they enter a Poison Swamp. An enemy can only be stunned once per entry, but re-entering a swamp or walking into a different one gives it another chance to be stunned.
+The lab has a single level and starts at a 5% stun chance lasting 1 second. Completing it unlocks the Swamp Stun Chance and Swamp Stun Time labs.
+Level Time Cost Value
+1 0d 19h 59m 700,000 Unlocked
+Labs — Swamp Stun Chance
+Available after completing Poison Swamp Stun, this lab raises the chance that enemies are stunned when entering a Poison Swamp. It has 30 levels, with per-level values shown in the table below.
+Level Time Cost Value
+1 0d 19h 59m 250,000 7.5%
+2 0d 23h 21m 285,000 10.0%
+3 1d 2h 53m 496,980 12.5%
+4 1d 6h 54m 1,450,000 15.0%
+5 1d 11h 49m 4,230,000 17.5%
+6 1d 18h 6m 10,500,000 20.0%
+7 2d 2h 17m 22,580,000 22.5%
+8 2d 12h 58m 43,470,000 25.0%
+9 3d 2h 49m 76,880,000 27.5%
+10 3d 20h 31m 127,310,000 30.0%
+Show all 30 rows
+Labs — Swamp Stun Time
+Available after completing Poison Swamp Stun, this lab extends how long enemies stay stunned by Poison Swamp. It has 30 levels, with per-level values shown in the table below.
+Level Time Cost Value
+1 0d 19h 59m 250,000 1.3
+2 0d 23h 21m 285,000 1.6
+3 1d 2h 53m 496,980 1.9
+4 1d 6h 54m 1,450,000 2.2
+5 1d 11h 49m 4,230,000 2.5
+6 1d 18h 6m 10,500,000 2.8
+7 2d 2h 17m 22,580,000 3.1
+8 2d 12h 58m 43,470,000 3.4
+9 3d 2h 49m 76,880,000 3.7
+10 3d 20h 31m 127,310,000 4
+Show all 30 rows
+Labs — Swamp Rend - Basic Enemies
+Unlocked in Milestones at tier 16 wave 50. When a basic enemy is hurt by Poison Swamp, the damage is increased by a percentage of the rend currently applied to it. The lab has 30 levels, each adding 3% of rend for a maximum of 90%.
+By default this only works on basic enemies; you can extend it to other enemy types through the Swamp Rend - Additional Enemies lab.
+Level Time Cost Value
+1 8d 8h 0m 100.00B 3%
+2 9d 7h 59m 150.00B 6%
+3 10d 10h 52m 225.00B 9%
+4 11d 16h 59m 337.50B 12%
+5 13d 2h 42m 506.25B 15%
+6 14d 16h 28m 759.38B 18%
+7 16d 10h 45m 1.14T 21%
+8 18d 10h 8m 1.71T 24%
+9 20d 15h 11m 2.56T 27%
+10 23d 2h 36m 3.84T 30%
+Show all 30 rows
+Labs — Swamp Rend - Additional Enemies
+Unlocked in Milestones at tier 16 wave 50, this lab lets Swamp Rend affect enemy types beyond basics. Affected enemies get the same rend percentage as basic enemies do. The lab has 6 levels.
+Level Time Cost Value
+1 8d 7h 59m 100.00B Ranged enemies
+2 9d 8h 0m 150.00B Fast enemies
+3 10d 10h 52m 225.00B Tank Enemies
+4 11d 16h 59m 337.50B Protector Enemies
+5 13d 2h 42m 506.25B Boss Enemies
+6 14d 16h 28m 759.38B Vampire
+Labs
+Poison Swamp's labs are unlocked in Milestones at tier 7 wave 50, which opens up Swamp Radius and Poison Swamp Stun.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-26) . Something out of date? Tell us in the Discord .

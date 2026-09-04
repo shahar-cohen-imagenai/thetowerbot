@@ -1,0 +1,28 @@
+Workshop Attack Discount is a lab research that cuts the coin cost of upgrading your attack workshop stats. The more you level it, the cheaper each attack upgrade becomes, so your coins stretch further during a run.
+On this page
+Description
+Lab
+Lab: Workshop Defense Discount
+Description
+Workshop Attack Discount reduces how many coins you spend on attack upgrades in the workshop. It applies to the attack workshop upgrades, lowering their coin price so you can afford more levels of them over the course of a run.
+Lab
+You unlock this lab through Milestones by reaching wave 40 on tier 1. Once unlocked, it can be researched up to level 99. The per-level research costs and times are listed in the table below.
+Level Time Cost Value
+1 0d 0h 0m 30 0.50%
+2 0d 0h 6m 71 1.00%
+3 0d 0h 16m 178 1.50%
+4 0d 0h 31m 398 2.00%
+5 0d 0h 52m 772 2.50%
+6 0d 1h 20m 1,340 3.00%
+7 0d 1h 56m 2,120 3.50%
+8 0d 2h 39m 3,170 4.00%
+9 0d 3h 31m 4,510 4.50%
+10 0d 4h 32m 6,170 5.00%
+Show all 99 rows
+Lab: Workshop Defense Discount
+Workshop Defense Discount is the defensive counterpart to this lab. It unlocks through Milestones at wave 50 on tier 2 and, like the attack version, has 99 levels. Instead of attack upgrades, it reduces the coin cost of your defense workshop upgrades.
+Related pages
+Lab Upgrades
+Milestones
+Workshop Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

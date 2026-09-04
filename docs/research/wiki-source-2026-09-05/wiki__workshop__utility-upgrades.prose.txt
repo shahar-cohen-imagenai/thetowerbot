@@ -1,0 +1,15 @@
+Utility upgrades are a category of Workshop Upgrades that support your tower both during a round and between rounds. Rather than adding raw damage or defence, they improve your economy and smooth out your progression.
+Description
+Utility upgrades provide support to your tower in and out of the round. Their effects include increasing how much cash and coins you produce, granting free upgrades to your tower, and skipping enemy level increases so waves scale up more slowly.
+Because they strengthen your income and reduce the pressure of enemy scaling, utility upgrades matter at every stage of the game. Investing here helps you afford other workshop upgrades faster and keeps your tower competitive in longer runs.
+Related pages
+Cash Bonus
+Cash Per Wave
+Coins Per Kill Bonus
+Coins Per Wave
+Enemy Level Skip
+Free Upgrades
+Interest
+Recovery Packages
+Workshop Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2023-08-05) . Something out of date? Tell us in the Discord .

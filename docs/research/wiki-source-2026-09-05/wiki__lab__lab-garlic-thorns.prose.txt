@@ -1,0 +1,6 @@
+Garlic Thorns is a lab upgrade that targets Vampire elite enemies. Once researched, Vampires suffer a percentage of your thorns damage every second while they are using their ranged attack, giving you a way to chip away at an enemy that normally stays out of thorns range.
+Garlic Thorns
+You unlock Garlic Thorns by reaching wave 1000 on tier 2. The lab has 10 upgrade levels, each increasing the effect.
+While a Vampire elite is channeling its ranged attack, this lab forces it to take a percentage of your thorns damage per second. Because Vampires attack from a distance, your normal thorns never touch them — Garlic Thorns closes that gap by applying thorns-based damage during their attack window. The exact percentages per level are listed in the table below.
+This lab matters most once Vampires become a regular threat in your runs. If your build already invests heavily in thorns damage, Garlic Thorns converts that investment into steady damage against an elite that would otherwise be handled only by your tower's direct attacks.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

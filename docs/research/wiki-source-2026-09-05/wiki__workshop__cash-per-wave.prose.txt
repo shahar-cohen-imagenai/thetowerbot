@@ -1,0 +1,30 @@
+Cash Per Wave is a workshop upgrade that gives you a flat amount of cash every time you finish a wave. It sits alongside Cash Bonus as one of the two core cash upgrades, and the two multiply together, so levelling both is how you grow your economy.
+On this page
+Description
+Workshop
+Cost
+Cash/Wave
+Description
+Cash Per Wave pays out a set amount of cash each time you complete a wave. The payout lands after the wave cooldown timer finishes and is credited before interest is calculated, so the cash you receive can immediately feed into your interest earnings for that round.
+Workshop
+You unlock Cash Per Wave in the workshop for 40 coins, and it becomes available together with Cash Bonus. It starts at a base value of 0 and has 149 upgrade levels, with each level adding 4 to the payout, reaching a maximum of 596. The final amount you receive per wave is this value multiplied by your Cash Bonus, so the two upgrades scale off each other.
+Cost
+The coin cost rises with each workshop level. The cost table below lists the price of every level up to the maximum.
+Show all 16 rows
+Cash/Wave
+A matching lab upgrade, Cash/Wave, is unlocked through Milestones at tier 1 wave 30. It has 99 levels, and each lab level increases the size of the workshop increments while also raising the maximum workshop value, letting you push the per-wave payout well beyond the base cap. The table below shows the effect of each lab level.
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Damage Per Meter
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-30) . Something out of date? Tell us in the Discord .

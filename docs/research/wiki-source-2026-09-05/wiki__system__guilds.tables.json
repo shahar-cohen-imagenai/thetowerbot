@@ -1,0 +1,140 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Guild Contribution",
+      "Tokens",
+      "Bits",
+      "Coins",
+      "Gems"
+    ],
+    "rows": [
+      [
+        "100",
+        "10",
+        "10",
+        "1x",
+        "5"
+      ],
+      [
+        "250",
+        "20",
+        "25",
+        "2x",
+        "10"
+      ],
+      [
+        "500",
+        "40",
+        "50",
+        "3x",
+        "15"
+      ],
+      [
+        "750",
+        "80",
+        "100",
+        "5x",
+        "30"
+      ],
+      [
+        "Total",
+        "150",
+        "185",
+        "11x",
+        "60"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "Quantity Purchased",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      [
+        "Bits",
+        "25",
+        "50",
+        "75",
+        "N/A"
+      ],
+      [
+        "Gems",
+        "15",
+        "25",
+        "40",
+        "N/A"
+      ],
+      [
+        "Shards",
+        "5",
+        "10",
+        "15",
+        "N/A"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Chip",
+      "Description",
+      "Upgrade 1 (Base)",
+      "Cooldown (Base)",
+      "Upgrade 2 (Base)"
+    ],
+    "rows": [
+      [
+        "Ally",
+        "Converts an enemy into an Ally Recovery Package that can heal the Tower beyond the basic Maximum Recovery amount",
+        "Recovery Amount: 1%",
+        "120s",
+        "Max Recovery: x1.10"
+      ],
+      [
+        "Attack",
+        "Tower Guardian attacks nearby enemies, dealing damage equal to the damage they have already taken",
+        "Percentage: 1%",
+        "120s",
+        "Targets: 1"
+      ],
+      [
+        "Bounty",
+        "Tower guardian places a bounty on nearby non-common enemies causing them to grant more coins on death.",
+        "Multiplier:  x0.01",
+        "120s",
+        "Targets: 1"
+      ],
+      [
+        "Fetch",
+        "Tower Guardian locates and retrieves hidden loot: coins, gems, medals, shards, and modules.",
+        "Find Chance: 10%",
+        "120s",
+        "Double Find Chance: 2%"
+      ],
+      [
+        "Scout",
+        "Scouts enemies on screen. While active, all enemies are treated as being farther from the Tower for damage calculations [new to Guild Season 7]",
+        "Range Bonus: x2.0",
+        "105s",
+        "Duration: 5s"
+      ],
+      [
+        "Summon",
+        "Summons a new enemy (Basic, Ranged, Tank, and Fast) twice a second when active. Applies cash bonus to all enemies when active. Summon enemies cannot become Ultimate from a Battle Condition.",
+        "Duration: 5s",
+        "140s",
+        "Cash Bonus: x1.00"
+      ]
+    ]
+  }
+]

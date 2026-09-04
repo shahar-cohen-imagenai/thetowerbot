@@ -1,0 +1,29 @@
+Wave Accelerator is an epic card in The Tower: Idle Tower Defense. It shortens the downtime between waves, letting you move through rounds faster during a run.
+Wave Accelerator
+Wave Accelerator is an epic card. When equipped, it reduces the cooldown between waves by a percentage, so the next wave begins sooner after the previous one ends.
+This matters when you want to speed up the pace of a run. Less waiting between waves means you reach later waves more quickly, which can help with farming or pushing through rounds where the idle time would otherwise slow you down. The exact percentage depends on the card's level, shown in the table below.
+Wave Accelerator value per card level
+Card Level Effect
+1 30%
+2 34%
+3 38%
+4 42%
+5 46%
+6 50%
+7 54%
+Card Mastery
+The Wave Accelerator card mastery costs 1000 stones to unlock. Once unlocked, it increases the spawn rate acceleration, making enemies appear faster on top of the card's base effect.
+The mastery only applies while Wave Accelerator is equipped in your active loadout. If you remove the card, you lose the mastery benefit until you equip it again.
+Wave Accelerator mastery value per lab level
+Mastery Level Value
+0 110%
+1 120%
+2 130%
+3 140%
+4 150%
+5 160%
+6 170%
+7 180%
+8 190%
+9 200%
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

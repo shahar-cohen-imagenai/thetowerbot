@@ -1,0 +1,551 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor
+The reference
+The Tower Wiki
+234 reference pages covering every Ultimate Weapon, workshop stat, lab, card, module and enemy in the game. Costs and level caps come out of decoded save data, so the numbers match what you actually see in your own tower — and nothing here is behind an ad wall.
+Ultimate Weapons 10
+The nine Ultimate Weapons, their stone costs, their labs and the plus abilities that unlock once you own them all.
+Workshop Upgrades 48
+Every workshop upgrade — what it does, how many levels it has and what it costs to push.
+Labs 21
+The lab tree: what each research line unlocks, how long it takes and which ones are worth the queue slot.
+Bots 5
+The five bots, their cooldowns, durations and the labs that shorten the gap between activations.
+Cards 35
+Cards, slots, presets and masteries — the cheapest multipliers in the game if you equip the right ones.
+Modules 6
+Modules, sub-stat effects and merging — the long game of rerolls and shards.
+Enemies 14
+Every enemy type, how it spawns, what it immune to and which labs push it back.
+Currencies 11
+Coins, cash, gems, stones, cells, shards — where each one comes from and what it should be spent on.
+Guides 32
+Long-form community strategy: farming, tournaments, devo runs and the traps that cost people weeks.
+Patch Notes 28
+Version by version, what the developers changed.
+Game Systems 24
+Tournaments, guilds, milestones, perks, relics and the rest of the systems around the runs.
+All 234 Ultimate Weapons 10 Workshop Upgrades 48 Labs 21 Bots 5 Cards 35 Modules 6 Enemies 14 Currencies 11 Guides 32 Patch Notes 28 Game Systems 24
+Ultimate Weapons
+Black Hole
+Black Hole in The Tower: cooldown, duration and size per level, the labs that turn it into a coin machine, and why it syncs with Golden Tower.
+Chain Lightning
+Chain Lightning ignores your bullet damage — the game's own code shows what it really multiplies. Full damage order, crit rules, shock stacking and labs.
+Chrono Field
+Chrono Field ultimate weapon guide: slow enemies, manage uptime, and upgrade duration, cooldown, range, and damage reduction.
+Death Wave
+Death Wave ultimate weapon guide for The Tower: reworked mechanics, Effect Waves, damage pool, workshop upgrades and all five Death Wave labs.
+Golden Tower
+Golden Tower in The Tower: the coin and cash multiplier the whole economy runs on — upgrades, labs, Golden Combo, and why it's the first UW to pick.
+Inner Land Mines
+Inner Land Mines is an ultimate weapon that spawns explosive mines dealing area damage based on tower damage, crit, and super crit factors.
+Poison Swamp
+Poison Swamp ultimate weapon guide: damage ramping, stun labs, Swamp Rend and upgrade costs in The Tower: Idle Tower Defense.
+Smart Missiles
+Smart Missiles in The Tower: how targeting works, every workshop upgrade, the Cover Fire UW+ and the labs that make it the late-game damage king.
+Spotlight
+Spotlight in The Tower: how the damage multiplier stacks, angle and quantity upgrades, the coin lab, and why it pairs so well with Smart Missiles.
+Ultimate Weapons
+Ultimate Weapons are powerful abilities bought with Power Stones that automatically activate in rounds and can be upgraded with Ultimate Weapon Plus abilities.
+Workshop Upgrades
+Attack Enhancements
+Attack Workshop Enhancements in The Tower: unlock costs, per-level gains and max levels for Damage, Rend, Crit, Damage/Meter, Super Crit and Attack Speed.
+Attack Speed
+Attack Speed controls how many projectiles your tower fires and how fast they travel. Covers workshop levels, labs, cards and enhancements.
+Attack Upgrades
+Attack upgrades in The Tower: Idle Tower Defense. Learn how Damage, Attack Speed, Critical Hits, Multishot, Rapid Fire, Bounce Shot, Super Criticals, and Rend A
+Bounce Shot
+Bounce Shot lets your tower's projectiles ricochet between enemies. Learn about its chance, targets, and range upgrades in the workshop.
+Buy multiplier
+Buy Multiplier lets you purchase workshop upgrades in larger batches at once. Learn how it works and how to unlock its lab upgrades.
+Cash Bonus
+Cash Bonus is a workshop upgrade that multiplies cash from all sources, including wave bonuses. Covers the workshop upgrade, card, enhancement and lab.
+Cash Per Wave
+Cash Per Wave is a workshop upgrade that pays out cash after each completed wave, multiplied by Cash Bonus and boosted further by a lab upgrade.
+Coins Per Kill Bonus
+Coins Per Kill is a Workshop upgrade that multiplies the coins you earn from destroying enemies, with 149 levels and a x2.49 maximum.
+Coins Per Wave
+Coins Per Wave is a workshop upgrade in The Tower that pays out coins each time you finish a wave. Learn its unlock path, levels, and lab boost.
+Critical Coin
+Critical Coin is a Workshop upgrade that gives basic enemies a chance to drop coins when killed by a critical hit.
+Critical Hits
+Critical Hits in The Tower: how Critical Chance and Critical Factor workshop upgrades, enhancements, and labs boost your damage output.
+Damage
+How tower damage works in The Tower: the damage formula, workshop levels, enhancement multiplier, Berserker and damage cards, and damage lab research.
+Damage Per Meter
+Damage Per Meter boosts your tower's damage based on how far enemies are, scaling with distance. Learn how it works and upgrades.
+Death Defy
+Death Defy is a Workshop upgrade that gives your tower a chance to ignore a killing hit, up to 30% at max level.
+Defense Absolute
+Defense Absolute reduces incoming enemy damage by a flat amount after Defense % is applied. Learn how it works, its costs, cards, and lab upgrades.
+Defense Enhancements
+Defense workshop enhancements in The Tower: unlock requirements, level caps and multipliers for Health, Regen, Defense Absolute, Land Mines, Wall Health and Orb
+Defense Percent
+Defense Percent reduces incoming damage by a percentage before Defense Absolute applies. Learn its workshop upgrades, lab, card, perks, relics and the 98% cap.
+Defense Upgrades
+Defense Upgrades are workshop upgrades that improve your tower's survivability by boosting health, reducing damage taken, or preventing death.
+Enemy Level Skip
+Enemy Level Skip gives a chance to skip enemy stat level-ups after each wave. Covers workshop, lab, enhancement and relic sources.
+Free Upgrades
+How Free Upgrades work in The Tower: Idle Tower Defense, including workshop costs, the free upgrade card and perk, and the Utility enhancement.
+Game Speed
+How the Game Speed workshop upgrade and lab work in The Tower: Idle Tower Defense, including the 6.25x cap and timer effects.
+Health
+Health is your tower's maximum HP. Learn how workshop upgrades, labs, cards and enhancements raise it, and how it feeds into Effective HP.
+Health Regen
+Health Regen restores tower health each second. Learn how workshop levels, labs, cards, enhancements, perks and relics stack to boost it.
+Interest
+Interest is a workshop upgrade in The Tower: Idle Tower Defense that pays a percentage of your unspent cash at the end of each wave.
+Knockback
+Knockback is a workshop upgrade in The Tower that gives your shots a chance to push enemies away. Covers chance, force, costs and enemy mass.
+Land Mine
+How Land Mines work in The Tower: spawn chance, damage formula, radius, workshop upgrades, the stun card, enhancements and lab research.
+Lifesteal
+How Lifesteal works in The Tower: Idle Tower Defense, including its healing mechanic, workshop unlock requirements, and upgrade costs.
+More Round Stats
+More Round Stats is a workshop upgrade that adds extra per-round statistics and unlocks the Battle History feature for reviewing past runs.
+Multishot
+Multishot is a workshop upgrade that lets your tower fire at multiple enemies at once. Learn how Multishot Chance and Multishot Targets work.
+Orbs
+How orbs work in The Tower: workshop upgrades, orb speed and counts, orb damage rules, and the orb-related lab research.
+Range
+Range is a workshop upgrade in The Tower: Idle Tower Defense that sets how far your tower fires and caps enemy ranged attack distance.
+Rapid Fire
+Rapid Fire is a workshop upgrade that gives your tower a chance to fire four times faster for a short duration. Learn how it works and what it upgrades.
+Recovery Packages
+Recovery Packages restore tower health automatically when they spawn. Learn how Recovery Amount, Max Recovery, Package Chance, cards, and labs work together.
+Rend Armor
+Rend Armor is a Workshop upgrade that gives projectiles a chance to permanently increase damage taken by enemies, with stacking multipliers up to 800%.
+Shockwave
+Shockwave is a Workshop upgrade in The Tower that periodically pushes enemies away. Covers size, frequency, costs and lab research.
+Starting Cash
+Starting Cash is a workshop upgrade that increases the amount of cash you begin each round with.
+Super Critical
+Super Critical adds a chance for extra critical damage after a crit lands. Covers Workshop upgrades, lab research, costs, and multipliers.
+Thorn Damage
+How Thorn Damage works in The Tower: unlock requirements, upgrade levels, boss and Protector interactions, and the Garlic Thorns lab.
+Utility Enhancements
+Utility enhancements in The Tower: Idle Tower Defense, including Cash, Coin, Cells/Kill, Free Upgrades, Packages, and Enemy Level Skips.
+Utility Upgrades
+Utility upgrades in The Tower: Idle Tower Defense workshop boost cash and coin income, grant free tower upgrades, and skip enemy level increases.
+Wall
+How the Wall works in The Tower: Idle Tower Defense, including Wall Health, Rebuild, Regen, Thorns, Invincibility, Fortification, and all lab and workshop upgra
+Wave Accelerator
+Wave Accelerator in The Tower: what each level cuts from the wave timer, how much faster full runs get, and why it also charges Energy Shield sooner.
+Wave Skip
+Wave Skip is a Workshop Upgrade that lets you bypass waves for multiplied rewards. Learn its income and wave-based mechanics.
+Workshop Attack Discount
+Workshop Attack Discount is a lab that lowers the coin cost of attack workshop upgrades. Unlock requirements and level details.
+Workshop Enhancement
+Workshop Enhancements in The Tower: unlock requirements, all 18 enhancement types, their multipliers, and the Enhancement Coin Discount lab.
+Workshop Respec
+Reset your Workshop coin upgrades for 150 gems and get back every coin you spent, with no discount deductions. Ultimate Weapons stay untouched.
+Workshop Upgrades
+The Tower's Workshop and Enhancements explained: unlock requirements, coin thresholds and max levels for every attack, defense and utility stat.
+Workshop Utility Discount
+Workshop Utility Discount lowers the coin cost of utility workshop upgrades. Learn what it does and how to unlock its lab.
+Labs
+Attack Research
+Lab Category/Attack Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Battle Condition
+Lab Category/Battle Condition in The Tower: Idle Tower Defense — costs, levels and how it works.
+Bot Research
+Lab Category/Bot Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Card Research
+Lab Category/Card Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Defense Research
+Lab Category/Defense Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Echo Lab
+Echo Lab: how Dissonant Echo labs spread a percentage of your Dissonance Boost to all tiers, with 20 levels per category.
+Enemy Research
+Lab Category/Enemy Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Garlic Thorns
+Garlic Thorns lab in The Tower: how it melts Vampire elites with your own thorn damage — unlock point, full level table and costs.
+Lab Upgrades
+How lab upgrades work in The Tower: research slots, gem rushing, Elite Cell boosts, and quality-of-life features like auto research and lab history.
+Laboratory
+The Laboratory lets you buy timed upgrades using coins and lab slots. Learn how labs work, how many you can unlock, costs, rushing, and upgrades.
+Labs Coin Discount
+Labs Coin Discount lowers the coin cost of all other lab researches. Learn how it works and when to unlock it.
+Labs Speed
+Labs Speed is a researchable lab that cuts the time needed for other lab research. Learn how it stacks with relics, its 99 levels, and when to prioritise it.
+Main Research
+Lab Category/Main Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Module Research
+Lab Category/Module Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Perk Labs
+Perk labs unlock perks in The Tower and improve them: waves required, perk bonus, first choice, trade-offs, auto pick, ban and ranking.
+Perk Research
+Lab Category/Perk Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Second Wind Labs
+Second Wind Blast and Recharge Second Wind labs in The Tower: unlock requirements, what each lab does, and how they upgrade the Second Wind mechanic.
+Shatter Shards
+Shatter Shards lab in The Tower: +20% module shards per level up to +100%, with the full cost and research-time table for all 5 levels.
+Ultimate Weapon Research
+Lab Category/Ultimate Weapon Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Utility Research
+Lab Category/Utility Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Wall Labs
+Overview of Wall labs in The Tower: Idle Tower Defense, including Wall Health, Rebuild, Regen, Thorns, Invincibility and Fortification research.
+Bots
+Amplify Bot
+Amplify Bot boosts damage against enemies in its range. Learn its upgrades, duration, cooldown, bonus, range, and lab research.
+Bot Bot
+Bot Bot is a support bot that amplifies the effects of other bots within its range. Learn its upgrades, labs and costs.
+Flame Bot
+Flame Bot is an unlockable bot in The Tower that burns enemies around it, dealing damage over time and reducing the damage burned enemies deal.
+Golden Bot
+Golden Bot in The Tower: how its coin multiplier really works, every upgrade level for duration, cooldown, bonus and range — and how to get it.
+Thunder Bot
+Thunder Bot stuns enemies in an area, then slows them with a linger effect. Learn its upgrades, labs, and how it works.
+Cards
+Area of Effect Card
+Area of Effect is an epic card in The Tower: Idle Tower Defense that boosts damage for several area-based attacks, with a mastery that widens its radius.
+Attack Speed Card
+Attack Speed is a common card in The Tower: Idle Tower Defense that raises your tower's fire rate. Learn how it works and what its card mastery adds.
+Berserker Card
+How the Berserker epic card works in The Tower: Idle Tower Defense, including its absorbed-damage bonus and the 750-stone card mastery.
+Card Masteries
+How Card Masteries unlock in The Tower: Idle Tower Defense, what they do, and how their labs and stone costs work.
+Card Presets
+Card Presets let you save up to 5 card loadouts in The Tower: Idle Tower Defense. Learn how presets work and how to unlock the lab.
+Card Slots
+Card slots control how many cards you can equip at once. Learn how slots are unlocked with gems and keys, and the total costs involved.
+Cards
+All 31 cards in The Tower explained — rarities, star levels, gem costs, which slots to unlock first, and how card mastery changes the math.
+Cash Card
+Cash is a common card in The Tower: Idle Tower Defense that boosts all cash earned. Its mastery adds a chance for elites to drop reroll dice.
+Coins Card
+Coins is a common card in The Tower: Idle Tower Defense that boosts all coins earned. Learn its effect and what its card mastery adds.
+Critical Chance Card
+Critical Chance is a common card in The Tower: Idle Tower Defense that raises your tower's critical chance, with a mastery that boosts crit-related stats.
+Critical Coin Card
+Critical Coin is a rare card in The Tower: Idle Tower Defense that gives basic enemies killed by critical shots a chance to drop coins.
+Damage Card
+Damage is a common card in The Tower: Idle Tower Defense that raises your tower's damage output, with a mastery upgrade costing 750 stones.
+Death Ray
+Death Ray is a card that fires a rotating beam killing enemies on contact. Learn its limits and how the Double Death Ray lab upgrade works.
+Demon Mode
+Demon Mode in The Tower: 300x projectile damage and invincibility for up to 300 seconds — once per round, manual or automated, all activation rules.
+Enemy Balance Card
+Enemy Balance is a common card in The Tower that spawns more enemies per wave and raises cash per kill. Learn its effect and mastery.
+Energy Net
+Energy Net is a card that automatically fires a net at bosses entering tower range, stunning them for a period of time.
+Energy Shield
+Energy Shield is a card that blocks one attack per charge and recharges over time. Learn how recharge timing works and how the Extra Hit lab adds charges.
+Extra Defense Card
+Extra Defense is a common card in The Tower: Idle Tower Defense that raises your tower's defense percent while equipped.
+Extra Orb Card
+Extra Orb is a rare card in The Tower: Idle Tower Defense that adds a spinning orb destroying enemies on contact, with a coin-bonus card mastery.
+Fortress Card
+Fortress is a common card in The Tower: Idle Tower Defense that raises defense absolute. Learn its effect and card mastery details.
+Free Upgrades Card
+Free Upgrades is a rare card in The Tower: Idle Tower Defense that raises your free upgrade chances each wave, with a mastery that locks a chosen stat.
+Health Card
+Health is a common card in The Tower: Idle Tower Defense that raises your tower's health. Learn how it works and what its card mastery adds.
+Health Regen Card
+Health Regen is a common card in The Tower: Idle Tower Defense that raises your tower's health regeneration per second. Learn how it works and what its card mas
+Intro Sprint Card
+Intro Sprint is a rare card in The Tower: Idle Tower Defense that speeds through early waves with bosses spawning every wave but no coin rewards.
+Land Mine Stun Card
+Land Mine Stun is a rare card in The Tower: Idle Tower Defense that gives land mines a 40% chance to stun non-boss enemies.
+Nuke
+Nuke is a manually activated card that destroys a percentage of enemies. Learn how it works, its automation priority, and how to unlock its recharge lab.
+Plasma Cannon
+Plasma Cannon is a card that fires a projectile at bosses in tower range, dealing damage equal to a percentage of the boss's total health.
+Range Card
+Range is a common card in The Tower: Idle Tower Defense that increases your tower's range. Its mastery adds a damage-per-meter multiplier.
+Recovery Package Chance Card
+Recovery Package Chance is a rare card in The Tower: Idle Tower Defense that raises the spawn rate of recovery packages during a round.
+Second Wind
+Second Wind card: revive your tower with half health once per round, plus an invincible shield. Includes lab upgrades.
+Slow Aura
+Slow Aura is a card that reduces enemy speed by a percentage while enemies are inside your tower's range.
+Super Tower Card
+Super Tower is an epic card that temporarily boosts tower damage for 15 seconds with a 30-second cooldown. Learn how it works and what its mastery adds.
+Ultimate Crit Card
+Ultimate Crit is an epic card in The Tower: Idle Tower Defense that gives ultimate weapons a chance to deal critical damage based on your Tower Crit Factor.
+Wave Accelerator Card
+Wave Accelerator is an epic card in The Tower: Idle Tower Defense that reduces the cooldown between waves. Learn how it works and what its card mastery adds.
+Wave Skip Card
+Wave Skip is a rare card in The Tower: Idle Tower Defense that gives a chance to skip waves while still earning coins and cash.
+Modules
+Assist Module Labs
+Assist Module Labs in The Tower: Idle Tower Defense — costs, levels and how it works.
+Epic Module Unique Effect
+How epic module unique effects work in The Tower, including Amplifying Strike, Space Displacer, Dimension Core and other special mechanics.
+Module Labs
+Module labs research module drop chances, shard income, upgrade cost reductions, unmerging, shattering and effect bans.
+Modules
+How modules work in The Tower: Idle Tower Defense: types, banners, upgrading, boss drops, merging, stats and unique effects explained.
+Reroll Shards
+How the Reroll Shards lab works in The Tower: unlock requirements, what it does, and why it matters for module farming.
+Sub-Module Effects
+Sub-module effects in The Tower: every possible substat, how rarity and rerolling work, what locking costs, and where the stat caps sit.
+Enemies
+Boss Labs
+Boss Health and Boss Attack labs, unlocked at tier 9 wave 20, reduce boss stats at all waves. Learn how boss labs work and what they affect.
+Brick Discriptions
+A guide to Brick enemies in The Tower: Idle Tower Defense, explaining what they are and how they behave.
+Common Enemy Labs
+Common Enemy labs lower basic enemy health and attack on every wave. Learn what each lab does, how to unlock them, and how they affect enemy scaling.
+Elite Enemies
+Elite enemies (Vampire, Ray, Scatter) in The Tower: spawn limits, immunities, Elite Cell drops, and how single and double spawn chances scale by wave.
+Enemies
+Overview of enemy types in The Tower: Idle Tower Defense, including Normal, Elite, Fleet and Boss enemies, spawn rules, immunities and labs.
+Enemy Balance
+Enemy Balance is a card that raises cash per kill while spawning more enemies, averaging 1.8x spawns. Learn how it boosts cash and coins.
+Fast Enemy Labs
+Fast Enemy Labs reduce the health, attack, and speed of fast enemies at all waves, with unlocks at tier 9 milestones.
+Fleet Enemies
+Fleet enemies in The Tower — Saboteur, Commander and Overcharge: what each one does to you, their immunities, spawn rules and drops per tier.
+Protector Labs
+Protector labs reduce protector enemy health, radius and damage reduction. Unlock requirements and level counts for each lab.
+Ranged Enemy Labs
+Ranged Enemy labs reduce the health, attack and range of ranged enemies in The Tower. Unlock tiers, level counts and how they work.
+Ray Labs
+Ray Labs let you research permanent reductions to Ray enemy attack and health, with 30 levels each, unlocked at Tier 19 Wave 60.
+Scatter Labs
+Scatter Labs in The Tower: Idle Tower Defense let you weaken Scatter enemies and boost Chain Lightning damage against them.
+Tank Enemy Labs
+Tank Enemy labs reduce tank health and attack across all waves. Learn how they work and how they affect enemy stat ratios.
+Vampire Labs
+How Vampire labs work in The Tower: Idle Tower Defense, covering Vampire attack, health and Garlic Thorns research.
+Currencies
+Bits
+Bits are the currency used to unlock and upgrade Chips and Chip Slots, earned from Guild Weekly Reward Chests and the Guild Store.
+Cash
+How Cash works in The Tower: Idle Tower Defense — earning sources, wave payouts, interest, and every way to improve your cash flow during runs.
+Coins
+Coins are the main currency in The Tower: Idle Tower Defense. Learn how to earn coins, improve coin flow, and how the Coin Bonus enhancement works.
+Currency
+Overview of The Tower's currencies: Cash, Coins, Gems, Power Stones, Medals and Elite Cells — how you earn and spend each one.
+Elite Cells
+Elite Cells are a currency dropped by Elite enemies in The Tower, used to buy lab boosts. Learn how to earn and increase them.
+Gems
+Gems are a premium currency in The Tower: Idle Tower Defense. Learn every way to earn them and what to spend them on.
+Keys
+Keys are a currency earned from Legend Tournament placements and spent on unique Tower upgrades in the Vault's Tech Trees.
+Medals
+Medals are a currency earned from events and missions in The Tower: Idle Tower Defense, spent in the Event Shop on items like Gems, Bots and Relics.
+Power Stones
+Power Stones are a premium currency in The Tower used to buy and upgrade Ultimate Weapons. Learn how to earn or purchase them.
+Shards
+Module Shards are a currency in The Tower: Idle Tower Defense, used for the game's module system.
+Tokens
+Tokens are a currency in The Tower: Idle Tower Defense earned from Weekly Challenges and Guild Chests, spent in the Guild shop.
+Guides
+100% AFK Orb Devo
+A 100% AFK Orb Devo guide for The Tower: Idle Tower Defense, designed by Yugiohcd10, with a live-updated version on Yugi Tower.
+50s SMax
+Yugiohcd10's 50s SMax guide for The Tower: Idle Tower Defense, a patch-sensitive strategy maintained as a live Google Doc.
+AdvancedAnalysis
+How to navigate and contribute to the Advanced Analysis page for The Tower: Idle Tower Defense, including search tips and submission rules.
+Beginner Guide
+A beginner guide to The Tower: Idle Tower Defense, covering tier 1 turtle builds, workshop priorities, and the move to tier 2.
+Beginner's Exploration Guide
+Starting advice for The Tower: Idle Tower Defense. Progress through tiers, complete daily missions, and manage resources without spoilers.
+CF Guide
+Chrono Field upgrade guide: reaching 100% uptime, balancing duration labs against stone costs, and when to level slow and range.
+Coin Guide - Basics
+Learn how coins work in The Tower: coins per wave vs coins per kill, multipliers, UW syncing, and every source that grows your coin income.
+Common Abbreviations
+A reference for common abbreviations used in The Tower: Idle Tower Defense, including Ultimate Weapons, Cards, Labs, Workshop stats, Modules, and number notatio
+Devo Guide
+Devo guide for The Tower: how devolving your tower works, Death Wave setup, workshop priorities, stats, and survival tips.
+Dissonant Runs Guide
+How to approach Dissonant Runs: suggested order, respec steps, module loadouts for each run type, and a high-tier UW disco glass cannon build guide.
+Event Guide
+A guide to completing event quests in The Tower: Idle Tower Defense, with strategies for each quest type and general tips.
+Footguns
+Permanent upgrades in The Tower that can set your account back, from ultimate weapon picks to lab cooldowns, and how to avoid them.
+Frequently Asked Questions
+Answers to common The Tower: Idle Tower Defense questions, including coin math, negative UW stats, Wall timing and heat-up mechanics.
+Gem Guide
+A guide to spending gems efficiently in The Tower: Idle Tower Defense, covering lab slots, cards, modules, relics and lab rushing priorities.
+Guardian Guide
+How to unlock the Guardian, how its chips work, and how to upgrade and use Attack, Ally, Bounty, Fetch and Summon effectively.
+Guides
+A directory of The Tower: Idle Tower Defense guides covering beginner basics, resource spending, builds, and advanced optimisation tools.
+Guides / Thinking about Perks
+How perks work in The Tower: Idle Tower Defense, which lab upgrades to prioritise, and how to pick perks for coin farming and milestone pushes.
+Health Build
+Health builds prioritize survivability through health and damage reduction, ideal for early game progression in The Tower: Idle Tower Defense.
+Hybrid Guide
+Hybrid builds in The Tower balance damage and health investment, ideal for farming T1–T11 and still used by top players in tournaments.
+Intro Sprint
+How the Intro Sprint card works in The Tower: wave skips, boss spawns, reduced cell earnings, and how to cancel it early.
+Legend Battle Conditions
+How Legend tournament Battle Conditions, the four Overheats and the Stun, Miss and Death Defy decay mechanics actually work — with the constants read out of the game itself.
+Medals Guide
+How to earn and spend medals in The Tower: recommended purchase order and bot upgrade priority.
+Milestones
+Milestones in The Tower: Idle Tower Defense are progress-based rewards unlocked by reaching specific tiers and waves.
+Orb Devo
+Orb Devo is a hoarding strategy in The Tower that syncs Black Hole and Golden Tower so orbs kill stacked enemies for maximum coin gains.
+Orbless Guide
+Orbless farming builds stack Spotlight, Golden Tower and Black Hole coin bonuses by killing only inside overlapping zones. Requirements, methods and run phases
+Rushing Tiers
+Tier rushing guide for The Tower: swap to a survival build to hit wave milestones on tiers too strong for normal progression.
+SMAX Devo
+SMAX Devo guide for The Tower: workshop devo setup, synced BH/GT/SM strategy, card picks, perk priorities and survival tips.
+Strategies
+A midgame health-stacking strategy for The Tower: Idle Tower Defense, covering upgrades, cards, perks and damage sources.
+Target Priority
+Target Priority lets you choose which enemy type your tower focuses on. Unlock the lab at tier 4 wave 150, with 2 levels to research.
+Tier-Specific Guide
+A tier-by-tier guide to The Tower: Idle Tower Defense, covering enemies, blender builds, coin farming, tournaments and build swapping.
+UW Tier List: Best Ultimate Weapons in The Tower (2026)
+Every Ultimate Weapon ranked, with verified stone costs, a Legend account's real 53,547-stone split, and damage & coin shares from 50 logged runs.
+Which UW do I select?
+Guide to choosing Ultimate Weapons in The Tower: Idle Tower Defense, with a general ranking and when each UW matters.
+Patch Notes
+Patch V0.10
+The Tower v0.10 patch notes: smart missile and land mine damage buffs, inner mine and Chrono Field researches, Enemy Balance card nerf, and bug fixes.
+Patch V0.11
+Version 0.11 of The Tower: Idle Tower Defense added Demon Mode, Wave Skip, Critical Chance, card presets research, and smart missile buffs, plus iOS and store f
+Patch V0.12
+The Tower v0.12 patch notes: Recovery Package upgrades, the Intro Sprint card, Workshop Respec research, and new end-round stat tracking.
+Patch V0.13
+The Tower v0.13 added the perk system, new lab research, cross-platform cloud saves, and balance changes to regen, defense, and ultimate weapons.
+Patch V0.14
+V0.14 adds the Black Hole ultimate weapon, Energy Shield card, tier 12, and reworks tournament difficulty scaling plus various balance changes.
+Patch V0.15
+The Tower v0.15 patch notes: events, bots, themes, Champion league, super critical upgrades, and ultimate weapon damage rebalancing.
+Patch V0.16
+The Tower v0.16 added leaderboards, three new cards, a 7th card level, higher upgrade caps with exponential scaling, and a music manager.
+Patch V0.17
+The Tower v0.17 patch notes: Spotlight ultimate weapon, Amplify event bot, advanced target priority research, and lab rush cost overhaul.
+Patch V0.18
+The Tower v0.18 patch notes: milestones system, Protector enemy, Tier 13, new cards and lab research, plus balance and performance changes.
+Patch V0.19
+The Tower v0.19 patch notes: daily missions, The Wall and Render Armor upgrades, bot buffs, economy tweaks, and a major double-multiplier bug fix.
+Patch V0.2
+The Tower v0.2 patch notes: tournaments arrive, three new cards (Death Ray, Plasma Cannon, Energy Net), plus lab fixes and balance changes.
+Patch V0.20
+The Tower v0.20 adds tiers 14-15 with battle conditions, relics, tower skins, the Ultimate Crit card, lightspeed research, and many bug fixes.
+Patch V0.21
+V0.21 adds dual battle conditions to Silver+ tournaments, Ultimate Weapon PLUS upgrades, synced UW timers, and cloud save and bug fixes.
+Patch V0.22
+The Tower v0.22 introduced the module system with four equippable categories, raised the Def% cap to 98%, and fixed bounce shot performance and Berserk charging
+Patch V0.23
+The Tower v0.23 adds Elite enemies, lab speed-ups, workshop enhancements, the Nuke card, module favoriting and unmerging, plus many fixes.
+Patch V0.24
+The Tower v0.24 patch notes: bot rework, Death Wave overhaul, Ultimate Weapon changes, new tiers, performance rewrite, and tournament updates.
+Patch V0.25
+The Tower v0.25 added Card Mastery, the Legends league with Keys and Vault trees, lab QoL upgrades, and a major tournament rework.
+Patch V0.26
+The Tower v0.26 added Guilds, Guardians, module banners and shattering, a cloud save migration, vault tree tiers, and major balance and bug fixes.
+Patch V0.27
+V0.27 adds Tiers 19-21, the Fleets enemy type, Assist Modules, the Area of Effect card, and major system changes including attack speed refactoring and tourname
+Patch V0.28
+v0.28 adds the Dissonance difficulty modifier, Bot Bot and Bot+ abilities, the Overheat endgame mechanic, and a rotating relic shop, plus fixes and hotfix balan
+Patch V0.3
+Version 0.3 added Ultimate Upgrades with power stones from tournaments, iOS release, and major balance changes to ultimate weapons and enemy scaling.
+Patch V0.5
+Version 0.5 of The Tower added 8 languages, four new cards, Land Mines and Death Defy upgrades, and rebalanced ultimate weapons, chain lightning, and high-tier
+Patch V0.6
+The Tower v0.6 patch notes: cloud saves on Android, defensive build buffs, wave difficulty scaling changes, and balance tweaks to lifesteal and smart missiles.
+Patch V0.7
+The Tower v0.7 added new upgrade stats for missiles, Chrono Field, Swamp, and Golden Tower, plus target priorities, more round stats, and late-game performance
+Patch V0.8
+Version 0.8 added tier 11, new upgrades, and performance improvements for longer runs, plus tournament and UI fixes.
+Patch V0.9
+Version 0.9 added Chain Lightning Shock upgrades, Death Wave health and coin boosts, lab cost changes, and iOS notification and crash fixes.
+Patch v0.4.0
+v0.4.0 adds Poison Swamp and Golden Tower ultimate weapons, raises the tier cap to 10, and buffs several weapons and defensive stats.
+Version History
+The Tower v28 adds Dissonance runs, Bot+ abilities, a new Bot Bot, Overheat endgame mechanics, and tournament conditions. See what changed for players.
+Game Systems
+Challenges
+Overview of The Tower's recurring challenges, including tournaments, events, milestones, daily missions and tiers.
+Chips
+Every Guardian chip in The Tower explained — Attack, Ally, Bounty, Fetch, Summon and Scout, with the targeting rules most players never notice.
+Content Creator Page
+How The Tower's creator code system works: where to enter codes, revenue share rates, 30-day duration, and current closed access status.
+Contributors
+A hub page for wiki contributors: action lists, change logs, editing help, trusted information sources, tools, and contact details.
+Daily Missions
+How daily missions work in The Tower: challenge types, gem and coin rewards, weekly milestones and the mission reroll unlock.
+Dissonance
+Dissonance in The Tower: the second difficulty layer from Tier 4 — what it restricts, what it permanently boosts, and how the stacks add up.
+Events
+How The Tower's biweekly events work: missions, medals, relics, the event shop, themes, songs, bots, Bot+ abilities and Synchronicity.
+Gameplay
+How rounds, waves, the tower interface, enemies, and all seven currencies work in The Tower: Idle Tower Defense.
+Guardian
+The Guardian is a guild-exclusive tower companion with upgradeable chips that heal, attack, fetch loot, and boost coins.
+Guilds
+How guilds work in The Tower: unlocking, creating or joining, weekly reward chests, the guild store, tokens, themes, relics and guardian chips.
+IceTæ's Gem and Card Priority List
+IceTæ's community guide on how to spend gems and which cards to unlock first in The Tower: Idle Tower Defense, from lab slots to Death Ray.
+In-Game Support
+How to contact support in The Tower: Idle Tower Defense, including in-game tickets and the official Tech Tree support page.
+Perks
+How perks work in The Tower: Idle Tower Defense, including unlock requirements, wave costs, perk types, and all related lab upgrades.
+Profile
+The player profile in The Tower: Idle Tower Defense lets you show off a tower skin, five relics, your best tournament results and your guild to other players.
+Relics
+Every Relic in The Tower: how to unlock each one, how the passive bonuses stack, and what they add up to across a full account.
+Seasons
+How the 8-week season cycle works in The Tower: Idle Tower Defense, including what happens to unspent tokens and Bits at season end.
+The Tower
+Overview of The Tower, the central unit you upgrade through the workshop, lab, cards, ultimate weapons and perks to push higher tiers and rankings.
+The Tower - Idle Tower Defense Wiki
+Overview of a late-year The Tower: Idle Tower Defense update, covering new settings toggles, tournament battle condition changes, and quality-of-life fixes.
+The Vault
+The Vault in The Tower after the 2026 expansion: all three trees — Power, Harmony and the new Enemy tree — every upgrade with keys per level and max levels, plus what it costs to max everything.
+Themes Menu
+The Themes Menu lets you change your tower's look, music, and backgrounds while earning passive coin bonuses from every cosmetic you own.
+Tickets
+How to get Tournament tickets in The Tower — every ticket source, how the entry cost works, and what to do when you run out.
+Tiers
+Tiers are The Tower's difficulty levels, running from tier 1 to tier 24. Learn how to unlock higher tiers and where battle conditions apply.
+Tournaments
+How Tournaments work in The Tower: leagues, tickets, promotion, battle conditions, rewards and the labs that reduce heat effects.
+Workshop Defense Discount
+Workshop Defense Discount lowers the coin cost of defense workshop upgrades. Learn what it does and how to unlock its lab.
+Looking up a number usually means you are about to spend something. The Tower Advisor takes your own levels and says which of these upgrades pays back first, and the glossary covers the slang you will meet in every guide here.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

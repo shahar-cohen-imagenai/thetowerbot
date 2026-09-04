@@ -1,0 +1,214 @@
+Version 0.26 was a major update headlined by Guilds, a deliberately lightweight social system where up to 30 players earn Guild Tokens through weekly challenges and shared chests. Those tokens feed into Guardians, a new customizable tower support system, along with cosmetics for profiles and towers. The update also overhauled modules with featured banners, shattering, a level 300 cap, and new substats, while Poison Swamp, Inner Land Mines, and Ultimate Weapons received significant buffs. A full cloud save backend migration, expanded vault trees, and a long list of bug fixes rounded out the release.
+Change list
+Reproduced from the developer's release notes.
+Hello everyone!
+We’ve got a new major version rolling tomorrow 3/3 at 10 AM CST, and will hopefully finish its rollout by the end of the day (following morning if we have to fix some things). There is a lot of new content, updates, and bug fixes, so let’s dive in.
+Guilds are coming to The Tower! Players can create their own Guild or join up to 29 other players in an existing Guild formed by someone else.
+Design Goal: Guilds were built with the game’s existing complexity in mind. We don’t want to add a super complex, chore based layer to the game with how much is already in the game. We also were very cognizant to design the reward structure to avoid super guilds of players that only pay, play a lot or are super powerful
+Rewards are fairly light and are earned by playing mostly how you would have played The Tower anyway. There’s no need to chat with your guild to get a lot out of the mechanic. I don’t want players to feel obligated to glue themselves to a new mechanic of the game endlessly, and only want something that’s going to bring more fun to the game.
+Lastly, with it being fairly light, it serves as a foundation for us to add more fun modes within it in time, but that’s to come later. We will be reviewing how the system is interacted with and reading a lot of feedback to help guide us towards growing the system.
+Chat within your guild to help develop your own custom tower strategies.
+Claim Weekly Challenge boxes to earn Guild Tokens that you can spend but also count towards your guild’s earnings for the week.
+Throughout the week, claim up to 4 Guild Chests your Guild has worked together to earn
+The new reward from Guild Chests are Guardian Bits! Guardian Bits can be spent on upgrading your new Guardian
+Guardians are the newest support system for your tower. Different chips can be equipped to empower your guardian in unique ways, and new skins will allow you to personalize the guardian to suit your tower.
+Guild Tokens can be spent on new cosmetics and personalization for your game, profile, and tower
+Unspent Guild Tokens will be auto cashed out at the end of each Guild Season (8 weeks)
+The backend for cloud saves has been completely migrated to a new system. This should drastically reduce several cloud save bugs that have been experienced on and off in the past. Upon updating, players will need to log in to their account, but there should be no other noticeable changes for players. Finally, player devices will need to be connected to the internet to start the app, but they can continue runs offline once they have started playing.
+The player profile has been expanded to include guild icon and guild name. Additionally, there are personalized main menu and profile banners skins that will be available in the guild store.
+The Event Boost has been changed to include two new Premium relics. Every event players will continue to be able earn the two Relics for getting 350 and 700 medals from a single event. For those that buy the Event Boost, they can also earn an additional Epic and Rare relic.
+These relics will be rotated into events and/or guilds for purchase with currency if missed, eventually
+Both Enemy Attack Level Skip and Enemy Health Level Skip have been changed to be completely non random. For example: A 50% chance will skip every other wave with no variance.
+Both vault trees have been expanded with multiple new enhancements. The Power Tree’s expansion allows various nodes to be upgraded a second (or even third!) time.
+Tier 2 is unlockable once you have unlocked 15 Tier 1 Power Tree Nodes.
+Tier 3 is unlockable once you have unlocked 25 Tier 1 Power Tree Nodes and 15 Tier 2 Power Tree Nodes
+Both of these upgrades have a one time purchases associated with them
+New modules have been added to the game.
+Design Goal: Don’t fear about them muddying the current pool of modules you are searching for already. We’ve added a way to focus on finding these new modules (as well as older modules as they rotate into the new banner system)
+We currently have 4 new modules coming, but they will be introduced over time and will rotate into the banner system, with one new one available at update time
+We’ve also used this chance to improve a lot of the module system
+Now there are two module banners to choose - the featured and the standard. Standard is the same as before, while the Featured Banner will have a specific Module highlighted.
+Gems spent on the featured banner will have a much higher chance of resulting in the highlighted module.
+Any time a module is featured, it will have two weeks as a focus.
+Currently, new modules can only be obtained through the featured banner, but they will be added to the standard banner later.
+Any module that you already have at Ancestral (5 Stars) will have a substantially lower chance to appear.
+Once you have a module at Ancestral (5 Stars), you can shatter other modules with that exact effect to get shards
+Additionally:
+It is now guaranteed to get at least 1 rare module every 10 pulls
+Module history allows players to see up to 150 of their previous pulls
+The module cap has been extended to level 300 (this requires a module to be at Ancestral - 5 stars)
+New module substats can be unlocked at level 201 and 241
+The shard cost of module levels between 161 and 200 has been slightly reduced
+Poison Swamp has been reworked to be much stronger, but on a Cooldown system rather than a Chance %.
+Damage stat has been increased
+Base radius has increased
+Poisoned enemies move 25% slower
+Poison Swamp Stun duration, Stun chance, and Swamp Radius labs have been made stronger and have had 5 levels added
+Inner Land Mine’s damage stats have been massively increased.
+Inner Land Mine - Chrono Jump (ILM+ required) is a new lab that will add to the charge of an ILM for each ILM the enemy has been hit by
+Spotlight has had 15 levels added to Angle. If this stat is maxed, the Spotlight Angle module effect for Core Modules will be banned for free.
+If a player has maxed the Chrono Field Duration workshop stat as well as the Duration lab, the Chrono Field Duration module effect for Core Modules will be banned for free.
+Death Wave has been given 5 additional levels to CD.
+Every Ultimate Weapon+ had levels added to them
+Wall Rebuild will now push all enemies out from the tower to ensure no enemies are trapped inside.
+Count of Active Enemies has been added to the Wave Info tab
+Battle Condition Reduction lab (T18W1000) - Decreases the level of the active battle conditions by a percentage (does not apply to the More Bosses or UW duration BCs)
+A new permanent Battle Condition has been added to the Legends League tournament - Enemy Level Skip Reduction.
+Rerolling daily missions can no longer give the exact same mission
+Numerous translations and localization bugs have been addressed
+Ending a run offline should no longer occasionally put the tower into a locked state
+Space Displacer will now work even if you don’t have the Inner Land Mine rotation lab researched
+Poison Swamp Rend now applies every time damage is taken, not just the very tick.
+Auto backup recovery added for those that lost save while updating, reopen the game for it to work
+Game now should correctly login on second device instead of showing a message that an account with that player ID already exists
+Changed Daily Gems to reset midnight UTC, so it is consistent with other time resets
+A new patch is rolling out to fix some issues!
+Fixed Project Funding not applying the damage bonus correctly
+Fixed time issues for event missions, daily missions, lab time and more
+Anyone stuck in a guild that is non existent anymore should be auto unstuck after opening the guild menu
+Fixed module max level panel appearing behind the module details panel
+Fixed issues when purchasing event boost
+Fixed Tournament button opening the info panel if not touched directly in the icon
+Menus shouldn't draw over the notch anymore in some Android devices
+Improved game loading in an attempt to reduce getting stuck
+Improved guild search
+Changed Stats button position under Settings to be the same as before
+Added multiple improvements to game loading and login process to avoid players getting stuck
+Improved even more the login process to avoid some issues that were happening mainly on iOS
+Added some auto recovery for players that were stuck on some specific login situations
+Fixed music track toggles not working as intended
+Fixed an issue with Event Boost not always giving gems and medals
+Fixed Guardian skin not giving coin bonus
+Fixed Guild week timer reseting one day before
+Fixed Guild season timer showing wrong values
+Now guild store and event store purchases requires internet connection (bots upgrades still work offline)
+Fixed auto bans when rolling core modules
+Fixed themes random options not showing up
+Lab mission timer should work properly now when coming from offline
+Fixed some event missions requiring restart to work
+For this event only, game will recover the missing days of login mission
+Fixed enemy behavior to avoid being permanently stuck in knockback state
+Auto Ban both Chrono Field Duration and Chrono Field Cooldown substats when the corresponding stats are maxed in the labs and workshops
+The expected mathematical odds for functions with a less than 1% proc rate are now reflected in the game’s actual behavior
+Fixed instances where BC reduction applies unintended effects
+Fixed module pull bug where previously inactive accounts only receive the same modules
+Unmerge function now correctly accounts for Shatter Shards labs
+Fixed issue where players could not purchase any modules
+Fixed an issue where fasts move through walls
+Fixed an issue where players could not purchase final card slot
+Fixed an issue where some vault nodes could not be purchased with keys
+Add an official policy on Guild chats
+Added a way to delete all Guild join requests
+Fixed visual bug where players contributing “0” appear at the top of the members list
+Improved visual effects of Guardian’s Ally ability
+Time-based actions like the log-in event mission no longer require a hard app restart (days lost will be added for current event duration)
+Fixed an issue where players are unable to complete purchases
+Event passes now give players the correct amount of gems and extra medals
+Improved cloud save sync between different devices
+Fixed an issue where players are blocked from updating account when the account already exists
+Fixed an issue where no ad gems appears when disconnected from the internet, even with no ad packs
+Fixed an issue where ad gems don’t appear until restart when switching devices
+Fixed an issue where players were unable to receive a password reset email
+Fixed an issue where Guardians coins show when Hit Text is disabled
+Fixes broken menus in Themes tab in Profile
+Actual lab timers are now the same as displayed lab timers
+Restoring levels to Modules no longer blocks restored resources UI
+Improved dimensions for Guilds UI for Mac devices
+Module sorting menu no longer cuts off at different aspect ratios
+Fixed an issue where player is stuck on navigation bar after a tournament ends
+Added fixes to in-game copy to poison swamp and negative mass projector
+Fixed some instances where Russian localization had the incorrect language translated
+Cathode Ray Tube relic has correct requirement text
+Fixed an issue where players are unable to make purchases on iOS devices
+Improved error messaging at game launch to help resolve connection issues
+Shattering is now limited to Common, Rare, Rare+, and Epic modules
+Copies of organic modules that are already at Ancestral 5★ must now be unmerged to Epic in order to shatter
+Corrected the amount of shards received when shattering or unmerging modules
+Fixed Relic localizations in the Event Store, Event Track, and Profile
+Fixed an issue where Damage Cap Slider unlock button overlapped with its description
+Damage Cap Slider division increased from 2 -> 10
+Added a slider to Bot Cooldown to offer single second precision
+Fixed an issue where wall size changes when selecting a different upgrade tab
+Improved module rarity filter display
+Fixed an issue where players could earn more Guild contributions than intended
+Realigned Guild Banner Icons
+Added 10 new Guild flag icons
+Improved sync of the Steal Guardian ability
+Fixed visual bug where players observed different coin amounts across different menus
+Guardian toggle no longer re-enables on application restart
+Fixed issue where event mission notifications were missing in the menu and sub-menus
+Fixed a minor UI bug for the Menu button in Themes
+Player profiles now displays the correct highest wave and highest rank
+We are approaching the second season of Guilds! This includes new in-store cosmetic content for your Tower and Guardian, as well as a new Chip “Fetch”. Season 1 ends on Monday, April 28 at 00:00 UTC, so make sure to spend your Guild Tokens before the rollover. Otherwise, Guild Tokens will convert into Gems at a 5:1 ratio.
+Featured Banners will return in May for the remaining two modules. Keep an eye out for in-game mail for a heads up on exact dates.
+Project Funding and Magnetic Hook will enter the Standard Banner on Thursday, May 1st at 00:00 UTC.
+Improved error messaging for players attempting to join a tournament with an invalid name
+Improved issue where players on iOS devices were unable to initialize the iOS store for in-game purchases
+Improved the load save prompt to include tournament tier in the active battle
+Improved the localization of the load save prompt on game launch
+Updated the module shatter panel to reflect in-game behavior
+Fixed an issue where players received an incorrect amount of fodder through unmerging at the Epic, Legendary, and Mythic+ rarities
+Fixed an issue where Smart Demon Mode was not stopping Intro Sprint
+Fixed an issue where auto reroll did not recognize some substats when rolling
+Fixed an issue where Boss Ultimate BC applies health bonus twice
+Fixed bug where Ultimate Rays spins incorrectly
+Fixed an issue where shorter duration stuns are overriding longer duration stuns
+Fixed a localization issue where Chinese simplified had incorrect ordering for missions (daily/event)
+Improved purchase validation for iOS users
+Fixed a bug where Intro Sprint stopped after taking damage
+Improved coin calculations for Fetch chip
+Fixed the requirements and key costs for T2 node in the Vault's Power Tree
+Fixed a bug where Fast enemies were not taking thorn damage
+Game now adapts to specific devices safe area, so if your device doesn't have a notch, there will be no offset.
+Tower now is always centered in the available space in the UI (between Perks bar and bottom upgrades), doesn't matter device aspect ratio.
+Tower is now positioned slightly up in cinematic mode.
+Fixed an issue that touching the screen in cinematic mode would activate the UI behind sometimes.
+Bob, the gem block, will now scale up with zoom applied for high range towers, so it is easier to see and tap.
+fixed an issue in iOS purchases that could not allow to do new purchases.
+Fixed an issue to create new accounts
+Fixed Death Wave + ring not appearing
+Coin income for fetch was calculated incorrectly and has been resolved. Coins from fetch are reduced to bring it in line with its role of being a special currency retriever
+Made it easier to tap Bob (gem box)
+Added extra Guardian stats
+Fixed an issue that was making new accounts start with 30 FPS instead of 60 FPS,
+Fixed the 120 FPS toggle in settings not applying until a game restart
+Added a respec option for Guardians Guardian respec costs 150 gems and are limited to once per week, timed with the Guild Contribution reset,
+Adjusted Fetch rewards to display if Guardian hit is enabled,
+Players can now view Guardian chips during a run instead of hard locking,
+Added Fetch stats to end of match screen,
+Added Fetch coins to "Guardian Coins" in the game stats,
+Added drop rates to the Fetch chip Added a display for the current daily caps for Medals, Gems, Common and Rare modules, Fixed bug where Fetch was being influenced by Shatter Shard labs,
+Fixed a bug where Fetch changed CPM to a small value during Intro Sprint,
+Fixed a bug where the Guardian did not bring home the modules it fetched,
+Adjusted Fetch so it is disabled during Intro Sprint,
+Fixed bug where the floating gem's hitbox interfered with UI navigation,
+Implemented improvements to Russian localization
+Fixed performance issues when there is no active banner
+Added behavior where Guild Leadership is auto transferred to an Officer if the leader is offline for a period of time,
+New Guilds content added, will be accessible in Season 3 (June 23rd),
+Fixed issue where players Guild leaders were unable to remove members from their Guild,
+Fixed an issue where Guild membership count was incorrectly displayed,
+Sharp Fortitude and Shrink Ray will be added to the standard banner on July 1st, 2025 at 0:00:00 UTC
+Fixed Party theme not working properly
+Improved the backend purchasing system,
+Implemented fixes to reduce cloud save rollback issues,
+Improved internal analytics
+Fixed an issue where Event Boost extra medals weren't being applied correctly to the Event progress bar. This will be retroactively fixed for those who experienced the issue.
+Fixed the root of most save rollback issues when changing devices.
+We made the game allow initialization even when IAP plugin can't start, so those that live in countries with this issue can still play.,
+If you have that issue, remember the Webstore should still works in this situations.
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

@@ -49,6 +49,13 @@ const SECTIONS: Section[] = [
     count: (s) => (s.shopping.cards.enabled ? "on" : "off"),
     slice: (s) => s.shopping.cards,
   },
+  {
+    id: "advisor",
+    label: "Advisor",
+    count: () => "",
+    // Imports live outside the strategy; staged changes belong to Shopping.
+    slice: () => null,
+  },
 ];
 
 /**

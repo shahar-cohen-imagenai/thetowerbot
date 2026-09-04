@@ -1,0 +1,3 @@
+Bricks are one of the enemy types you will face in The Tower: Idle Tower Defense. Knowing what each Brick does helps you plan your defences and avoid being caught off guard as waves get harder.
+This page covers every Brick that appears in the game. Each entry explains how that Brick behaves, what makes it dangerous, and how it differs from the others, so you can recognise threats on sight and adjust your setup accordingly.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2021-11-28) . Something out of date? Tell us in the Discord .

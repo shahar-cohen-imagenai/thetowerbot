@@ -1,0 +1,25 @@
+Chrono Field (CF) is one of the ultimate weapons you effectively must develop to keep progressing, particularly once you reach the late game. The catch is that it demands a large stone investment before it pulls its weight. The upside is that there is almost no way to ruin a CF build, but there are still a few decisions worth understanding before you commit resources.
+On this page
+Overview
+Uptime
+Labs vs Stone
+Slow
+Range & Damage Reduction
+Summary
+Overview
+CF is considered a mandatory ultimate weapon for late-game progression. Its main drawback is cost: it only becomes genuinely useful after heavy stone spending. The reassuring part is that the upgrade path is very forgiving, so the real questions are about sequencing and efficiency rather than avoiding mistakes.
+Uptime
+Your first goal with CF is keeping it active for the entire run. Full uptime is reached at either a 1:00 or 1:10 cycle, and since 1:00 costs fewer stones, it is the target almost everyone aims for. There are two routes to get there: the duration lab and stone upgrades. The lab provides 30 levels worth 30 seconds of duration, while stones cover 40 seconds, which together total 1:10. The question is how to split the work between them.
+Labs vs Stone
+The duration lab is slow. The final level alone takes 111 days without any lab speed, and even with lab speed at level 50 (and no relics) it still runs close to two months. Without lab speed, the last ten levels together take 667 days, or 334 days with lab speed 50. This is not meant to put you off, but to make clear what maxing CF actually involves. Because of these timers, you should put duration into a lab slot the moment you are able, even if you are not ready to spend stones on CF yet.
+The alternative is paying stones instead: the final ten duration levels cost 2,705 stones. Depending on where you are in progression, saving that can also take months, though potentially less than a year. This is effectively the one place in the game where you can trade stones for time. Spending as much of the duration as possible through the lab frees your stones for other uses, though deliberately stalling a maxed CF can also cost you, since faster tournament progress earns stones sooner. The common recommendation is to take the lab to level 26 or 27, which balances the lab time against the stones you need to spend.
+Slow
+Slow can actively hurt you early on. While CF is active, slowed enemies bunch up, and if you push slow above 40% before CF has 100% uptime, the field can drop a large stacked group onto your tower all at once when it ends. At high waves that release can overwhelm you, so hold slow back until uptime is secured.
+Range & Damage Reduction
+Damage reduction is the simpler of the two labs: it is not especially valuable in the current state of the game. If you run an eHP build it can be worth taking to around level 10-15 at most, since the time invested is largely wasted once you move to damage builds.
+The range lab, by contrast, is required, but it comes with caveats. The same enemy build-up problem caused by slow applies to range: too many levels too early let enemies pile up further from the tower, making the eventual release harder to survive. Start this lab when CF uptime is nearly finished. Range also zooms the screen out whether or not CF is active, so enemies spawn further away and your coins per hour drop slightly. Most players consider that a minor price for the chip damage mitigation it provides in both tournaments and farming.
+Summary
+As soon as you unlock CF, start the duration lab. With stones, push the cooldown to 1:00, then work duration up to 1:00 as well. You can track your progress on the Chrono Field page. The goal is to finish duration through a mix of lab and stones with the lab landing around level 25-27. Once uptime is at 100%, move on to the range lab and max out slow. There is no real risk in maxing CF's stats, because it is largely an all-or-nothing weapon built around uptime, which makes the whole upgrade path very linear.
+Related pages
+Chrono Field
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-02-12) . Something out of date? Tell us in the Discord .

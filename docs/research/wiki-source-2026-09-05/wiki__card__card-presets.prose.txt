@@ -1,0 +1,11 @@
+Card Presets let you save multiple card loadouts so you can switch between setups without re-equipping every card by hand. You can store up to 5 presets at once, and they can even be changed mid-round under certain conditions.
+Description
+You can save up to 5 card presets, giving you quick access to different loadouts for farming, tournaments or pushing waves.
+Presets can be switched during a round, but only if the locked cards are the same across the presets you are swapping between. If you swap a card while a round is running, that change is saved to the active preset, so be careful not to overwrite a setup you wanted to keep.
+Lab
+The Card Presets lab is unlocked through Milestones by reaching tier 1 wave 400. It has a single level, so one purchase is all you need — see the cost table below for details.
+Related pages
+Cards
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2023-08-04) . Something out of date? Tell us in the Discord .

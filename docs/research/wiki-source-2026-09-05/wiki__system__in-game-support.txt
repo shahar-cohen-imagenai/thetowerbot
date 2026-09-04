@@ -1,0 +1,7 @@
+If you run into a bug, account problem, or purchase issue in The Tower: Idle Tower Defense, there are two official ways to reach support: a ticket system built into the game itself, and a support page on the Tech Tree website for situations where you can't get into the game at all.
+In-Game Support Tickets
+You can contact support directly from the game through the Support button in the Settings menu. When you open a ticket, your player ID and the email linked to your account are attached automatically, so you don't need to type them in yourself.
+From there, you pick the type of issue you're reporting and fill in a subject and description before submitting. Once the ticket goes through, a ticket number is shown in-game, and the same number is also sent to your email inbox, so you have a reference if you need to follow up later.
+Official Tech Tree Support Page
+The in-game ticket system only helps if you can actually load the game and reach the Settings menu. If you're locked out of your account or the game won't open at all, you can instead contact support through the official Tech Tree website at https://www.techtreegames.com/?support .
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-07) . Something out of date? Tell us in the Discord .

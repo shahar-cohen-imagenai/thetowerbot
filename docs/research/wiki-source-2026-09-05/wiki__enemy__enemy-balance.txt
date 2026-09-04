@@ -1,0 +1,8 @@
+Enemy Balance is an enemy-type card that trades a tougher wave for better rewards. Equipping it increases the cash you earn from each kill, but it also raises the number of enemies that spawn during a round.
+Description
+Enemy Balance raises the cash payout for every enemy you kill. The trade-off is that more enemies spawn per round while the card is equipped, so your tower faces a larger wave in exchange for the higher per-kill reward.
+Use
+On average, Enemy Balance multiplies the number of enemies spawned by 1.8x. Because spawned enemies can drop both cash and coins, the extra spawns make the card useful for boosting both currencies at once. Keep in mind that the card's own multiplier only applies to cash — it does not directly increase the coins you earn, so any coin gain comes purely from the additional enemies rather than the multiplier itself.
+Related pages
+Cards
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2023-10-24) . Something out of date? Tell us in the Discord .

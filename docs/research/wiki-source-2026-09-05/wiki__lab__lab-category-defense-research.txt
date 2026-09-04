@@ -1,0 +1,20 @@
+Defense Research
+Health Max Lv 100 Health Regen Max Lv 100
+Defense Absolute Max Lv 100 Defense % Max Lv 50
+Orb Speed Max Lv 20 Land Mine Damage Max Lv 20
+Land Mine Decay Max Lv 35 Shockwave Size Max Lv 20
+Orb Boss Hit Max Lv 10 Wall Health Max Lv 50
+Wall Rebuild Max Lv 20 Wall Regen Max Lv 30
+Wall Thorn Max Lv 20 Wall Invincibility Max Lv 10
+Wall Fortification Max lv 60 Garlic Thorns Max Lv 10
+Related pages
+Defense Absolute
+Defense Percent
+Health
+Health Regen
+Land Mine
+Orbs
+Shockwave
+Thorn Damage
+Wall
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-08-30) . Something out of date? Tell us in the Discord .

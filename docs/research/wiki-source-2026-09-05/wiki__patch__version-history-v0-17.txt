@@ -1,0 +1,32 @@
+Version 0.17 introduced the Spotlight ultimate weapon along with supporting research, including a spotlight coin bonus, spotlight missiles, and an advanced target priority option that lets players sort priorities rather than pick just one. Ultimate weapon unlocks also began offering three choices instead of two, and a new Amplify event bot arrived with frequency upgrades. Lab rushing costs were overhauled so longer research times discount the gem price significantly. The update also fixed a range of bugs covering events, perks, resume rounds, and stat display errors.
+Change list
+Reproduced from the developer's release notes.
+• Cost for rushing labs overhauled - longer lab research times begin discounting the amount of gems it costs by a lot
+• New research - Advanced target priority (Allows sorting priority instead of just picking one)
+• New research - Spotlight coin bonus (tier 7)
+• New research - spotlight missiles (tier 9)
+• New ultimate weapons now provide 3 choices instead of 2
+• New ultimate weapon: Spotlight
+• New event bot: Amplify • Bot upgrades for frequency • New themes added for the next few events
+• Tappable gem box now can show up multiple times in a single round
+• Target priority now includes "in spotlight" if spotlight ultimate weapon is unlocked
+• Improved reliability of events, fixed bugs like duplicate missions
+• Perk auto pick bugs
+• More resume round feature bugs fixed • Black hole and coin bot showing negative coins in stats
+• Translation fixes
+• A lot of backend fixed and engine upgrades
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

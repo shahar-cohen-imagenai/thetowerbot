@@ -1,0 +1,53 @@
+Guilds are a social and progression system in The Tower: Idle Tower Defense. Being in a guild gives you access to your Guardian, weekly reward chests and a seasonal token shop stocked with currencies, cosmetics, relics and chips.
+A guild can hold up to 30 players, and guild content runs in seasons of 8 weeks, with unspent tokens converted to gems when a season ends.
+On this page
+Unlocking Guilds
+Creating a Guild
+Joining a Guild
+Guild Rewards
+Guild Weekly Reward Chests
+Guild Store
+Currencies
+Themes
+Relics
+Chips
+Chip Description
+Unlocking Guilds
+Guilds become available once you reach Milestone Tier 3 Wave 10. From that point you can either join an existing guild or create one of your own. Each guild is capped at 30 members.
+Creating a Guild
+Creating a guild costs 50 Gems from the guild screen. As the founder you choose the guild's name, description and icon.
+You also set how players get in. Free entry lets anyone join without approval, With Approval requires the guild leader to accept each applicant, and Invitation Only hides the guild from the public list entirely so only invited players can join.
+Joining a Guild
+You can browse the list of available guilds and send a join request to any that appear. If the guild has free entry you are added straight away; otherwise your request waits for the leader's approval, and invitation-only guilds will not show up in the list at all.
+Guild Rewards
+The headline benefit of joining a guild is access to your Guardian. Your contribution to the guild comes from Weekly Challenge boxes, and the coin reward you receive scales with your highest unlocked tier — you can check your base coin reward via Daily Missions.
+Guild seasons last 8 weeks. When a season ends, any Guild Tokens you have not spent are cashed out automatically into gems at a rate of 5 tokens per gem, rounded up.
+Guild Weekly Reward Chests
+Guilds earn weekly reward chests based on the activity of their members. The chest tiers and their contents are listed in the table below.
+Guild Store
+The Guild Store is where you spend the Guild Tokens you earn. Its stock covers three categories: currencies, themes and chips.
+Currencies
+Each season you can exchange tokens for gems, bits and shards. A token exchange gives 100 gems or 250 shards, and every currency is limited to 3 purchases per season, as shown in the table below.
+The price rises with each purchase you make and resets when the next season begins. Shards come in four types, one for each module type, and buying one type of shard only raises the cost of that type — the others are unaffected.
+Themes
+The cosmetic themes in the guild store rotate every season and are only available for a limited time, so it is possible to miss them. Themes have returned in the past, but there is no guarantee any given theme will come back. Once you buy one, it stays usable forever.
+Each season offers one tower theme for 100 tokens, one background for 100 tokens, one menu for 100 tokens and one Guardian skin for 150 tokens.
+Relics
+Relics in the guild store are priced at 75 and 150 tokens. They are flagged as limited items, so they may be exclusive to the event that introduced them.
+Chips
+Two chips, Ally and Attack, are unlocked automatically when you unlock your Guardian. The remaining chips are exclusive to the guild shop and cost 200 tokens each.
+Chip Description
+The full list of chips and what each one does is shown in the table below.
+Related pages
+Chips
+Currency
+Bits
+Coins
+Gems
+Tokens
+Daily Missions
+Guardian
+Modules
+Seasons
+Themes Menu
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-03-23) . Something out of date? Tell us in the Discord .

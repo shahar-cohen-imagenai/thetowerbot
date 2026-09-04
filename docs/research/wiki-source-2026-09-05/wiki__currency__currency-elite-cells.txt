@@ -1,0 +1,55 @@
+Elite Cells are a special currency in The Tower: Idle Tower Defense. You spend them on lab boosts, so a steady supply matters once you start pushing those upgrades.
+Unlike common currencies, Elite Cells come from a single source: killing Elite enemies. How many you earn depends on the tier you farm and a few upgrades you can invest in.
+On this page
+Elite Cell
+Acquiring Elite Cells
+Improving Elite Cell Flow
+Cells/Kill Bonus
+Elite Cell
+Elite Cells are a currency dropped by Elite enemies. Their only purpose is to pay for lab boosts, so everything you collect feeds directly into your lab progression.
+Acquiring Elite Cells
+The only way to get Elite Cells is by defeating Elite enemies: Vampire, Ray and Scatter. No other enemy type drops them.
+On Tiers 1 through 13, each Elite you kill drops between 1 and X cells, where X is the tier you are playing. That works out to an average of (1+X)/2 cells per Elite, so higher tiers pay noticeably more per kill.
+From Tier 14 onwards, the drop uses fixed base values per Elite instead of the 1-to-X range. The exact amounts for each tier are listed in the table below.
+Base Cells Per Elite Per Tier
+Tier Minimum Cells Maximum Cells Average % Increase of Average from Prior
+14 7 14 10.5 50% (= 10.5 / 7)
+15 11 15 13 23.8% (=13 / 10.5)
+16 12 16 14 7.69%
+17 12 17 14.5 3.57%
+18 12 18 15 3.45%
+19 15 19 17 13.3%
+20 15 20 17.5 2.94%
+21 15 21 18 2.86%
+Improving Elite Cell Flow
+There are several ways to raise the number of Elite Cells you bring in:
+1. Upgrade the Death Wave Cell Bonus in the lab. 2. Farm on higher tiers, since each Elite drops more cells there. 3. Farm to higher waves within a run. 4. Take the Cells Bonus in Workshop Enhancements. 5. Use the Enemy Balance, Wave Skip and Intro Sprint masteries. These either raise the cells you earn per run or increase how many you earn per hour.
+Cells/Kill Bonus
+The Cells/Kill Bonus is a Workshop Enhancement that multiplies the cells each kill gives you. It only becomes available after you have spent 500 billion coins on Utility enhancements.
+Unlocking it sets your Cells/Kill to x1, and every level after that adds 0.01x to the multiplier. It caps at level 200, which gives you a 3x bonus. The cost per level is shown in the table below.
+Level Value Coins Total Coins
+1 1.01x 5.00B 5.00B
+2 1.02x 6.25B 11.25B
+3 1.03x 12.46B 23.71B
+4 1.04x 27.42B 51.14B
+5 1.05x 54.50B 105.64B
+6 1.06x 96.85B 202.49B
+7 1.07x 157.45B 359.94B
+8 1.08x 239.17B 599.11B
+9 1.09x 344.79B 943.90B
+10 1.10x 477.01B 1.42T
+Show all 200 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Cash Bonus
+Critical Hits
+Currency
+Damage
+Damage Per Meter
+Defense Absolute
+Defense Upgrades
+Enemies
+Enemy Level Skip
+Free Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-10) . Something out of date? Tell us in the Discord .

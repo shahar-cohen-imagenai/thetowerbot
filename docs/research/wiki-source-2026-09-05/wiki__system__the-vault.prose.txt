@@ -1,0 +1,47 @@
+The Vault is the late-game upgrade hub that appears on your home screen once you are promoted into the Legends League, and every upgrade in it is bought with Keys — a currency you only earn from Legends League placements. It used to hold two trees; since the 2026 expansion it holds three: Power (tower stats, 223 levels), Harmony (automation and quality of life, 65 levels) and the new Enemy tree (1,080 levels that weaken specific enemy types). The trees are organized into 15 groups; two are open from the start, the rest cost Keys to unlock before you can spend on their nodes. Maxing everything currently adds up to about 72,987 Keys.
+On this page
+How the Vault is organized
+Power tree
+Harmony tree
+Enemy tree (new)
+Where the Keys come from
+FAQ
+How the Vault is organized
+Every tree is split into groups. A group has to be unlocked with Keys first (the price is in each table caption); after that each node inside it is levelled one Key purchase at a time. The "per level" column is what one level adds; "keys / level" is the price of each of those levels as listed on mytower.app, and "max levels" is how far a node goes. Power nodes are mostly 5 levels deep, Harmony nodes are single toggles or short ladders, and every Enemy node runs 30 levels at 25 Keys each — which is why the Enemy tree alone accounts for the bulk of the 72,987-Key total.
+The three trees at a glance
+Power tree
+Power is the tower-stat tree: attack, defense, economy (utility) and Ultimate Weapon boosts. Nearly every node gives +5% per level over 5 levels at 10 Keys a level; the exceptions — Defense %, Orbs, Shockwave Frequency, Death Defy, Wall Rebuild and the two enemy-skip nodes — are the ones worth planning around because they are either rarer stats or cost 20 Keys a level.
+Attack (25 keys to unlock)
+Show all 12 rows Defense (25 keys to unlock)
+Show all 14 rows Utility (25 keys to unlock)
+Show all 12 rows Ultimate Weapons (25 keys to unlock)
+Harmony tree
+Harmony is the non-tower side: automation for cards and Ultimate Weapons, extra presets, respec discounts and sliders. Most nodes are single-purchase toggles. Descriptions below come from our earlier Vault write-up where the node already existed; nodes marked — are new in the expansion and have no verified description yet.
+Gameplay (unlocked from the start)
+Cards (5 keys to unlock)
+Ultimate Weapons (5 keys to unlock)
+Modules (5 keys to unlock)
+Bots (10 keys to unlock)
+Workshop (10 keys to unlock)
+Guardian (10 keys to unlock)
+Enemy tree (new)
+The Enemy tree is the expansion's big addition: 36 nodes that shave 1% per level off a specific enemy type's attack, health, speed, range or radius (plus a few positive ones — Basic Coin Bonus, Boss Common Drop Chance, Saboteur Miss Chance). Every node has 30 levels at 25 Keys each, so a single maxed node is 750 Keys and a full group is 6,750 before the group unlock. Groups follow the enemy roster: Simple, Advanced, Elites and Fleets.
+Simple (unlocked from the start)
+Advanced (50 keys to unlock)
+Elites (100 keys to unlock)
+Fleets (150 keys to unlock)
+Where the Keys come from
+Keys are only awarded for Legends League tournament placements — there is no other source, which is why the Vault is paced by how often you place and how high. See the Keys page for the placement table, and the Legend battle conditions guide for what those tournaments look like.
+FAQ
+**How many Keys does it take to max the Vault?** About 72,987 Keys across all three trees, including group unlocks — the Enemy tree is by far the largest share.
+**What is new in the Vault?** The Enemy tree (36 nodes, 1,080 levels) and a group structure with unlock costs; Harmony also gained new automation and slider nodes such as the Damage Cap Slider, Black Hole Size Slider and Life Saving Ordering.
+**Which Vault upgrades should I buy first?** The automation toggles in Harmony are cheap (5–25 Keys) and change how you play immediately; in Power the 10-Key +5% nodes are the efficient bulk, and the Enemy tree is the long-term sink.
+Related pages
+Keys
+Demon Mode
+Energy Shield
+Golden Bot
+Legend Battle Conditions
+Nuke
+Tournaments
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-08-28) . Something out of date? Tell us in the Discord .

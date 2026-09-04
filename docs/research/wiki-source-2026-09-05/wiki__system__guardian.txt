@@ -1,0 +1,126 @@
+The Guardian is a companion for your tower, working in a similar way to bots. It comes with its own skins and customizable effects, and it is only available through guilds. Once unlocked, you equip it with chips that each add a different active ability, from healing your tower to hunting down extra loot.
+On this page
+Description
+Unlocking/Upgrading
+Chip Upgrades — Ally
+Chip Upgrades — Attack
+Chip Upgrades — Fetch
+Chip Upgrades — Bounty
+Chip Upgrades — Summon
+Chip Upgrades — Scout
+Description
+The Guardian is a tower companion, comparable to bots, that is exclusive to guilds. It supports skins and customizable effects, and its abilities come from a set of chips you unlock and upgrade over time.
+Unlocking/Upgrading
+You unlock the Guardian for 200 bits in the Guild menu, under the Guardian section. Unlocking it gives you one chip slot and two base chips to start with: Ally and Attack. Further chip slots open up as you progress, as shown in the unlock table below.
+Chip Description Cooldown / (Base) Duration / Percentage / Multiplier (Base) / Find Chance / Duration Targets / Double Find Chance (Base) / Cash Bonus/Range Source
+Ally Converts some enemies into allies, causing their damage to instead heal for a short time 120s 1s 1 Base
+Attack Tower Guardian attacks nearby enemies, dealing damage equal to the damage they have already taken 120s 1% 1 Base
+Bounty Tower Guardian places a bounty on nearby non-common enemies causing them to grant more coins on death 120s X 0.01 1 Guild Shop (200 Tokens ) Base
+Fetch Tower Guardian locates and retrieves hidden loot: coins, gems, medals, shards, and modules 120s 10% 2% Guild Shop (200 Tokens )
+Summon Summons a new enemy (Basic, Ranged, Tank, and Fast) twice a second when active. Applies cash bonus to all enemies when active. Summoned enemies cannot become Ultimate from a Battle Condition. 140s 5s x1.00 Guild Shop Season 5 (200 Tokens )
+Scout Scouts enemies on screen. While active, all enemies are treated as being farther away from the tower for damage calculations. 105s 5s x2.0 Guild Shop Season 7 (200 Tokens )
+2nd 3rd 4th
+Bits 200 300 TBD
+Chip Upgrades — Ally
+The Ally chip converts an enemy into an Ally Recovery Package, which can heal your tower past the normal recovery cap. These packages are a separate type from regular recovery packages, so they do not interact with effects such as the Galaxy Compressor module. Fully upgrading Ally costs 14,470 bits in total, which works out to roughly 71 weeks of saving.
+Recovery Amount Bits Cooldown Bits Max Recovey Bits
+1% 0 120s 0 1.1x 0
+2% 10 119s 1 1.2x 1
+3% 15 118s 2 1.3x 2
+4% 20 117s 3 1.4x 3
+5% 25 116s 4 1.5x 4
+6% 30 115s 5 1.6x 5
+7% 35 114s 6 1.7x 6
+8% 40 113s 7 1.8x 7
+9% 45 112s 8 1.9x 8
+10% 50 111s 9 2.0x 9
+Show all 92 rows
+Chip Upgrades — Attack
+With the Attack chip, the Guardian targets the enemy missing the most health and deals damage equal to a percentage of that missing health, with the damage halved against bosses. Because the damage scales with lost health rather than a flat value, there is a theory that heavy investment could let it function like a Plasma Cannon against non-boss enemies, chaining fast, high-damage hits across multiple targets. This has not been confirmed and still needs proper testing at higher upgrade levels. You can tell the chip is about to fire when a red sphere appears orbiting the Guardian.
+Percentage Bits Cooldown Bits Targets Bits
+1% 0 120s 0 1 0
+2% 25 119s 1 2 100
+3% 50 118s 2 3 200
+4% 75 117s 3 4 300
+5% 100 116s 4 5 400
+6% 125 115s 5 6 500
+7% 150 114s 6 7 600
+8% 175 113s 7 8 700
+9% 200 112s 8 9 800
+10% 225 111s 9 10 900
+Show all 92 rows
+Chip Upgrades — Fetch
+The Fetch chip sends the Guardian out to find and collect hidden loot during a run. It can retrieve coins, gems, medals, shards, and modules.
+Item Chance (%) Daily Cap
+Gems 4 20
+Medal 2 10
+Reroll Shard 3
+Cannon Shard 1
+Armor Shard 1
+Generator Shard 1
+Core Shard 1
+Common Module 0.4 5
+Rare Module 0.1 2
+Coins 86.5
+Cooldown Bits Find Chance Bits Double Find Chance Bits
+120s 0 10% 0 2% 0
+119s 2 11% 20 3% 10
+118s 4 12% 25 4% 15
+117s 6 13% 30 5% 20
+116s 8 14% 35 6% 25
+115s 10 15% 40 7% 30
+114s 12 16% 45 8% 35
+113s 14 17% 50 9% 40
+112s 16 18% 55 10% 45
+111s 18 19% 60 11% 50
+Show all 62 rows
+Chip Upgrades — Bounty
+The Bounty chip marks nearby non-common enemies with a bounty, so they pay out extra coins when killed. The payout is calculated from every coin multiplier currently affecting the target at the moment it dies, multiplied by the chip's Bounty Multiplier stat. Effects like Golden Bot, Death Wave, Golden Tower, Black Hole, and Spotlight all feed into that total, so stacking multipliers makes each bountied kill worth more.
+Multiplier Bits Cooldown Bits Targets Bits
+x0.01 0 120 0 1 0
+x0.02 1 119 2 2 100
+x0.03 2 118 4 3 200
+x0.04 3 117 6 4 300
+x0.05 4 116 8 5 400
+x0.06 5 115 10 6 500
+x0.07 6 114 12 7 600
+x0.08 7 113 14 8 700
+x0.09 8 112 16 9 800
+x0.10 9 111 18 10 900
+Show all 101 rows
+Chip Upgrades — Summon
+While active, the Summon chip spawns two enemies per second, drawn from the Basic, Tank, Ranged, and Fast types. It also applies a cash bonus to every enemy killed during its activation, not just the ones it summoned. Summoned enemies never gain Ultimate status, even if the relevant Battle Condition for their type is active. The chip arrived in Season 5 with an incorrect description that caused some confusion, which was promptly corrected on the official Discord server.
+Cooldown Bits Duration Bits Cash Bonus Bits
+140s 0 5s 0 x1.0 0
+139s 1 6s 15 x2.0 100
+138s 3 7s 25 x3.0 200
+137s 5 8s 35 x4.0 300
+136s 7 9s 45 x5.0 400
+135s 9 10s 55 x6.0 500
+134s 11 11s 65 x7.0 600
+133s 13 12s 75 x8.0 700
+132s 15 13s 85 x9.0 800
+131s 17 14s 95 x10.0 900
+Show all 73 rows
+Chip Upgrades — Scout
+The Scout chip scouts enemies on screen. While it is active, every enemy is treated as being further away from your tower than it really is for the purposes of damage calculations.
+Cooldown Bits Range Bonus Bits Duration Bits
+105s 0 2.0x 0 5s 0
+104s 1 x2.1 10 6s 10
+103s 3 x2.2 15 7s 20
+102s 5 x2.3 20 8s 30
+101s 7 x2.4 25 9s 40
+100s 9 x2.5 30 10s 50
+99s 11 x2.6 35 11s 60
+98s 13 x2.7 40 12s 70
+97s 15 x2.8 45 13s 80
+96s 17 x2.9 50 14s 90
+Show all 72 rows
+Related pages
+Chips
+Bits
+Tokens
+Guilds
+Battle Condition
+Plasma Cannon
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-14) . Something out of date? Tell us in the Discord .

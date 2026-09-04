@@ -1,0 +1,43 @@
+Version 0.20 expanded the endgame with tiers 14 and 15, which introduced battle conditions that modify fights with special rules. It also added relics as permanent stacking collectibles, tower skin avatars for tournaments, the Ultimate Crit card, and a lightspeed lab research that removes projectile travel time. Players gained a 4,500 milestone reward per tier, adjustable Range lab levels, and a Poison Swamp visual overhaul, alongside fixes for cloud saves, ultimate weapon glitches, and targeting bugs.
+Change list
+Reproduced from the developer's release notes.
+T14 and T15 have been added, introducing new challenges and opportunities for advancement
+Battle conditions modify typical battles with special rules, often increasing the difficulty
+Expect to encounter them in T14 and T15, adding new twists to the gameplay in these tiers
+Relics are collectibles that permanently improve your tower with stacking effects.
+Discover them by achieving difficult tasks and participating in events
+Show your progress to other players
+Choose a tower skin as your avatar, which will be displayed in tournaments and rankings
+Research the lab to enable your tower to shoot at lightspeed, eliminating the travel time of shots to the enemy
+A unique 4,500 milestone reward has been added to each tier
+Milestone Premium Pass 5 added
+Introducing the Ultimate Crit card
+Grants your ultimate weapons a chance to critically hit using the Tower Critical Factor Workshop multiplier
+Players can now adjust their Range Lab research to any level. Visit the Range lab to adjust the level
+The Poison Swamp ultimate weapon has received a visual overhaul to better match the game style
+iPad optimized for better menu and visuals
+Fixed Golden Tower position not centered on tower
+Fixed a bug that could cause you to start the game with a trade-off perk
+Resolved an issue with Cloud save when changing devices on iOS, where it could load an older save
+Fixed the Force Cloud Save function not updating the last save time correctly
+Resolved issues with all Ultimate Weapons where sometimes smart missiles or inner land mines would keep growing on screen
+Resuming a round will no longer remove the number of protectors you had on the screen
+Fixed Multishot not selecting targets correctly, sometimes shooting at the same target simultaneously
+The mail panel has been enlarged with a bigger font.
+Fixed a bug that could display more than one tournament daily mission
+Translations updated and Arabic added as a new language
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

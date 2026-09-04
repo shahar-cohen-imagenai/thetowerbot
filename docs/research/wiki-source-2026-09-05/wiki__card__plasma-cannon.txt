@@ -1,0 +1,8 @@
+Plasma Cannon is a card that automatically fires a projectile at any boss that enters your tower's range. The hit deals damage equal to a percentage of the boss's total health, making it a specialised anti-boss tool rather than a general damage source.
+Description
+When equipped, Plasma Cannon fires a cannon shot at bosses, dealing damage equal to a percentage of the boss's total health. Because the damage scales with the boss's full health pool rather than your own damage stats, it stays relevant against high-health bosses regardless of your build.
+Use
+The cannon fires automatically when a boss enters tower range. The projectile's travel speed scales with your attack speed, and the Light Speed Shots lab has no effect on it. The shot passes straight through any enemies between your tower and the boss without damaging them, so it only ever hurts the boss itself. Since the damage is a percentage of total health, a sufficiently upgraded Plasma Cannon can kill a boss outright on its own, without needing support from effects like Mark for Death.
+Related pages
+Cards
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-08) . Something out of date? Tell us in the Discord .

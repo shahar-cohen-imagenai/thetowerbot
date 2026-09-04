@@ -1,0 +1,64 @@
+Module labs are a set of lab researches focused on your modules. They cover how often bosses drop common and rare modules, how many shards you earn from various sources, and how much it costs to level modules up. Later labs also let you unmerge modules, gain more from shattering, and ban unwanted effects when rerolling.
+Each lab is unlocked through Milestones at a specific tier and wave, and most have multiple levels that stack their effect as you research them.
+On this page
+— Common Drop Chance
+— Reroll Shards
+— Daily Mission Shards
+— Module Shard Cost
+— Module Coin Cost
+— Rare Drop Chance
+— Unmerge Module
+— Shatter Shards
+— Cannon Effect Bans
+— Armor Effect Bans
+— Generator Effect Bans
+— Core Effect Bans
+— Assist Module Labs
+— Common Drop Chance
+This lab is unlocked in Milestones at Tier 4 Wave 70. It raises the chance that bosses drop common modules, which matters because the base common drop chance starts at only 2%.
+The lab has 10 levels, and maxing it adds a total of 1% to your common drop chance. See the level table below for the per-level values.
+— Reroll Shards
+Unlocked in Milestones at Tier 4 Wave 70, this lab increases the number of reroll shards that bosses drop.
+It has 100 levels, and fully researched it adds 100 reroll shards to boss drops. The table below breaks down the gain per level.
+Show all 100 rows
+— Daily Mission Shards
+This lab unlocks in Milestones at Tier 4 Wave 70 and boosts the shards you receive from daily missions.
+Across its 50 levels, it adds up to 50 extra shards per mission, making it a steady source of extra income once researched. Per-level values are listed in the table below.
+Show all 50 rows
+— Module Shard Cost
+Unlocked in Milestones at Tier 10 Wave 40, this lab reduces the shard cost of levelling up your modules.
+It has 30 levels, and at maximum research it cuts shard costs by 30%. Given how expensive higher module levels become, this is one of the more valuable long-term module labs. The cost per level is shown in the table below.
+Show all 30 rows
+— Module Coin Cost
+This lab is unlocked in Milestones at Tier 10 Wave 40 and lowers the coin cost of levelling up modules.
+It has 30 levels and provides a 30% reduction to coin costs when fully researched, pairing naturally with the Module Shard Cost lab to make upgrades cheaper overall.
+— Rare Drop Chance
+Unlocked in Milestones at Tier 10 Wave 40, this lab increases the chance that bosses drop rare modules. The base rare drop chance is 0.5%, so every point here is a meaningful relative gain.
+The lab has 10 levels and adds a total of 1% to your rare drop chance at maximum. The table below shows the per-level progression.
+— Unmerge Module
+This lab is unlocked in Milestones at Tier 8 Wave 20 and has a single level. Once researched, it lets you reverse module merges.
+How an unmerge resolves depends on how the module was made. If the merge required a duplicate epic+ module, unmerging returns the lower-level module along with that epic+. If the merge accepted any module of the right rarity, unmerging instead converts the module into shards of the unmerged type. The table below covers the specifics.
+— Shatter Shards
+Unlocked in Milestones at Tier 16 Wave 40, this lab increases the shards you earn when shattering modules.
+It has 5 levels, each adding 20% more shards from shattering, for a total increase of 100% at maximum. This makes shattering unwanted modules far more rewarding in the late game. Per-level values are in the table below.
+— Cannon Effect Bans
+This lab is unlocked at Tier 10 Wave 40 and lets you ban specific effects when rerolling cannon modules, so banned effects no longer appear as reroll outcomes.
+It has 4 levels, granting 4 total bans. The table below lists the details.
+— Armor Effect Bans
+Unlocked at Tier 10 Wave 40, this lab allows you to ban specific effects when rerolling armor modules, removing them from the pool of possible results.
+It has 4 levels, giving you 4 total bans to work with.
+— Generator Effect Bans
+This lab unlocks at Tier 10 Wave 40 and lets you ban chosen effects when rerolling generator modules, narrowing the possible outcomes.
+It has 3 levels, providing 3 total bans. See the table below for more detail.
+— Core Effect Bans
+Unlocked at Tier 10 Wave 40, this lab enables you to ban specific effects when rerolling core modules so they no longer appear.
+It has 7 levels, the most of any effect ban lab, for 7 total bans. The table below shows the specifics.
+— Assist Module Labs
+The assist module labs are summarised in the data table below.
+Assist Module Main Effect / Substat Labs
+Show all 30 rows
+Module labs let you research better drop chances for common and rare modules, increase the shards you earn, and reduce the cost of upgrading your modules.
+Related pages
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-22) . Something out of date? Tell us in the Discord .

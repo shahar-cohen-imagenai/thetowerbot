@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import StrategyPage from "./page";
+import type { AdvisorSnapshot, AutopilotPreset, Strategy, Upgrade } from "@/lib/types";
 
 const strategy = {
   name: "default",
@@ -31,9 +32,12 @@ const api = vi.hoisted(() => ({
   activateStrategy: vi.fn(),
   deleteStrategy: vi.fn(),
   fetchControl: vi.fn(),
-  fetchUpgrades: vi.fn(() => Promise.resolve([])),
-  fetchAutopilotPresets: vi.fn(() => Promise.resolve([])),
+  fetchUpgrades: vi.fn(() => Promise.resolve([] as Upgrade[])),
+  fetchAutopilotPresets: vi.fn(() => Promise.resolve([] as AutopilotPreset[])),
   fetchAutopilot: vi.fn(() => Promise.resolve(null)),
+  fetchAdvisor: vi.fn((profile: string) => Promise.resolve({ profile, import_id: null, imported_at: null, source: null, stale: false, missing_inputs: [], recommendations: [] } as AdvisorSnapshot)),
+  importAdvisor: vi.fn(),
+  stageAdvisor: vi.fn(),
 }));
 vi.mock("@/lib/api", () => api);
 
@@ -49,6 +53,8 @@ beforeEach(() => {
   sync.onChange = null;
   api.fetchStrategies.mockResolvedValue({ active: "default", names: ["default", "crit"] });
   api.fetchStrategy.mockResolvedValue(strategy);
+  api.fetchUpgrades.mockResolvedValue([]);
+  api.fetchAutopilotPresets.mockResolvedValue([]);
   api.fetchControl.mockResolvedValue({
     paused: false, strategy, affordability_available: ["digits", "brightness"],
   });
@@ -63,10 +69,55 @@ const interval = () => screen.getByLabelText("Scan interval (s)") as HTMLInputEl
 const selector = () => screen.getByLabelText("Strategy") as HTMLSelectElement;
 
 describe("StrategyPage", () => {
+  it("keeps advisor recommendations in the shared Save/Revert draft flow", async () => {
+    const now = Date.now() / 1000;
+    api.fetchAdvisor.mockResolvedValueOnce({ profile: "default", import_id: "one", imported_at: now, source: { name: "Normalized export", version: "1", account_name: "Tower", exported_at: now, account_snapshot_at: now }, missing_inputs: [], stale: false, recommendations: [{ id: "health", path: "health", system: "workshop", upgrade: "Health", upgrade_id: "health", current_value: 10, target_value: 20, value_kind: "stat", cost: 100, currency: "coins", benefit: 2, can_stage: true, blocked_reason: null }] });
+    api.stageAdvisor.mockImplementation(({ draft: working }: { draft: Strategy }) => Promise.resolve({ added: true, message: "Added Health to draft", draft: { ...working, shopping: { ...working.shopping, workshop: [{ name: "Health", category: "DEFENSE", enabled: true, target: 20 }] } } }));
+    render(<StrategyPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Add Health to Workshop draft" }));
+    await screen.findByText("Added Health to draft");
+    expect(screen.getByText("Save")).not.toBeDisabled();
+    fireEvent.click(screen.getByText("Revert"));
+    expect(screen.getByText("Save")).toBeDisabled();
+    expect(api.saveStrategy).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Add Health to Workshop draft" }));
+    await waitFor(() => expect(screen.getByText("Save")).not.toBeDisabled());
+    fireEvent.click(screen.getByText("Save"));
+    await waitFor(() => expect(api.saveStrategy).toHaveBeenCalledWith("default", expect.objectContaining({ shopping: { ...strategy.shopping, workshop: [{ name: "Health", category: "DEFENSE", enabled: true, target: 20 }] } })));
+  });
+  it("reverts both preset plans together and only persists them on Save", async () => {
+    const preset: AutopilotPreset = { name: "turtle", rules: [{ upgrade_id: "defense_absolute", enabled: true }], workshop: [{ name: "Cash Bonus", category: "UTILITY", enabled: true, target: 5 }] };
+    api.fetchAutopilotPresets.mockResolvedValue([preset]);
+    api.fetchUpgrades.mockResolvedValue([
+      { id: "defense_absolute", name: "Defense Absolute", category: "DEFENSE", aliases: [], unlock: false },
+      { id: "cash_bonus", name: "Cash Bonus", category: "UTILITY", aliases: [], unlock: false },
+    ]);
+    render(<StrategyPage />);
+    await screen.findByRole("option", { name: "Turtle" });
+    fireEvent.click(screen.getByRole("button", { name: "Workshop" }));
+    fireEvent.change(screen.getByLabelText("Guide preset"), { target: { value: "turtle" } });
+    expect(screen.getByRole("checkbox", { name: "Plan Cash Bonus" })).toBeChecked();
+    expect(screen.getByLabelText("Cash Bonus target")).toHaveValue(5);
+    fireEvent.click(screen.getByText("Revert"));
+    expect(screen.getByLabelText("Guide preset")).toHaveValue("manual");
+    expect(screen.getByRole("checkbox", { name: "Plan Cash Bonus" })).not.toBeChecked();
+    expect(screen.getByLabelText("Cash Bonus target")).toHaveValue(null);
+    fireEvent.click(screen.getByRole("button", { name: "Battle" }));
+    expect(screen.getByRole("checkbox", { name: "Plan Defense Absolute" })).not.toBeChecked();
+    expect(api.saveStrategy).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText("Guide preset"), { target: { value: "turtle" } });
+    fireEvent.click(screen.getByText("Save"));
+    await waitFor(() => expect(api.saveStrategy).toHaveBeenCalledWith("default", expect.objectContaining({
+      autopilot: expect.objectContaining({ enabled: false, preset: "turtle", rules: preset.rules }),
+      shopping: { ...strategy.shopping, workshop: preset.workshop },
+    })));
+  });
   it("loads the active profile on arrival", async () => {
     render(<StrategyPage />);
     await waitFor(() => expect(screen.getByTestId("action-row")).toBeTruthy());
     expect(api.fetchStrategy).toHaveBeenCalledWith("default");
+    expect(screen.getByRole("link", { name: "Advisor" })).toHaveAttribute("href", "#advisor");
+    expect(document.getElementById("advisor")).not.toBeNull();
   });
 
   it("saving sends the whole profile under the selected name", async () => {

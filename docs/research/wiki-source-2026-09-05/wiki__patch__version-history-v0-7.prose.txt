@@ -1,0 +1,40 @@
+Version 0.7 expanded the upgrade pool with new stats for missiles, Chrono Field, Swamp, Golden Tower, land mines, and orb speed, giving players more ways to shape their builds. It also introduced target priorities and additional round stats for deeper run information. The daily gem gift moved to an 8 AM availability, late-game performance was significantly improved, and bugs like the death ray rotation stall and Second Wind animation failures were fixed.
+Change list
+Reproduced from the developer's release notes.
+Orb speed
+Land mine damage
+Land mine decay
+More round stats
+Target priorities
+Daily gem gift is now available after 8 AM each day
+Missiles Despawn Time
+Missiles Explosion
+Missiles Radius
+Chrono Field Duration
+Chrono Field Damage Reduction
+Chrono Field Reduction %
+Swamp Radius
+Swamp Stun
+Swamp Stun Chance
+Swamp Stun Time
+Golden Tower Bonus
+Golden Tower Duration
+Performance for late game improved a lot
+Death ray stops rotating on long playthrough sometimes
+Second Wind Animation not triggering sometimes
+Other lesser known bugs
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

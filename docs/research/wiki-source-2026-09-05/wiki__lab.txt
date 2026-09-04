@@ -1,0 +1,89 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Labs
+Labs
+The lab tree: what each research line unlocks, how long it takes and which ones are worth the queue slot.
+Attack Research
+Lab Category/Attack Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Battle Condition
+Lab Category/Battle Condition in The Tower: Idle Tower Defense — costs, levels and how it works.
+Bot Research
+Lab Category/Bot Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Card Research
+Lab Category/Card Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Defense Research
+Lab Category/Defense Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Echo Lab
+Echo Lab: how Dissonant Echo labs spread a percentage of your Dissonance Boost to all tiers, with 20 levels per category.
+Enemy Research
+Lab Category/Enemy Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Garlic Thorns
+Garlic Thorns lab in The Tower: how it melts Vampire elites with your own thorn damage — unlock point, full level table and costs.
+Lab Upgrades
+How lab upgrades work in The Tower: research slots, gem rushing, Elite Cell boosts, and quality-of-life features like auto research and lab history.
+Laboratory
+The Laboratory lets you buy timed upgrades using coins and lab slots. Learn how labs work, how many you can unlock, costs, rushing, and upgrades.
+Labs Coin Discount
+Labs Coin Discount lowers the coin cost of all other lab researches. Learn how it works and when to unlock it.
+Labs Speed
+Labs Speed is a researchable lab that cuts the time needed for other lab research. Learn how it stacks with relics, its 99 levels, and when to prioritise it.
+Main Research
+Lab Category/Main Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Module Research
+Lab Category/Module Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Perk Labs
+Perk labs unlock perks in The Tower and improve them: waves required, perk bonus, first choice, trade-offs, auto pick, ban and ranking.
+Perk Research
+Lab Category/Perk Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Second Wind Labs
+Second Wind Blast and Recharge Second Wind labs in The Tower: unlock requirements, what each lab does, and how they upgrade the Second Wind mechanic.
+Shatter Shards
+Shatter Shards lab in The Tower: +20% module shards per level up to +100%, with the full cost and research-time table for all 5 levels.
+Ultimate Weapon Research
+Lab Category/Ultimate Weapon Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Utility Research
+Lab Category/Utility Research in The Tower: Idle Tower Defense — costs, levels and how it works.
+Wall Labs
+Overview of Wall labs in The Tower: Idle Tower Defense, including Wall Health, Rebuild, Regen, Thorns, Invincibility and Fortification research.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

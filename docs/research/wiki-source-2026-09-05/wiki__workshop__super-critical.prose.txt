@@ -1,0 +1,53 @@
+Super Critical gives your tower a chance to deal additional critical damage whenever a critical hit lands. It builds on top of your existing crit stats rather than replacing them, so it only matters once your critical hit chance is reasonably high.
+The system has two parts: a chance to trigger the super crit, and a multiplier that decides how hard it hits. Both are upgraded through the Workshop and expanded further through labs.
+On this page
+Description
+Workshop
+Super Crit Chance
+Workshop — Super Crit Mult
+Cost — Super Critical Chance
+Cost — Super Critical Multi
+Super Crit Multi
+Lab — Super Crit Chance
+Lab — Super Crit Mult
+Lab
+Super Crit Mult
+Description
+A super critical is a follow-up roll that happens only after your tower lands a normal critical hit. If the super crit roll succeeds, the hit deals extra damage based on the Super Crit Multiplier. If your crit chance is low, super crits will trigger rarely, so this upgrade scales with how often you already crit.
+Workshop
+Super Critical is unlocked in the Workshop for 100 million coins, after Bounce Shot. Unlocking it opens two upgrade tracks: Super Crit Chance and Super Crit Mult.
+Super Crit Chance
+Super Crit Chance is the probability of a super crit occurring, checked only when a critical hit succeeds. The Workshop track has 100 levels, each adding 0.2%, for a maximum of 20.00% from the Workshop.
+Workshop — Super Crit Mult
+Super Crit Mult is the damage multiplier applied when a super crit lands. The Workshop offers 120 upgrades, starting from a base multiplier of 1.2 and increasing by 0.1 per level, up to a maximum of 13.2. When a super crit triggers, your total crit multiplier is Critical Factor multiplied by Super Crit Mult.
+Cost — Super Critical Chance
+Show all 100 rows
+Cost — Super Critical Multi
+Show all 13 rows
+Super Crit Multi
+The Super Crit Multi enhancement requires 50 trillion coins spent on enhancements to unlock. Unlocking it raises Super Crit Multi by x1.0, and each level adds 0.1. It has a maximum of 400 levels, reaching a x5 multiplier. The level costs are listed in the table below.
+Show all 41 rows
+Lab — Super Crit Chance
+The Super Crit Chance lab has 50 levels. Each level adds to the Workshop value, pushing your total super crit chance beyond the Workshop cap. Per-level values are shown in the table below.
+Show all 50 rows
+Lab — Super Crit Mult
+The Super Crit Mult lab has 40 levels. Each level increases the increments of every Workshop upgrade and raises the maximum value, so it makes both your existing levels and future ones stronger. Details are in the table below.
+Show all 40 rows
+Lab
+Both Super Crit labs are unlocked through Milestones at tier 5, wave 200.
+Super Crit Mult
+See Super Critical.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-31) . Something out of date? Tell us in the Discord .

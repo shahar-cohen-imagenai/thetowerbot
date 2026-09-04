@@ -1,0 +1,23 @@
+Wave Skip is a Workshop Upgrade that gives you a chance to bypass a wave entirely. When it triggers, you receive the coins, cash, and cells from the wave you just finished, but multiplied by 1.1. If the wave you skipped happened to contain a Boss, the game also rolls for reroll shards and modules.
+On this page
+Description
+Use
+Wave Based Interactions
+Income Based Interactions
+Description
+This upgrade provides a probability-based trigger that skips the upcoming wave. Instead of playing through it, you immediately collect the earnings from the previous wave, boosted by a 1.1x multiplier. Boss waves that get skipped still grant their reroll shard and module drop chances.
+Use
+Wave Skip is a complex upgrade with numerous interactions, both positive and negative. These effects fall into two main categories: wave-based interactions and income-based interactions.
+Wave Based Interactions
+Several game systems interact with Wave Skip in different ways. Multiple skips can chain together, bypassing several waves consecutively. Free Upgrades are tested for each wave completed after a skip, so skipped waves can actually lead to more free upgrade procs. Enemy Level Skips for both Health and Attack can activate up to the number of waves that were skipped. However, time-based mechanics are not accelerated: Energy Shield still requires the same real time between charges, meaning it effectively needs more waves to recharge. Similarly, Demon Mode does not have its duration shortened, so it will persist across more waves.
+Income Based Interactions
+All income from the final wave before a skip is multiplied by 1.1, including earnings from Ultimate Weapons and Golden Bot. Cell rewards are calculated from the cells earned on that previous wave. When multiple waves are skipped in a row, the multiplier compounds: the total is calculated as 1.1 raised to the power of the number of waves skipped.
+Related pages
+Cards
+Demon Mode
+Enemy Level Skip
+Energy Shield
+Free Upgrades
+Golden Bot
+Ultimate Weapons
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-16) . Something out of date? Tell us in the Discord .

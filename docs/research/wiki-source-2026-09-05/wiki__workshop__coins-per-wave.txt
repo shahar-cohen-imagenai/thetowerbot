@@ -1,0 +1,52 @@
+Coins Per Wave is a workshop upgrade that pays you a flat amount of coins every time you complete a wave. Because it triggers on every wave regardless of kills, it provides a steady baseline of income that scales with how far you push in a run.
+On this page
+Description
+Workshop
+Cost
+Coins/Wave
+Description
+Coins Per Wave awards coins each time you finish a wave. Unlike kill-based income, it pays out simply for surviving a wave, so it keeps earning even against low-density waves or when your damage comes from sources that do not generate many kills.
+Workshop
+You unlock Coins Per Wave in the workshop for 100 coins, and it requires Coins/Kill Bonus, which itself sits behind Cash Bonus and Cash/Wave in the upgrade chain. The upgrade has 149 levels starting from a base value of 1, and each level adds 1 more coin per wave, topping out at 150 coins per wave. The payout is further boosted by the All Coins perk and by any multipliers shown in the tier coins bonus screen, so its real value in a run is higher than the workshop number suggests.
+Cost
+The cost of each workshop level is listed in the table below. Since every level only adds a single coin per wave, the value of each purchase depends on how many waves you expect to clear, so weigh later levels against other income upgrades.
+Level Value Coins Total Coins
+1 2 50 50
+10 11 838 3.52K
+20 21 3.58K 25.08K
+30 31 8.84K 87.54K
+40 41 17.02K 218.37K
+50 51 28.41K 448.41K
+60 61 44.56K 822.11K
+70 71 63.66K 1.37M
+80 81 91.10K 2.15M
+90 91 119.75K 3.22M
+Show all 16 rows
+Coins/Wave
+The Coins/Wave lab is unlocked through Milestones by reaching tier 1 wave 30. It has 99 levels, and each level raises the increment that workshop levels provide, which also raises the maximum workshop value. The per-level costs are shown in the table below. This lab is what turns Coins Per Wave from a minor trickle into a meaningful income source over long runs.
+Level Time Cost Value
+1 0d 0h 0m 30 1.02
+2 0d 0h 6m 71 1.04
+3 0d 0h 16m 178 1.06
+4 0d 0h 31m 398 1.08
+5 0d 0h 52m 782 1.10
+6 0d 1h 20m 1,350 1.12
+7 0d 1h 56m 2,130 1.14
+8 0d 2h 39m 3,180 1.16
+9 0d 3h 31m 4,520 1.18
+10 0d 4h 32m 6,180 1.20
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Critical Hits
+Damage
+Damage Per Meter
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-30) . Something out of date? Tell us in the Discord .

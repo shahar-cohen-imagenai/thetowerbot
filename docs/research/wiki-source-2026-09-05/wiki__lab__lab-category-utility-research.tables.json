@@ -1,0 +1,35 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Utility Research"
+    ],
+    "rows": [
+      [
+        "Cash Bonus Max Lv 99",
+        "Cash / Wave Max Lv 99"
+      ],
+      [
+        "Coins / Kill Bonus Max Lv 99",
+        "Coins/wave Max Lv 99"
+      ],
+      [
+        "Interest Max Lv 99",
+        "Max Interest Max Lv 15"
+      ],
+      [
+        "Package After Boss Max Lv 1",
+        "Recovery Package Amount Max Lv 20"
+      ],
+      [
+        "Recovery Package Max Max Lv 20",
+        "Recovery Package Chance Max Lv 20"
+      ],
+      [
+        "Enemy Attack Level Skip Max Lv 20",
+        "Enemy Health Level Skip Max Lv 20"
+      ]
+    ]
+  }
+]

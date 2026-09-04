@@ -1,0 +1,174 @@
+The Vault is the late-game upgrade hub that appears on your home screen once you are promoted into the Legends League, and every upgrade in it is bought with Keys — a currency you only earn from Legends League placements. It used to hold two trees; since the 2026 expansion it holds three: Power (tower stats, 223 levels), Harmony (automation and quality of life, 65 levels) and the new Enemy tree (1,080 levels that weaken specific enemy types). The trees are organized into 15 groups; two are open from the start, the rest cost Keys to unlock before you can spend on their nodes. Maxing everything currently adds up to about 72,987 Keys.
+On this page
+How the Vault is organized
+Power tree
+Harmony tree
+Enemy tree (new)
+Where the Keys come from
+FAQ
+How the Vault is organized
+Every tree is split into groups. A group has to be unlocked with Keys first (the price is in each table caption); after that each node inside it is levelled one Key purchase at a time. The "per level" column is what one level adds; "keys / level" is the price of each of those levels as listed on mytower.app, and "max levels" is how far a node goes. Power nodes are mostly 5 levels deep, Harmony nodes are single toggles or short ladders, and every Enemy node runs 30 levels at 25 Keys each — which is why the Enemy tree alone accounts for the bulk of the 72,987-Key total.
+The three trees at a glance
+Tree Groups Nodes Total levels Group unlock costs
+Power 4 47 223 25 Keys each
+Harmony 7 33 65 Gameplay free · Cards / UWs / Modules 5 · Bots / Workshop / Guardian 10
+Enemy (new) 4 36 1,080 Simple free · Advanced 50 · Elites 100 · Fleets 150
+Power tree
+Power is the tower-stat tree: attack, defense, economy (utility) and Ultimate Weapon boosts. Nearly every node gives +5% per level over 5 levels at 10 Keys a level; the exceptions — Defense %, Orbs, Shockwave Frequency, Death Defy, Wall Rebuild and the two enemy-skip nodes — are the ones worth planning around because they are either rarer stats or cost 20 Keys a level.
+Attack (25 keys to unlock)
+Upgrade Per level Keys / level Max levels
+Damage +5% 10 5
+Attack Speed +5% 10 5
+Critical Chance +1% 10 5
+Crit Factor +5% 10 5
+Damage / Meter +5% 10 5
+Multishot Chance +4% 10 5
+Rapid Fire Chance +4% 10 5
+Bounce Shot Chance +4% 10 5
+Super Crit Chance +2% 10 5
+Super Crit Mult +5% 10 5
+Show all 12 rows Defense (25 keys to unlock)
+Upgrade Per level Keys / level Max levels
+Health +5% 10 5
+Health Regen +5% 10 5
+Defense % +0.5% 20 3
+Defense Absolute +5% 10 5
+Thorn Damage +5% 10 5
+Knockback Chance +1% 10 5
+Knockback Force +5% 10 5
+Orb Speed +5% 10 5
+Orbs +1 20 2
+Shockwave Size +5% 10 5
+Show all 14 rows Utility (25 keys to unlock)
+Upgrade Per level Keys / level Max levels
+Cash Bonus +5% 10 5
+Cash / Wave +100% 10 5
+Coins / Kill +5% 10 5
+Coins / Wave +100% 10 5
+Free Attack Upgrade +5% 10 5
+Free Defense Upgrade +5% 10 5
+Free Utility Upgrade +5% 10 5
+Interest / Wave +100% 10 5
+Recovery Amount +5% 10 5
+Max Recovery +20% 10 5
+Show all 12 rows Ultimate Weapons (25 keys to unlock)
+Upgrade Per level Keys / level Max levels
+Ultimate Damage +5% 5 5
+Chain Lightning Damage +5% 10 5
+Smart Missile Damage +5% 10 5
+Death Wave Damage +5% 10 5
+Inner Land Mine Damage +5% 10 5
+Golden Tower Bonus +1% 10 5
+Swamp Damage +5% 10 5
+Spotlight Bonus +5% 10 5
+Black Hole Size +5% 10 5
+Harmony tree
+Harmony is the non-tower side: automation for cards and Ultimate Weapons, extra presets, respec discounts and sliders. Most nodes are single-purchase toggles. Descriptions below come from our earlier Vault write-up where the node already existed; nodes marked — are new in the expansion and have no verified description yet.
+Gameplay (unlocked from the start)
+Upgrade What it does Per level Keys / level Max levels
+Auto Restart Run Automatically restart battles after being defeated. — 20 1
+Ad Gem Stack Ad gems can stack up [2,3,5]x ×2 per level 10 4
+Damage Cap Slider — — 25 1
+Global Presets — +3 20 1
+Cards (5 keys to unlock)
+Upgrade What it does Per level Keys / level Max levels
+Additional Card Slot — +1 5 6
+Charge Berserker — — 5 1
+Demon Mode Automation Demon mode will activate when it's cooldown is complete. — 10 1
+Smart Demon Mode Automation Demon mode will activate to save the tower from a killing blow. — 25 1
+Nuke Automation Nuke will activate when it's cooled down is complete. — 10 1
+Smart Nuke Automation Nuke will activate to save the tower from a killing blow. — 25 1
+Death Ray Toggle — — 15 1
+Spawn Accelerator Toggle — — 20 1
+Life Saving Ordering — — 50 1
+Energy Shield Restriction — — 50 1
+Ultimate Weapons (5 keys to unlock)
+Upgrade What it does Per level Keys / level Max levels
+Missile Barrage Automation Missile Barrage will activate when its cooldown is complete. — 10 1
+Smart Missile Barrage Automation Missile Barrage will activate when the tower is hit. — 25 1
+Black Hole Size Slider — — 25 1
+Swamp Range Slider — — 25 1
+Modules (5 keys to unlock)
+Upgrade What it does Per level Keys / level Max levels
+Auto Shatter Rare Modules Unlock a toggle to automatically shatter rare modules — 5 1
+Daily Mission Shard Type — — 10 1
+Free Mission Reroll Unlimited free mission rerolls — 15 1
+Module Reroll Discount — +2.5% 5 8
+Module Presets — +3 20 1
+Bots (10 keys to unlock)
+Upgrade What it does Per level Keys / level Max levels
+Bot Respec Discount Gem discount on bot respecs. +33% 5 3
+Bot Presets +3 bot presets and removes bot respec limits +3 20 1
+Bot Range — +2m 10 4
+Bot Cooldown Sliders Add a slider to adjust each bots cooldown. — 15 1
+Workshop (10 keys to unlock)
+Upgrade What it does Per level Keys / level Max levels
+Workshop Respec Discount — +33% 5 3
+Workshop Presets +5 workshop presets +3 20 1
+Enhancements Discount — +2.5% 2 9
+Workshop Orb Adjuster Adjust the range where workshop orbs orbit the tower — 15 1
+Guardian (10 keys to unlock)
+Upgrade What it does Per level Keys / level Max levels
+Guardian Respec Discount — +33% 5 3
+Guardian Presets — +3 20 1
+Enemy tree (new)
+The Enemy tree is the expansion's big addition: 36 nodes that shave 1% per level off a specific enemy type's attack, health, speed, range or radius (plus a few positive ones — Basic Coin Bonus, Boss Common Drop Chance, Saboteur Miss Chance). Every node has 30 levels at 25 Keys each, so a single maxed node is 750 Keys and a full group is 6,750 before the group unlock. Groups follow the enemy roster: Simple, Advanced, Elites and Fleets.
+Simple (unlocked from the start)
+Upgrade Per level Keys / level Max levels
+Basic Attack -1% 25 30
+Basic Health -1% 25 30
+Basic Coin Bonus +0.01 25 30
+Fast Attack -1% 25 30
+Fast Health -1% 25 30
+Fast Speed -1% 25 30
+Tank Attack -1% 25 30
+Tank Health -1% 25 30
+Tank Mass -1% 25 30
+Advanced (50 keys to unlock)
+Upgrade Per level Keys / level Max levels
+Boss Attack -1% 25 30
+Boss Health -1% 25 30
+Boss Common Drop Chance +0.1% 25 30
+Ranged Attack -1% 25 30
+Ranged Health -1% 25 30
+Ranged Attack Range -1% 25 30
+Protector Attack -1% 25 30
+Protector Health -1% 25 30
+Protector Radius -1% 25 30
+Elites (100 keys to unlock)
+Upgrade Per level Keys / level Max levels
+Vampire Attack -1% 25 30
+Vampire Health -1% 25 30
+Vampire Attack Speed -1% 25 30
+Scatter Attack -1% 25 30
+Scatter Health -1% 25 30
+Scatter Attack Speed -1% 25 30
+Ray Attack -1% 25 30
+Ray Health -1% 25 30
+Ray Attack Speed -1% 25 30
+Fleets (150 keys to unlock)
+Upgrade Per level Keys / level Max levels
+Saboteur Attack Speed -1% 25 30
+Saboteur Health -1% 25 30
+Saboteur Miss Chance +1% 25 30
+Commander Pulse Effect -1% 25 30
+Commander Health -1% 25 30
+Commander Pulse Speed -1% 25 30
+Overcharge Attack -1% 25 30
+Overcharge Health -1% 25 30
+Overcharge Attack Exponent -1% 25 30
+Where the Keys come from
+Keys are only awarded for Legends League tournament placements — there is no other source, which is why the Vault is paced by how often you place and how high. See the Keys page for the placement table, and the Legend battle conditions guide for what those tournaments look like.
+FAQ
+**How many Keys does it take to max the Vault?** About 72,987 Keys across all three trees, including group unlocks — the Enemy tree is by far the largest share.
+**What is new in the Vault?** The Enemy tree (36 nodes, 1,080 levels) and a group structure with unlock costs; Harmony also gained new automation and slider nodes such as the Damage Cap Slider, Black Hole Size Slider and Life Saving Ordering.
+**Which Vault upgrades should I buy first?** The automation toggles in Harmony are cheap (5–25 Keys) and change how you play immediately; in Power the 10-Key +5% nodes are the efficient bulk, and the Enemy tree is the long-term sink.
+Related pages
+Keys
+Demon Mode
+Energy Shield
+Golden Bot
+Legend Battle Conditions
+Nuke
+Tournaments
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-08-28) . Something out of date? Tell us in the Discord .

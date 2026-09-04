@@ -1,0 +1,11 @@
+Health Regen is a common card that boosts how quickly your tower recovers health during a round. When equipped, it increases your tower's health regen by a set amount per second, with the exact value depending on the card's level.
+Because it is a common card, Health Regen is relatively easy to obtain and upgrade compared to rarer cards, making it an accessible option for improving your tower's sustain.
+Health Regen
+Equipping Health Regen raises your tower's health regeneration by a flat amount per second, shown on the card as [x] / sec. This regeneration ticks continuously, restoring health lost to enemy hits as long as your tower is alive.
+The card is most useful in builds that rely on outlasting chip damage rather than avoiding hits entirely. If your tower regularly takes small amounts of damage between kills, a higher regen rate can keep your health pool topped up without needing to lean as heavily on other defensive layers. The per-second values at each card level are listed in the data table below.
+Health Regen value per card level
+Card Mastery
+The Health Regen card mastery costs 750 stones to unlock. Once unlocked, it increases the card's stat multiplier, raising the amount of health regen the card provides per second.
+The mastery bonus is only active while Health Regen is equipped in your active loadout. If you swap the card out, the multiplier stops applying until you equip it again. The multiplier values at each mastery level are shown in the data table below.
+Health Regen mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,36 @@
+Perk labs are the lab chain that opens up the perk system and then refines how perks behave during a run. Once you have access to perks, these labs let you earn them faster, make them stronger, and control which ones you are offered or automatically given.
+On this page
+Perk Labs — Unlock Perks
+Perk Labs — Waves Required
+Perk Labs — Standard Perk Bonus
+Perk Labs — First Perk Choice
+Perk Labs — Improve Trade-Off Perks
+Perk Labs — Auto Perk Pick
+Perk Labs — Perk Option Quantity
+Perk Labs — Ban Perks
+Perk Labs — Auto Pick Ranking
+Perk Labs
+Perk Labs — Unlock Perks
+This is the entry point of the perk lab chain. Completing it allows perks to appear during your rounds, and it is also the prerequisite for every other perk lab. It has a single level, so one completion is enough to open up the rest of the chain.
+Perk Labs — Waves Required
+Available once Unlock Perks is finished, this lab lowers the base number of waves you need to clear before the next perk becomes available in a run. It has 100 levels, so it is a long-term sink that steadily speeds up how often perks arrive. The exact wave count follows the perk waves required calculation described on the Perks page.
+Show all 100 rows
+Perk Labs — Standard Perk Bonus
+Unlocked after completing Unlock Perks, this lab adds a multiplier that strengthens standard perks. The bonus applies differently depending on the perk type. For multiplicative perks the calculation is (1 + perk base × quantity) × (1 + standard perk bonus), while additive perks use Perk Base × quantity × (1 + standard perk bonus). The Perks page covers how standard perks are calculated in more detail.
+Show all 25 rows
+Perk Labs — First Perk Choice
+This lab unlocks through Milestones at tier 2 wave 250, provided Unlock Perks is done. It has 1 level and lets you nominate one standard perk that is guaranteed to appear as an option for the first perk of each round. You set it outside of a run, from the top right corner of the home screen.
+Perk Labs — Improve Trade-Off Perks
+Unlocked via Milestones at tier 2 wave 400 after Unlock Perks is complete, this lab multiplies the upside you get from trade-off perks. It has 10 levels. Note that it does not boost the ranged enemy trade-off perk.
+Perk Labs — Auto Perk Pick
+Unlocked through Milestones at tier 4 wave 50 once Unlock Perks is finished, this 1-level lab adds a toggleable auto-picker. When active, the game selects a perk for you whenever one is offered. You can switch it on or off mid-run by tapping the perk bar at the top of the screen. If a perk offering contains nothing from your auto perk ranking, the first perk in the list is taken.
+Perk Labs — Perk Option Quantity
+Available from Milestones at tier 4 wave 80 after Unlock Perks, this lab adds extra choices to each perk offering. Its 2 levels raise the number of perks shown per selection up to a maximum of four, giving you more flexibility every time you pick.
+Perk Labs — Ban Perks
+Unlocked at tier 5 wave 40 through Milestones, with Unlock Perks as a prerequisite. It lets you block specific perks from ever showing up as choices during a round, thinning the pool so the perks you actually want appear more often. Bans are managed from the home screen while you are not in a run. The lab has 8 levels.
+Perk Labs — Auto Pick Ranking
+This lab unlocks through Milestones at tier 6 wave 10 and requires Auto Pick Perks to be completed first. It lets you rank perks in priority order so the auto-picker takes your most valued options when several are available. Each of its 32 levels adds one more perk to your ranked list. The ranking takes precedence over First Perk Choice: for example, if your first choice is set to perk waves required but Golden Tower sits higher in your ranking and both appear in the opening offer, Golden Tower is picked instead.
+Show all 32 rows
+Perk Labs
+Taken together, perk labs both grant access to perks and improve how they work over the course of a run, from how quickly they arrive to how strongly they perform and how much control you have over the selection.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-18) . Something out of date? Tell us in the Discord .

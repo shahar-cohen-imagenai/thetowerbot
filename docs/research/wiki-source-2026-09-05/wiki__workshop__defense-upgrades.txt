@@ -1,0 +1,18 @@
+Defense Upgrades are one of the workshop upgrade categories in The Tower: Idle Tower Defense. They focus entirely on keeping your tower alive longer during a run.
+Description
+Defense Upgrades are workshop upgrades that improve your tower's ability to survive. They cover a range of effects, from raising your tower's health to reducing the damage it takes or stopping it from being destroyed outright.
+These upgrades matter most when enemies start overwhelming your defenses in later waves, since raw damage output alone often isn't enough to keep a run going.
+Related pages
+Death Defy
+Defense Absolute
+Defense Percent
+Health
+Health Regen
+Knockback
+Land Mine
+Lifesteal
+Orbs
+Shockwave
+Thorn Damage
+Wall
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-03-27) . Something out of date? Tell us in the Discord .

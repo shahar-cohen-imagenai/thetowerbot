@@ -1,0 +1,83 @@
+Cards are purchasable items that grant a special effect while equipped. Each card costs 20 Gems to buy, and the number you can have active at once is limited by your card slots. Individual cards can be levelled up to a maximum of 7 stars by collecting duplicate copies.
+On this page
+Description
+Locked Cards
+Card Slots
+Costs
+Maxing A Card
+Costs Per Star
+Buying Cards
+Milestones
+Common Cards
+List of Cards — Rare Cards
+List of Cards — Epic Cards
+Card Mastery
+Card Mastery Lab Time and Coins
+Card Mastery Overview
+Common cards
+Epic Cards
+Lab: Light Speed Shots
+Lab: Shatter Shards
+Rare Cards
+Description
+Cards are items bought for 20 Gems each. Every card provides its own special effect, but only while it is equipped, and the number you can equip at once is capped by your available card slots. A card's level tops out at 7 stars.
+Locked Cards
+A card can show a locked icon. During a run, any card with this icon cannot be removed until the round ends. You can still swap to another card preset mid-run, but only if that preset contains exactly the same locked cards — any difference in the locked cards blocks the preset from being selected.
+While a boss or fleet enemy is alive, every card becomes locked. You cannot change any cards until all bosses and fleet enemies on the field have been killed.
+Card Slots
+Your equipped card limit is set by how many slots you have unlocked. You can reach 22 slots by spending Gems, at a combined cost of 58,400 Gems. The Key upgrades in the harmony tech tree raise the ceiling further, bringing the maximum to 28 slots in total.
+Costs
+The cost table below breaks down what you will spend on cards. In short, each new card costs 20 Gems, and raising a card through its star levels requires both duplicate copies and additional Gems.
+Show all 22 rows
+Maxing A Card
+Maxing a single card takes 80 copies of that card, which works out to 1,600 Gems in total. Copies are obtained as you buy cards, so maxing happens gradually as you keep purchasing.
+Costs Per Star
+Each star level requires a set number of copies and a matching Gem spend. Unlocking a card (1 star) costs 20 Gems, and that unlock copy counts as the first of the 3 copies needed for 2 stars, which costs 40 Gems. From there, 3 stars needs 5 copies for 100 Gems, 4 stars needs 8 copies for 160 Gems, 5 stars needs 12 copies for 240 Gems, 6 stars needs 20 copies for 400 Gems, and 7 stars needs 32 copies for 640 Gems.
+Across all 31 cards, reaching maximum level on everything requires 49,600 Gems.
+Buying Cards
+Cards come in three rarities: Common, Rare and Epic. When you buy a card, the game rolls the rarity first and then picks a specific card within that rarity. The odds are 80% Common, 17% Rare and 3% Epic.
+Once a card is maxed, it drops out of the pool and you can no longer receive it. After every Common card is maxed, the Rare chance rises to 97%. When you own all cards at max level, the buy button stops working entirely, and any event mission asking you to buy a number of cards will complete instantly.
+Milestones
+A handful of cards cannot be bought until you unlock them through Milestones. If everything else is maxed before you reach these, card purchases stall until the relevant Milestone is cleared. The Milestone-locked cards are:
+- Recovery Package Chance (Rare) — Tier 2, Wave 750 - Land Mine Stun (Rare) — Tier 7, Wave 250 - Nuke (Epic) — Tier 11, Wave 10 - Ultimate Crit (Epic) — Tier 14, Wave 50 - Area of Effect (Epic) — Tier 20, Wave 80
+Despite what some players believe, Death Ray does not have a lower draw rate than other Epics, and there are no hidden requirements to pull it.
+Common Cards
+Show all 12 rows
+List of Cards — Rare Cards
+Rare cards sit between Commons and Epics, drawn at a 17% base rate. The table below lists all Rare cards and their effects.
+List of Cards — Epic Cards
+Epic cards are the scarcest pulls at a 3% base rate. The table below lists every Epic card and its effect.
+Show all 11 rows
+Card Mastery
+Card Mastery becomes available once two conditions are met: 30 of your cards are maxed, and you have unlocked the Card Mastery Milestone at Tier 16, Wave 100. After that, masteries can be unlocked individually from the cards page.
+A mastery's effect is only active while that card is equipped. Unlocking a mastery costs a varying amount of stones and also opens up that card's Mastery Labs.
+Card Mastery Lab Time and Coins
+Every card mastery lab shares the same lab costs and research times, shown in the table below.
+Card Mastery Overview
+The table below shows each Card Mastery, its stone cost, and how the effect scales with levels. Note that the Land Mine Stun figures reflect older scaling values. For deeper analysis of each mastery's impact, see the Advanced Analysis page.
+Show all 31 rows
+Common cards
+The table below lists the Common cards.
+Epic Cards
+Epic cards are the rarest of the three card rarities, with a 3% draw chance when buying cards. Several of them are also gated behind Milestones before they can enter your pool.
+Lab: Light Speed Shots
+Light Speed Shots is unlocked in Milestones at Tier 7, Wave 10. Once researched, your projectiles travel to their target instantly after being fired.
+A shot can still be intercepted: if an untargeted enemy sits between your tower and the target, it blocks the shot and takes the damage instead.
+Lab: Shatter Shards
+Shatter Shards is unlocked in Milestones at Tier 16, Wave 40. The lab increases how many shards you earn when shattering modules. It has 5 levels, each adding 20% more shards, for a total increase of 100% at max level.
+Rare Cards
+Rare cards are the middle rarity, drawn at a 17% base rate when buying cards. Two of them — Recovery Package Chance and Land Mine Stun — must first be unlocked through Milestones before they can appear.
+Related pages
+AdvancedAnalysis
+Attack Speed
+Cash Bonus
+Critical Coin
+Critical Hits
+Gems
+Keys
+Damage
+Death Ray
+Defense Absolute
+Defense Percent
+Demon Mode
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

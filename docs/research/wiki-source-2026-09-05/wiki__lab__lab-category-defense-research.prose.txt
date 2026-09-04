@@ -1,0 +1,11 @@
+Related pages
+Defense Absolute
+Defense Percent
+Health
+Health Regen
+Land Mine
+Orbs
+Shockwave
+Thorn Damage
+Wall
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-08-30) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,2332 @@
+{
+  "observed_at": "2026-09-04T21:20:46.148741+00:00",
+  "servers": {
+    "8765": {
+      "status": {
+        "screen": "GAME_OVER",
+        "uptime": 2092.8,
+        "scans": 836,
+        "taps": {},
+        "skips": {
+          "screen_gated": 836
+        },
+        "runs_completed": 0,
+        "run": null,
+        "wallet": null,
+        "last_error": null,
+        "tail": [
+          "23:45:56 SCREEN UNKNOWN -> GAME_OVER (conf 0.998)"
+        ],
+        "dropped": 0,
+        "boxes": [],
+        "frame_size": {
+          "width": 1080,
+          "height": 2400
+        },
+        "bot": {
+          "running": true,
+          "since": 1788554753.400918,
+          "error": null
+        }
+      },
+      "control": {
+        "paused": false,
+        "strategy": {
+          "name": "default",
+          "actions": [
+            {
+              "name": "Attack Speed",
+              "template": "upgrade_attack_speed.png",
+              "enabled": true,
+              "threshold": 0.9,
+              "brightness_ratio": 0.75
+            },
+            {
+              "name": "Critical Chance",
+              "template": "upgrade_critical_chance.png",
+              "enabled": true,
+              "threshold": 0.9,
+              "brightness_ratio": 0.75
+            },
+            {
+              "name": "Damage",
+              "template": "upgrade_damage.png",
+              "enabled": true,
+              "threshold": 0.9,
+              "brightness_ratio": 0.75
+            },
+            {
+              "name": "Critical Factor",
+              "template": "upgrade_critical_factor.png",
+              "enabled": true,
+              "threshold": 0.9,
+              "brightness_ratio": 0.75
+            }
+          ],
+          "affordability": "digits",
+          "interval": 2.0,
+          "click_cooldown": 1.0,
+          "auto_navigate": false,
+          "max_runs": null,
+          "navigation_cooldown": 3.0,
+          "screen_confirmations": 2,
+          "tap_jitter_px": 8.0,
+          "timing_jitter": 0.15,
+          "tap_delay": 0.12,
+          "target_speed": null,
+          "shopping": {
+            "enabled": false,
+            "armed": false,
+            "visit_every_n_runs": 1,
+            "max_taps_per_visit": 40,
+            "coin_reserve": 0,
+            "coin_budget": 0,
+            "allow_unlocks": false,
+            "workshop": [
+              {
+                "name": "Unlock Cash Bonuses",
+                "category": "UTILITY",
+                "enabled": true,
+                "target": null
+              },
+              {
+                "name": "Unlock Defense Upgrades",
+                "category": "DEFENSE",
+                "enabled": true,
+                "target": null
+              },
+              {
+                "name": "Unlock Range Upgrades",
+                "category": "ATTACK",
+                "enabled": true,
+                "target": null
+              },
+              {
+                "name": "Health",
+                "category": "DEFENSE",
+                "enabled": true,
+                "target": null
+              },
+              {
+                "name": "Health Regen",
+                "category": "DEFENSE",
+                "enabled": true,
+                "target": null
+              },
+              {
+                "name": "Damage",
+                "category": "ATTACK",
+                "enabled": true,
+                "target": null
+              },
+              {
+                "name": "Attack Speed",
+                "category": "ATTACK",
+                "enabled": true,
+                "target": null
+              },
+              {
+                "name": "Critical Chance",
+                "category": "ATTACK",
+                "enabled": false,
+                "target": null
+              },
+              {
+                "name": "Critical Factor",
+                "category": "ATTACK",
+                "enabled": false,
+                "target": null
+              }
+            ],
+            "cards": {
+              "enabled": false,
+              "gem_floor": 40,
+              "max_per_visit": 2,
+              "batch": "x1"
+            }
+          },
+          "autopilot": {
+            "enabled": false,
+            "preset": "manual",
+            "rules": [],
+            "economy_until_wave": 20,
+            "survival_buffer": 1.2,
+            "cash_reserve": 0,
+            "max_scrolls": 8,
+            "purpose": "farm"
+          }
+        },
+        "affordability_available": [
+          "brightness",
+          "digits"
+        ],
+        "shopping_disabled_reason": null,
+        "speed_values": [
+          1.0,
+          1.5
+        ]
+      },
+      "autopilot": {
+        "phase": "idle",
+        "reason": "Waiting for battle (GAME_OVER)",
+        "next_upgrade_id": null,
+        "category": null,
+        "combat": {},
+        "updated_at": null,
+        "verified_purchases": 0,
+        "last_purchase": null,
+        "observations": [],
+        "can_control": false,
+        "tier_comparison": {
+          "tiers": [
+            {
+              "tier": 1,
+              "runs": 5,
+              "coins_per_hour": 499.50523447764897,
+              "median_wave": 5.5
+            }
+          ],
+          "recommended_tier": 1,
+          "reason": "Best observed coin rate among tiers with at least three completed runs. Milestone pushes are a separate goal; this does not change the game tier."
+        }
+      },
+      "upgrades": [
+        {
+          "id": "damage",
+          "name": "Damage",
+          "category": "ATTACK",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "attack_speed",
+          "name": "Attack Speed",
+          "category": "ATTACK",
+          "aliases": [
+            "AS"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "critical_chance",
+          "name": "Critical Chance",
+          "category": "ATTACK",
+          "aliases": [
+            "Crit Chance"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "critical_factor",
+          "name": "Critical Factor",
+          "category": "ATTACK",
+          "aliases": [
+            "Crit Factor"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "unlock_range_upgrades",
+          "name": "Unlock Range Upgrades",
+          "category": "ATTACK",
+          "aliases": [],
+          "unlock": true
+        },
+        {
+          "id": "range",
+          "name": "Range",
+          "category": "ATTACK",
+          "aliases": [
+            "Tower Range"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "damage_per_meter",
+          "name": "Damage / Meter",
+          "category": "ATTACK",
+          "aliases": [
+            "Damage Per Meter",
+            "Damage/Meter",
+            "DPM"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "multishot_chance",
+          "name": "Multishot Chance",
+          "category": "ATTACK",
+          "aliases": [
+            "Multi Shot Chance"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "multishot_targets",
+          "name": "Multishot Targets",
+          "category": "ATTACK",
+          "aliases": [
+            "Multi Shot Targets"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "rapid_fire_chance",
+          "name": "Rapid Fire Chance",
+          "category": "ATTACK",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "rapid_fire_duration",
+          "name": "Rapid Fire Duration",
+          "category": "ATTACK",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "bounce_shot_chance",
+          "name": "Bounce Shot Chance",
+          "category": "ATTACK",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "bounce_shot_targets",
+          "name": "Bounce Shot Targets",
+          "category": "ATTACK",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "bounce_shot_range",
+          "name": "Bounce Shot Range",
+          "category": "ATTACK",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "super_crit_chance",
+          "name": "Super Crit Chance",
+          "category": "ATTACK",
+          "aliases": [
+            "Super Critical Chance"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "super_crit_mult",
+          "name": "Super Crit Mult",
+          "category": "ATTACK",
+          "aliases": [
+            "Super Crit Multi",
+            "Super Critical Multiplier"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "rend_armor_chance",
+          "name": "Rend Armor Chance",
+          "category": "ATTACK",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "rend_armor_mult",
+          "name": "Rend Armor Mult",
+          "category": "ATTACK",
+          "aliases": [
+            "Rend Armor Multi",
+            "Rend Armor Multiplier"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "health",
+          "name": "Health",
+          "category": "DEFENSE",
+          "aliases": [
+            "HP"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "health_regen",
+          "name": "Health Regen",
+          "category": "DEFENSE",
+          "aliases": [
+            "Health Regeneration",
+            "Regen"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "unlock_defense_upgrades",
+          "name": "Unlock Defense Upgrades",
+          "category": "DEFENSE",
+          "aliases": [
+            "Unlock Defence Upgrades"
+          ],
+          "unlock": true
+        },
+        {
+          "id": "defense_percent",
+          "name": "Defense %",
+          "category": "DEFENSE",
+          "aliases": [
+            "Defense Percent",
+            "Defence %",
+            "Defence Percent",
+            "Def %"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "defense_absolute",
+          "name": "Defense Absolute",
+          "category": "DEFENSE",
+          "aliases": [
+            "Defence Absolute",
+            "Def Abs",
+            "Absolute Defense"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "thorns",
+          "name": "Thorns",
+          "category": "DEFENSE",
+          "aliases": [
+            "Thorn Damage",
+            "Thorns Damage"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "lifesteal",
+          "name": "Lifesteal",
+          "category": "DEFENSE",
+          "aliases": [
+            "Life Steal"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "knockback_chance",
+          "name": "Knockback Chance",
+          "category": "DEFENSE",
+          "aliases": [
+            "Knock Back Chance"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "knockback_force",
+          "name": "Knockback Force",
+          "category": "DEFENSE",
+          "aliases": [
+            "Knock Back Force"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "orb_speed",
+          "name": "Orb Speed",
+          "category": "DEFENSE",
+          "aliases": [
+            "Orbs Speed"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "orbs",
+          "name": "Orbs",
+          "category": "DEFENSE",
+          "aliases": [
+            "Orb Count",
+            "Orbs Count"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "shockwave_size",
+          "name": "Shockwave Size",
+          "category": "DEFENSE",
+          "aliases": [
+            "Shock Wave Size"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "shockwave_frequency",
+          "name": "Shockwave Frequency",
+          "category": "DEFENSE",
+          "aliases": [
+            "Shock Wave Frequency"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "land_mine_chance",
+          "name": "Land Mine Chance",
+          "category": "DEFENSE",
+          "aliases": [
+            "Landmine Chance"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "land_mine_damage",
+          "name": "Land Mine Damage",
+          "category": "DEFENSE",
+          "aliases": [
+            "Landmine Damage"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "land_mine_radius",
+          "name": "Land Mine Radius",
+          "category": "DEFENSE",
+          "aliases": [
+            "Landmine Radius"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "death_defy",
+          "name": "Death Defy",
+          "category": "DEFENSE",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "wall_health",
+          "name": "Wall Health",
+          "category": "DEFENSE",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "wall_rebuild",
+          "name": "Wall Rebuild",
+          "category": "DEFENSE",
+          "aliases": [
+            "Wall Rebuild Time"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "unlock_cash_bonuses",
+          "name": "Unlock Cash Bonuses",
+          "category": "UTILITY",
+          "aliases": [
+            "Unlock Cash Bonus"
+          ],
+          "unlock": true
+        },
+        {
+          "id": "cash_bonus",
+          "name": "Cash Bonus",
+          "category": "UTILITY",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "cash_per_wave",
+          "name": "Cash / Wave",
+          "category": "UTILITY",
+          "aliases": [
+            "Cash Per Wave",
+            "Cash/Wave"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "unlock_coin_bonuses",
+          "name": "Unlock Coin Bonuses",
+          "category": "UTILITY",
+          "aliases": [
+            "Unlock Coins Bonuses",
+            "Unlock Coin Bonus"
+          ],
+          "unlock": true
+        },
+        {
+          "id": "coins_per_kill_bonus",
+          "name": "Coins / Kill Bonus",
+          "category": "UTILITY",
+          "aliases": [
+            "Coins Per Kill Bonus",
+            "Coins/Kill Bonus",
+            "Coin Per Kill Bonus",
+            "Coin/Kill Bonus",
+            "Coins Per Kill"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "coins_per_wave",
+          "name": "Coins / Wave",
+          "category": "UTILITY",
+          "aliases": [
+            "Coins Per Wave",
+            "Coins/Wave"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "free_attack_upgrade",
+          "name": "Free Attack Upgrade",
+          "category": "UTILITY",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "free_defense_upgrade",
+          "name": "Free Defense Upgrade",
+          "category": "UTILITY",
+          "aliases": [
+            "Free Defence Upgrade"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "free_utility_upgrade",
+          "name": "Free Utility Upgrade",
+          "category": "UTILITY",
+          "aliases": [],
+          "unlock": false
+        },
+        {
+          "id": "interest_per_wave",
+          "name": "Interest / Wave",
+          "category": "UTILITY",
+          "aliases": [
+            "Interest Per Wave",
+            "Interest"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "recovery_amount",
+          "name": "Recovery Amount",
+          "category": "UTILITY",
+          "aliases": [
+            "Package Recovery Amount"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "max_recovery",
+          "name": "Max Recovery",
+          "category": "UTILITY",
+          "aliases": [
+            "Maximum Recovery"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "package_chance",
+          "name": "Package Chance",
+          "category": "UTILITY",
+          "aliases": [
+            "Recovery Package Chance"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "enemy_attack_level_skip",
+          "name": "Enemy Attack Level Skip",
+          "category": "UTILITY",
+          "aliases": [
+            "Enemy Attack Skip",
+            "EALS"
+          ],
+          "unlock": false
+        },
+        {
+          "id": "enemy_health_level_skip",
+          "name": "Enemy Health Level Skip",
+          "category": "UTILITY",
+          "aliases": [
+            "Enemy Health Skip",
+            "EHLS"
+          ],
+          "unlock": false
+        }
+      ],
+      "strategies": {
+        "active": "default",
+        "names": [
+          "default"
+        ]
+      },
+      "stats": {
+        "runs": [
+          {
+            "id": 1,
+            "started_at": 1788161046.723361,
+            "ended_at": 1788161064.654668,
+            "wave": 3,
+            "coins": 10,
+            "tier": 1,
+            "tap_count": 20,
+            "scan_count": 6,
+            "duration": 17.931307077407837
+          },
+          {
+            "id": 2,
+            "started_at": 1788161069.570401,
+            "ended_at": 1788161069.570401,
+            "wave": null,
+            "coins": null,
+            "tier": null,
+            "tap_count": 0,
+            "scan_count": 0,
+            "duration": 0.0
+          },
+          {
+            "id": 3,
+            "started_at": 1788296419.283552,
+            "ended_at": 1788296732.46333,
+            "wave": 10,
+            "coins": 39,
+            "tier": 1,
+            "tap_count": 420,
+            "scan_count": 106,
+            "duration": 313.17977809906006
+          },
+          {
+            "id": 4,
+            "started_at": 1788471800.167594,
+            "ended_at": 1788471952.785395,
+            "wave": 5,
+            "coins": 16,
+            "tier": 1,
+            "tap_count": 204,
+            "scan_count": 52,
+            "duration": 152.61780095100403
+          },
+          {
+            "id": 5,
+            "started_at": 1788520611.142741,
+            "ended_at": 1788520719.860571,
+            "wave": null,
+            "coins": null,
+            "tier": null,
+            "tap_count": 144,
+            "scan_count": 37,
+            "duration": 108.71782994270325
+          },
+          {
+            "id": 6,
+            "started_at": 1788550557.5021498,
+            "ended_at": 1788550815.683486,
+            "wave": 6,
+            "coins": 19,
+            "tier": 1,
+            "tap_count": 296,
+            "scan_count": 75,
+            "duration": 258.1813361644745
+          },
+          {
+            "id": 7,
+            "started_at": 1788550901.478744,
+            "ended_at": 1788551074.8742452,
+            "wave": null,
+            "coins": 43,
+            "tier": 1,
+            "tap_count": 196,
+            "scan_count": 50,
+            "duration": 173.39550113677979
+          }
+        ],
+        "taps": [
+          {
+            "action": "Damage",
+            "count": 210
+          },
+          {
+            "action": "Critical Factor",
+            "count": 210
+          },
+          {
+            "action": "Critical Chance",
+            "count": 210
+          },
+          {
+            "action": "Attack Speed",
+            "count": 210
+          },
+          {
+            "action": "upgrade_damage.png",
+            "count": 146
+          },
+          {
+            "action": "upgrade_critical_factor.png",
+            "count": 146
+          },
+          {
+            "action": "upgrade_critical_chance.png",
+            "count": 146
+          },
+          {
+            "action": "upgrade_attack_speed.png",
+            "count": 146
+          }
+        ],
+        "screens": [
+          {
+            "screen": "GAME_OVER",
+            "count": 24
+          },
+          {
+            "screen": "MAIN_MENU",
+            "count": 11
+          },
+          {
+            "screen": "UNKNOWN",
+            "count": 7
+          },
+          {
+            "screen": "IN_RUN",
+            "count": 7
+          }
+        ]
+      },
+      "runs?limit=3": [
+        {
+          "id": 7,
+          "started_at": 1788550901.478744,
+          "ended_at": 1788551074.8742452,
+          "wave": null,
+          "coins": 43,
+          "tier": 1,
+          "abandoned": 0,
+          "scan_count": 50,
+          "tap_count": 196,
+          "purpose": "farm"
+        },
+        {
+          "id": 6,
+          "started_at": 1788550557.5021498,
+          "ended_at": 1788550815.683486,
+          "wave": 6,
+          "coins": 19,
+          "tier": 1,
+          "abandoned": 0,
+          "scan_count": 75,
+          "tap_count": 296,
+          "purpose": "farm"
+        },
+        {
+          "id": 5,
+          "started_at": 1788520611.142741,
+          "ended_at": 1788520719.860571,
+          "wave": null,
+          "coins": null,
+          "tier": null,
+          "abandoned": 1,
+          "scan_count": 37,
+          "tap_count": 144,
+          "purpose": "farm"
+        }
+      ],
+      "errors?limit=5": [
+        {
+          "seq": 41664,
+          "run_id": null,
+          "ts": 1788505436.4662058,
+          "type": "BotError",
+          "screen": null,
+          "action": null,
+          "reason": null,
+          "score": null,
+          "price": null,
+          "wallet": null,
+          "detail": {
+            "message": "No ADB devices found. Is the emulator running? Check `adb devices`.",
+            "traceback": ""
+          }
+        },
+        {
+          "seq": 3467,
+          "run_id": null,
+          "ts": 1788458828.840052,
+          "type": "BotError",
+          "screen": null,
+          "action": null,
+          "reason": null,
+          "score": null,
+          "price": null,
+          "wallet": null,
+          "detail": {
+            "message": "No ADB devices found. Is the emulator running? Check `adb devices`.",
+            "traceback": ""
+          }
+        },
+        {
+          "seq": 3466,
+          "run_id": null,
+          "ts": 1788457740.359211,
+          "type": "BotError",
+          "screen": null,
+          "action": null,
+          "reason": null,
+          "score": null,
+          "price": null,
+          "wallet": null,
+          "detail": {
+            "message": "No ADB devices found. Is the emulator running? Check `adb devices`.",
+            "traceback": ""
+          }
+        },
+        {
+          "seq": 494,
+          "run_id": null,
+          "ts": 1788292439.30997,
+          "type": "BotError",
+          "screen": null,
+          "action": null,
+          "reason": null,
+          "score": null,
+          "price": null,
+          "wallet": null,
+          "detail": {
+            "message": "Device error: screencap failed: device offline",
+            "traceback": "Traceback (most recent call last):\n  File \"/Users/shahar/BifrostProjects/thetowerbot/device.py\", line 76, in capture_screen\n    shot = device.screenshot(error_ok=False)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/screenshot.py\", line 57, in screenshot\n    pil_image = self.__screencap(display_id)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/screenshot.py\", line 77, in __screencap\n    png_bytes = self.shell(cmdargs, encoding=None)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/_device_base.py\", line 252, in shell\n    c = self.open_shell(cmdargs)\n        ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/_device_base.py\", line 175, in open_shell\n    c = self.open_transport()\n        ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/_device_base.py\", line 92, in open_transport\n    c.check_okay()\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/_adb.py\", line 192, in check_okay\n    raise AdbError(self.read_string_block())\nadbutils.errors.AdbError: device offline\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/Users/shahar/BifrostProjects/thetowerbot/tower_bot.py\", line 319, in run_forever\n    self.run_once(max_runs=max_runs)\n  File \"/Users/shahar/BifrostProjects/thetowerbot/tower_bot.py\", line 213, in run_once\n    self.refresh_screen()\n  File \"/Users/shahar/BifrostProjects/thetowerbot/tower_bot.py\", line 101, in refresh_screen\n    self._screen = capture_screen(self.device)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/device.py\", line 78, in capture_screen\n    raise EmulatorError(f\"screencap failed: {exc}\") from exc\ndevice.EmulatorError: screencap failed: device offline\n"
+          }
+        },
+        {
+          "seq": 493,
+          "run_id": null,
+          "ts": 1788292437.292495,
+          "type": "BotError",
+          "screen": null,
+          "action": null,
+          "reason": null,
+          "score": null,
+          "price": null,
+          "wallet": null,
+          "detail": {
+            "message": "Device error: screencap failed: device offline",
+            "traceback": "Traceback (most recent call last):\n  File \"/Users/shahar/BifrostProjects/thetowerbot/device.py\", line 76, in capture_screen\n    shot = device.screenshot(error_ok=False)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/screenshot.py\", line 57, in screenshot\n    pil_image = self.__screencap(display_id)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/screenshot.py\", line 77, in __screencap\n    png_bytes = self.shell(cmdargs, encoding=None)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/_device_base.py\", line 252, in shell\n    c = self.open_shell(cmdargs)\n        ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/_device_base.py\", line 175, in open_shell\n    c = self.open_transport()\n        ^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/_device_base.py\", line 92, in open_transport\n    c.check_okay()\n  File \"/Users/shahar/BifrostProjects/thetowerbot/.venv/lib/python3.12/site-packages/adbutils/_adb.py\", line 192, in check_okay\n    raise AdbError(self.read_string_block())\nadbutils.errors.AdbError: device offline\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/Users/shahar/BifrostProjects/thetowerbot/tower_bot.py\", line 319, in run_forever\n    self.run_once(max_runs=max_runs)\n  File \"/Users/shahar/BifrostProjects/thetowerbot/tower_bot.py\", line 213, in run_once\n    self.refresh_screen()\n  File \"/Users/shahar/BifrostProjects/thetowerbot/tower_bot.py\", line 101, in refresh_screen\n    self._screen = capture_screen(self.device)\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/shahar/BifrostProjects/thetowerbot/device.py\", line 78, in capture_screen\n    raise EmulatorError(f\"screencap failed: {exc}\") from exc\ndevice.EmulatorError: screencap failed: device offline\n"
+          }
+        }
+      ],
+      "ledger?limit=5": {
+        "lines": [
+          {
+            "id": 7,
+            "seq": 69564,
+            "ts": 1788551074.8742452,
+            "kind": "RUN_PAYOUT",
+            "item": null,
+            "category": null,
+            "currency": "coins",
+            "delta": 43,
+            "price": null,
+            "balance_after": null,
+            "observed": null,
+            "dry_run": 0,
+            "run_id": 7,
+            "visit": null,
+            "reason": null,
+            "detail": {}
+          },
+          {
+            "id": 6,
+            "seq": 69240,
+            "ts": 1788550815.683486,
+            "kind": "RUN_PAYOUT",
+            "item": null,
+            "category": null,
+            "currency": "coins",
+            "delta": 19,
+            "price": null,
+            "balance_after": null,
+            "observed": null,
+            "dry_run": 0,
+            "run_id": 6,
+            "visit": null,
+            "reason": null,
+            "detail": {}
+          },
+          {
+            "id": 5,
+            "seq": 52333,
+            "ts": 1788520719.860571,
+            "kind": "RUN_PAYOUT",
+            "item": null,
+            "category": null,
+            "currency": "coins",
+            "delta": null,
+            "price": null,
+            "balance_after": null,
+            "observed": null,
+            "dry_run": 0,
+            "run_id": 5,
+            "visit": null,
+            "reason": "abandoned",
+            "detail": {}
+          },
+          {
+            "id": 4,
+            "seq": 52039,
+            "ts": 1788520476.931628,
+            "kind": "SHOP_UNAVAILABLE",
+            "item": null,
+            "category": null,
+            "currency": null,
+            "delta": null,
+            "price": null,
+            "balance_after": null,
+            "observed": null,
+            "dry_run": 0,
+            "run_id": null,
+            "visit": null,
+            "reason": "header atlas is missing 2, 3, 5, 6, 9",
+            "detail": {}
+          },
+          {
+            "id": 3,
+            "seq": 14318,
+            "ts": 1788471952.785395,
+            "kind": "RUN_PAYOUT",
+            "item": null,
+            "category": null,
+            "currency": "coins",
+            "delta": 16,
+            "price": null,
+            "balance_after": null,
+            "observed": null,
+            "dry_run": 0,
+            "run_id": 4,
+            "visit": null,
+            "reason": null,
+            "detail": {}
+          }
+        ],
+        "balances": {
+          "coins": null,
+          "gems": null
+        },
+        "rehearsals": 0,
+        "next": 3
+      },
+      "advisor": {
+        "error": "HTTP Error 404: Not Found"
+      },
+      "openapi": {
+        "openapi": "3.1.0",
+        "info": {
+          "title": "The Tower bot",
+          "version": "0.1.0"
+        },
+        "paths": {
+          "/api/upgrades": {
+            "get": {
+              "summary": "Upgrade Catalog",
+              "operationId": "upgrade_catalog_api_upgrades_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "items": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Response Upgrade Catalog Api Upgrades Get"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/autopilot/presets": {
+            "get": {
+              "summary": "Autopilot Presets",
+              "operationId": "autopilot_presets_api_autopilot_presets_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "items": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Response Autopilot Presets Api Autopilot Presets Get"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/autopilot": {
+            "get": {
+              "summary": "Autopilot Status",
+              "operationId": "autopilot_status_api_autopilot_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Autopilot Status Api Autopilot Get"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/autopilot/command": {
+            "post": {
+              "summary": "Autopilot Command",
+              "operationId": "autopilot_command_api_autopilot_command_post",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/AutopilotCommand"
+                    }
+                  }
+                },
+                "required": true
+              },
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": {
+                          "type": "boolean"
+                        },
+                        "type": "object",
+                        "title": "Response Autopilot Command Api Autopilot Command Post"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/status": {
+            "get": {
+              "summary": "Status",
+              "operationId": "status_api_status_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Status Api Status Get"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/runs": {
+            "get": {
+              "summary": "Runs",
+              "operationId": "runs_api_runs_get",
+              "parameters": [
+                {
+                  "name": "limit",
+                  "in": "query",
+                  "required": false,
+                  "schema": {
+                    "type": "integer",
+                    "default": 50,
+                    "title": "Limit"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        },
+                        "title": "Response Runs Api Runs Get"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/runs/{run_id}/events": {
+            "get": {
+              "summary": "Run Events",
+              "operationId": "run_events_api_runs__run_id__events_get",
+              "parameters": [
+                {
+                  "name": "run_id",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "integer",
+                    "title": "Run Id"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        },
+                        "title": "Response Run Events Api Runs  Run Id  Events Get"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/events/stream": {
+            "get": {
+              "summary": "Stream",
+              "operationId": "stream_api_events_stream_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/unknown": {
+            "get": {
+              "summary": "Unknown",
+              "operationId": "unknown_api_unknown_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "items": {
+                          "additionalProperties": true,
+                          "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Response Unknown Api Unknown Get"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/unknown/{name}": {
+            "get": {
+              "summary": "Unknown Image",
+              "operationId": "unknown_image_api_unknown__name__get",
+              "parameters": [
+                {
+                  "name": "name",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": "Name"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {}
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/frame.jpg": {
+            "get": {
+              "summary": "Frame Still",
+              "operationId": "frame_still_api_frame_jpg_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/frame": {
+            "get": {
+              "summary": "Frame Mjpeg",
+              "operationId": "frame_mjpeg_api_frame_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/control": {
+            "get": {
+              "summary": "Read Control",
+              "operationId": "read_control_api_control_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Read Control Api Control Get"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "patch": {
+              "summary": "Patch Control",
+              "operationId": "patch_control_api_control_patch",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/ControlPatch"
+                    }
+                  }
+                },
+                "required": true
+              },
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Patch Control Api Control Patch"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/control/command": {
+            "post": {
+              "summary": "Post Command",
+              "description": "Queue one action for the scan loop's next pass.\n\nDeliberately separate from PATCH /api/control rather than another\noptional field on it. A patch is idempotent - re-sending it leaves\nthe same settings - whereas re-sending a command taps again, and\nfolding the two together would make a retried request after a\ndropped response silently double the taps.\n\nThis route never touches the device. It cannot: the web layer has\nno handle on one, which is the boundary control.py exists to keep.",
+              "operationId": "post_command_api_control_command_post",
+              "requestBody": {
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/CommandRequest"
+                    }
+                  }
+                },
+                "required": true
+              },
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Post Command Api Control Command Post"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/bot/start": {
+            "post": {
+              "summary": "Start Bot",
+              "operationId": "start_bot_api_bot_start_post",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Start Bot Api Bot Start Post"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/bot/stop": {
+            "post": {
+              "summary": "Stop Bot",
+              "operationId": "stop_bot_api_bot_stop_post",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Stop Bot Api Bot Stop Post"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/strategies": {
+            "get": {
+              "summary": "List Strategies",
+              "operationId": "list_strategies_api_strategies_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response List Strategies Api Strategies Get"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/strategies/{name}": {
+            "get": {
+              "summary": "Read Strategy",
+              "operationId": "read_strategy_api_strategies__name__get",
+              "parameters": [
+                {
+                  "name": "name",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": "Name"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "title": "Response Read Strategy Api Strategies  Name  Get"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "put": {
+              "summary": "Write Strategy",
+              "operationId": "write_strategy_api_strategies__name__put",
+              "parameters": [
+                {
+                  "name": "name",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": "Name"
+                  }
+                }
+              ],
+              "requestBody": {
+                "required": true,
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "additionalProperties": true,
+                      "title": "Body"
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "title": "Response Write Strategy Api Strategies  Name  Put"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "delete": {
+              "summary": "Remove Strategy",
+              "operationId": "remove_strategy_api_strategies__name__delete",
+              "parameters": [
+                {
+                  "name": "name",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": "Name"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "title": "Response Remove Strategy Api Strategies  Name  Delete"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/strategies/{name}/activate": {
+            "post": {
+              "summary": "Activate Strategy",
+              "operationId": "activate_strategy_api_strategies__name__activate_post",
+              "parameters": [
+                {
+                  "name": "name",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": "Name"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "title": "Response Activate Strategy Api Strategies  Name  Activate Post"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/shutdown": {
+            "post": {
+              "summary": "Shutdown All",
+              "operationId": "shutdown_all_api_shutdown_post",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Shutdown All Api Shutdown Post"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/stats": {
+            "get": {
+              "summary": "Stats",
+              "operationId": "stats_api_stats_get",
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "additionalProperties": true,
+                        "type": "object",
+                        "title": "Response Stats Api Stats Get"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/errors": {
+            "get": {
+              "summary": "Errors",
+              "operationId": "errors_api_errors_get",
+              "parameters": [
+                {
+                  "name": "limit",
+                  "in": "query",
+                  "required": false,
+                  "schema": {
+                    "type": "integer",
+                    "default": 100,
+                    "title": "Limit"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": true
+                        },
+                        "title": "Response Errors Api Errors Get"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/ledger": {
+            "get": {
+              "summary": "Ledger Lines",
+              "operationId": "ledger_lines_api_ledger_get",
+              "parameters": [
+                {
+                  "name": "limit",
+                  "in": "query",
+                  "required": false,
+                  "schema": {
+                    "type": "integer",
+                    "default": 50,
+                    "title": "Limit"
+                  }
+                },
+                {
+                  "name": "before",
+                  "in": "query",
+                  "required": false,
+                  "schema": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Before"
+                  }
+                },
+                {
+                  "name": "kind",
+                  "in": "query",
+                  "required": false,
+                  "schema": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Kind"
+                  }
+                },
+                {
+                  "name": "currency",
+                  "in": "query",
+                  "required": false,
+                  "schema": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Currency"
+                  }
+                },
+                {
+                  "name": "include_rehearsals",
+                  "in": "query",
+                  "required": false,
+                  "schema": {
+                    "type": "boolean",
+                    "default": false,
+                    "title": "Include Rehearsals"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "additionalProperties": true,
+                        "title": "Response Ledger Lines Api Ledger Get"
+                      }
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/{_path}": {
+            "delete": {
+              "summary": "Unmatched Api Route",
+              "operationId": "unmatched_api_route_api___path__delete",
+              "parameters": [
+                {
+                  "name": "_path",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": " Path"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {}
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "post": {
+              "summary": "Unmatched Api Route",
+              "operationId": "unmatched_api_route_api___path__delete",
+              "parameters": [
+                {
+                  "name": "_path",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": " Path"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {}
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "put": {
+              "summary": "Unmatched Api Route",
+              "operationId": "unmatched_api_route_api___path__delete",
+              "parameters": [
+                {
+                  "name": "_path",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": " Path"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {}
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "patch": {
+              "summary": "Unmatched Api Route",
+              "operationId": "unmatched_api_route_api___path__delete",
+              "parameters": [
+                {
+                  "name": "_path",
+                  "in": "path",
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "title": " Path"
+                  }
+                }
+              ],
+              "responses": {
+                "200": {
+                  "description": "Successful Response",
+                  "content": {
+                    "application/json": {
+                      "schema": {}
+                    }
+                  }
+                },
+                "422": {
+                  "description": "Validation Error",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/HTTPValidationError"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "components": {
+          "schemas": {
+            "AutopilotCommand": {
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "buy",
+                    "category",
+                    "scan"
+                  ],
+                  "title": "Action"
+                },
+                "category": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "ATTACK",
+                        "DEFENSE",
+                        "UTILITY"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Category"
+                },
+                "upgrade_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Upgrade Id"
+                }
+              },
+              "type": "object",
+              "required": [
+                "action"
+              ],
+              "title": "AutopilotCommand"
+            },
+            "CommandRequest": {
+              "properties": {
+                "command": {
+                  "type": "string",
+                  "title": "Command"
+                }
+              },
+              "type": "object",
+              "required": [
+                "command"
+              ],
+              "title": "CommandRequest",
+              "description": "One thing to do once, as opposed to a setting to hold.\n\nLoose on the value for the same reason ControlPatch is: Controls.request()\nowns the list of legal commands, and spelling it out here as an Enum\nwould be a second copy to keep in step."
+            },
+            "ControlPatch": {
+              "properties": {
+                "paused": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Paused"
+                },
+                "affordability": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Affordability"
+                },
+                "interval": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Interval"
+                },
+                "click_cooldown": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Click Cooldown"
+                },
+                "auto_navigate": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Auto Navigate"
+                },
+                "max_runs": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Max Runs"
+                },
+                "navigation_cooldown": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Navigation Cooldown"
+                },
+                "screen_confirmations": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Screen Confirmations"
+                },
+                "tap_jitter_px": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Tap Jitter Px"
+                },
+                "timing_jitter": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Timing Jitter"
+                },
+                "tap_delay": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Tap Delay"
+                },
+                "target_speed": {
+                  "anyOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Target Speed"
+                },
+                "actions": {
+                  "anyOf": [
+                    {
+                      "items": {
+                        "additionalProperties": true,
+                        "type": "object"
+                      },
+                      "type": "array"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Actions"
+                },
+                "autopilot": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Autopilot"
+                }
+              },
+              "type": "object",
+              "title": "ControlPatch",
+              "description": "A partial update. Every field optional; absent means \"leave it alone\".\n\nDeliberately loose on types beyond the obvious - Controls.apply() is the\nsingle validator, so the rules live in one place rather than being spelled\nout here and there and drifting apart. `actions` is a list of raw objects\nfor the same reason: mirroring ActionRule's fields here would be a second\nschema to keep in step with strategy.py."
+            },
+            "HTTPValidationError": {
+              "properties": {
+                "detail": {
+                  "items": {
+                    "$ref": "#/components/schemas/ValidationError"
+                  },
+                  "type": "array",
+                  "title": "Detail"
+                }
+              },
+              "type": "object",
+              "title": "HTTPValidationError"
+            },
+            "ValidationError": {
+              "properties": {
+                "loc": {
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "type": "array",
+                  "title": "Location"
+                },
+                "msg": {
+                  "type": "string",
+                  "title": "Message"
+                },
+                "type": {
+                  "type": "string",
+                  "title": "Error Type"
+                },
+                "input": {
+                  "title": "Input"
+                },
+                "ctx": {
+                  "type": "object",
+                  "title": "Context"
+                }
+              },
+              "type": "object",
+              "required": [
+                "loc",
+                "msg",
+                "type"
+              ],
+              "title": "ValidationError"
+            }
+          }
+        }
+      }
+    },
+    "8766": {
+      "status": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "control": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "autopilot": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "upgrades": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "strategies": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "stats": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "runs?limit=3": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "errors?limit=5": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "ledger?limit=5": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "advisor": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      },
+      "openapi": {
+        "error": "<urlopen error [Errno 61] Connection refused>"
+      }
+    }
+  }
+}

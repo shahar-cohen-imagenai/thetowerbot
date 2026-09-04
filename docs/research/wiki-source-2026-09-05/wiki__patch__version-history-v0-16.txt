@@ -1,0 +1,69 @@
+Version 0.16 introduced leaderboards for highest wave and tier, with tier taking precedence over wave, alongside three new cards (Wave Accelerator, Berserker, Fortress), a 7th level for all cards, and one extra card slot. Many upgrades saw raised max levels and new exponential scaling breakpoints, pushing late-game damage, defense, and regen growth higher. A music manager with three new tracks arrived, extra orbs were reworked to use fixed distances instead of tower range, and tournament difficulty scaling increased to shorten rounds. The update also delivered UI improvements and a batch of bug fixes.
+Change list
+Reproduced from the developer's release notes.
+• Leaderboards for highest wave and tier now available. Higher tier always takes precedence over a higher wave on lower tier. It's a start, will evaluate what changes need to be made as it collects data and such. Maybe make is seasonal or add new rankings later
+• A large number of upgrades had their max level increased and pricing for these new levels adjusted
+• A large number of upgrade values also received exponential scaling at particular levels hit (example is damage now receives extra exponential damage increases at level 1500, 2000, 2500, etc)
+• Attack damage equation adjusted for level 1000 and above to increase faster exponentially
+• Attack max level increased from 5000 to 6000
+• Crit Factor max level increased from 99 to 150
+• Dmg/Meter increase per level decay reduced, ends at level 70 and from there is +.20% per level now (buff)
+• Dmg/Meter max level increased from 99 to 200
+• Bounce Shot Range max level increased from 40 to 60
+• Super Crit Mult max level increased from 80 to 120
+• Defense absolute scaling increased from level 300 and above
+• Health Regen scaling from level 400 and above increased
+• New Epic Card: Wave Accelerator
+• New Epic Card: Berserker (balance of this card very likely to change after feedback)
+• New Common Card: Fortress
+• All cards now have a 7th level added to them
+• 1 new unlockable card slot
+• Health regen card buffed: 1.20 base to 1.40, increase per level from .10 to .20
+• Inner Orbs distance from the tower is now absolute and not based on tower range
+• Super Tower base bonus increased from 2.0 to 2.5, increase per level from .3 to .4
+• Card panel re-sized to better show more cards
+• Death wave quantity max level raised from 3 to 5
+• Chain lightning damage per level exponential factor increased
+• Smart missile damage per level exponential factor greatly increased
+• Inner landmine damage per level exponential factor slightly increased
+• Poison swamp damage per level exponential factor slightly increased
+• Difficulty scaling for tournaments increased again to make rounds shorter (enemy health, attack, speed exponential growth factor)
+• One 3 new tracks by Krisu. One is unlocked instantly, 2 others available to unlock in the events shop with medals
+• Music Manager Panel within themes panel available for players that unlock any theme or track once. Can toggle songs on/off, pick preference of loop or play next track in active rounds
+• On game start, it shuffles track choice
+• Inner Orbs card renamed to Extra Orbs
+• Color of extra orbs changed to purple
+• Distance for extra orbs changed. Minimum is now a range of 6.0 from tower and max of tower range x 1.3 (performance no longer tied to tower range)
+• Normal orbs distance from tower increased slightly
+• Projectile speed factor increased based on tower attack speed
+• Upgrade buttons that can't be afforded have their text darkened
+• Enemy mass raised slightly
+• Enemy speed increases for wave 100 and above slowly scales up more for shorter slightly shorter rounds
+• Panel for events tells player to update if needed for current event (instead of just not loading)
+• Current and max level shown in upgrade detail panels
+• New panel under upgrade detail showing other details such as health gained from death wave and health from berserker card (in active rounds)
+• Scroll sensitivity reduced on in game upgrade panels (easier to tap buttons)
+• Health regen perk benefit increased from .60 to .75 per level
+• Animations for some buttons
+• Encyclopedia attack panel upgrades out of order
+• Couple odd animations playing on first start of the game
+• Lab upgrades for interest showing for players without interest unlocked in workshop
+• When unlocking an ultimate weapon perk, remember the state (on/off) you left it in if you own that weapon
+• Coins not updating when opening event panel from in round
+• Tower explosion on death no showing when themes are active
+• Translation fixes
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,91 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Ultimate Weapon Research"
+    ],
+    "rows": [
+      [
+        "Missiles Despawn Time Max Lv 20",
+        "Missiles Explosion Max Lv 1"
+      ],
+      [
+        "Missiles Radius Max Lv 20",
+        "Chrono Field Duration Max Lv 30"
+      ],
+      [
+        "Chrono Field Damage Reduction Max Lv 1",
+        "Chrono Field Reduction\u00a0% Max Lv 30"
+      ],
+      [
+        "Swamp Radius Max Lv 30",
+        "Swamp Stun Max Lv 1"
+      ],
+      [
+        "Swamp Stun Chance Max Lv 30",
+        "Swamp Stun Time Max Lv 30"
+      ],
+      [
+        "Golden Tower Bonus Max Lv 25",
+        "Golden Tower Duration Max Lv 20"
+      ],
+      [
+        "Chain Lightning Shock Max Lv 1",
+        "Shock Chance Max Lv 30"
+      ],
+      [
+        "Shock Multiplier Max Lv 14",
+        "Death Wave Health Max Lv 30"
+      ],
+      [
+        "Death Wave Coin Bonus Max Lv 20",
+        "Inner Mine Blast Radius Max Lv 20"
+      ],
+      [
+        "Inner Mine Rotation Speed Max Lv 20",
+        "Chrono Field Range Max Lv 20"
+      ],
+      [
+        "Missle Amplifier Max Lv 25",
+        "Missile Barrage Max Lv 1"
+      ],
+      [
+        "Missile Barrage Quantity Max Lv 6",
+        "Inner Mine Stun Max Lv 1"
+      ],
+      [
+        "Black Hole Damage Max Lv 10",
+        "Extra Black Hole Max Lv 1"
+      ],
+      [
+        "Black Hole Coins Bonus Max Lv 20",
+        "Spotlight Coin Bonus Max Lv 20"
+      ],
+      [
+        "Spotlight Missiles Max Lv 18",
+        "Black Hole Disable Ranged Enemies Max lv 1"
+      ],
+      [
+        "Recharge Missile Barrage Max lv 7",
+        "Swamp Rend - Basic Enemies Max lv 30"
+      ],
+      [
+        "Swamp Rend - Additional Enemies Max lv 6",
+        "Chain Thunder Max lv 30"
+      ],
+      [
+        "Lightning Amplifier Max lv 30",
+        "Death Wave Cell Bonus Max lv 20"
+      ],
+      [
+        "Death Wave Damage Amplifier Max lv 30",
+        "Death Wave Armor Stripping Max lv 10"
+      ],
+      [
+        "Inner Land Mine - Chrono Jump Max lv 10",
+        ""
+      ]
+    ]
+  }
+]

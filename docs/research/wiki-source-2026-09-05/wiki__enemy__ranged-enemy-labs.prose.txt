@@ -1,0 +1,21 @@
+Ranged Enemy labs are a set of research options that weaken the ranged enemy type during your rounds. Each lab targets one stat — health, attack or range — and applies its reduction at all waves once researched.
+On this page
+Description — Ranged Enemy Health
+Description — Ranged Enemy Attack
+Description — Ranged Enemy Range
+Description
+Description — Ranged Enemy Health
+This lab is unlocked through Milestones at tier 9, wave 20. It lowers the health of ranged enemies at every wave, making them quicker to kill. It has 30 levels, and the per-level values are shown in the cost table below.
+Show all 30 rows
+Description — Ranged Enemy Attack
+This lab is also unlocked through Milestones at tier 9, wave 20. It reduces how much damage ranged enemies deal at all waves, which helps your tower survive their hits. It has 30 levels.
+Description — Ranged Enemy Range
+This lab unlocks at tier 13, wave 80. It shrinks the attack range of ranged enemies, so they have to get closer before they can fire on your tower. It has 30 levels, with the per-level values listed in the table below.
+Show all 30 rows
+Description
+All three Ranged Enemy labs modify the stats of ranged enemies while a round is running. One side effect worth knowing: researching these labs breaks the default stat ratios between enemy types. For example, boss health is normally a fixed multiple of basic enemy health, but once you have researched basic enemy health reductions, that multiple no longer holds true. Keep this in mind when comparing enemy stats or planning around specific breakpoints.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-15) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,40 @@
+The Guardian is a companion for your tower, working in a similar way to bots. It comes with its own skins and customizable effects, and it is only available through guilds. Once unlocked, you equip it with chips that each add a different active ability, from healing your tower to hunting down extra loot.
+On this page
+Description
+Unlocking/Upgrading
+Chip Upgrades — Ally
+Chip Upgrades — Attack
+Chip Upgrades — Fetch
+Chip Upgrades — Bounty
+Chip Upgrades — Summon
+Chip Upgrades — Scout
+Description
+The Guardian is a tower companion, comparable to bots, that is exclusive to guilds. It supports skins and customizable effects, and its abilities come from a set of chips you unlock and upgrade over time.
+Unlocking/Upgrading
+You unlock the Guardian for 200 bits in the Guild menu, under the Guardian section. Unlocking it gives you one chip slot and two base chips to start with: Ally and Attack. Further chip slots open up as you progress, as shown in the unlock table below.
+Chip Upgrades — Ally
+The Ally chip converts an enemy into an Ally Recovery Package, which can heal your tower past the normal recovery cap. These packages are a separate type from regular recovery packages, so they do not interact with effects such as the Galaxy Compressor module. Fully upgrading Ally costs 14,470 bits in total, which works out to roughly 71 weeks of saving.
+Show all 92 rows
+Chip Upgrades — Attack
+With the Attack chip, the Guardian targets the enemy missing the most health and deals damage equal to a percentage of that missing health, with the damage halved against bosses. Because the damage scales with lost health rather than a flat value, there is a theory that heavy investment could let it function like a Plasma Cannon against non-boss enemies, chaining fast, high-damage hits across multiple targets. This has not been confirmed and still needs proper testing at higher upgrade levels. You can tell the chip is about to fire when a red sphere appears orbiting the Guardian.
+Show all 92 rows
+Chip Upgrades — Fetch
+The Fetch chip sends the Guardian out to find and collect hidden loot during a run. It can retrieve coins, gems, medals, shards, and modules.
+Show all 62 rows
+Chip Upgrades — Bounty
+The Bounty chip marks nearby non-common enemies with a bounty, so they pay out extra coins when killed. The payout is calculated from every coin multiplier currently affecting the target at the moment it dies, multiplied by the chip's Bounty Multiplier stat. Effects like Golden Bot, Death Wave, Golden Tower, Black Hole, and Spotlight all feed into that total, so stacking multipliers makes each bountied kill worth more.
+Show all 101 rows
+Chip Upgrades — Summon
+While active, the Summon chip spawns two enemies per second, drawn from the Basic, Tank, Ranged, and Fast types. It also applies a cash bonus to every enemy killed during its activation, not just the ones it summoned. Summoned enemies never gain Ultimate status, even if the relevant Battle Condition for their type is active. The chip arrived in Season 5 with an incorrect description that caused some confusion, which was promptly corrected on the official Discord server.
+Show all 73 rows
+Chip Upgrades — Scout
+The Scout chip scouts enemies on screen. While it is active, every enemy is treated as being further away from your tower than it really is for the purposes of damage calculations.
+Show all 72 rows
+Related pages
+Chips
+Bits
+Tokens
+Guilds
+Battle Condition
+Plasma Cannon
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-14) . Something out of date? Tell us in the Discord .

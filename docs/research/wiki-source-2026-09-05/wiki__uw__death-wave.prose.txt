@@ -1,0 +1,61 @@
+Death Wave is an Ultimate Weapon that fires a single, persistent damage wave preceded by a volley of utility-driven Effect Waves. It was heavily reworked in Patch 24.3, changing how its damage is stored and spent while keeping several bonuses from the old version.
+Below you will find how the reworked Death Wave actually behaves, what its Effect Waves do, and every workshop and lab upgrade tied to it.
+On this page
+Death Wave (Reworked) - Patch 24.3
+Core Mechanics:
+Effect Waves:
+Damage Scaling and Synergies:
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Labs — Death Wave Health
+Labs — Death Wave Coins Bonus
+Labs — Death Wave Cells Bonus
+Labs — Death Wave Damage Amplifier
+Labs — Death Wave Armor Stripping
+Labs
+Death Wave (Reworked) - Patch 24.3
+Patch 24.3 gave Death Wave a major overhaul. The rework brought in new mechanics, most notably the damage pool system, but kept some of the bonuses the weapon had before. One detail worth knowing: the coin and cells bonuses now apply both to enemies killed by the Death Wave itself and to enemies simply tagged by the Effect Waves, functioning as an absolute debuff. This is confirmed in game, both in the research descriptions for those effects and on the Ultimate Weapon's detail screen.
+Core Mechanics:
+The Death Wave is one powerful wave whose damage comes from a damage pool. Instead of resetting each time you activate it, the pool builds up across multiple activations — you can tell this is happening because the wave takes on a blue tint.
+When the wave hits enemies, the pool only drains by the exact amount needed to destroy each one, after any bonuses are factored in, and this damage can punch through armored enemies. The wave stays active inside your tower's range until the pool is fully spent, so nothing is wasted on overkill.
+Effect Waves:
+Before the Death Wave itself lands, a series of Effect Waves fires first. How many you get is set by the Effect Waves stat (formerly called Quantity). Although the animation suggests travelling projectiles, that part is purely cosmetic — every effect applies instantly while the waves are being fired, so the Effect Wave count effectively works as a duration. The waves have infinite range and fire at 4-second intervals (undocumented, but the timing works out so that the Effect Waves and the Kill Wall all fit inside the cooldown).
+Effect Waves provide several utilities. Enemies tagged by an Effect Wave or the Death Wave drop extra coins when destroyed, and each tagged enemy you kill raises your max health by 0.05%. Elites that get struck yield additional cells. Every Effect Wave hit on an enemy also amplifies the damage the Death Wave deals to that target, starting at 5x at base, and the waves strip armor, softening enemies up for the main hit.
+Damage Scaling and Synergies:
+The rework adjusted Death Wave's damage scaling, with notable improvements to the damage module substat, though exact values have not been disclosed.
+The Kill Wall has a strong synergy with Death Wave: it greatly boosts the wave's damage based on how many enemies your Effect Waves tagged, scaled by the Kill Wall's own strength. If you roll Death Wave through the Random Ultimate Weapon perk, you keep the base health bonus, coin bonus and damage amplification, but you lose the cell bonus and armor stripping.
+Workshop — Basic Upgrades
+Once you unlock Death Wave, its basic upgrades appear in the Ultimate Weapon menu alongside those of the other Ultimate Weapons. You can spend stones on three stats: Damage (30 levels), Effect Wave Quantity (4 levels) and Cooldown (25 levels). Fully maxing all three costs 29,391 stones in total — see the cost table below for the per-level breakdown.
+Show all 32 rows
+Workshop — Ultimate Weapon Plus
+The Ultimate Weapon Plus upgrade for Death Wave makes each Effect Wave hit additively amplify the damage stored in the Death Wave's pool. The per-level values are listed in the table below.
+Labs — Death Wave Health
+This lab raises the maximum health bonus you gain from killing enemies marked or killed by Death Wave, up to a cap of 12.5x the base value. You can track the bonus health earned during a round by tapping your health in the workshop, though the tracker only appears once you have researched at least one level of this lab.
+Show all 30 rows
+Labs — Death Wave Coins Bonus
+This lab increases the extra coins dropped by enemies tagged by Effect Waves or killed by the Death Wave. It has 20 levels, with the per-level values shown in the table below.
+Show all 20 rows
+Labs — Death Wave Cells Bonus
+This lab boosts the bonus cells earned from enemies hit by Effect Waves or killed by the Death Wave, up to a maximum of 3x the base cell bonus. It has 20 levels.
+Show all 20 rows
+Labs — Death Wave Damage Amplifier
+Each level of this lab increases how much each Effect Wave hit raises the damage a given enemy takes from the Death Wave, up to a maximum of +50x per Effect Wave. It has 30 levels.
+Show all 30 rows
+Labs — Death Wave Armor Stripping
+This lab makes each Effect Wave hit strip armor from enemies, up to a maximum reduction of 10, and it has 10 levels. For example, if a battle condition gives enemies 10 armor (so each enemy blocks the first 10 attacks it receives) and you have this lab at level 5, a single Effect Wave hit drops that enemy's armor to 5, meaning it only blocks 5 hits instead of 10.
+Labs
+The Death Wave labs are unlocked through Milestones at tier 3, wave 250. Reaching that milestone unlocks all five Death Wave lab upgrades.
+Related pages
+Amplify Bot
+Attack Speed
+Attack Upgrades
+Black Hole
+Boss Labs
+Bot Bot
+Bounce Shot
+Buy multiplier
+Card Presets
+Cards
+Cash Bonus
+Cash Per Wave
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-10) . Something out of date? Tell us in the Discord .

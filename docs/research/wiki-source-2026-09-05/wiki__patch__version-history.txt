@@ -1,0 +1,1460 @@
+Version 28 introduced Dissonance, a per-tier difficulty modifier that disables one workshop tab in exchange for a stat boost, alongside Bot Bot and five unlockable Bot+ abilities that expand bot customization. The update also added Overheat, a high-wave mechanic that shortens runs in tiers and tournaments, plus a rotating legacy relic section in the Event Store. Post-launch, the developers corrected an unintended Dissonant coin bonus, temporarily capping boosts at 2x before restoring Attack, Defense, and Ultimate Weapon to 5x and settling Utility at 3x in follow-up hotfixes.
+Change list
+Reproduced from the developer's release notes.
+Hey Tower Defenders! We are excited to share our v28 update with all of you. We are rolling out the build on Android now, and iOS will be rolling out within the next two day. This update should be fully available for all players by Thursday. Additionally, we will be enforcing a version lock for the tournament at the end of the week. Here is a look at the changes:
+Introducing: Dissonance! This is a new layer to Tier gameplay that presents a fun challenge, and a bonus to help push for further milestones. Dissonant Runs represent a new difficulty setting that can be applied to a Tier. Doing so disables a selected workshop tab (Attack, Defense, Utility, or Ultimate Weapons). Based on how far you progress, the related stat is boosted for that specific tier.
+The stats are:
+Attack Workshop → Attack
+Defense Workshop → Health
+Utility Workshop → Coins
+Ultimate Weapon Workshop → UW Damage
+Dissonance is unlocked at Tier 4 Wave 90. Once unlocked, you will have access to select this modifier for all unlocked Tiers. At Tier 17, Wave 60, you'll unlock four Dissonant Echo labs for each workshop type (Attack, Defense, Utility, Ultimate Weapon). These labs apply a percent of each tier's Dissonant Boost to your Tower. Unlocking Dissonance rewards you with a starting 0.5% Echo boost. Click on the Dissonant Boosts section on the Battle menu for an expanded panel.
+Bots are getting a lot of attention this update! To start, we have moved the Bots menu to its own tab in the Events page. This allows us more space to expand the feature, like so:
+A new Bot has entered the arena: Bot Bot! This new bot increases the effects of other bot effects within the radius, and has four stats: Range, Cooldown, % Increase, and Duration.
+Bots are getting an upgrade! The Bot+ feature gives each bot a new specialized ability. Bot+ is available when all Bots are unlocked. Each bot has its own Bot+ ability, which requires a one-time purchase using stones to unlock. Once the ability is unlocked, it can be upgraded further using medals. If you opt to respec your bots, all medals will be returned as usual, even if invested in the Bot+ stats. Unlocking the bot again will give you access to your Bot+ ability (without needing the stone purchase again).
+The five new Bot+ abilities are Wildfire, Titan Shock, Bonus Cells, Echoing Shot, and Maximum Power. Descriptions can be found in the Changelog below.
+Unlocking all five Bot+ abilities grants you access to Synchronicity , a stone upgrade that allows you to assign bots to have synchronized pathing. Unlocking Synchronicity grants you two slots, with each additional slot costing stones. Bots can be freely assigned into these slots so long as you have them unlocked.
+We have added in a new mechanic that amps up the difficulty of your run at higher waves. When you have successfully cleared Wave 4500 on any Tier, you will see an Overheat button on your Battle screen. This panel will define when the Overheat conditions will occur, and what the Overheat conditions are. This feature is designed to reduce the overall duration of a run in tiers and tournaments. This isn't a "game end" state when reaching this wave, but be prepared to face the heat!
+------------
+Hi! Quick example of how Overheat starts:
+Tier 1 Wave 15000
+Tier 10 Wave 12750
+Tier 20 Wave 10250
+Thanks!
+For normal tiers, the only change is that the Enemy Skip Decay Overheat condition kicks in at a defined wave. The panel will appear once you've cleared Wave 4500, but won't go into effect until much later in your run. Check the Heat button on each Tier more information.
+Overheat will appear in tournament runs as well, and can be viewed in the existing Heat button. We have added 4 new Overheat Conditions that will only appear in tournaments:
+Damage Decay: Tower Damage is reduced every 10 waves
+Health Decay: Tower Health is reduced every 10 waves
+More Fleets: An additional Fleet spawns every 100 waves
+More Elites: An additional Elite spawns every 5 waves
+We will be introducing a new Relic section in the Event Store starting on April 14th, 2026. This section will feature older relics from previous runs. Each week will feature four relics: two Rare and two Epic. These relics cost gems: 600 gems for Rare relics, and 1200 gems for Epic relics. This section of the Event Store will feature free and premium event relics earned from completing event missions, excluding most relics earned via medals. After a period of time, event relics will be added into the pool of options.
+Note : This section rotates every week, so make sure to check it at the beginning and middle of an active event!
+Added 5 new Bot+ abilities: Wildfire : Enemies hit by Flame Bot become Enflamed in addition to Burned, receiving {0}x extra damage. Duration of the damage amplification depends on current Flame Bot damage. Titan Shock : Enemies struck by Thunder Bot have a permanent {0}% decreased attack speed. This value is multiplied by the number of digits in the enemy's mass. Bonus Cells : Elites killed in Golden Bot range grant {0}x more Cells. Echoing Shot : Tower Bullets within Range count as {0} bullets. Ultimate Weapon projectiles are also boosted, but by 1/3. Maximum Power : Boosts the Bot+ abilities of other bots by {0}x.
+Bot's move speed is no longer dependent on its cooldown, and they now move while active
+3 new levels to Golden and Amplify Bot Range
+Improved the in-run stats to make the values more intuitive and player friendly
+Added new stats and stat categories Simplified the Battle Report to focus on time (Game and Real time), Coins, Coins per hour, Cells, and Cells per hour, and recategorized Included more "fun" stats, including records like Largest Wave Skip and Largest Golden Combo
+Added Golden Tower VFX toggle to the Toggles menu
+Damage reduction from Flame Bot now correctly applies to Tanks
+The process to pick Tournament Battle Conditions for Legends has been slightly adjusted
+Death Defy no longer rolls if the tower is already invincible (i.e. During Demon Mode)
+Fixed an issue where medals not claimed from an Event were sometimes not doubled by the Event Boost
+Fixed a bug where auto-reroll would fail to stop the re-rolling process when multiple conditions are selected, causing unintentional Reroll shards to be spent We've added a check to auto-reroll where it will automatically stop once any of the selected conditions are met
+Fixed an issue where Overcharge ignores Wall invincibility
+Fixed an issue where Ranged enemies failed to attack the Tower within the Black Hole for players without the "Black Hole Disables Ranged Enemies" research completed
+Fixed Spotlight not affecting all enemies (specifically all summoned enemies)
+Fixed an issue where standard perk bonuses did not apply to Cash or Absolute Defense perks
+Fixed an issue where the Module level up screen shows a different Coin rounding logic for the Coin display
+Demon Mode now accurately states that it provides a 300x boost to projectiles during its period of invincibility
+The in-game store should now correctly display prices in your local currency instead of in USD
+Improved local notifications to prevent inaccurate and duplicate notifications from occurring
+Improved localization in some languages, including message spacing in Japanese, and incorrect mission information in Russian
+Improved UI for Lab Gold Boxing
+Improved "Go Home" button interactions so it acts more like a Pause We will continue to improve this behavior in upcoming updates!
+Implemented general UI improvements regarding iOS's dynamic island
+Guild Chat no longer rapidly scrolls to the bottom of your recent messages
+Added in a popup for a player who has been removed from a Guild informing them about said removal
+Fixed an issue where players were unable to change their themes back to the Default option
+Oh, and v28 is just the beginning. We've already got another build in the works in the next two weeks - more polish, more fixes. We'll have a look at what's ahead in an upcoming Tower Tea, so stay close. Okay, that's actually it now. Bye, have fun, we love you!
+solving problems with saving records?
+We've identified an issue with our Dissonant Bonus values upon release that is granting a larger coin bonus than expected. While we recognize that this is a difficult change and we never intend to take away power from the players, these adjustments are necessary to maintain the competitive integrity we had imagined. We will be adjusting this value live; however, this unfortunately affects our other workshop bonuses. Here is a look at what will immediately change, and what the intended end goal is: Dissonant Run's maximum bonuses will be decreased from 5x to 2x. This effect will be visible for all players on the current build. In our upcoming v28.0.3 update, we will fix the maximum bonuses for Attack, Defense, and Ultimate Weapon to return to its original 5x bonus. While we do not want to make the change to all areas, we want to address the coin earnings issue and not create a larger earnings gap. To summarize:
+Temporary adjustments to Dissonant Run maximum bonus: Attack, Defense, Utility, and Ultimate Weapons are set to 2x
+v28.0.3 adjustments: Utility at 2x, Attack, Defense, and Ultimate Weapon at 5xWe are finalizing content for our v28.0.3 update now, and hope to deliver additional improvements next week. Additional content that will be covered in the upcoming hotfix includes adjustments to stunning effects overtime, improvements on our Bot+ abilities, a fix for Flame Bot's Damage Reduction, and UI improvements for Dissonant Runs. We appreciate your patience and understanding on this one, and hope everyone is having fun exploring the new features.
+Hey pals. I wanted to come back and give you a little more context on what happened, because you deserve it. When we were in late beta, we made a decision to increase the Attack, Defense, and UW bonuses. The coin bonus was always meant to stay at 2x - it just got caught up in that change when it shouldn't have. We missed that, and it shouldn't have gone live, which is why we had to do the quick correction. We hear you, and we are bringing the Utility bonus up to 3x, and will be giving a gift of gems to all players as well. This means all four bonuses will be at 3x in the current live version. Here's where things are headed:
+Attack, Defense, and UW bonuses are coming back to 5x in v28.0.3, which we're aiming to get out next week.
+That same update includes Bot+ improvements, the Flame Bot DR fix, stun adjustments, and Dissonant Run UI improvements.I've read every comment. I see what you're saying, and I'm bringing it all back to the team. We will have more info in the upcoming Tower Tea. Thank you for being here. Sam.
+Hey Tower Defenders! We are rolling out a hotfix now. This version includes fixes to our Dissonant Boosts, ensuring that our Attack, Defense, and Ultimate Weapon maximum bonuses are 5x.
+We decided to split up the upcoming fix to ensure that this gets to players faster. 28.0.4 is still slated for next week, and this update will include a larger number of improvements and bug fixes.
+To confirm the Dissonant Boost maximum values:
+Attack = 5x
+Defense = 5x
+Utility = 3x
+Ultimate Weapons = 5x
+Finally, the next tournament will be version locked to 28.0.2 and above.
+That's a wrap on this one, but we've got more coming. Stay tuned for Monday's Tower Tea for a peek at what's ahead.
+Hello Tower Defenders, it's update time! Let's dive into the new content:
+Rollout begins today with the goal to have it to 100% of players by 11 AM CST tomorrow
+A new enemy type has invaded higher tiers! Fleets is a new enemy type that spawns in Tiers 14 and up. This new enemy type has a large amount of health, bringing a new challenge to battles. Fleets approach your Tower with a group of enemies, and are not impacted by direct targeting. Fleets spawn less often at lower tiers, and more frequently at higher ones.
+Commander: A passive unit that stays outside of the Tower's range, empowering enemy health within its area of effect.
+Overcharge: An attacker that stops outside of the Tower's range, shooting a returning projectile that doubles its power with each subsequent hit.
+Saboteur: A specialized unit that latches onto the Tower, disabling a random UW on impact and restoring the UW when it is defeated.
+We have added Tiers 19, 20, and 21 into the game. These new tiers are paired with new milestones and a stronger presence of Fleets. Here’s a look at the new content available:
+The newest card, Area of Effect, increases AOE damage to specific sources: Inner Land Mine, Poison Swamp, Smart Missile, Flame Bot, and Land Mine. Area of Effect Mastery increases the range of all damage area of effects, and unlocks additional research.
+This card is unlocked as a mastery reward at Tier 20. Additionally, the prerequisites for unlocking Card Mastery stays at 30 maxed cards, so your access to Card Mastery is not impacted by new milestone content.
+The Assist Modules feature unlocks as a milestone reward in Tier 19, Wave 40. Players can spend stones to unlock an Assist Module slot for each module type. When an Assist Module slot is unlocked, you can equip a module that matches that slot type.
+Assist Modules maintain their Main Effect, Unique Effect, and Substats at a reduced efficiency. You can increase the efficiencies of these values with stones and through lab research (unlocked Tier 19, Wave 50). You won’t be able to equip modules that share the same name.
+We have a number of new labs available as milestone unlocks, including:
+Enhancement Coin Discount labs for Attack, Defense, and Utility,
+Attack and Health labs for Ray, Vampire, and Scatter,
+Ranged Enemy Range lab (added at Tier 13, Wave 80),
+Assist Module labs for Substat and Bonus efficiencies across all four types,
+Four groups of Battle Condition Reduction labs, reducing the effect of specific Battle Conditions by a percentage.,
+Assist Modules have introduced another layer of power to your Tower’s build. As such, most Modules have remained unchanged. One Module, however, was due for a revision:
+Om Chip has a new Unique Effect: “Spotlight will rotate to focus a Boss. Bosses reflect the light around it to nearby enemies, increasing by x2/x4/x7/x15 the damage they receive”
+We have several new Modules being added to the game. The first module will be available in the Feature Banner on August 25, 2025 7:00 PM
+Featured Module Banners will have a two week duration, followed by a one week break. When the next Featured Module Banner goes live, the previous module will enter into the Standard Banner.
+We have two changes to existing Guardian chips:
+Ally The Ally chip has a reworked ability: Converts an enemy into an Ally Recovery Package that can heal the Tower beyond the basic Maximum Recovery amount. It’s three values have changed to Recovery Amount, Max Recovery, and Cooldown.
+Bounty (previously Steal) Steal has been renamed to Bounty and given an adjustment to its ability: Tower Guardian places a bounty on nearby non-common enemies, causing them to grant more coins on death.
+We have refactored how attack speed functions to improve its calculation across all game speeds, and to allow for infinitely high attack speeds. This change includes an improvement in attack speed performance at higher game speeds.
+Added ability for Black Hole Coin Bonus to apply to all enemies that die inside of Black Hole, even if Black Hole has no effect on them.
+Added new levels to Bots 10 levels for Amplify Bot’s Bonus and Duration 10 levels for Golden Bot’s Bonus and Duration 10 levels for Flame Bot’s Damage 5 levels for Flame Bot Damage Reduction
+Implemented diminishing returns for Pulsar Harvester’s level reduction at 100 levels,
+Adjusted Inner Land Mine’s quantity calculations to accommodate a greater number of ILMs,
+Implemented an adjustment to enemy mass, where enemy mass increases by 4% each wave they are alive,
+Adjusted Elite spawning logic so each Elite has its own spawn cap,
+Increase Enhancement level caps Attack: Damage, Rend Armor, Critical Factor, Damage/Meter, and Super Crit Multiplier increased by 100, Attack Speed increased by 75, Defense: Health, Health Regen, Defense Absolute, Land Mine Damage, Wall Health, and Orb Size increased by 100, Utility: Cash, Coins, Cells / Kill, Recovery Package increased by 100, Free Upgrades increased by 50, ELS increased by 10,
+Improved knockback performance,
+Added 10 more levels to Damage Slider in Harmony Tree,
+Improved enemy spawn to work regardless of lag,
+Improved orb speed formula,
+Added ELS Reduction to Tiers 14-21,
+Adjusted existing Battle Condition levels in Tier 14-18,
+Removed Elite’s Ultimate at Tier 18, and replaced it with three new Ultimate Battle Conditions for Elites:,
+Scatter Ultimate: Scatter children have x% more health,
+Ray Ultimate: Ray shoots x% faster,
+Vampire Ultimate: Vampire drains x% faster,
+New Battle Condition in Tier 21: Mass Enforcement: Surviving enemies' mass increases by {x}% per wave they are alive,
+Tournaments have become too long from the many months of power creep. We are aiming to shorten them a considerable amount, so you don’t feel obligated to dedicate a whole day to each tournament
+Added ELS BC to Gold, Platinum, and Champion leagues,
+Adjusted ELS BC in Legends league,
+Added Fleets to Legends league,
+Change lab invincibility to start from the beginning of the rebuild animation, so it's impossible for an enemy to kill the wall before the invincibility starts.,
+Fixed a bug where bosses ignored occasional Inner Land Mine stun,
+Fixed a problem where the boss bar sometimes goes negative,
+Fixed an issue where Fast Ult Battle Condition makes bosses ignore Inner Land Mine at 1x speed.
+Fixed an issue where Guardian’s Attack ability drifts,
+Fixed an issue where Ray sometimes pauses outside firing range,
+Fixed an issue where Chrono Jump did not affect the mines from Space Displacer.
+Fixed an issue where auto-merging modules would miss one Bounce Blitzer
+Added a new Death Wave - Death Ring Damage UI indicator,
+Allow players to copy the end of the Round stats to the clipboard,
+Added enemies hit by orbs to End of Round screen,
+Added total keys earned to main stats page,
+Added notch adjustments for Android devices,
+Fixed an issue where navigating to the stats panel for the first time in a round would set the view in the middle of the screen, instead of the top.
+Improved cell display values in the Currency screen,
+Improved typos and missing info in End of Round stats, including an improvement on total coin earned,
+Fixed an issue where Chrono Field Cooldown was incorrectly labeled as “Duration” in the auto-re-roll ban panel.
+Improvements for iPad aspect ratios,
+Fixed an issue where reroll dice drop text gets larger the longer the game is running.
+Removed cache of video ads if a player owns the Disable Ads pack,
+Improved Firebase warning messages,
+Improved user flow when trying to login using an incorrect password,
+Improved issue where lab boost timers would drift,
+Implemented Lab Speed Up Auto Queue
+Lab Speed Up can now be queued up, reading the multiplier and duration set in the Speed Up menu.
+Lab Speed Ups only tick down while a lab is in progress.
+Added purchase confirmation for upgrades that cost >= 500 stones to help reduce misclicks,
+Added confirmation button to all X10 purchase options (Cards and Modules),
+Added in sampling music to the shop,
+With the release of V27, we’ll be taking time to assess and expand existing systems. We look forward to expanding Guilds content for Season 5, taking another pass at refining events, and optimizing our game settings (battle history, anyone?) A bit further into the horizon, we’ll be taking a look at the main gameplay loop. One of our goals is to make gameplay cash more impactful for late-game players.
+Guardians and Guardians Chips were designed as an accessible feature that all players can access through Guilds, and can be upgraded through consistent effort. As the Guilds feature expands, we want to explore the future of Guardians, including how to make Chips evolve with the player as they progress through the game.
+Knockback is not activating intermittently.
+lab speed duration timer fixed,
+card mastery maximum requirement bug,
+instances of broken battle scenes,
+other crash or start-up issues
+Added Fleets to Legends tournaments,
+Increased the spawn cap for each Elite type,
+Adjusted behavior to prevent the swapping of cards during a Fleets wave, similar to Boss waves,
+Adjusted Fleets spawn behavior so it can appear at any time during their spawned wave,
+Fixed a bug where players were getting stuck at 10% after showing offline,
+Fixed a bug where players could only see up to 130 relics when editing their profile,
+Fixed a bug in the Auto Merge UI menu where the displayed rarity did not match the actual rarity of the displayed module,
+Fixed an issue where enemy mass increases would include skipped waves, which negatively impacted its expected mass
+Bugfixes:
+Fixed an issue where Tanks were not affected by Black Hole once their Ultimate condition ends.
+Improved the expected behavior of the Primordial Collapse module not applying damage reduction to the expected enemies.
+Known Issues:
+Still investigating fix for Armored Enemies BC having different behavior for normal attacks and lightspeed attacks.
+Primordial Collapse module shows correct damage reduction to Bosses and Scatters, with some inconsistencies to other special enemy types.
+Changelog:
+Fixed an issue where the Armored Enemies Battle Condition had different behavior for normal attacks and lightspeed attacks.
+Fixed an issue where the Primordial Collapse module was not applying the correct damage reduction to Ray or Overcharge enemies.
+Fixed an issue where lab boosts timers displayed a longer boost time than expected.
+Upcoming Featured Banner:
+Amplifying Strike: Killing a boss or elite enemy increases Tower damage by 5x for [5/11/18/26] seconds.
+Notes:
+Bug fixes and improvements (no specific details provided).
+New Features:
+Guilds Season 5 with a Halloween theme.
+New Summon Chip : Summons two enemies every second. During the summon duration, all enemies killed provide a cash bonus.
+Battle History : Added to More Stats lab, includes normal and tournament runs.
+Stone Pack Visibility : Added in-game Stone Pack deals to Store, adjusted to run 14 days back-to-back instead of 3 days every 2 weeks.
+Additional End of Round Stats:
+Coins per Hour.
+Enemies killed in Spotlight.
+Enemies tagged by Death Wave.
+Enemies killed in Golden Bot.
+Added a "Buy 10 More" option for Modules and Cards.
+Added functionality to increase the level of Modules by 1/5/10/50/100.
+Increased held Daily Missions from 6 to 8.
+Changed Assist Module bonuses from additive to multiplicative (sizable power increase).
+Added improvements to the visual legibility of the Ally chip when activated.
+Added notification bubble when the Guild chest is ready to be claimed.
+Changed Orb Hits stat to Enemies Hit by Orbs for more accurate stat tracking.
+Added "Summoned Enemies" stat for new Summon chip.
+Adjusted scaling for some early and mid-game tiers to their values prior to V27.
+Decreased Auto Retry timer from 300 seconds to 100 seconds.
+Implemented fix where game speed was set to 1x after spending at least 2 minutes in menu while in battle (conditional on when lab is boosted).
+Implemented fix for workshop mines using ILM radius and radius labs for size of explosions.
+Fixed issue where the Fetch chip was not showing the graphical effect when the ability triggers.
+Fixed issue where Tiers 19, 20, and 21 were not visible on the player profile.
+Fixed visual issue where Area of Effect mastery displayed incorrect rounding.
+Fixed issue where Wall Thorns were not affecting Saboteur in the same way that normal thorns affect Saboteur.
+Fixed issue where Amplifying Strike was not triggering attack bonus immediately after the ability is triggered.
+Fixed visual issue where Area of Effect Mastery Lab was incorrectly rounding.
+Fixed the issue where Lab Missions were not tracking properly for Event progress.
+Fixed issue where Auto Lab renew was not initiating when game is closed.
+Fixed the issue where the Orb quantity substat was not flooring properly.
+Fixed issue where Elite Spawns stat would reset on game resume in game stats.
+UI Bugfixes:
+Fixed UI bug where the "Auto shatter new common modules" text box was short in French localization.
+Fixed UI bug where "Total Coin Bonus" on Battle screen was off-center.
+Fixed issue where Death Wave Quantity in tooltips was displaying an inaccurate number when considering Assist Module bonuses.
+Fixed UI issue where the game sometimes failed to return to the Battle page after navigating from the Store page.
+Fixed UI issue where Guardian chip preview was misaligned on large Android tablets and iPad devices within the Guild menu.
+Changes:
+All changes targeted on stopping game crashes and overall stability.
+New Module:
+Orbital Augment : Adds [2/4/6/8] orbiting Electrons around the tower. Each Electron deals damage equal to 10% of wave health to any enemies they hit. Electrons are distinct from orbs (no overlap with orb mechanics). Electrons damage all enemies in the game. Hit text only shows when Orbital Augment is equipped. Damage is locked to wave health when the enemy spawns.
+Pulsar Harvester is currently reducing the damage that Electrons do (proportional to the number of de-levels) - fix coming in next update.
+Bug Fixes:
+Fixed hit text not displaying correctly in certain situations.
+Fixed Scatter behavior.
+Fixed outdated Summon description text.
+Fixed issue where Elite spawns reset on game resume.
+Fixed IAP price not correctly localized.
+General stability improvements and cloud save fixes.
+Coming Soon:
+Offline Lab progress with boosters (still in progress).
+Implemented a fix for the Scatter children tunneling through the Wall.
+Fixed a visual bug where Orbital Augment's icon stretched in some menus.
+Fixed an issue where some players could set their workshop multipliers in a run without the lab unlock.
+Two minor updates (V27.2 and V27.3) are planned for the rest of the year.
+One update focused on stability and improvements.
+One update focused on community requests.
+Next update will include lab refactoring, including a fix to lab speedups not automatically restarting while offline.
+The team has expanded support and hired a QA lead.
+Hello Tower Defenders! We are rolling out a minor patch now on Android, and this update should be fully available to everyone tomorrow, before the tournament starts. Here is a look at the upcoming changes:
+We have added a new Support button in the in-game Settings menu. When issuing a ticket, your player ID and linked email will automatically be populated. From there, you can select your issue type, add in a subject line, and include a description of your issue.
+This update expanded the functionality of the Battle History feature, allowing you to delete entries. The first time you navigate to the Battle History page after updating, you’ll see a new information panel. To delete entries, press and hold on any entry, check the box next to entries you wish to remove, and press Delete to confirm. Note : This will not pull past Battle History logs to populate back up to the maximum of 20 entries.
+We fixed a bug where the newest tiers were not populating correctly in the in-game leaderboard. This change will be visible with a leaderboard reset. We plan to reset the leaderboard before the tournament when the build has fully rolled out.
+Added a 20 gem incentive for linking your player account.
+If you’ve already linked your account, you’ll be rewarded the gems automatically!
+Added a new behavior to delete entries in the Battle History. (See above for details.)
+Added weekly free gem gift on the web store, in addition to the daily in game free gems.
+Updated the in-game info for Guilds to include information about Token expiry and the gem conversion.
+Fixed an issue where opening a card while also tapping to change menus soft-locks your game, forcing an app restart.
+Fixed an issue where the Wall still occasionally allowed enemies to tunnel through.
+Fixed an issue where the Nuke card shows an incorrect number of waves before recharging in the lab selection view.
+Fixed an issue where Target Priority did not correctly target Protectors.
+Fixed a visual bug in the Shatter screen displaying overlapping text when the shard quantity surpassed 1,000.
+Fixed an issue where Ranged enemies can hit the Tower through the wall.
+Fixed an issue where the Respec button would not appear if a player navigates to the Workshop, and the Enhance tab was the landing page.
+Fixed an issue where the “Lab Open” notification bubble disappeared.
+Fixed an issue where module substat text was not auto-adjusting its size in some languages.
+Improved Leaderboard information to include Tiers 19, 20, and 21.
+Fixed a bugged interaction where Scatter children did not interact correctly with the Commander’s buff radius.
+Hello Tower Defenders! We have a new build going out on Android shortly, with a full roll-out shortly after. Here is a look at the upcoming changes:
+We have reworked our entire lab system! This change should address many outstanding lab issues, notably regarding offline lab speedup progress. This adjustment is fully internal and does not have any functionality or UI changes.
+The Orbital Augment module has been adjusted to specifically try and remove infinite runs:
+Adds [2/4/6/8] orbiting Electrons around the tower. Each Electron deals damage equal to 15% of the enemy's remaining health (quarter effective against Bosses and Fleets)
+This change will stop players from using Orbital Augment as the sole means to kill enemies. However, it will also make the module way stronger against more enemy types. Let's walk through some examples of what this might look like for different enemy types:
+Basics (1x wave health): The first hit will deal 15% damage, the second 12.8%, and so on. Previously, it was 10% per hit. This new formula is stronger until 7 Electron hits
+Tanks (4x wave health): The new module works the exact same way for Tanks as it does for Basics. Previously, it was 2.5% per hit. This new formula is stronger until 40 Electron hits
+Bosses (20x wave health): The first hit will deal 3.75% damage, the second 3.6%, and so on. Previously, it was 0.5% per hit. This new formula is stronger until 200 Electron hits
+In addition to the changes, we have also worked on a fix to the Electrons desyncing as a result of a longer game session. We have also added Electron Damage in the stats panel.
+We are now adding fleets to all tiers. Tier 1 will have Fleets starting at wave 15,000, and each subsequent tier will have Fleets appear 250 waves earlier (T2 = 14,750, T3 = 14,500, etc). Once they appear, they will spawn every 100 waves.
+We are continuing to develop systems that make the higher waves at each tier more challenging. There was a section in today's Monday Morning Announcement about TTG's stance on Infinite Runs. Additionally, in the next few updates, we will aim to improve tournament run length. We want to ensure it remains competitive and fun, while reducing its duration overall.
+Implemented a lab refactor to resolve issues including offline research syncing,
+Adjusted Orbital Augment’s description and gameplay:,
+Adds [2/4/6/8] orbiting Electrons around the tower. Each Electron deals damage equal to 15% of the enemy's remaining health (quarter effective against Bosses and Fleets),
+Fixed an issue where Electrons would desync over the course of a longer run,
+Added Electron Damage to stats panel,
+Added Fleets to all Tiers at higher waves,
+Adjusted the Stone Pack offer to feature icons instead of text,
+Fixed a UI issue where the “Game Paused” message overlaps in some menus,
+Fixed a UI issue where the the Milestone Pass description did not indent into a new line, making the description too small,
+Fixed an issue were enemy mass did not fit in the Info Panel screen,
+Fixed an issue where the new Support panel unpauses a paused run,
+Adjusted the date displays in Battle History and tournaments so it correctly localizes to the player’s region.
+Hello Tower Defenders! We are rolling out our last minor update of the year now on Android, with iOS rolling out within the next day. This build should be fully available to everyone tomorrow. Here’s a look at the changes:
+We have added a new "Toggles" menu to replace our current "Hit Texts" button in the Settings. Some existing buttons, such as 120FPS and Cinematic of Idle have moved into this menu, while Sound and Music will remain in the Settings menu. Here is a look at our current list of toggles:
+Added Auto Pause in Menus,
+Added Stone Confirmation,
+Turning off this toggle will remove the confirmation for stone purchases that costs 100 stones or more,
+Added Gem Confirmations,
+Same as Stones, but for Gem purchases equal to or greater than 200,
+Added Ranged Enemy Shooting Line,
+Added Show Cinematic Gems,
+Added Brighter Spotlight,
+Auto Restart has been removed from the end of round screen and added to this section for players who have unlocked this Vault upgrade,
+We have made some improvements to our Labs UI. To start, we made the lab sliders into actual sliders! Setting values has become easier, with an - and + symbol on either side to make incremental changes. Additionally, we've added a new Slider filter to the Research selection screen so you can see all labs that have sliders.
+Additionally, we have fixed an issue where some longer researches were not ticking properly. This was a floating point number issue that was only apparently in some instances.
+We are adding two new permanent battle conditions to tournaments and adjusting our old Enemy Level Skip Reduction BC from all tournaments. Additionally, we are making tier scaling adjustments in Champions and Legends.
+Let’s dive into the changes:
+Description: Enemy health and attack level skip chances are reduced by [VAL]% every [N] waves.
+VAL starts at 1% and is the value that the generic Battle Condition Reduction lab will impact.
+N is the number of waves it takes between activations of the BC, and this is what the level of the BC will impact.
+Finally, the level of the BC will change based on the tournament league and not increase in strength during the run, similar to how More Bosses works.
+Legends: Level 80 => Every 20 waves, lose 1% from ELS,
+Champion: Level 60 => Every 40 waves, lose 1% from ELS,
+Platinum: Level 40 => Every 60 waves, lose 1% from ELS,
+Gold: Level 20 => Every 80 waves, lose 1% from ELS,
+Description: Enemy health and attack level skip chances are multiplied by x.[VAL],
+This new Battle Condition will be impacted by the existing Enemy Level Skip Reduction Lab (which has been renamed to Skip Reduction Lab).
+VAL is impacted by both BC labs (generic and specific) and is tied to the level of the Battle Condition:
+Legends: Level 55 => multiplied by x0.45,
+Champion: Level 40 => multiplied by x0.6,
+Platinum: Level 25 => multiplied by x0.75,
+Gold: Level 10 => multiplied by x0.9,
+The previous ELS Reduction BC has been rebranded to Skip Reduction - Subtract. It has been removed from all tournaments. It will remain untouched on the normal tiers it was already a Battle Condition for. The Skip Reduction lab will still impact this Battle Condition
+Finally, we are changing the tier scaling in the Champions and Legends league. The tier scaling will change from [1/3/5/8/11/14] to [1/3/5/8/12/17]
+Added one more Card slots that cost gems (10,000),
+To avoid future Wall tunneling issues, the tower is now immune to all damage except from Vampires while the Wall is active,
+Enemy Level Skip Reduction has been renamed to Skip Reduction. In addition, it's impact on stats will now be visible in the utility workshop tab during a run.,
+Added functionality for Second Wind to spawn the Wall, invulnerable while the Second Wind timer is active,
+Added a 15 second period of invulnerability to Nuke activation,
+Changed the behavior of the Damage Reduction node in the Vault to not be applied while Intro Sprint is active,
+Improved behavior of Critical Coin Card so it always applies to Black Hole and Thorns,
+Increase the number of Fleets for ending long runs (one additional Fleet every 1000 waves after first wave instance),
+When Fleets are introduced at later waves, only one Fleet will drop rewards in that wave even if multiple Fleets are present,
+All 3 enhancement discount labs have had their formula changed from cost / (1 + %) to cost * (1 - %),
+Primordial Collapse no longer provides double benefit on the Wall and projectiles,
+Added the functionality for players to hide pop-up confirmations for the rest of the session,
+Added a Pulsar Harvester stat to the Boss Breakdown that displays the amount of Level reduction applied instead of only the damage dealt,
+Change "End Round" button in the in-run menu to "Exit Battle", adjusted pop-up messaging,
+Added functionality for all menus to be viewable (but unchangeable) while mid run,
+The boss stats menu will now always show the health (and subsequent stats) of the most recently spawned boss.,
+Improved visual positioning of Card description in the Card selection screen,
+Rewrote the Golden Tower VFX from scratch to improve performance,
+Add behavior for unclaimed Guild rewards to be mailed to your inventory,
+Added the Support button to the Login panel,
+Fixed an issue where notifications for tournament do not show up,
+Fixed an issue where your Tournament ranking displays wrong rank in reward declaration,
+Fixed an issue where the "Pick a Perk" prompt persists when perks are still exhausted,
+Fixed an unintended interaction with Pulsar Harvester and Orbital Augment, where equipping both OA and PH would reduce the damage of OA unintentionally,
+Fixed a visual issue where the Lab notification bubble appears before a player has unlocked Lab,
+We are excited to share that for the next month, we will be doing featured module banners for each module type! Each week, we will be featuring one module type (like Cannon), and increase the drop rates for all Epic modules of that type. Here’s the timeline:
+December 21, 2025 4:00 PM to December 28, 2025 3:59 PM will feature Epic Core Modules
+December 28, 2025 4:00 PM to January 4, 2026 3:59 PM will feature Epic Cannon Modules
+January 4, 2026 4:00 PM to January 11, 2026 3:59 PM will feature Epic Generator Modules
+January 11, 2026 4:00 PM to January 18, 2026 3:59 PM will feature Epic Armor Modules
+Hello everyone!
+We’ve got a new major version rolling tomorrow 3/3 at 10 AM CST, and will hopefully finish its rollout by the end of the day (following morning if we have to fix some things). There is a lot of new content, updates, and bug fixes, so let’s dive in.
+Guilds are coming to The Tower! Players can create their own Guild or join up to 29 other players in an existing Guild formed by someone else.
+Design Goal: Guilds were built with the game’s existing complexity in mind. We don’t want to add a super complex, chore based layer to the game with how much is already in the game. We also were very cognizant to design the reward structure to avoid super guilds of players that only pay, play a lot or are super powerful
+Rewards are fairly light and are earned by playing mostly how you would have played The Tower anyway. There’s no need to chat with your guild to get a lot out of the mechanic. I don’t want players to feel obligated to glue themselves to a new mechanic of the game endlessly, and only want something that’s going to bring more fun to the game.
+Lastly, with it being fairly light, it serves as a foundation for us to add more fun modes within it in time, but that’s to come later. We will be reviewing how the system is interacted with and reading a lot of feedback to help guide us towards growing the system.
+Chat within your guild to help develop your own custom tower strategies.
+Claim Weekly Challenge boxes to earn Guild Tokens that you can spend but also count towards your guild’s earnings for the week.
+Throughout the week, claim up to 4 Guild Chests your Guild has worked together to earn
+The new reward from Guild Chests are Guardian Bits! Guardian Bits can be spent on upgrading your new Guardian
+Guardians are the newest support system for your tower. Different chips can be equipped to empower your guardian in unique ways, and new skins will allow you to personalize the guardian to suit your tower.
+Guild Tokens can be spent on new cosmetics and personalization for your game, profile, and tower
+Unspent Guild Tokens will be auto cashed out at the end of each Guild Season (8 weeks)
+The backend for cloud saves has been completely migrated to a new system. This should drastically reduce several cloud save bugs that have been experienced on and off in the past. Upon updating, players will need to log in to their account, but there should be no other noticeable changes for players. Finally, player devices will need to be connected to the internet to start the app, but they can continue runs offline once they have started playing.
+The player profile has been expanded to include guild icon and guild name. Additionally, there are personalized main menu and profile banners skins that will be available in the guild store.
+The Event Boost has been changed to include two new Premium relics. Every event players will continue to be able earn the two Relics for getting 350 and 700 medals from a single event. For those that buy the Event Boost, they can also earn an additional Epic and Rare relic.
+These relics will be rotated into events and/or guilds for purchase with currency if missed, eventually
+Both Enemy Attack Level Skip and Enemy Health Level Skip have been changed to be completely non random. For example: A 50% chance will skip every other wave with no variance.
+Both vault trees have been expanded with multiple new enhancements. The Power Tree’s expansion allows various nodes to be upgraded a second (or even third!) time.
+Tier 2 is unlockable once you have unlocked 15 Tier 1 Power Tree Nodes.
+Tier 3 is unlockable once you have unlocked 25 Tier 1 Power Tree Nodes and 15 Tier 2 Power Tree Nodes
+Both of these upgrades have a one time purchases associated with them
+New modules have been added to the game.
+Design Goal: Don’t fear about them muddying the current pool of modules you are searching for already. We’ve added a way to focus on finding these new modules (as well as older modules as they rotate into the new banner system)
+We currently have 4 new modules coming, but they will be introduced over time and will rotate into the banner system, with one new one available at update time
+We’ve also used this chance to improve a lot of the module system
+Now there are two module banners to choose - the featured and the standard. Standard is the same as before, while the Featured Banner will have a specific Module highlighted.
+Gems spent on the featured banner will have a much higher chance of resulting in the highlighted module.
+Any time a module is featured, it will have two weeks as a focus.
+Currently, new modules can only be obtained through the featured banner, but they will be added to the standard banner later.
+Any module that you already have at Ancestral (5 Stars) will have a substantially lower chance to appear.
+Once you have a module at Ancestral (5 Stars), you can shatter other modules with that exact effect to get shards
+Additionally:
+It is now guaranteed to get at least 1 rare module every 10 pulls
+Module history allows players to see up to 150 of their previous pulls
+The module cap has been extended to level 300 (this requires a module to be at Ancestral - 5 stars)
+New module substats can be unlocked at level 201 and 241
+The shard cost of module levels between 161 and 200 has been slightly reduced
+Poison Swamp has been reworked to be much stronger, but on a Cooldown system rather than a Chance %.
+Damage stat has been increased
+Base radius has increased
+Poisoned enemies move 25% slower
+Poison Swamp Stun duration, Stun chance, and Swamp Radius labs have been made stronger and have had 5 levels added
+Inner Land Mine’s damage stats have been massively increased.
+Inner Land Mine - Chrono Jump (ILM+ required) is a new lab that will add to the charge of an ILM for each ILM the enemy has been hit by
+Spotlight has had 15 levels added to Angle. If this stat is maxed, the Spotlight Angle module effect for Core Modules will be banned for free.
+If a player has maxed the Chrono Field Duration workshop stat as well as the Duration lab, the Chrono Field Duration module effect for Core Modules will be banned for free.
+Death Wave has been given 5 additional levels to CD.
+Every Ultimate Weapon+ had levels added to them
+Wall Rebuild will now push all enemies out from the tower to ensure no enemies are trapped inside.
+Count of Active Enemies has been added to the Wave Info tab
+Battle Condition Reduction lab (T18W1000) - Decreases the level of the active battle conditions by a percentage (does not apply to the More Bosses or UW duration BCs)
+A new permanent Battle Condition has been added to the Legends League tournament - Enemy Level Skip Reduction.
+Rerolling daily missions can no longer give the exact same mission
+Numerous translations and localization bugs have been addressed
+Ending a run offline should no longer occasionally put the tower into a locked state
+Space Displacer will now work even if you don’t have the Inner Land Mine rotation lab researched
+Poison Swamp Rend now applies every time damage is taken, not just the very tick.
+Auto backup recovery added for those that lost save while updating, reopen the game for it to work
+Game now should correctly login on second device instead of showing a message that an account with that player ID already exists
+Changed Daily Gems to reset midnight UTC, so it is consistent with other time resets
+A new patch is rolling out to fix some issues!
+Fixed Project Funding not applying the damage bonus correctly
+Fixed time issues for event missions, daily missions, lab time and more
+Anyone stuck in a guild that is non existent anymore should be auto unstuck after opening the guild menu
+Fixed module max level panel appearing behind the module details panel
+Fixed issues when purchasing event boost
+Fixed Tournament button opening the info panel if not touched directly in the icon
+Menus shouldn't draw over the notch anymore in some Android devices
+Improved game loading in an attempt to reduce getting stuck
+Improved guild search
+Changed Stats button position under Settings to be the same as before
+Added multiple improvements to game loading and login process to avoid players getting stuck
+Improved even more the login process to avoid some issues that were happening mainly on iOS
+Added some auto recovery for players that were stuck on some specific login situations
+Fixed music track toggles not working as intended
+Fixed an issue with Event Boost not always giving gems and medals
+Fixed Guardian skin not giving coin bonus
+Fixed Guild week timer reseting one day before
+Fixed Guild season timer showing wrong values
+Now guild store and event store purchases requires internet connection (bots upgrades still work offline)
+Fixed auto bans when rolling core modules
+Fixed themes random options not showing up
+Lab mission timer should work properly now when coming from offline
+Fixed some event missions requiring restart to work
+For this event only, game will recover the missing days of login mission
+Fixed enemy behavior to avoid being permanently stuck in knockback state
+Auto Ban both Chrono Field Duration and Chrono Field Cooldown substats when the corresponding stats are maxed in the labs and workshops
+The expected mathematical odds for functions with a less than 1% proc rate are now reflected in the game’s actual behavior
+Fixed instances where BC reduction applies unintended effects
+Fixed module pull bug where previously inactive accounts only receive the same modules
+Unmerge function now correctly accounts for Shatter Shards labs
+Fixed issue where players could not purchase any modules
+Fixed an issue where fasts move through walls
+Fixed an issue where players could not purchase final card slot
+Fixed an issue where some vault nodes could not be purchased with keys
+Add an official policy on Guild chats
+Added a way to delete all Guild join requests
+Fixed visual bug where players contributing “0” appear at the top of the members list
+Improved visual effects of Guardian’s Ally ability
+Time-based actions like the log-in event mission no longer require a hard app restart (days lost will be added for current event duration)
+Fixed an issue where players are unable to complete purchases
+Event passes now give players the correct amount of gems and extra medals
+Improved cloud save sync between different devices
+Fixed an issue where players are blocked from updating account when the account already exists
+Fixed an issue where no ad gems appears when disconnected from the internet, even with no ad packs
+Fixed an issue where ad gems don’t appear until restart when switching devices
+Fixed an issue where players were unable to receive a password reset email
+Fixed an issue where Guardians coins show when Hit Text is disabled
+Fixes broken menus in Themes tab in Profile
+Actual lab timers are now the same as displayed lab timers
+Restoring levels to Modules no longer blocks restored resources UI
+Improved dimensions for Guilds UI for Mac devices
+Module sorting menu no longer cuts off at different aspect ratios
+Fixed an issue where player is stuck on navigation bar after a tournament ends
+Added fixes to in-game copy to poison swamp and negative mass projector
+Fixed some instances where Russian localization had the incorrect language translated
+Cathode Ray Tube relic has correct requirement text
+Fixed an issue where players are unable to make purchases on iOS devices
+Improved error messaging at game launch to help resolve connection issues
+Shattering is now limited to Common, Rare, Rare+, and Epic modules
+Copies of organic modules that are already at Ancestral 5★ must now be unmerged to Epic in order to shatter
+Corrected the amount of shards received when shattering or unmerging modules
+Fixed Relic localizations in the Event Store, Event Track, and Profile
+Fixed an issue where Damage Cap Slider unlock button overlapped with its description
+Damage Cap Slider division increased from 2 -> 10
+Added a slider to Bot Cooldown to offer single second precision
+Fixed an issue where wall size changes when selecting a different upgrade tab
+Improved module rarity filter display
+Fixed an issue where players could earn more Guild contributions than intended
+Realigned Guild Banner Icons
+Added 10 new Guild flag icons
+Improved sync of the Steal Guardian ability
+Fixed visual bug where players observed different coin amounts across different menus
+Guardian toggle no longer re-enables on application restart
+Fixed issue where event mission notifications were missing in the menu and sub-menus
+Fixed a minor UI bug for the Menu button in Themes
+Player profiles now displays the correct highest wave and highest rank
+We are approaching the second season of Guilds! This includes new in-store cosmetic content for your Tower and Guardian, as well as a new Chip “Fetch”. Season 1 ends on Monday, April 28 at 00:00 UTC, so make sure to spend your Guild Tokens before the rollover. Otherwise, Guild Tokens will convert into Gems at a 5:1 ratio.
+Featured Banners will return in May for the remaining two modules. Keep an eye out for in-game mail for a heads up on exact dates.
+Project Funding and Magnetic Hook will enter the Standard Banner on Thursday, May 1st at 00:00 UTC.
+Improved error messaging for players attempting to join a tournament with an invalid name
+Improved issue where players on iOS devices were unable to initialize the iOS store for in-game purchases
+Improved the load save prompt to include tournament tier in the active battle
+Improved the localization of the load save prompt on game launch
+Updated the module shatter panel to reflect in-game behavior
+Fixed an issue where players received an incorrect amount of fodder through unmerging at the Epic, Legendary, and Mythic+ rarities
+Fixed an issue where Smart Demon Mode was not stopping Intro Sprint
+Fixed an issue where auto reroll did not recognize some substats when rolling
+Fixed an issue where Boss Ultimate BC applies health bonus twice
+Fixed bug where Ultimate Rays spins incorrectly
+Fixed an issue where shorter duration stuns are overriding longer duration stuns
+Fixed a localization issue where Chinese simplified had incorrect ordering for missions (daily/event)
+Improved purchase validation for iOS users
+Fixed a bug where Intro Sprint stopped after taking damage
+Improved coin calculations for Fetch chip
+Fixed the requirements and key costs for T2 node in the Vault's Power Tree
+Fixed a bug where Fast enemies were not taking thorn damage
+Game now adapts to specific devices safe area, so if your device doesn't have a notch, there will be no offset.
+Tower now is always centered in the available space in the UI (between Perks bar and bottom upgrades), doesn't matter device aspect ratio.
+Tower is now positioned slightly up in cinematic mode.
+Fixed an issue that touching the screen in cinematic mode would activate the UI behind sometimes.
+Bob, the gem block, will now scale up with zoom applied for high range towers, so it is easier to see and tap.
+fixed an issue in iOS purchases that could not allow to do new purchases.
+Fixed an issue to create new accounts
+Fixed Death Wave + ring not appearing
+Coin income for fetch was calculated incorrectly and has been resolved. Coins from fetch are reduced to bring it in line with its role of being a special currency retriever
+Made it easier to tap Bob (gem box)
+Added extra Guardian stats
+Fixed an issue that was making new accounts start with 30 FPS instead of 60 FPS,
+Fixed the 120 FPS toggle in settings not applying until a game restart
+Added a respec option for Guardians Guardian respec costs 150 gems and are limited to once per week, timed with the Guild Contribution reset,
+Adjusted Fetch rewards to display if Guardian hit is enabled,
+Players can now view Guardian chips during a run instead of hard locking,
+Added Fetch stats to end of match screen,
+Added Fetch coins to "Guardian Coins" in the game stats,
+Added drop rates to the Fetch chip Added a display for the current daily caps for Medals, Gems, Common and Rare modules, Fixed bug where Fetch was being influenced by Shatter Shard labs,
+Fixed a bug where Fetch changed CPM to a small value during Intro Sprint,
+Fixed a bug where the Guardian did not bring home the modules it fetched,
+Adjusted Fetch so it is disabled during Intro Sprint,
+Fixed bug where the floating gem's hitbox interfered with UI navigation,
+Implemented improvements to Russian localization
+Fixed performance issues when there is no active banner
+Added behavior where Guild Leadership is auto transferred to an Officer if the leader is offline for a period of time,
+New Guilds content added, will be accessible in Season 3 (June 23rd),
+Fixed issue where players Guild leaders were unable to remove members from their Guild,
+Fixed an issue where Guild membership count was incorrectly displayed,
+Sharp Fortitude and Shrink Ray will be added to the standard banner on July 1st, 2025 at 0:00:00 UTC
+Fixed Party theme not working properly
+Improved the backend purchasing system,
+Implemented fixes to reduce cloud save rollback issues,
+Improved internal analytics
+Fixed an issue where Event Boost extra medals weren't being applied correctly to the Event progress bar. This will be retroactively fixed for those who experienced the issue.
+Fixed the root of most save rollback issues when changing devices.
+We made the game allow initialization even when IAP plugin can't start, so those that live in countries with this issue can still play.,
+If you have that issue, remember the Webstore should still works in this situations.
+After years of research, our top scientists have finally made a breakthrough in the card system. Each card has a unique “Mastery” that can be unlocked using stones. This Mastery will add an immediate benefit to your card, and it will unlock a new lab that will let you level up the effect even more. These new upgrades are very expensive but will allow for a wider variety of strategies. Card Mastery can be accessed once the milestone for T16W100 is claimed and a player owns all copies of every card.
+Search has been added to the labs
+History tab has been added to the labs (it will not contain labs researched before v25)
+Lab sections can be collapsed
+Individual labs can be favorited
+Favorited labs show up even if they are complete
+The number of levels in the lab can be seen on the Lab Info panel
+A new toggle exists to auto research labs. If you have enough coins to research the next level, it will automatically start once the previous level finishes.
+Labs with partial progress will have their time remaining highlighted in green
+Labs with an adjustable level have a slightly more intuitive UX
+Labs with at least 1 level researched will stay visible - even if the underlying mechanic is lost (through respec)
+A round can now be resumed 25 times
+The Resume Round option will now tell you the number of resumes remaining
+The 10 wave limit for resumes has been removed
+Tournaments can only be resumed while online
+You can now close out of the Resume Round pop up without losing your run (various screens will be locked)
+Closing the app twice in a row without resuming will no longer end your run
+Added a new “Cinematic Mode” that removes all the elements from the UI except the tower. It can be toggled on in the Settings Menu. Cinematic mode can also be manually activated by pinching the screen during a round. What a beautiful screensaver!
+The full info panels for Ultimate Weapons and Bots now show the value of the next level.
+In many out-of-round views, a dropdown arrow has been added to the header that will show a list of all current currencies
+We have heard all the feedback about tournaments and made several small changes that will hopefully fix many of the existing problems - without changing how players think about tournaments.
+We have added a Legends league (T14+)
+We have changed the rewards for almost every rank such that doing better will always net more (or the same amount) of stones. To do this some individual ranks were lowered, but it is an explicit increase in stones - especially with Legends expanding the ceiling.
+Copper and Silver are now “protected” tiers. Once a player is promoted out of them, they can never be demoted back into them.
+The Boss Bottle Condition is permanent (without heat up) in all leagues. 1 boss for every 10 waves in Copper, 1 boss for every 9 waves in Silver, … , 1 boss for every 5 waves in Legends
+The Death Defy OR Energy Shield Battle Condition is permanent for all leagues Platinum and up
+Battle Conditions have been adjusted such that there is 1 in Silver, 2 in Gold, 3 in Platinum, 4 in Champion, and 5 in Legends. This does not count the previous two special exceptions for tournament Battle Conditions.
+The limit on boss drops of Modules and Reroll dice have been removed
+Ties will give both players the better reward
+Only the top 4 players in a bracket will be promoted. Only the bottom 6 will be demoted.
+Tournament relics have been changed to reflect the new tournament league. Existing relics will be grandfathered in.
+Tournament tickets will now start to increase in price after the first one is purchased with gems
+Unclaimed tournament rewards will be mailed to players after the window to claim ends (this includes corresponding promotion and demotion)
+Tournaments will extend for an additional 4 hours past the time to join a bracket. This time will allow for players to finish any active runs, but they will not be able to join a new bracket or start a new run.
+Legends introduces a new currency: Keys. Keys can be used in a one of two new upgrade tree - Power (tower related buffs) and Harmony (non tower related buffs and QoL)
+The Vault (where the above trees are located) is hidden until a player obtains at least one key.
+Daily Reward boxes have a level 30 and level 35 added
+New missions have been added to the pool
+The first day of the event will now always have 7 missions (5 set + 2 random)
+Module Effect reroll costs have been decreased slightly
+Module Effects now require being online to reroll
+Poison Swamp animation changed to be more subtle
+GT+ counter no longer grows so absurdly
+ILM explosion animation is more subtle
+Scatter children can no longer phase through the Wall
+Purchased songs now give a coin bonus. One song was added to main soundtrack; one more was added to the events store
+Reroll dice earned in run added to the Round Stats
+Vampire drain no longer resets the “Take no damage” event mission
+Rend Enhancement now affects not only the maximum multiplier, but also chance and multiplier increase per hit.
+Wave Skip applies the DW cell bonus if the DW ring is active while skipping
+Enemy Attack/Health Level Skip is now deterministic
+Crit Chance over 100% is now allowed and will impact UW damage
+Super Tower and Ultimate Tower will both show in the affected stats when they are active
+If a user has already unlocked every upgrade in a certain workshop tab (attack, defense, utility), the info popups about each upgrade no longer appear when they are unlocked after a respec.
+Two new card slots are available
+Intro sprint now gives you a wave at regular speed but skips 10 levels at a time. Bosses can’t drop modules or reroll dice while it is running. Wave Skip will not activate. Demon Mode, Nuke, and Missile Barrage can not be used.
+Cards have an option to be bought ten at a time
+Chain Thunder has been fixed to work correctly with CL+
+Chain Thunder has been changed to “Enemy damage is reduced by 10% for every 6% of health lost from Chain Lightning”
+The Cash and Defense Absolute perks are now correctly boosted by the Standard Perk Bonus
+The skip button on the "Module Shattering Animation" screen will always appear
+Ranged Enemy Tradeoff perk no longer buffs protectors
+Protector Health lab will now correctly be applied to protector health
+Black Hole animations are now tied to game speed
+Black Hole animations will be completely skipped if there is a queued activation ready
+Researching Auto Pick Perks will no longer (occasionally) incorrectly show the “First Perk” option in the Perks menu
+Copy fixes
+Translation fixes
+Fixed an issue that wasn't allowing to collect floating gems
+Fixed UW+ toggles not working
+Fixed an issue where if some specific lab was fully researched it would put the game in a corrupted state
+Vault now accessible for players promoted to Legends League
+Super Tower Card Mastery was reduced to 35% of the bonus applying to UW damage
+Intro Sprint has had a few adjustments
+Getting hit no longer ends the effect
+Intro Sprint can not take you higher than the highest wave you have achieved on a given tier
+Description updated
+Base card now maxes at 100 waves
+Card Mastery now maxes at 1800 waves
+Intro Sprint has been changed to act as 10 waves skips, which will provide cash and Free Upgrades
+Intro Sprint not allow coins to be earned while it is active
+Multiverse Nexus once again starts all three affected UWs with the correct cooldown
+Lab sections minimized before a run are now no longer hidden during the run
+All tournament relics had their description changed form “top 6” to “top 4”
+Cinematic Mode will end when your tower dies
+Card Mastery will be blocked if you haven't unlocked and maxed all milestone based cards
+24th place will no longer demote
+Fixed an issue introduced at v25.3 that makes thorn damage 0%
+Ties will now equally share all the awards the players are tied for. So if two people are tied for 1st, they will take the average of the 1st and 2nd place rewards. If 30 people are tied, they will take the average of all rewards from a bracket.
+6x lab boost has been added as a lab speed up option
+The cost of lab speed ups is no longer increased by 20% for every other lab being boosted. To account for this, the cost of boosting a lab 3x and higher has been raised to the average cost of running all 5 labs (net neutral). The cost of boosting a lab 2x has been increased a lesser amount (slight buff). The cost of boosting a lab 1.5x has not been increased (buff).
+Intro Sprint can be ended early by clicking the icon while it is active
+Free Upgrades are allowed to go over 100% and they additional percentage works for both Upgrades as well as Black Hole Digestor
+Crit Chance Card Mastery is expanded to also "Boost Crit Chance, Super Crit Chance, and Super Crit Factor"
+The spawn cap for elites has been raised
+The floating gem limit has increased from 5 to 10
+Slightly changed the order that Damage / Meter buffs are applied
+Extra Orb positioning has changed slightly. By default, they will be at tower range. Extra Orb Adjuster has a new minimum of: min(tower range, 60m). The granularity of the steps has changed.
+25th place should correctly demote
+Free Upgrade locks will correctly persist through app restarts
+Cinematic mode can be entered even with the top right menu open
+One of the Power Vault Upgrades for bot range was too cheap. Price was increased.
+Ending a tournament run no longer shows your place at -1
+Lab speed completing no longer occasionally removes lab speed ups
+You can no longer die with Energy Shield active
+Multiverse Nexus again correctly starts with the right cooldown
+Death Wave Ring again adjusts outwards as range increases
+Wave Accelerator Card Mastery should now also increases the spawn ratios (special enemies v basic). It doesn’t impact elite spawn rate
+Enemy Balance Card Mastery should now be reflected in wave skip cell counts
+Displayed prizes on the tournament panel correctly correspond to the league you are in.
+Perk bar will no longer occasionally appear on tournament end screens
+Text will no longer appear on top of the gameplay UI
+Fixed not being able to exit cinematic mode in iOS
+Changed wave skip cells to be based on cell earned last wave + 10%, like cash and coins
+Researching lab speed wasn't correctly updating current active researches, working properly now
+Fixed Multiverse Nexus not correctly syncing the Ultimate Weapons
+Modules Effects can be auto rerolled until certain selectable conditions are met
+4 new labs have been added to allow banning of certain module effects
+Tower Range has been reworked to be more in line with other range calculations - it is now a more consistent value throughout the game
+Zoom thresholds have changed
+Several graphics throughout the game have been reworked to be more clear
+Poison Swamp’s previous animation has returned but now merges into a single giant swamp
+Enemy skins have increased brightness, elites and bosses stand out more, Ultimate enemy graphics have changed
+Wall graphics have changed
+Collecting the floating gem in Cinematic Mode will no longer kick you from Cinematic Mode
+Death Wave’s Damage Wave can deal damage through armored enemies
+Only 20% of the cells are awarded during Intro Sprint
+Inner Orb positioning changed to exactly match tower range
+Lab Speed Ups are consumed at the correct rate
+The Wall has been reworked to more fully stop enemies from quantum tunneling
+Death Wave hits missions will count enemies hit by both the Damage Wave and the Effect Waves
+Snowstorm Background Performance has been greatly improved
+Energy Shield Battle Condition is no longer removed on death
+Random loss of module shards when changing modules has been fixed
+Orb mastery coin bonus is given on hit
+Wave skip no longer underperforms after a personal record
+Potential fix for Ranged shooting from inside a Black Hole
+Rend hit text should show up normally now
+Fixed module reroll not allowed if the module had all effects locked previously
+Fixed tower firing at enemies outside of range
+Fixed Wall with wrong color while invincible
+Target priority now have the updated enemy graphics
+Fixed themes panel not opening properly in some situations
+Unfavorited labs should not vanish at game restart anymore
+Wave skip after highest wave should work properly now
+Labs that finish while the game is offline will not auto unqueue anymore
+Lab speed ups should last the full 24 hours now (hopefully)
+Ranged hits on wall will properly charge Berserker now
+Rays now have glasses to see where they should stop
+Module merge mission requirements reduced to (10/20/40)
+If "Auto Shatter Rare Modules" from the Harmony Vault is enabled, the module merge mission will autocomplete.
+Decreased the spotlight mission requirements to (5,000/50,000/500,000)
+Buy cards is a fixed mission now, not sharing a slot with "Obtain x modules" mission.
+"Hit x enemies with an ultimate critical" mission is removed and will not show up anymore from the next event onwards
+A change was made related with ELS chance to help put it near the expected value.
+Multiple adjustments were made related with login and cloud save to help with the "not logged in" , "time out" and profile not updating issues.
+Changed Black Cat tower skin Super Tower visual effect.
+Fixed the login time out issue that still is happening after last patch adjustments.
+Fixed an internal server issue.
+A small patch to fix the issue that some new players aren't receiving a Player ID.
+Bots have been redesigned so that their timing is more intuitive. They now work the same way as Ultimate Weapons, and they can be toggled on/off during a run. Additionally, new stats and labs have been added so that your bots can get even stronger! New Stats:
+For all 4 bots, the stat ‘Frequency’ has been changed to ‘Cooldown’. Medal purchases into frequency will be refunded. Lab levels that were researched will persist.
+Golden Bot - Duration
+Amplify Bot - Duration
+Thunder Bot - Linger%: A portion of the stun effect will remain for 3 seconds even after the thunder bot's duration
+Flame Bot - Damage Reduction%: Enemies burned by Flame Bot will have a portion of their damage reduced
+Golden Bot - Increase duration
+Amplify Bot - Increase duration
+Thunder Bot - Increase linger time
+Flame Bot - Burn Stack: Allow for successive hits to stack the burn effect
+Additionally the renamed Cooldown lab (was Frequency) for all 4 Bots has been given 5 additional levels
+Flame Bot now “burns” the enemy. Every second, a burned enemy takes damage equal to Flame Bot initial hit, burn stacks (allowed with the lab), makes the burn ticks faster per stack, for example a stack of 4 will make the enemy take a burn hit every 0.25s (1s/4)
+Thunder Bot is now 50% effective against Bosses and Elites. Linger % is also 50% effective against Bosses and Elites.
+We have adjusted every UW in some way. There are plenty of new upgrades to spend stones on, and several existing upgrades have been made stronger or changed to fit the game better.
+Chain Lightning - Damage Scaling Changed
+Chain Lightning - CL+ reworked (the new effect is capped after 100 hits on a given enemy)
+Chain Lightning - Damage module substats have had their scaling changed
+Smart Missiles - Damage Scaling Changed
+Smart Missiles - New levels added to Cooldown and Quantity
+Death Wave - Coin Bonus is applied to all enemies hit rather than only enemies killed
+Death Wave - Animation was reworked to be more performant
+Chrono Field - New levels added to Slow %
+Chrono Field - CF+ reworked
+Golden Tower - New levels added to Duration and Bonus
+Golden Tower - GT+ only counts enemies that spawned during the current activation
+Poison Swamp - New levels added to Duration
+Black Hole - New levels added to Duration
+Black Hole - BH+ reworked
+Spotlight - New levels added to Angle and Quantity
+Spotlight - SL+ reworked
+Chain Thunder: Every 1% of enemy health removed by chain lightning reduces enemy damage by 10% (max reduction: [lab level])
+Lightning Amplifier ~ Scatter: Each Chain Lightning hit on a Scatter will amplify the damage for the next Chain Lightning hit on the same target (Additive)
+Swamp Rend: When Basic Enemies are hurt by the Poison Swamp, that damage is boosted by a percent of the enemy’s current Rend Armor Mult
+Swamp Rend - Additional Enemies: Increase the type of enemies that are impacted by Swamp Rend
+Here's the big one! A large part of the game code has been rewritten to be lighter on compute. The main tangible effect is: when lag starts to happen, the game can now recover gracefully. Previously, this would just snowball and cause all new computation to lag. Spawn rate differences across game speeds have been resolved.
+Three new tiers with all new Battle Conditions have been added. Additionally, the scaling of Battle Condition levels from T14 and T15 has been lessened, so that they are more gradually increased to T18. The damage and health scaling of enemies T14+ has been decreased.
+Auto Perk Priority
+Perk Ban (4 more levels)
+Improved Module Shatter returns
+Wall Regen (20 more levels)
+Increased damage and health scaling for tournaments
+New BCs are possible during tournaments
+Champion Tournaments start with the Boss per wave Battle Condition maxed.
+Champion Tournaments have been given an additional Battle Condition
+Module drop rate for Bosses in Champion Tournaments now have a cooldown of 20 waves
+Second tournament ticket will correctly be provided for free if you have the Disable Ads pack
+Two new perks (Cash and Defense Absolute)
+Changed Chrono Field perk from extra range to +5 seconds duration
+Added a Claim All Milestones button
+All bonus values will use "x[multiplier]" rather than %
+Mass was not being correctly boosted during runs. To not completely change game behavior since this wasn't working before, we made mass only start to be increased on high waves, but on new tiers this will work from the first wave.
+Extra long boss wave cooldown removed
+'recovery package after boss wave' will work on all boss waves correctly now
+Wave Skip now works on all waves (including xxx9)
+Wave Skipping a boss will roll for a module/reroll dice drop
+Fixed coin calculation stat giving negative values
+Event Booster has 250 gems added (will only go into effect for the next event)
+Max Tier for the cardless mission has been capped to T14
+Changed how news (patch notes) are displayed to users. They can now be found in the "Mail"
+Mission to “Reach wave X on a tier” will now auto update if you have a run in progress when the mission is given.
+All overheal on both tower and wall are condensed to one bar
+Wall Fortification will use Wall Regen lab to impact the speed of regeneration
+Other bug fixes
+Watching ads no longer leaves your run paused after claiming the reward
+A bug excessively limiting the range of Death Wave was fixed
+A rare bug where players lose their upgrades mid run has been fixed
+Orbs should work as normal now
+Chain Lightning - Scatter Amp is passed on to children
+Two levels were added to Swamp Rend - Additional Enemies (Bosses and Vampires)
+The “Start 1 run” daily mission was incorrectly labeled as “Buy 1 card”
+Chain Lightning damage had an incorrect value for one step
+Elite masses have been doubled
+Om Chip correctly follows bosses even with CF+
+Coins from Spotlight and coins from Black Hole stats were fixed
+Description of the Extra Orbs card was corrected
+New UW labs now have a prerequisite of owning the respective Ultimate Weapon
+Auto Pick Perk Priority lab is now locked behind Auto Perk lab now
+We have heard your feedback around Smart Missiles damage! SM damage has been improved to be more inline with previous version values while keeping the new scaling. To maintain balance, we have buffed Poison Swamp damage, Inner Land Mine damage, and Chain Lightning damage by a similar amount.
+A once per event bot respec is now available in the event store for 300 gems. All players will receive a free respec when loading from a previous game version.
+Hit Text now has a menu where you can toggle many different options to get a better understanding of your tower’s strengths
+Elite’s mass was reworked to be more similar to how it worked pre v24.0. It still isn’t identical, because knockback was completely redone as part of the performance changes.
+The Multiverse Nexus module now rounds to the nearest whole second
+BH+ and CL+ use percentage values once again
+CL+ Tooltip has been updated
+CL+, DW+, and BH+ now deal damage off of the enemy's wave health. So, with pulsar harvester, the level reduction also reduces the damage of these UWs
+All UWs that cause damage (including orbs and Death Ray) count towards the Critical Coin card again
+The “Buy 1 card” mission is no longer mislabeled as “Start 1 battle”
+Berserker now shows the right impact from the Damage card in the Damage Tooltip
+Flame Bot Damage Reduction no longer has a floating point error
+Ultimate Tank is no longer impacted by shockwave
+A small module icon glitch has been resolved
+If there are unselected perk bans, auto perk no longer blocks the movement of too many perks
+The perk menu is unlockable with “Auto Perk Ranking” researched
+Some UW+ and UW copy fixes
+Some other performance enhancements
+Death Wave has been completely reworked. It should still provide many of the benefits of today while adding many more. It works on the same Cooldown as the old Death Wave. Now, however, there is only one damage dealing wave (called the Death Wave). The Death Wave has a "damage pool" and will persist at your tower range until it has dealt that amount of damage. New activations of DW will add to the damage pool (rather than replacing it). The "damage pool" will only be reduced by the amount of damage needed to destroy an enemy (factoring in any bonuses)
+The Death Wave is preceded by some number of Effect Waves.
+“Quantity” has been changed to “Effect Waves”
+Effect Waves have 5 utilities (all of which can be improved with labs): Coin bonus: An enemy hit by an Effect Wave or the final Death Wave will have a coin bonus when it is destroyed Health bonus: An enemy hit by an Effect Wave or the final Death Wave will give a 0.05% health bonus when it is destroyed Cell bonus: An elite enemy hit by an Effect Wave or the final Death Wave will have a cell bonus applied when it is destroyed Death Wave Damage Amplifier: Each Effect Wave hit on a given enemy will boost the damage that enemy takes from the Death Wave Death Wave Armor Stripping: Each Effect Wave hit will strip some amount of armor from an enemy
+Effect Waves range are infinite
+Effect Waves have a 4 second interval
+Damage Scaling has been adjusted
+Damage module substat has been drastically improved
+Kill Wall drastically increases the damage of the Death Wave by counting every enemy hit by an effect wave and boosting the damage by that number times the power of your Kill Wall
+The Random Ultimate Weapon perk version of Death Wave will have the base health bonus and damage amplification bonus.
+New Enemy Battle Conditions added (Fast, Ranged, Basic, Boss)
+All Enemy Battle Conditions also get “boss status”: not impacted by orbs, Death Ray, Black Hole, or Black Hole damage. 50% damage from thorns
+Bonus from Death Wave in the Health tooltip is now shown as a multiplier rather than a magnitude
+Damage / Meter has been correctly adjusted to being based on 1 meter rather than 10 meters
+Damage / Meter module substats have been increased
+Rays and Vampires are now affected by CF+
+Garlic Thorns was added as a new lab. Effect: Vampires are hit with a small percent of thorns damage
+Bot range scales more smoothly and generously based on tower range
+Thunder, Chrono Field Reduction %, and Flame bot damage reduction all work on Rays
+Black Hole position is now slightly inside range at any tower range
+Plasma Cannon now fires before Boss get in range
+iOS occasionally being unable to connect to the internet for tournaments should be fixed
+Thorns Battle Condition was not affecting Rays
+Thorns hit text unlocks correctly
+Enemies were stopping a little short of the tower hitbox
+Updated Flame Bot Description
+Flame Bot armor stripping works now (lab copy has changed to match)
+Flame Bot damage reduction works now
+Ultimate Weapons from the Random UW Perk can have their hit text controlled
+Random UW Perk will remember the on/off state between runs
+Multiverse Nexus should correctly start a run or a resume with the average Cooldown
+Fixed an issue where the "Change Account" feature weren't properly working
+Death wave now give coin bonus even without any lab research
+When enemies die to Death wave they will now show the damage taken and remaining value in the DW pool. The damage taken is the amount removed from the pool.
+Elite enemies from another galaxy are invading the Tower territory! These mysterious enemies of triangle shape show up in all tiers. Their chances of appearing will increase more and more as you progress to higher waves.
+There are 3 types of Elite enemies:
+Vampire:
+Vampires drain Tower health constantly while they are in range. Wall and Energy Shield do not prevent this effect. While a Vampire drains the Tower, both Health Regen and Lifesteal are disabled. Vampires have high knockback resistance and drain doesn't activate thorns.
+Scatter:
+Scatter will split into smaller versions of itself when defeated. The smaller versions will then split again. Scatters have high knockback resistance.
+Ray
+Once Ray reaches Tower range, it will charge for a time before firing a powerful ray at the Tower. Rays are completely immune to knockback.
+All Elite enemies are immune to orbs, Death Ray, Shockwave, and Black Hole. When defeated, Elite enemies will drop Elite Cells . You will be able to use these cells to SPEED UP LABS!
+Lab Speed Up Elite Cells are used to activate a boost for lab slots to make them work faster, increasing their rate by up to 5x speed for up to 24 hours. The Elite Cell cost per boost increases with higher speed, duration, and number of labs being boosted.
+To help repel these invaders, a lab research has been added to unlock workshop enhancements. This new panel offers various upgrades with percentage increases! The more coins you invest in enhancements, the more upgrade options will become available.
+Two new slots added to active cards.
+New epic card Nuke, when activated will kill onscreen enemies. Can be used at any time (similar to Demon Mode).
+New labs to recharge limited-use abilities after a number of waves: Second Wind, Demon Mode, Missile Barrage and the new Nuke.
+Wall Fortification lab added that allows Health Regen to increase Wall Health beyond its maximum value.
+Added ability to reroll daily missions (lab research to unlock).
+After you stop rerolling module sub effects, a new panel will show up asking if you want to keep the new effects or rollback to the effects that you had at the start (reroll shards used will be spent either way).
+Modules can be marked as favorites now. These modules will show up first in inventory, can't be selected as fodder on merge, can't be shattered, and are completely ignored by auto merge (do manual merge or unfavorite it to use auto merge).
+Modules can be unmerged (lab research to unlock). The fodder modules will be converted to shards.
+Equipped modules will be visible on the player's profile.
+Fixed Astral Deliverance not applying bounce extra damage.
+Optimization on enemy physics that allows us to completely remove Black Hole freeze.
+Fixed Chain Lightning not being able to chain more than 3 times.
+Fixed Tier 2 and 3 spawning more protectors than they should.
+Fixed Demon Mode dealing way higher damage than displayed.
+Various other minor improvements and bug fixes.
+Fixed only spawning Ray from the 3 new elite enemies
+it fixes some bugs and we removed modules from showing up on profile
+Added buy multiplier for enhancements
+Dimension Core now should correctly use the value by its current rarity
+Fixed vampire damage showing wrong value on wave info panel
+Fixed some weekly box showing wrong gems given
+Fixed lightspeed shots sometimes not giving coins on killing hits
+Changed how the game calculates the timers for Demon Mode, Second Wind invincibility, Swamp and Super Tower, now will be more stable without differences between current game speed
+Added more event themes and relics
+Unlock the modules in Milestones (Tier 2, Wave 90) and start making your Tower even stronger!
+You will be able to equip modules of 4 different categories to enhance your tower capabilities. Each category has a main stat and some random sub stats
+Epic Modules also have a Unique Effect that you can't find anywhere else
+Cannon Main stat - x% Tower Damage Sub-Effects - Attack Upgrades
+Armor Main stat - x% Tower Health Effects - Defense Upgrades
+Generator Main stat » x% Coin Bonus Effects » Utility Upgrades
+Core Main stat » x% Ultimate Weapon Damage Effects » Ultimate Weapons Upgrades
+Fixed performance issues that was being caused by bounce shot
+Increased limit of Def% from 90% to 98%
+Fixed Ranged attack not charging Berserk
+Every tournament for silver tier and above will challenge players by applying 2 battle conditions
+The battle conditions scale more aggressively in higher tier tournaments
+These conditions will increase in difficulty as you reach higher waves
+Every ultimate weapon has received a PLUS upgrade
+PLUS upgrades add an additional unique ability to each Ultimate Weapon
+PLUS upgrades become unlockable once every ultimate weapon is unlocked
+Ultimate Weapon timers will stay synchronized with each other now, instead of diverging slightly as the round progresses
+Cards are locked when bosses are active
+Fix tower range indicator to more accurately represent range
+Added 6 new relics for upcoming events
+Limited ultimate weapon toggling to 40 times per round
+Cloud save improvements (more consistent, less chance of rollbacks, etc)
+Fix tier listed during tournaments to say 11+
+Fix poison swamp was being removed when stuns ended
+Fix some players stuck at 1x game speed
+Fix an error that occurs if opening the ranking panel too fast upon game open
+Fix profile showing wave rank instead of best tournament rank
+Fixed an issue that could crash the game using auto pick perks
+T14 and T15 have been added, introducing new challenges and opportunities for advancement
+Battle conditions modify typical battles with special rules, often increasing the difficulty
+Expect to encounter them in T14 and T15, adding new twists to the gameplay in these tiers
+Relics are collectibles that permanently improve your tower with stacking effects.
+Discover them by achieving difficult tasks and participating in events
+Show your progress to other players
+Choose a tower skin as your avatar, which will be displayed in tournaments and rankings
+Research the lab to enable your tower to shoot at lightspeed, eliminating the travel time of shots to the enemy
+A unique 4,500 milestone reward has been added to each tier
+Milestone Premium Pass 5 added
+Introducing the Ultimate Crit card
+Grants your ultimate weapons a chance to critically hit using the Tower Critical Factor Workshop multiplier
+Players can now adjust their Range Lab research to any level. Visit the Range lab to adjust the level
+The Poison Swamp ultimate weapon has received a visual overhaul to better match the game style
+iPad optimized for better menu and visuals
+Fixed Golden Tower position not centered on tower
+Fixed a bug that could cause you to start the game with a trade-off perk
+Resolved an issue with Cloud save when changing devices on iOS, where it could load an older save
+Fixed the Force Cloud Save function not updating the last save time correctly
+Resolved issues with all Ultimate Weapons where sometimes smart missiles or inner land mines would keep growing on screen
+Resuming a round will no longer remove the number of protectors you had on the screen
+Fixed Multishot not selecting targets correctly, sometimes shooting at the same target simultaneously
+The mail panel has been enlarged with a bigger font.
+Fixed a bug that could display more than one tournament daily mission
+Translations updated and Arabic added as a new language
+• Daily missions added. 2 new missions added every 8 hours to an inventory of missions to complete. Max of 6 can be available at anytime. Complete for daily rewards and a weekly reward based on how many you've completed
+• New Utility Upgrade: Enemy Attack Level Skip
+• New Utility Upgrade: Enemy Defense Level Skip
+• New Defense Upgrade: The Wall - Wall Health and Wall Rebuild Time
+• New Attack Upgrade: Render Armor - Chance and Multiplier
+• Health regen above level 500 buffed a lot
+• 8 new Labs surrounding all the new workshop upgrades added, make sure to check your milestone unlocks for them
+• After boss is destroyed, tap the boss health bar at the top to see damage breakdown
+• Floating text pop ups no longer go over upgrade panel
+• Enemy mass scaled up
+• Fast enemy speed scaling reduced
+• Tiers 10 and above coin bonus increased, more for higher tiers
+• Enemies that live for greater than 3 waves earn 50% less coins when killed (prevent extreme enemy juggling)
+• Absolute max speed of enemies reduced
+• Protectors nerfed (see below to the bug pertaining to this)
+• When in round, top right buttons are now collapsible
+• In active game, tap upper left currencies to switch from amount in hand and rate of gain
+• If perk bar isn't active, boss health bar takes it's spot in a vertical layout
+• IAP button in gameplay screen now shows a notification bubble if daily reward is not claimed
+• During active round, tap the wave bar to access round stats including new ones like coins per minute
+• Stones earned stat added
+• Highest coins earned per tier (starts recording now)
+• Some other stats added I've forgotten
+• Super tower card shows cooldown seconds in description
+• Super tower is now a locked card
+• Second wind now shows invincibility timer on screen
+• Bots radius now grows based on tower range. Bigger tower range, bigger bot radius
+• Amp bot base damage mult increased from x3.0 to x3.5, increase per level from .3 to .4 (buffed due to bug posted below)
+• Flame bot base damage increased from 4000% to 5000%, increase per level from 600% to 800%
+• Confirm panel added for theme and song purchases
+• Any missions that are complete, but medals not collected are now sent to your mail box at the event end
+• Damage max level for smart missiles, chain lightning, death wave, inner land mines and poison swamp increased to 30
+• Base damage increased from 900 to 1400%, scaling increased per level
+• Damage number format changed from % to x due to larger numbers
+• Damage max level increased from 20 to 30
+• Base damage increased from 80 to 110%, scaling increased slightly
+• Damage per level increased a bit
+• Blackhole distance calculation altered to reduce harm larger radiuses can do
+• Base damage increased from 1200 to 2000%, increase per level from 150 to 300%, exponential factor also increased a bit
+• Damage max level increased from 20 to 25
+• Base damage increased from 80 to 120%, increase per level from 25 to 40%, exp factor increased considerably
+• Base damage mult increased from x6 to x8, upgrade per level increased from +1.0 to +1.3 (buffed due to bug posted below)
+• Difficulty scaled up for all leagues to shorten rounds
+• Enemy speed for tourneys reduced a bit
+• Functions for joining tournaments improved to prevent buggy brackets
+• On first open of the app, better guidance of upgrades and game speed increase
+• Cloud save reliability improved in several areas
+• Ability to disable floating text in settings panel
+• Floating text performance improved
+• Intro tutorial and guidance improved
+• Anti cheat improved
+• A lot of backend tools to help us manage the game better
+• File converted from apk to aab, reduced file size and updates no longer require full re-downloads
+• Large bug - some hit multipliers are counting twice multiplicatively (amplify, spotlight, and shock). Protectors are also providing double protection multiplicatively often, so this is a large protector nerf. This double multiplier will be fixed and to meet the balance partway the following is adjusted… Amp bot mult, spotlight damage mult will be buffed, see above for amounts)
+• Update notes panel in front of resume panel now
+• When claiming tournament rewards, game saves right after to avoid issues
+• Store IAP costs best fit now for different currencies
+• Spotlight size not always being correct on resume
+• Buying upgrades with multiplier sometimes not applying mission progress for events properly
+• New feature, milestones. Earn rewards for completing higher and higher waves on each tier. This will be how new game features are unlocked going forward. You can earn new lab research, cards, and premium currency. It currently gives rewards up to wave 2000, but 2500 will be coming in an upcoming update that includes exclusive tower skins as well
+• Massive performance improvement for how enemies interact with each other. Defensive builds should be much less laggy. (this was completed in 0.17.12)
+• Orbs are no longer reliant on game FPS
+• New Enemy: Protector - Enemies inside protector's range cannot be insta killed by orbs or death ray. The goal of this enemy is to reduce reliance on insta kills, make rounds end sooner, and make higher range towers more viable. The smaller the tower range, the more impactful the protector is since it's radius remains unchanged. This enemy may set wave records back a bit, but other upgrades were added to further push your tower's limits
+• Enemy speed growth for normal rounds reduced a bit
+• Enemy mass now grows very slowly starting on wave 50. Example: Wave 500 = 500 x1.14 mass, Wave 3000 = x1.89
+• Max enemies on screen raised from 100 to 120
+• Enemy spawn rate above wave 3000 for every tier increased slightly
+• Resume round feature restrictions loosened. Max resumes from 3 to 10. Minimum wave progression from 15 to 10 waves
+• Tier 13 added
+• Cooldown wave timer reduced by 50% to speed up runs, and add a bit of difficulty
+• Enemy speed growth reduced
+• Enemy health and attack scaling increased slightly
+• Enemy mass now slowly grows after wave 50, reducing knockback
+• Protector enemy slightly more prevalent in tournaments than standard rounds
+• Enemy spawn rate above wave 50 increased, and slightly grows faster
+• Land mine damage max level raised from 90 to 200
+• Land mine radius max level raised from 35 to 50
+• Some cards can now be unlocked via completing milestones. This way I can add cards that use later game mechanics safely. For example, land mine stun card is unlocked as a possible card after completing Tier 7, wave 250
+• New Rare Card (milestone unlock): Land Mine Stun
+• New Rare Card (milestone unlock): Recovery Package Chance
+New Lab Research
+• Recovery package amount
+• Recovery package max
+• Recovery package chance
+• Flame bot frequency
+• Stun bot frequency
+• Coin bot frequency
+• Amplify bot frequency
+• Super tower bonus damage
+• 13 new researches regarding enemy debuffs
+• Recovery package coin costs reduced
+• New Perk: Blackhole duration +12 seconds
+• New Perk: Spotlight damage bonus x1.5
+• Large numbers use the converter now
+• Prep for upcoming events
+• Wave Detail Panel - tap the lower right wave information box to access. Shows more details about the current wave and enemies
+• 120 FPS option added in settings panel (60 FPS remains default, only works for devices that allow it)
+• Target priority now includes Protector enemy
+• Card purchasing now shows your current gems in the claim viewing panel
+• Backend improvements to help with player support
+• Name for bot frequency upgrade fixed from "Chance" to "Frequency"
+• Name for spotlight Angle upgrade fixed
+• Bot upgrades show when maxed now
+• Card preset name change panel text fixed
+• Stone pack 2 showing gems visually on claim screen instead of stones
+• Improved a lot of translations
+• Cost for rushing labs overhauled - longer lab research times begin discounting the amount of gems it costs by a lot
+• New research - Advanced target priority (Allows sorting priority instead of just picking one)
+• New research - Spotlight coin bonus (tier 7)
+• New research - spotlight missiles (tier 9)
+• New ultimate weapons now provide 3 choices instead of 2
+• New ultimate weapon: Spotlight
+• New event bot: Amplify • Bot upgrades for frequency • New themes added for the next few events
+• Tappable gem box now can show up multiple times in a single round
+• Target priority now includes "in spotlight" if spotlight ultimate weapon is unlocked
+• Improved reliability of events, fixed bugs like duplicate missions
+• Perk auto pick bugs
+• More resume round feature bugs fixed • Black hole and coin bot showing negative coins in stats
+• Translation fixes
+• A lot of backend fixed and engine upgrades
+• Leaderboards for highest wave and tier now available. Higher tier always takes precedence over a higher wave on lower tier. It's a start, will evaluate what changes need to be made as it collects data and such. Maybe make is seasonal or add new rankings later
+• A large number of upgrades had their max level increased and pricing for these new levels adjusted
+• A large number of upgrade values also received exponential scaling at particular levels hit (example is damage now receives extra exponential damage increases at level 1500, 2000, 2500, etc)
+• Attack damage equation adjusted for level 1000 and above to increase faster exponentially
+• Attack max level increased from 5000 to 6000
+• Crit Factor max level increased from 99 to 150
+• Dmg/Meter increase per level decay reduced, ends at level 70 and from there is +.20% per level now (buff)
+• Dmg/Meter max level increased from 99 to 200
+• Bounce Shot Range max level increased from 40 to 60
+• Super Crit Mult max level increased from 80 to 120
+• Defense absolute scaling increased from level 300 and above
+• Health Regen scaling from level 400 and above increased
+• New Epic Card: Wave Accelerator
+• New Epic Card: Berserker (balance of this card very likely to change after feedback)
+• New Common Card: Fortress
+• All cards now have a 7th level added to them
+• 1 new unlockable card slot
+• Health regen card buffed: 1.20 base to 1.40, increase per level from .10 to .20
+• Inner Orbs distance from the tower is now absolute and not based on tower range
+• Super Tower base bonus increased from 2.0 to 2.5, increase per level from .3 to .4
+• Card panel re-sized to better show more cards
+• Death wave quantity max level raised from 3 to 5
+• Chain lightning damage per level exponential factor increased
+• Smart missile damage per level exponential factor greatly increased
+• Inner landmine damage per level exponential factor slightly increased
+• Poison swamp damage per level exponential factor slightly increased
+• Difficulty scaling for tournaments increased again to make rounds shorter (enemy health, attack, speed exponential growth factor)
+• One 3 new tracks by Krisu. One is unlocked instantly, 2 others available to unlock in the events shop with medals
+• Music Manager Panel within themes panel available for players that unlock any theme or track once. Can toggle songs on/off, pick preference of loop or play next track in active rounds
+• On game start, it shuffles track choice
+• Inner Orbs card renamed to Extra Orbs
+• Color of extra orbs changed to purple
+• Distance for extra orbs changed. Minimum is now a range of 6.0 from tower and max of tower range x 1.3 (performance no longer tied to tower range)
+• Normal orbs distance from tower increased slightly
+• Projectile speed factor increased based on tower attack speed
+• Upgrade buttons that can't be afforded have their text darkened
+• Enemy mass raised slightly
+• Enemy speed increases for wave 100 and above slowly scales up more for shorter slightly shorter rounds
+• Panel for events tells player to update if needed for current event (instead of just not loading)
+• Current and max level shown in upgrade detail panels
+• New panel under upgrade detail showing other details such as health gained from death wave and health from berserker card (in active rounds)
+• Scroll sensitivity reduced on in game upgrade panels (easier to tap buttons)
+• Health regen perk benefit increased from .60 to .75 per level
+• Animations for some buttons
+• Encyclopedia attack panel upgrades out of order
+• Couple odd animations playing on first start of the game
+• Lab upgrades for interest showing for players without interest unlocked in workshop
+• When unlocking an ultimate weapon perk, remember the state (on/off) you left it in if you own that weapon
+• Coins not updating when opening event panel from in round
+• Tower explosion on death no showing when themes are active
+Events: participate in 2 week events. Accomplish missions to earn event currency. Spend currency on gems/stones, permanent upgrades to your tower in the form of robotic companions, or limited time themes. After an event completes, a new one will be ready in 2 weeks (usually). See in game info panel for more info. Expect changes to this along the way as I receive feedback
+Bots: Earned through events, fly around your tower causing damage, stunning or providing coin bonuses. Can be upgraded further after unlocking
+Themes: Each event will feature a limited theme that can be unlocked by earning event currency. Change the look of your tower and the background theme
+• New league: Champion - tier 10+ (this adds more granularity to leagues and will disperse skill levels better to create a more gradual difficulty gap between leagues). Expect more changes shortly after though once players start filtering into new leagues
+• Notification added for when a tournament ends, to remind player to claim their reward
+• Players that have been in gold league or higher cannot be demoted to copper league (previously only platinum was barred).
+• New Attack Upgrade: Super Critical Chance
+• New Attack Upgrade: Super Critical Mult
+• New Research: Blackhole Coin Bonus - Coin bonus for enemies killed within blackholes
+• New Research: Super Crit Chance
+• New Research: Super Crit Mult Bonus
+• Smart Missile Amplifier research bonus increased from 0.8 to 1.5 per level
+• All ultimate weapons that deal damage had equation for damaged changed from linear to exponential. Some like missiles grow much faster than others like death wave to help balance them, but all damage was buffed for each one.
+• All ultimate weapon damage upgrades max level increased from either 15 or 17 to 20
+• Golden tower max coin bonus max level increased from 12 to 15, however, is very expensive from level 12 to 15
+• Auto pick perk toggle state is saved on game close now
+• Dollar symbol shade of green is less ugly for max interest
+• Round end stats added for new mechanics like bots and blackhole coins earned
+• Further optimization of code and changes to expedite new updates
+• Lots of other stuff I'm sure I forgot to add to the update notes
+• Max health with and without health card math being slightly off (players will see slightly higher health without the card slotted in than before)
+• Total and round damage stats being wrong or negative occasionally
+• Left and right enemy spawns sometimes not working correctly
+New Ultimate Weapon - Black Hole
+Lab Enhancements Panel added to ultimate weapons detail panel to show your bonuses from lab research
+Poison swamp can now stun the same enemy more than once with different swamps
+Poison swamp damage max level increased from 15 to 17
+Poison swamp damage per level increased from 200 to 250%
+Chain lightning base damage increased from 75 to 80%, damage per level increased from 15 to 20%
+Chain lightning damage max level increased from 15 to 17
+Golden Tower costs for upgrading coin bonus and cooldown slightly increased
+Golden Tower coin bonus max level increased from 10 to 12
+New Card - Energy Shield (Epic)
+Cards panel active cards now show the current equipped quantity like 12/15
+Lab Enhancements Panel added to card detail panel to show your bonuses from lab research
+Energy shield extra charges (tier 10)
+Trade-off perk bonus (tier 8)
+Black Hole Damage Over Time (tier 7)
+Second Black Hole (tier 10)
+Package After Boss - guarantees a recovery package after each boss round (tier 6)
+Orbs Boss Hit - orbs can deal a % of health damage to bosses now (tier 11)
+Tier 12 added
+Max card slots increased from 15 to 16
+Added maxed upgrades button golden color, like maxed researches, to be clear that they are at max level
+In an effort to reduce the amount of time a tournament round lasts, the difficulty scaling on them have been increased a considerable amount. They now start off resembling exactly the tier as normal but scale much faster in tournament rounds. They're now referred to as Tier 2+, Tier 5+, etc
+While playing in a tournament the background is now a deep purple to help indicate it's a tournament round
+Inner land mine stun research reduced from 3.0 to 2.5 seconds
+Trade off Perk for lifesteal x2.5, but knockback disabled changed to -70% knockback force Trade off Perk for enemies speed -55%, but enemies damage x2.5 changed to -50% speed Health regen lab bonus increase raised from .02 to .03% per level
+Landmine damage max level raised from 45 to 90
+Tier 7 and above enemy damage scaling reduced to help defensive builds
+Lab research for inner land mine rotation speed reduced from 1.00 to 0.80 per level
+Enemies at very high waves (above 3000) made more difficult in general
+Perks wave requirement now adds 50 waves from the 20th perk to 30th, 100 waves from 30th to 40th, and 150 waves for above 40 picked perks
+New perk system. Reach specified waves to choose from randomized options of powerful perks. Available tier 3 and higher
+7 new lab research options revolving around the perk system (wave requirement, perk bonus, ban perks, etc)
+Health regen exponential growth increased slightly
+Defense Absolute exponential growth increased slightly • Intro sprint card coin reduction increased from -60 to -80%
+Intro sprint card effects waves skipped now
+Workshop respec price increased from 100 to 150 gems
+Tank mass increased from 3 to 5 to reduce knockback against it
+Boss mass increased from 7 to 12
+Tournament rewards claim window increased from 24 to 36 hours
+Tournament info panel added to the tournament panel to explain exactly how they work better
+Perk for health regen increased from x1.30 to x1.50
+Perk for free upgrade for all math fixed
+Perk for golden tower bonus reduced from x2.0 to x1.5
+Trade off perk for x2.0 coins but -50% tower health reduced to x1.8 coins Lab for standard perk bonus math fixed
+More translation fixes
+Added standard perk: +1 game speed
+Workshop buy multiplier now will be remembered between sessions
+Lab Hide Completed now will be remembered between sessions, also changed visual to better show that it is enabled
+Added a button on game end panel to show perks selected on last round
+Added extra buy multiplier x100. Added an extra level on the research to unlock it
+Defense Absolute scaling increased slightly again
+Health Regen scaling increased slightly again
+Golden Tower coin bonus per level decreased from 1.0 to 0.8
+Golden Tower lab for coin bonus per level decreased from .20 to .15 Golden Tower coin bonus lab max level increased from 20 to 25 Smart missiles damage per level increased from 80 to 100%
+Inner land mines damage per level increased from 100 to 130% Inner land mines base cooldown reduced from 210 to 200 seconds Poison swamp base damage increased from 75 to 80%
+Poison swamp damage per level increased from 15 to 20%
+Trade off perk for x5 health regen but -35% max tower health improved to x8 health regen but -30% max tower health
+Perk for more smart missiles increased from 3 to 4 missiles
+Perk for land mine damage increased from x2.50 to x3.50
+Perk for health regen increased again from x1.50 to x.160
+Trade off perk for x10 cash per wave but enemy kill don't give cash increased to x12 cash per wave Trade off perk for enemies speed -40% but enemies damage x2.5 changed to -45% speed
+Fixed Chrono Field perk increased size not working
+Fixed death ray freezing occasionally (hopefully got it this time)
+Fixed perk visual slider button counting from start instead of last perk
+Fixed current wave enemy HP and attack not being affected by perks on wave panel Fixed wave skip text sometimes not showing up if there is too much text on screen
+Fixed workshop panels titles not being uppercase in other languages than english
+Translation fixes (mostly some showing in spanish when they shouldn't) Auto perk toggle causing crashes when no perks were left to pick
+Other bugs relating to occasional game crashes
+iOS Cloud save added, access in settings panel (better system coming to android soon once this one seems stable)
+Perk progress slider fixed
+Trade off perk for x8 health regen but -70% max tower health buffed to -60% max tower health as initially intended
+More translation fixes
+Falling outside of the minimum tournament bracket now demotes and doesn't show an incorrect prize
+Research select panel background scaled correctly to device
+Quality of Life: Make autopick pick your "first perk❞ choice automatically if enabled
+Quality of Life: Toggle for ultimate weapons
+Quality of Life: When getting increase game speed perk, automatically max current game speed
+Quality of Life: Ability to tap labs research they can't afford. Make the next panel's research button
+inactive if they can't afford instead. Now the tile turns red if can't afford, and gold if already maxed. Increase ban perks max by 1 (expensive research)
+Ultimate weapons sometimes unlocking when they can't be afforded Translation fixes and additions like ultimate weapon descriptions
+Shockwave size (tier 3)
+Missile Barrage (tier 8)
+Missile Barrage Quantity (tier 8) Missile Amplifier (tier 7)
+Inner Mine Stun (tier 7)
+Replaced Google play services with new multiplatform cloud save on android
+Save files are now cross platform and can move between iOS and Android devices with a login
+Outside of rounds cards now show an open lock icon, to show which cards will be locked inside round
+Tier 10 coin bonus increased by +0.1, Tier 11 coin bonus increased by +0.3.
+Not being able to select lab research that can be afforded sometimes Fixed 4th ban perk
+Poison swamp description for duration was incorrect
+Incorrect tier shown for tournament end round stats
+More translation fixes
+Ability to change card presets inside rounds if presets have the exact same locked cards
+Cash "$" symbol will become green when you have enough cash to reach max interest per wave
+Damage dealt to enemies not showing floating text
+Critical hits not showing text
+Purchase reliability increased
+Video ad reliability increased (I think)
+New Utility Upgrades - Recovery Package
+New Card - Intro Sprint
+Duration of demon mode shown on the symbol now
+Gameplay Time
+Bonus coins from death wave
+HP gained from death wave
+Coins from golden tower
+Cash from golden tower Waves Skipped
+Recovery Packages collected
+Wave skip not counted into round end coin stat (coins were being earned before though)
+New Lab Research - Workshop Respec (Tier 4)
+Buy multiplier works for the workshop now
+Round real time added to end round stats panel
+Intro sprint card doesn't affect tap and hold time on card panel now
+Demon Mode
+Wave Skip
+Critical Chance
+New Lab Research - Cards Presets (Tier 5)
+Max card slots increase by 1
+Smart missiles base damage increased from 600 to 800%, increase per level from 60 to 80%
+Smart missile starting count increased from 4 to 5, max missiles increased by 1
+Second wind not protecting against ranged units sometimes
+iOS push notifications fixed
+iOS crashing reduced
+Fixed an issue that could cause the store to open without price tags
+Fixed starter pack pop up sometimes showing the epic pack's price
+Fixed an issue with buy multipliers giving wrong upgrade costs (discounts)
+Land mine rotation research showing without inner land mines unlocked
+Inner mines blast radius
+Inner mines rotation researches
+Chrono Field range research
+Chrono field has a fresh new look
+Smart missiles base damage increased from 400 to 600%, increase per level from 40 to 60%
+Land mines base damage increased from 800 to 1200%, increase per level from 60 to 100%
+Enemy Balance card base benefit reduced from x1.5 to x1.3 cash bonus (the sheer number of extra enemies already give a lot of extra cash)
+Game end stats panel can now be accessed at the end of tournament rounds too
+Fixed O health visual bug when deathwave hp is active
+Fixed Golden Tower effect position on iOS
+Chain Lightning Shock (Initial unlock)
+Chain Lightning Shock Chance
+Chain Lightning Shock Multiplier
+Death Wave Health Boost (increase max health per DW kill)
+Death Wave Coin Boost (more coins per DW kill)
+Some lab cost equations slightly altered
+iOS push notifications fixed
+More attempts to fix crashes
+Inner orb distance adjuster minimum value corrected
+Second Wind Blast - tier 5
+Double Death Ray -
+tier 8
+Inner Orb Adjuster - tier 6
+Extra Inner Orbs - tier 6
+Difficulty of waves for longer runs increased to shorten rounds a bit
+New tier 11 added
+Coin bonus going to tier 9 is +0.9, to tier 10 is +1.0, to tier 11 is +1.1 (making later tiers more worthwhile)
+Game performance improved a lot for longer runs
+Floating texts increasing in size overtime
+Symbols no longer allowed for user names
+Platinum players can no longer be demoted to bronze
+Buy multipliers are saved through sessions
+Round end stats shows enemy killed by
+Tournament promotion/demotion panel stopped showing up
+Reduced chance of crashing
+Floating text for interest and free upgrades have an exclusive pool now
+Fixed some floating text being colored wrong
+Fixed shots being reused before they even reached the enemy on higher waves. Also increase projectiles pool to 150
+Changed inner orbs to rotate counter clockwise
+Improved reliability of IAP system
+Several other small fixes
+Orb speed
+Land mine damage
+Land mine decay
+More round stats
+Target priorities
+Daily gem gift is now available after 8 AM each day
+Missiles Despawn Time
+Missiles Explosion
+Missiles Radius
+Chrono Field Duration
+Chrono Field Damage Reduction
+Chrono Field Reduction %
+Swamp Radius
+Swamp Stun
+Swamp Stun Chance
+Swamp Stun Time
+Golden Tower Bonus
+Golden Tower Duration
+Performance for late game improved a lot
+Death ray stops rotating on long playthrough sometimes
+Second Wind Animation not triggering sometimes
+Other lesser known bugs
+Cloud save for android devices, accessible in the settings panel
+New Common Card: Extra Defense
+Back button functionality for android
+Waves starting at roughly wave 60 and above will have higher scaling for difficulty to end rounds a bit earlier (more health, slightly faster spawn rate, slightly higher chance of tanks and fast enemies). The general reason for this is to shorten rounds across the board as it was never designed to run for an hour plus. It will also help balance defensive builds as below, expect more changes though
+Scaling of attack damage of enemies reduced to help make defensive builds better
+Tier's difficulty spread out a wee bit more making higher tiers more difficult
+Health upgrade scaling buffed considerably
+Defense Absolute and Health Regen buffed
+Lifesteal max level decreased from 99 to 80
+Smart missiles starting missile quantity raised from 3 to 4
+Smart missiles max quantity raised from 14 to 15
+Tournament didn't show text for not updated version of game
+Health card math was incorrectly applied
+Ad loading cancel button works now
+More translation fixes
+Other small fixes
+Lifesteal nerfed - with the new health balancing, it became quite overpowered for defensive builds
+Smart missiles adapt to tower range much better
+Max distance research max level lowered from 100 to 80
+Copper league promotion includes 2 more players, Silver includes 1 more player
+Enemies damage increase by x1.04 each consecutive hit from the same enemy if not killed
+iOS UI optimizations
+Tablet optimizations
+Text for username on tournament panel fixed
+Max range visual radius updates instantly if earned from free upgrade now
+Other minor bug fixes
+Translated into 8 new languages - check settings panel to switch to your native language
+New Card (common) - Enemy Balance
+New Card (rare) - Critical Coin
+New Card (epic) - Super Tower
+New Card (epic) - Second Wind
+New Defense Upgrades - Land Mines
+New Defense Upgrade - Death Defy
+Enemy base attack damage for higher tiers decreased, decreased more for highest tiers
+Smart Missiles: Cost of upgrading number of missiles reduced a lot
+Smart Missiles: Max missiles increased from 10 to 14
+Golden tower base cool down increased from 180 to 270 seconds, max level increased from 12 to 15
+Chain lightning base chance reduced from 10 to 5%, increase per level decreased from 3.0 to 1.5%
+Chain lightning Base damage increased from 40 to 70%, damage per level increased from 5 to 10%
+Ultimate weapon Land Mines renamed to Inner Land Mines
+Inner land mines explosion radius increased from .75 to .90
+Inner land mines base damage increased from 600 to 800%, increase per level from 40 to 50%
+Inner land mine contact size increased slightly
+Death Wave base damage increased from 120 to 150%, upgrade per level from 10 to 15%
+Lifesteal increase per upgrade decreased from .15 to .14%
+Shockwave size increase per upgrade increased from .04 to .05
+Projectiles sometimes affecting the incorrect enemies when a block intercepts a shot
+Total coins on Battle panel not fitting in text box
+Notification for lab research completing firing by mistake
+Many other small bugs
+All ultimate weapons max damage level increased from 10 to 15
+Chain lightning base damage increased from 70 to 75%
+Chain lightning damage per level increased from 10 to 15%
+Death wave damage per level increased from 15 to 20%
+Inner land mines damage per level increased from 50 to 60%
+iOS home panel avoid top notch of devices
+Added a confirmation window when rushing lab research that costs more than 20 gems.
+Added a confirmation window when swapping an unfinished research on the lab.
+Tournament Claim window is now automatically opened when the game is open and claim is available.
+Added Death defy count on game over screen
+Second wind wings are now visible until triggered in the round, to make clear that it is still available.
+Fixed an issue where Super Tower timer was still counting while the game is paused.
+Fixed an issue where swamps could disappear while the game was paused.
+Fixed an issue where land mines could immediately auto explode as soon the game was unpaused
+Fixed an issue where second wind invincible durations was still counting while the game was paused.
+Translations fixed
+Labs fixed for those it was broken for
+Other minor stuff
+Version History/V0.4
+Ultimate Upgrades - earn power stones by participating in tournaments (still earn gems too). Use power stones to unlock powerful permanent upgrades for your tower. Current ultimate tower upgrades include
+Smart Missiles
+Land Mines
+Chain Lightning
+Chrono Field
+Death Field
+Projectiles disappearing at higher rates of fire mostly fixed
+Inner orb sometimes freezing on activating card fixed
+Interest per wave max text corrected when opening upgrade description panel
+If free upgrade upgrades tower max health, it now increases current health with it like the normal upgrade does
+Enemy health very slightly increased for higher tiers
+All damage based ultimate weapons now take critical mult and critical chance into account which increases their damage a lot
+Land Mines base damage increased from 150% to 250%. Increase per upgrade from 8 to 15%
+Smart missiles range away from tower increased
+Smart missiles deactivate after not hitting a target for 25 seconds
+Smart missiles damage per upgrade increased from 6% to 8%
+Max number of smart missiles active increased from 20 to 25
+Chain lightning base chance reduced from 25 to 10%. Increase per upgrade from 5 to 3%
+Chain lightning damage fixed
+Chain lightning base damage increased from 30 to 40%, increase per upgrade from 3 to 5%
+Death wave base damage increased from 80 to 100%, increase per upgrade from 4 to 6%
+Costs of some ultimate weapons slightly adjusted
+Gold league tier increased from 4 to 5
+Platinum league tier increased from 7 to 8
+Power stones earned for 1st place gold league increased from 80 to 90
+Enemy attack damage exponential factor decreased
+Defense Absolute exponential factor increased
+Formatting for ultimate weapons damage fixed
+Lab and card bonus calc errors for Health, Health Regen, Defense Absolute, Crit Factor, and Damage/Meter fixed (buffed)
+Lab and card bonus calc errors for cash and coin bonus fixed (nerfed)
+Max range calc with card fixed
+Health regen card bonus corrected (buffed)
+Enemy attack damage growth per wave decreased Attack speed projectile problem fix tried again
+Land mines area of affect increased by 50%
+Land mines base damage increased from 250 to 350%, increase per level from 15 to 25%
+Smart missiles base damage increased from 120 to 140%, increase per level from 8 to 10%
+Tournaments updating with max wave outside tournament round fixed
+Tournament leaderboard layout for longer phone screens fixed
+Projectile sometimes targeting further enemy instead of closer fixed
+Enemy attack damage reduced for higher tiers
+The Tower is finally out for iOS
+Tournament info is now always accessible even when not active
+Tournament history panel added
+Subreddit button added to settings panel
+Land mines base damage increased from 350 to 500%, damage per level from 25 to 40%
+Smart Missiles Base damage increased from 140 to 200%, damage per level from 10 to 20%
+Smart missiles range increases as tower range increases now, slightly
+All home panels adapt better to device sizes, not blocking the scroll window anymore
+Tournaments: Compete with groups of 30 other players every Wednesday and Saturday (UTC Time) to see who can achieve the highest wave in 24 hours. Earn prizes based on your ranking. First tournament is 8/11 (Wednesday)
+New Epic Card: Death Ray
+Lab timer shows correct number of days for research to complete now
+New Lab Research - Buy Multiplier
+Tournament bug fixes - such as the tournament button not working before tournament is active
+Lab unlock prices corrected
+Notification for tournament start time
+Defense (rel) and Defense(abs) renamed for clarity
+New Rare Card: Plasma Cannon - Fires at a boss dealing a percent of it's max health in damage. First card that locks in for a round and can only be changed outside of a round
+Fixed bug where a block hugs the tower and becomes untargetable
+New Epic Card: Energy Net - Shoots a net at bosses stunning them for x number of seconds
+Tournament leaderboard can be accessed from a normal round now to check standings
+Tournament button during gameplay is now in top right similar to other panels
+Death ray not stopping sometimes fixed
+Range card not activating instantly when slotted in mid round
+Icons sorted better in top left corner of home page
+Issues around pausing the game causing freezes and orbs to act funky fixed
+Panels can be closed by tapping outside of them
+Added animations to some panels
+Other bugs squashed
+Upgrading orbs from 3 to 4 sometimes not working
+Coins calculation for coins/wave being incorrect sometimes
+Slight tier difficulty balancing (harder for higher tiers)
+Lab timers for days and hours fixed
+Enemies killed by orbs and death ray now display correct cash for the kill
+Platinum tournament tier raised from 6 to 7
+Description for upgrades shown when first unlocking them in the workshop
+Tapping the name of any upgrade in the upgrade or workshop panels now shows the description for the upgrade
+Lab research for attack upgrades in the workshop effecting some defense ones fixed
+Epic pack title in the pop up fixed
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

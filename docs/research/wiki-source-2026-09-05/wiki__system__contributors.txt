@@ -1,0 +1,69 @@
+This page is the coordination hub for people who help maintain the wiki. It gathers everything a contributor needs in one place: a list of tasks that need doing, a record of completed work, editing guidance, trusted data sources, useful tools, and ways to reach other contributors.
+On this page
+Action List
+Change Log
+Wiki Editing Help
+Information Sources
+Tools
+Contributor Contact info
+This page brings together the resources used to keep the wiki up to date. You will find action lists, contact details, information sources, editing help, and tools, all aimed at making it easier for contributors to update and improve wiki content.
+Action List
+The action list tracks wiki content that needs updating or adding. Entries may come straight from patch notes or from revisiting older pages that need attention. If you spot something missing that belongs here, add it yourself.
+Items on the list are generally small jobs that should take under 20 minutes each. There is no formal project leader by design, so if you see a task you want to handle, volunteer for it and take ownership. The table below lists the current open actions.
+Action List
+Patch Topic Owner Completed? Notes
+V27 Review what guides may need updating.
+V27 Wiki Front page Content Creator link and Site notice Yugiohcd10 No Awaiting active code
+N/A Add images for ingame icons of Ultimate Weapons. My wife left me Jr. No low priority.
+N/A Add images for medals, elite cells, keys, bits, and tokens in the currencies page My wife left me Jr. No low priority.
+V25.7.2 Update Relic and Theme SvenTheSkull Yes
+Change Log
+The change log is a record of tasks that were completed on the action list and then removed from it. It preserves a history of what has been done, so you can check whether a piece of work has already been handled. The table below shows completed actions.
+Change Log
+Patch Topic Owner Completed? Notes
+N/A Wiki Front page Redesign with leaderboard Yugiohcd10 Yes
+V27 Ally reworked Yugiohcd10 Yes
+V27 Attack Enhancment caps Yugiohcd10 Yes
+V27 Defense enhancment caps Yugiohcd10 Yes
+V27 Utility enhancement caps Yugiohcd10 Yes
+V27 Confirm Fleet Spawn on T14+(Legends) Yugiohcd10 Yes
+V27 Add Fleets enemy info and pictures onto Enemy page Yugiohcd10 yes Not indiviual sections yet
+V27 Link new labs to milestones Yugiohcd10 Yes
+V27 Daily mission values/Tier Yugiohcd10 Yes
+V27 Four groups of Battle Condition Reduction labs, reducing the effect of specific Battle Conditions by a percentage. Yugiohcd10 Yes
+Show all 130 rows
+Wiki Editing Help
+This section answers common questions and addresses frequent mistakes that come up when editing the wiki. Editing is not always straightforward, so contributors are encouraged to expand this section over time.
+If you run into a problem you think others will also face, add your question in the question column of the table below so another contributor can fill in the answer.
+Frequently Asked Questions
+Question Answer
+I've encountered a chart that won't let me edit it at all. What do I do? Some of the charts, such as those in the lab tab, are constructed by templates. In order to edit these, look at the editing/text tab in the top. Click the hamburger icon(3 lines) and select Page-Settings -> Template Usage. If a template is used you will be able to pull it up and edit through this spot.
+Is there a specific format for lab times? From what I've seen, lab times on wiki are tabbed by spaces. Here is an example of the format xxdxxxhxxxm. whatever spots not used by a 1 or 2 digit hour/minute time will be spaces. Here is two examples: 1d 2h 3m and 12d 22h 56m.
+How do I edit non-primry tabs on a tabber table? Tabbers can be a little finicky. Usually you need to do a combination of editing templates vs edit source to get to a page where you can edit non-primary tabs.
+Where do I grab the latest information about new labs/scalings? Skye's tool is usually one of the first places to grab information after an update.
+Information Sources
+This section lists trusted sources for patch information and numerical game data. When you update the wiki, these are the references you should rely on for accuracy. If you know of another reliable source that is not listed, add it to the table below.
+Information Sources
+Source Notes
+Skye's Tools Will usually contain some of the earliest numerical data post-updates.
+Discord developer-announcements Patch notes for checking what may need to go on Action List
+Tools
+This section is a work in progress. It is intended to hold scripts and tables that help with data conversion or routine editing steps, reducing the manual effort involved in repetitive wiki tasks. Check the table below as resources are added.
+Tools
+Tool Link Info Owner
+Skye's Tool Time and Cost Convertor Link This google sheet will allow you to copy/paste lab details from Skye's Tool and have it convert Time and Cost to Wiki format that can then be pasted into Wiki. I strongly recommend doing Time conversions for every Lab. The cost convertor may or may not make sense to use depending on how high/Low values are. Yugiohcd10
+Contributor Contact info
+This section lets contributors get in touch with one another. Most contributors have busy lives outside the wiki, so sharing the workload across many people keeps things moving. Only list contact details you are comfortable being pinged on by other users.
+A Wiki-Updates thread is also available on the Discord server for coordination. The table below shows individual contributor contact details.
+Contributors
+Name Discord Reddit Other
+Yugiohcd10 yugiohcd10 u/Hubbylord
+Unlrealcow Unrealcow u/ExtrapolatedData Willing to help if I can figure out how to edit tab info.
+harychcn harychcn u/Harychcn
+Naturage naturage u/Naturage
+SwaggoFlamingo macis02 // 3XC3L u/SwaggoFlamingo
+SvenTheSkull SvenTheSkull
+Gugugan Gugugan u/Gugugan
+Related pages
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-01) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,5 @@
+The Tower runs on a repeating season structure. Each season gives you a fixed window to earn and spend seasonal currency before the cycle resets.
+Seasons Cycle
+Seasons run on an 8 week cycle. When a season ends, any seasonal tokens you have not spent are cashed out automatically, so there is no reason to hoard them past the final day. Bits, by contrast, carry over — you keep whatever you have earned and can continue building your balance into the next season.
+The practical takeaway is to plan your token spending before the season closes. Check the season timer as the end approaches and put remaining tokens toward whatever rewards matter most to you, since leaving them unspent means accepting the automatic cash-out instead.
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-09) . Something out of date? Tell us in the Discord .

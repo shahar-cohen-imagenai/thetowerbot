@@ -1,0 +1,62 @@
+Health builds, often called effective health or eHP builds, focus on maximizing your tower's health pool and reducing incoming damage. These setups dominate the early game because health scales efficiently through tiers 1-9. However, you'll eventually need to transition to damage-focused builds for late-game progress, so this guide assumes you'll spec out of health builds down the road and provides guidance on when to stop investing in certain upgrades.
+On this page
+Strengths
+Weaknesses
+Required Unlocks to Start — Workshop
+Required Unlocks to Start — Cards
+Required Unlocks to Start — Labs
+Bots
+Modules
+Details — Workshop
+Details — Labs
+Lab 1
+Lab 2
+Lab 3
+Lab 4
+Lab 5
+Details — Cards
+Ultimate Weapons
+Round Information
+Other Info
+Health builds, often called effective health or eHP builds, focus on maximizing your tower's health pool and reducing incoming damage. These setups dominate the early game because health scales efficiently through tiers 1-9. However, you'll eventually need to transition to damage-focused builds for late-game progress, so this guide assumes you'll spec out of health builds down the road and provides guidance on when to stop investing in certain upgrades.
+Strengths
+Starting a health build requires minimal investment compared to other strategies. You don't need any Ultimate Weapons to begin, and the build makes it significantly easier to unlock early tier milestones and relics.
+Weaknesses
+Protectors pose a serious challenge, especially when you're just starting out. The build also has a limited ceiling for progression and can struggle against vampire enemies.
+Required Unlocks to Start — Workshop
+On the Attack tab, unlock through Rapid Fire. Bounce Shot is optional. For Defense, unlock through Orbs, with Land Mines being optional initially. On the Utility tab, unlock through Free Upgrades. No Ultimate Weapons are mandatory, though Golden Tower and Black Hole will accelerate your progress if you have them.
+Required Unlocks to Start — Cards
+While no specific cards are mandatory, aim for at least 6 card slots to accommodate: Enemy Balance, Coins, Cash, Critical Coin, Health, and Attack Speed.
+Required Unlocks to Start — Labs
+You don't need any specific lab upgrades to begin, but having all five lab slots unlocked is strongly recommended.
+Bots
+No bots are essential, but Golden Bot provides valuable support for this build.
+Modules
+While no modules are required, Wormhole Redirector dramatically improves your survivability if you have access to it.
+Details — Workshop
+Prioritize maxing the inexpensive, quick-to-complete workshop upgrades first, especially those on the defense tab. This strategy lets Free Upgrades target Health more frequently during rounds. After finishing the cheap upgrades, shift your attention to Health and Damage. Many players maintain a cost ratio between these two stats, typically keeping them equal or spending twice as much on Health. Eventually you'll unlock Enemy Level Skip, at which point you should invest in both Enemy Attack Level Skip (EALS) and Enemy Health Level Skip (EHLS). EALS extends how many waves you survive, while EHLS keeps protectors manageable for longer. These upgrades cost substantially and won't become priorities until later.
+Details — Labs
+This guide assumes you have five lab slots available. If you haven't unlocked all five yet, doing so will let you properly develop your build.
+Lab 1
+Max out Game Speed to level 7. Lab Speed should also reach level 99. While Lab Speed previously wasn't recommended due to poor returns at higher levels, the introduction of lab speedups changed this. The final levels of certain labs like Super Crit Chance can take years to complete, and Lab Speed cuts that dramatically when combined with speedups and relics.
+Lab 2
+Max Attack Speed to level 99. This stat influences multiple game mechanics. Higher projectile frequency improves both knockback and damage per second. Knockback reduces how often enemies hit your tower, which benefits survivability across all build types.
+Lab 3
+Take Health to level 40-50, which provides enough progression benefit without over-investing in a stat that becomes less relevant late game. Def % should reach level 23. This stat has a 98% hard cap achievable during farming with a level 23 lab, maxed Standard Bonus Perk Lab at level 25, a maxed Def% card, and a Def% stat on an ancestral module. Max Orb Speed to level 20 since orbs serve as your primary damage dealer. Extra Orb Adjuster needs only level 1. Extra Extra Orbs should reach level 2, though this is expensive and represents a long-term goal. Max BH Damage to level 10.
+Lab 4
+Cash Bonus should reach level 40-50. Coins/Kill needs level 50-70 depending on when you unlock Golden Tower. Max Golden Tower Duration to level 20. Golden Tower Bonus should reach level 20-25, with duration taking priority since the bonus becomes expensive and may not justify maxing based on your progression stage. Max BH Coin Bonus to level 20. Max Spotlight Coin Bonus to level 20. For perk labs, max everything except Waves Required and Auto Perks. Waves Required should sit at a level following the pattern 4n+1, while Auto Perks is entirely your choice.
+Lab 5
+Use this slot flexibly, pulling from labs 3 and 4 as needed. Also consider Package After Boss, Crit Factor, Damage, and DPM labs. Crit Factor and Damage specifically help when protectors become difficult to eliminate.
+Details — Cards
+This section covers cards with important interactions for health builds. Health is self-explanatory. Extra Defense builds your effective health pool. Extra Orbs handle most enemy elimination. Attack Speed functions as described in the lab section. Plasma Cannon at level 1 reduces maximum boss hits from 3 to 2 when combined with thorns, and at level 7 reduces it to just 1 hit. Damage and Berserker both increase your damage output to help kill protectors. Avoid Energy Net because it immobilizes bosses, giving other enemies more time to position behind the boss where they can land hits you'd otherwise avoid. This build kills bosses by absorbing their hits.
+Ultimate Weapons
+No Ultimate Weapons are mandatory, but Spotlight and Black Hole both benefit basic health builds. Death Wave also works well with HP builds. Spotlight increases damage to speed up protector kills while providing a coin boost. Black Hole deals percentage-based damage over time, efficiently handling protectors when you've developed its duration and damage labs. At maximum development, Black Hole can inflict 84% of enemy health per activation.
+Round Information
+Most runs involve raising health to survive deeper into waves. Use these guidelines to identify what needs improvement: If bosses kill you in one hit, increase your health. If you die to consecutive boss hits, you need more lifesteal through Attack Speed, damage, or crit factor. If regular enemies kill you, improve crowd control via attack speed or orbs, though other methods exist. If protectors let enemies reach you, increase your damage. You can make these adjustments between rounds using coins and labs, or during your next run by rebalancing cash upgrades.
+Other Info
+Beyond the two Ultimate Weapons mentioned, Chrono Field also helps eHP builds. The challenge with CF is the substantial stone investment needed to max it and make it feel impactful, plus the time required for its labs. If you've completed most items in this guide and are considering transitioning to a different strategy, taking CF first and starting its lengthy labs might benefit you. This UW provides the best chip damage reduction available and enhances other hit-avoidance upgrades. Garlic Thorns proves valuable for destroying Vampires, which cause many deaths. Orb Boss Hit at levels 1-3 combined with level 6 Plasma Cannon reduces boss hits to 1 when using thorns. Level 1 requires 3 orb hits, level 2 needs 2 orb hits, and level 3 requires just 1 orb hit. This lab serves no other purpose for HP builds, but researching it becomes useful when you switch to a damage build.
+Related pages
+Modules
+Perk Labs
+Thorn Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-01) . Something out of date? Tell us in the Discord .

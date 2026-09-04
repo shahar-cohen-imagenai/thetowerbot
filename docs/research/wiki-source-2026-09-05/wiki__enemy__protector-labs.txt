@@ -1,0 +1,43 @@
+Protector labs are a set of three lab researches that weaken protector enemies during your rounds. Each one targets a different protector stat, and all three apply at every wave once researched.
+On this page
+Description — Protector Health
+Description — Protector Radius
+Description — Protector Damage Reduction
+Description
+Description — Protector Health
+Protector Health is a lab unlocked through Milestones at tier 9 wave 20. Each level lowers the health of protector enemies on all waves, making them easier to kill before they can shield other enemies. The lab has 30 levels, and the per-level values are listed in the cost table below.
+Level Time Cost Value
+1 2d 7h 33m 40,000,000,000 -0.30%
+2 2d 15h 54m 80,010,000,000 -0.60%
+3 3d 0h 27m 120,070,000,000 -0.90%
+4 3d 9h 34m 160,330,000,000 -1.20%
+5 3d 19h 44m 200,970,000,000 -1.50%
+6 4d 7h 36m 242,260,000,000 -1.80%
+7 4d 21h 51m 284,530,000,000 -2.10%
+8 5d 15h 19m 328,130,000,000 -2.40%
+9 6d 12h 53m 373,510,000,000 -2.70%
+10 7d 15h 31m 421,140,000,000 -3.00%
+Show all 30 rows
+Description — Protector Radius
+Protector Radius is unlocked through Milestones at tier 9 wave 20, the same requirement as the other protector labs. Researching it shrinks the radius of protector enemies at all waves, which reduces the area their protection covers. It has 30 levels.
+Description — Protector Damage Reduction
+Protector Damage Reduction is also unlocked at tier 9 wave 20 in Milestones. Its levels cut the damage reduction that protector enemies have on all waves, so your damage dealers lose less output when hitting them. Unlike the other two protector labs, this one has 20 levels. The cost table below shows the values per level.
+Level Time Cost Value
+1 2d 18h 39m 80,000,000,000 -0.30%
+2 3d 3h 1m 150,000,000,000 -0.60%
+3 3d 11h 34m 220,070,000,000 -0.90%
+4 3d 20h 40m 290,330,000,000 -1.20%
+5 4d 6h 51m 360,970,000,000 -1.50%
+6 4d 18h 43m 432,260,000,000 -1.80%
+7 5d 8h 58m 504,530,000,000 -2.10%
+8 6d 2h 26m 578,130,000,000 -2.40%
+9 7d 0h 0m 653,510,000,000 -2.70%
+10 8d 2h 38m 731,140,000,000 -3.00%
+Show all 20 rows
+Description
+Protector labs modify the stats of protector enemies while a round is running. One side effect worth knowing: once you start researching enemy-stat labs, the usual base ratios between enemy types stop holding true. For example, boss health is normally a fixed multiple of basic enemy health, but if you have researched basic health reduction, that multiple no longer applies. Keep this in mind when comparing enemy stats or planning around specific breakpoints.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-05-02) . Something out of date? Tell us in the Discord .

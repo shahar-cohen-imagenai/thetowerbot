@@ -1,0 +1,9 @@
+Tickets are a special currency used exclusively for Tournaments. Unlike Coins or Gems, they aren't used for upgrades; their sole purpose is to grant you entry into competitive play.
+Description
+Tickets function as the entry fee for Tournament Battles. Every time you wish to participate in a Battle within a Tournament, you must spend one Ticket. Without a Ticket, you cannot join the fight, making them essential if you want to climb the ranks and earn rewards.
+Getting Tickets
+You receive one Ticket automatically every time a new Tournament begins, ensuring you can always participate at least once. If you wish to fight more Battles than your free Ticket allows, you have two options to acquire more: you can watch a video advertisement, or you can purchase a Ticket directly for 10 Gems.
+Related pages
+Gems
+Tournaments
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2023-09-03) . Something out of date? Tell us in the Discord .

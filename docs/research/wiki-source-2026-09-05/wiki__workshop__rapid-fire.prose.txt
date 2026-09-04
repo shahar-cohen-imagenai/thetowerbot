@@ -1,0 +1,36 @@
+Rapid Fire is a workshop upgrade that gives your tower a chance to temporarily fire at four times its normal speed. When it triggers, the effect lasts for a fixed duration before returning to normal. It is a straightforward damage boost that becomes more reliable and longer-lasting as you invest in its two related upgrades.
+On this page
+Overview
+Workshop
+Rapid Fire Chance
+Rapid Fire Duration
+Cost — Rapid Fire Chance
+Cost — Rapid Fire Duration
+Overview
+Rapid Fire gives your tower a chance to fire at four times its normal attack speed for a set period of time. The effect is triggered randomly on each shot, so both the activation chance and the duration can be improved separately through workshop upgrades.
+Workshop
+Rapid Fire is unlocked in the workshop for 1500 coins. It becomes available after you have unlocked Multishot. Once unlocked, it gives you access to two upgrades: Rapid Fire Chance and Rapid Fire Duration.
+Rapid Fire Chance
+Rapid Fire Chance controls how often the effect triggers. There are 85 levels available, with each level increasing the activation chance by 0.40%. At maximum level, the chance to activate Rapid Fire reaches 34.00%.
+Rapid Fire Duration
+Rapid Fire Duration controls how long the effect lasts once it activates. There are 99 levels available in the workshop, and at maximum level the duration reaches 5.55 seconds.
+Cost — Rapid Fire Chance
+The cost table below shows the coin cost for each level of Rapid Fire Chance.
+Show all 85 rows
+Cost — Rapid Fire Duration
+The cost table below shows the coin cost for each level of Rapid Fire Duration.
+Show all 99 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-12-20) . Something out of date? Tell us in the Discord .

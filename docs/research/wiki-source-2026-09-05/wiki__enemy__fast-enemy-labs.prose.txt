@@ -1,0 +1,21 @@
+Fast Enemy Labs are a set of milestone-unlocked lab researches that weaken fast enemies during rounds. Each lab targets one stat — health, attack, or speed — and applies its reduction at every wave, making fast enemies easier to manage as you progress.
+On this page
+Description — Fast Enemy Health
+Description — Fast Enemy Attack
+Description — Fast Enemy Speed
+Description
+Description — Fast Enemy Health
+This lab becomes available through Milestones once you reach tier 9 wave 20. Researching it lowers the health of fast enemies across all waves, so they take fewer hits to kill. It has 30 levels, and the per-level costs and effects are shown in the table below.
+Show all 30 rows
+Description — Fast Enemy Attack
+Unlocked in Milestones at tier 9 wave 20, this lab reduces how much damage fast enemies deal at every wave. It has 30 levels, letting you steadily chip away at the threat fast enemies pose to your tower.
+Description — Fast Enemy Speed
+This lab unlocks later than the other two, at tier 9 wave 300 in Milestones. Each level slows fast enemies down at all waves, giving your tower more time to hit them before they reach it. It has 30 levels, with details in the table below.
+Show all 30 rows
+Description
+Fast Enemy labs directly alter fast enemy stats while a round is running. Keep in mind that researching these labs breaks the default stat relationships between enemy types — for example, boss health is normally a fixed multiple of basic enemy health, but once you start modifying one type's stats, those built-in ratios no longer hold.
+Related pages
+Enemies
+Lab Upgrades
+Milestones
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-05-01) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,35 @@
+Elite Cells are a special currency in The Tower: Idle Tower Defense. You spend them on lab boosts, so a steady supply matters once you start pushing those upgrades.
+Unlike common currencies, Elite Cells come from a single source: killing Elite enemies. How many you earn depends on the tier you farm and a few upgrades you can invest in.
+On this page
+Elite Cell
+Acquiring Elite Cells
+Improving Elite Cell Flow
+Cells/Kill Bonus
+Elite Cell
+Elite Cells are a currency dropped by Elite enemies. Their only purpose is to pay for lab boosts, so everything you collect feeds directly into your lab progression.
+Acquiring Elite Cells
+The only way to get Elite Cells is by defeating Elite enemies: Vampire, Ray and Scatter. No other enemy type drops them.
+On Tiers 1 through 13, each Elite you kill drops between 1 and X cells, where X is the tier you are playing. That works out to an average of (1+X)/2 cells per Elite, so higher tiers pay noticeably more per kill.
+From Tier 14 onwards, the drop uses fixed base values per Elite instead of the 1-to-X range. The exact amounts for each tier are listed in the table below.
+Base Cells Per Elite Per Tier
+Improving Elite Cell Flow
+There are several ways to raise the number of Elite Cells you bring in:
+1. Upgrade the Death Wave Cell Bonus in the lab. 2. Farm on higher tiers, since each Elite drops more cells there. 3. Farm to higher waves within a run. 4. Take the Cells Bonus in Workshop Enhancements. 5. Use the Enemy Balance, Wave Skip and Intro Sprint masteries. These either raise the cells you earn per run or increase how many you earn per hour.
+Cells/Kill Bonus
+The Cells/Kill Bonus is a Workshop Enhancement that multiplies the cells each kill gives you. It only becomes available after you have spent 500 billion coins on Utility enhancements.
+Unlocking it sets your Cells/Kill to x1, and every level after that adds 0.01x to the multiplier. It caps at level 200, which gives you a 3x bonus. The cost per level is shown in the table below.
+Show all 200 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Cash Bonus
+Critical Hits
+Currency
+Damage
+Damage Per Meter
+Defense Absolute
+Defense Upgrades
+Enemies
+Enemy Level Skip
+Free Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-10) . Something out of date? Tell us in the Discord .

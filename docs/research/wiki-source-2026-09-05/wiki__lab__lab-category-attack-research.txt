@@ -1,0 +1,15 @@
+Attack Research
+Damage Max Lv 100 Attack Speed Max Lv 99
+Critical Factor Max Lv 99 Range Max Lv 80
+Damage/Meter Max Lv 99 Super Crit Chance Max Lv 50
+Super Crit Mult Max Lv 40 Max Rend Armor Multiplier Max Lv 30
+Light Speed Shots Max Lv 1
+Related pages
+Attack Speed
+Critical Hits
+Damage
+Damage Per Meter
+Range
+Rend Armor
+Super Critical
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,78 @@
+Spotlight is an Ultimate Weapon that projects rotating beams around your tower. Any enemy caught inside a beam takes increased damage from your other sources, making it a force multiplier rather than a standalone weapon.
+On this page
+Description
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Labs — Spotlight Missiles
+Labs — Spotlight Coin Bonus
+Labs
+Description
+Spotlight creates one or more beams that sweep in a circle around your tower, each covering a set number of degrees. Enemies standing in the light take multiplied damage.
+The multiplier applies to all damage sources except those based on a percentage of enemy health or those that scale off wave stats.
+Workshop — Basic Upgrades
+Spotlight is bought and upgraded from the Ultimate Weapon menu using stones. Once unlocked, you can level three stats: Bonus (the damage multiplier), Angle (how wide each beam is) and Quantity (how many beams rotate around the tower).
+Bonus has 25 levels, Angle has 60 levels and Quantity has 3 levels. Fully upgrading all three costs 42,236 stones in total; the per-level breakdown is in the cost table below.
+Bonus Stones(Bonus) Angle Stones(Angle) Quantity Stones(Quantity)
+8x 0 30 0 1 0
+9.4x 5 31 5 2 375
+10.8x 13 32 16 3 850
+12.2x 21 33 27 4 2500
+13.6x 30 34 38
+15.0x 40 35 49
+16.4x 52 36 60
+17.8x 65 37 71
+19.2x 80 38 82
+20.6x 95 39 93
+Show all 62 rows
+Workshop — Ultimate Weapon Plus
+Spotlight's Ultimate Weapon Plus ability adds a further boost to its damage bonus, scaling as a percentage of damage per meter. Your Tower Range affects this scaling, so range investments feed directly into the bonus.
+Like all UW+ abilities, it only becomes available after you have purchased all nine Ultimate Weapons.
+UW+ Cost Table
+Level 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+Cost Unlocked 400 500 610 730 860 1000 1150 1300 1500 1700 1950 2200 2450 2700
+Value 0.01x 0.02x 0.03x 0.04x 0.05x 0.06x 0.07x 0.08x 0.09x 0.10x 0.11x 0.12x 0.13x 0.14x 0.15x
+Labs — Spotlight Missiles
+This lab lets the tower fire missiles from the Spotlight on a timed cycle. Missile damage is taken from your Smart Missiles damage; if you have not unlocked Smart Missiles, the missiles use a base damage of 14x instead.
+The lab has 18 levels. When it first appears in milestones, the display shows a 20-second firing interval, but no missiles actually fire until you buy the first level, which sets the frequency to 19 seconds.
+Level Time Cost Value
+1 6d 15h 58m 200,000,000 19.00
+2 7d 0h 20m 200,313,514 18.00
+3 7d 8h 52m 200,854,054 17.00
+4 7d 17h 52m 202,551,351 16.00
+5 8d 3h 48m 207,502,703 15.00
+6 8d 15h 5m 219,286,486 14.00
+7 9d 4h 17m 243,329,730 13.00
+8 9d 19h 57m 287,156,757 12.00
+9 10d 14h 47m 360,659,459 11.00
+10 11d 13h 30m 476,367,568 10.00
+Show all 18 rows
+Labs — Spotlight Coin Bonus
+This lab adds a coin multiplier to enemies that die while inside the Spotlight beam. The kill itself does not have to come from Spotlight damage — the enemy only needs to be in the light when it dies.
+Level Time Cost Value
+1 1d 15h 59m 20,000,000 1.10
+2 2d 0h 21m 21,405,405 1.20
+3 2d 8h 53m 23,124,324 1.30
+4 2d 17h 54m 26,627,027 1.40
+5 3d 3h 49m 35,837,838 1.50
+6 3d 15h 6m 58,248,649 1.60
+7 4d 4h 17m 106,162,162 1.70
+8 4d 19h 58m 197,870,270 1.80
+9 5d 14h 49m 358,875,676 1.90
+10 6d 13h 31m 623,091,892 2.00
+Show all 20 rows
+Labs
+Both Spotlight labs are unlocked through Milestones. Spotlight Missiles becomes available at tier 3 wave 400, and Spotlight Coin Bonus unlocks at tier 7 wave 80.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-08-26) . Something out of date? Tell us in the Discord .

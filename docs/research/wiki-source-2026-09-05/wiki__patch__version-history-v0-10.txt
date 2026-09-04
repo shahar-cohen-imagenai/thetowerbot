@@ -1,0 +1,28 @@
+Version 0.10 expanded the research tree with inner mines blast radius and rotation upgrades plus a Chrono Field range research, alongside a visual refresh for Chrono Field. Smart missiles and land mines received sizable damage buffs, while the Enemy Balance card's cash bonus was reduced from x1.5 to x1.3 to account for the extra income its added enemies already provide. The update also made the game end stats panel available after tournament rounds and fixed a 0 health visual bug with deathwave active and a Golden Tower positioning issue on iOS.
+Change list
+Reproduced from the developer's release notes.
+Inner mines blast radius
+Inner mines rotation researches
+Chrono Field range research
+Chrono field has a fresh new look
+Smart missiles base damage increased from 400 to 600%, increase per level from 40 to 60%
+Land mines base damage increased from 800 to 1200%, increase per level from 60 to 100%
+Enemy Balance card base benefit reduced from x1.5 to x1.3 cash bonus (the sheer number of extra enemies already give a lot of extra cash)
+Game end stats panel can now be accessed at the end of tournament rounds too
+Fixed O health visual bug when deathwave hp is active
+Fixed Golden Tower effect position on iOS
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

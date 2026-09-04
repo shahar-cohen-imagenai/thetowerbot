@@ -163,7 +163,7 @@ export interface Shopping {
 }
 
 export type UpgradeCategory = "ATTACK" | "DEFENSE" | "UTILITY";
-export interface Upgrade { id: string; name: string; category: UpgradeCategory; aliases: string[]; unlock: boolean }
+export interface Upgrade { id: string; name: string; category: UpgradeCategory; aliases: string[]; unlock: boolean; unlocks?: string[] }
 export interface UpgradeRule { upgrade_id: string; enabled: boolean; target?: number | null }
 export interface AutopilotPolicy {
   enabled: boolean;
@@ -175,7 +175,14 @@ export interface AutopilotPolicy {
   max_scrolls: number;
   purpose?: RunPurpose;
 }
-export interface AutopilotPreset { name: string; rules: UpgradeRule[] }
+export interface AutopilotPreset {
+  name: string;
+  rules: UpgradeRule[];
+  workshop?: ShoppingRule[];
+  description?: string;
+  notes?: string[];
+  sources?: { title: string; url: string }[];
+}
 export interface UpgradeObservation {
   upgrade_id: string; context: string; category: UpgradeCategory; name: string;
   value: number | null; price: number | null; status: string; observed_at: number;
@@ -191,6 +198,40 @@ export interface AutopilotSnapshot {
   tier_comparison?: { tiers: { tier: number; runs: number; coins_per_hour: number; median_wave: number }[]; recommended_tier: number | null; reason: string } | null;
 }
 export interface AutopilotCommand { action: "category" | "buy" | "scan"; category?: UpgradeCategory; upgrade_id?: string }
+
+export interface AdvisorSource {
+  name: string;
+  version: string;
+  account_name: string;
+  exported_at: number;
+  account_snapshot_at: number;
+  url?: string | null;
+}
+export interface AdvisorRecommendation {
+  id: string;
+  path: "health" | "damage" | "economy";
+  system: "workshop" | "lab" | "ultimate_weapon" | "enhancement" | "other";
+  upgrade: string;
+  upgrade_id?: string | null;
+  current_value: number | null;
+  target_value: number | null;
+  value_kind: "level" | "stat";
+  cost: number | null;
+  currency: "coins" | "gems" | "stones" | "medals" | "time" | "other";
+  benefit: number | null;
+  can_stage: boolean;
+  blocked_reason: string | null;
+}
+export interface AdvisorSnapshot {
+  import_id: string | null;
+  profile: string;
+  imported_at: number | null;
+  source: AdvisorSource | null;
+  missing_inputs: string[];
+  stale: boolean;
+  recommendations: AdvisorRecommendation[];
+}
+export interface AdvisorDraftResult { draft: Strategy; added: boolean; message: string }
 
 /** Mirrors strategy.py's Strategy.to_dict(). */
 export interface Strategy {

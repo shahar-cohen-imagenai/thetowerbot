@@ -1,0 +1,53 @@
+Version 0.23 introduced Elite enemies—Vampire, Scatter, and Ray—that appear across all tiers with rising frequency at higher waves and drop Elite Cells used to speed up lab research. The update also added a workshop enhancements panel unlocked through labs, two new active card slots, the Nuke epic card, and recharge labs for limited-use abilities. Module management improved with favorites, unmerging, and a reroll rollback option, alongside a wave of bug fixes including the removal of Black Hole freeze through physics optimization.
+Change list
+Reproduced from the developer's release notes.
+Elite enemies from another galaxy are invading the Tower territory! These mysterious enemies of triangle shape show up in all tiers. Their chances of appearing will increase more and more as you progress to higher waves.
+There are 3 types of Elite enemies:
+Vampire:
+Vampires drain Tower health constantly while they are in range. Wall and Energy Shield do not prevent this effect. While a Vampire drains the Tower, both Health Regen and Lifesteal are disabled. Vampires have high knockback resistance and drain doesn't activate thorns.
+Scatter:
+Scatter will split into smaller versions of itself when defeated. The smaller versions will then split again. Scatters have high knockback resistance.
+Ray
+Once Ray reaches Tower range, it will charge for a time before firing a powerful ray at the Tower. Rays are completely immune to knockback.
+All Elite enemies are immune to orbs, Death Ray, Shockwave, and Black Hole. When defeated, Elite enemies will drop Elite Cells . You will be able to use these cells to SPEED UP LABS!
+Lab Speed Up Elite Cells are used to activate a boost for lab slots to make them work faster, increasing their rate by up to 5x speed for up to 24 hours. The Elite Cell cost per boost increases with higher speed, duration, and number of labs being boosted.
+To help repel these invaders, a lab research has been added to unlock workshop enhancements. This new panel offers various upgrades with percentage increases! The more coins you invest in enhancements, the more upgrade options will become available.
+Two new slots added to active cards.
+New epic card Nuke, when activated will kill onscreen enemies. Can be used at any time (similar to Demon Mode).
+New labs to recharge limited-use abilities after a number of waves: Second Wind, Demon Mode, Missile Barrage and the new Nuke.
+Wall Fortification lab added that allows Health Regen to increase Wall Health beyond its maximum value.
+Added ability to reroll daily missions (lab research to unlock).
+After you stop rerolling module sub effects, a new panel will show up asking if you want to keep the new effects or rollback to the effects that you had at the start (reroll shards used will be spent either way).
+Modules can be marked as favorites now. These modules will show up first in inventory, can't be selected as fodder on merge, can't be shattered, and are completely ignored by auto merge (do manual merge or unfavorite it to use auto merge).
+Modules can be unmerged (lab research to unlock). The fodder modules will be converted to shards.
+Equipped modules will be visible on the player's profile.
+Fixed Astral Deliverance not applying bounce extra damage.
+Optimization on enemy physics that allows us to completely remove Black Hole freeze.
+Fixed Chain Lightning not being able to chain more than 3 times.
+Fixed Tier 2 and 3 spawning more protectors than they should.
+Fixed Demon Mode dealing way higher damage than displayed.
+Various other minor improvements and bug fixes.
+Fixed only spawning Ray from the 3 new elite enemies
+it fixes some bugs and we removed modules from showing up on profile
+Added buy multiplier for enhancements
+Dimension Core now should correctly use the value by its current rarity
+Fixed vampire damage showing wrong value on wave info panel
+Fixed some weekly box showing wrong gems given
+Fixed lightspeed shots sometimes not giving coins on killing hits
+Changed how the game calculates the timers for Demon Mode, Second Wind invincibility, Swamp and Super Tower, now will be more stable without differences between current game speed
+Added more event themes and relics
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.14
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

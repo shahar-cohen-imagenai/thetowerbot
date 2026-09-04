@@ -1,0 +1,10 @@
+Attack Speed is a common card that makes your tower fire more often. The card's effect reads: Increase tower attack speed by [x], with the exact value shown in the table below. Because more shots per second means more damage, more knockback and more chances for on-hit effects to trigger, this is one of the most widely used cards in the game.
+Attack Speed
+Equipping Attack Speed raises how quickly your tower attacks. The bonus scales with the card's level, so upgrading it steadily increases your fire rate.
+A faster attack speed multiplies the value of everything else your tower does: raw damage, knockback, and any effect that can trigger on each shot all benefit from more frequent attacks. That makes this card a strong pick in most loadouts, from early rounds through to late-game farming and tournament pushes.
+Attack Speed value per card level
+Card Mastery
+The Attack Speed card mastery costs 750 stones to unlock. Once unlocked, it increases the card's stat multiplier, making each copy of the card provide a larger attack speed bonus.
+The mastery bonus is only active while Attack Speed is equipped in your active loadout. If you swap the card out, you lose the mastery benefit until you equip it again. See the table below for the multiplier values at each mastery level.
+Attack Speed mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

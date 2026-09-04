@@ -4,6 +4,7 @@ import {
   fetchRunEvents, fetchRuns, fetchStats, fetchStatus, fetchStrategies,
   fetchStrategy, fetchUnknown, patchControl, saveStrategy, shutdown,
   startBot, stopBot,
+  fetchAdvisor, importAdvisor, stageAdvisor,
 } from "./api";
 import type { Strategy } from "./types";
 
@@ -56,6 +57,29 @@ beforeEach(() => {
   fetchMock.mockReset();
   vi.stubGlobal("fetch", fetchMock);
   respond(200, {});
+});
+
+describe("advisor routes", () => {
+  it("encodes the selected profile in a read-only snapshot request", async () => {
+    await fetchAdvisor("profile a&b");
+    expect(callArgs()[0]).toBe("/api/advisor?profile=profile%20a%26b");
+  });
+  it("posts normalized imports without altering their content", async () => {
+    const body = { profile: "default", filename: "advisor.json", content: "{\n\"schema_version\":1\n}" };
+    await importAdvisor(body);
+    const [url, init] = callArgs();
+    expect(url).toBe("/api/advisor/import");
+    expect(init?.method).toBe("POST");
+    expect(JSON.parse(init?.body as string)).toEqual(body);
+  });
+  it("requests a draft transformation with the import revision", async () => {
+    const body = { profile: "default", import_id: "revision", recommendation_id: "health", draft: strategy };
+    await stageAdvisor(body);
+    const [url, init] = callArgs();
+    expect(url).toBe("/api/advisor/draft");
+    expect(init?.method).toBe("POST");
+    expect(JSON.parse(init?.body as string)).toEqual(body);
+  });
 });
 
 afterEach(() => {

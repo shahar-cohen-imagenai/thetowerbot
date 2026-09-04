@@ -1,0 +1,38 @@
+Card Masteries are a late-game upgrade layer for your cards in The Tower: Idle Tower Defense. Once unlocked, each mastery adds an extra effect to a specific card, but only while that card is equipped in your loadout.
+On this page
+Card Mastery
+Card Mastery Lab Time and Coins
+Card Mastery Overview
+Card Mastery
+Card Masteries become available once you have maxed 30 cards and reached the Card Mastery Milestone at Tier 16, Wave 100. From that point you can unlock masteries individually on the cards page.
+Each mastery costs a varying amount of stones to unlock. Unlocking it also opens that card's Mastery Labs, where the effect can be levelled further. Keep in mind that a mastery only applies while the card it belongs to is in your active loadout — unequip the card and you lose the effect.
+Card Mastery Lab Time and Coins
+Every card mastery lab shares the same lab costs and research times, regardless of which card it belongs to. The full breakdown of times and coin costs is shown in the table below.
+Level Time Coins
+1 20d 20h 0m 0s 1.10q
+2 31d 6h 0m 0s 1.30q
+3 41d 16h 0m 0s 2.00q
+4 52d 2h 0m 0s 3.40q
+5 62d 12h 0m 0s 5.60q
+6 72d 22h 0m 0s 7.70q
+7 83d 8h 0m 0s 9.10q
+8 93d 18h 0m 0s 9.80q
+9 104d 4h 0m 0s 10.00q
+Card Mastery Overview
+The table below lists each Card Mastery, its stone cost to unlock, and how its effect scales as you level it through the mastery labs. For a deeper look at how each mastery performs in practice and which ones are worth prioritising, see the Advanced Analysis page.
+Card Mastery Description Stone Cost 0 1 2 3 4 5 6 7 8 9
+Damage Increases card stat multiplier 750 x1.4 x1.8 x2.2 x2.6 x3 x3.4 x3.8 x4.2 x4.6 x5
+Attack Speed Increases card stat multiplier 750 x1.03 x1.06 x1.09 x1.12 x1.15 x1.18 x1.21 x1.24 x1.27 x1.3
+Health Increases card stat multiplier 750 x1.2 x1.4 x1.6 x1.8 x2 x2.2 x2.4 x2.6 x2.8 x3
+Health Regen Increases card stat multiplier 750 x1.4 x1.8 x2.2 x2.6 x3 x3.4 x3.8 x4.2 x4.6 x5
+Range Adds damage per meter bonus multiplier 750 x1.2 x1.4 x1.6 x1.8 x2 x2.2 x2.4 x2.6 x2.8 x3
+Cash Adds chance for elites to drop reroll dice 500 0.4% 0.8% 1.2% 1.6% 2% 2.4% 2.8% 3.2% 3.6% 4%
+Coins Increases card stat multiplier 1250 x1.03 x1.06 x1.09 x1.12 x1.15 x1.18 x1.21 x1.24 x1.27 x1.3
+Slow Aura Reduces enemy attack speed 1000 x1.05 x1.1 x1.15 x1.2 x1.25 x1.3 x1.35 x1.4 x1.45 x1.5
+Critical Chance Bonus to Crit Chance, super Crit chance, and Super Crit Factor 750 +1% +2% +3% +4% +5% +6% +7% +8% +9% +10%
+Enemy Balance Chance for double elite spawn 1000 6% 12% 18% 24% 30% 36% 42% 48% 54% 60%
+Show all 31 rows
+Related pages
+AdvancedAnalysis
+Cards
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-02-15) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,27 @@
+Cash is a common card you can slot into your loadout to increase how much cash you earn during a run. Because cash fuels your in-round upgrades, anything that raises your income helps you build faster and push further. The card's effect scales with its level, and it also has a mastery upgrade that adds a secondary benefit.
+Cash
+Cash is a common card whose effect reads: Increase all cash earned by [x]. Equipping it raises every source of cash income you collect while it's active in your loadout, making it a straightforward economy boost. The exact bonus depends on the card's level, which you can check in the table below.
+Cash value per card level
+Card Level Effect
+1 1.20
+2 1.40
+3 1.60
+4 1.80
+5 2.00
+6 2.20
+7 2.40
+Card Mastery
+Unlocking the Cash card mastery costs 500 stones. Once unlocked, it adds a chance for elites to drop reroll dice when killed, giving you an extra way to stock up on rerolls during a run. The mastery effect only applies while the Cash card is equipped in your active loadout, so you need to keep it slotted to benefit.
+Cash mastery value per lab level
+Mastery Level Value
+0 0.4%
+1 0.8%
+2 1.2%
+3 1.6%
+4 2%
+5 2.4%
+6 2.8%
+7 3.2%
+8 3.6%
+9 4%
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

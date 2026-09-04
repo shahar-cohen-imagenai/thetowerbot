@@ -25,6 +25,26 @@ def test_catalog_and_presets_are_available_without_a_running_bot() -> None:
     assert {p["name"] for p in api.get("/api/autopilot/presets").json()} == {"manual", "turtle", "health"}
 
 
+def test_guide_presets_include_serializable_workshop_and_battle_plans() -> None:
+    from strategy import Strategy
+
+    presets = client().get("/api/autopilot/presets").json()
+    turtle = next(p for p in presets if p["name"] == "turtle")
+    catalog = client().get("/api/upgrades").json()
+    thorn_unlock = next(row for row in catalog if row.get("unlock") and "thorns" in row.get("unlocks", []))
+    assert any(row["name"] == thorn_unlock["name"] for row in turtle["workshop"])
+    assert any(row["upgrade_id"] == "thorns" for row in turtle["rules"])
+    assert turtle["description"] and turtle["notes"] and turtle["sources"]
+    for preset in presets:
+        data = Strategy.from_config().to_dict()
+        data["autopilot"].update(preset=preset["name"], rules=preset["rules"])
+        data["shopping"]["workshop"] = preset["workshop"]
+        saved = Strategy.from_dict(data)
+        assert saved.to_dict()["shopping"]["workshop"] == preset["workshop"]
+        assert not saved.shopping.armed
+        assert saved.shopping.coin_budget == 0
+
+
 def test_idle_state_is_unknown_and_manual_actions_are_rejected() -> None:
     api = client()
     response = api.get("/api/autopilot")

@@ -1,0 +1,33 @@
+Range controls how far your tower can shoot. It also sets the distance from which ranged enemies can hit you, so it shapes both your offence and your exposure to return fire.
+On this page
+Description
+Workshop
+Cost
+Cards
+Range
+Description
+Range increases the distance at which your tower can fire projectiles. It also determines the firing distance of enemies that deal ranged damage, so raising it affects how far away those enemies can engage you as well.
+Workshop
+Range is unlocked in the workshop for 50 coins once you have Critical Factor. It starts at 30m and has 79 levels, with each level adding 0.5m. Fully upgraded, the workshop alone brings your range to a maximum of 69.5m.
+Cost
+The cost table below lists the price of each workshop level for Range.
+Show all 79 rows
+Cards
+The Range card boosts the range workshop value. Its effect multiplies with the range lab, so the two stack multiplicatively rather than additively.
+Range
+The Range lab is unlocked through Milestones at tier 2 wave 30. It has 80 levels, and each level raises both the increment granted per workshop level and the maximum workshop value. On the lab screen, an adjuster lets you pick any level up to your researched maximum while you are outside a round. The level table below shows the values at each lab level.
+Show all 80 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cards
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-10-16) . Something out of date? Tell us in the Discord .

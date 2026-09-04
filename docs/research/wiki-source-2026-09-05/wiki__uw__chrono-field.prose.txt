@@ -1,0 +1,51 @@
+Chrono Field is an Ultimate Weapon that creates an area around your tower where enemies move more slowly for a set period. It matters most when you want more time to deal with enemies before they reach the tower, and it is unusual because it can be kept active constantly when upgraded enough.
+On this page
+Description
+Workshop — Basic Upgrades
+Workshop — Ultimate Weapon Plus
+Lab — Chrono Field Duration
+Lab — Chrono Field Damage Reduction
+Lab — Chrono Field Reduction %
+Lab — Chrono Field Range
+Lab
+Description
+Chrono Field creates a field after a delay, then keeps that field active for a set duration. Enemies inside the field have their speed reduced by a percentage.
+The Chrono Field Speed Reduction stat is capped at 90% with substats.
+Workshop — Basic Upgrades
+After you unlock Chrono Field, its basic upgrades are found in the Ultimate Weapon menu. You can spend stones to upgrade Duration, Slow, and Cooldown.
+Chrono Field is the only Ultimate Weapon that can stay active all the time. At its lowest cooldown, the field can last 10 seconds longer than the cooldown itself. Its effect does not stack with itself, so any time left from the previous activation is lost if it triggers again.
+Duration has 35 levels, Slow has 11 levels, and Cooldown has 12 levels. The full upgrade path costs 9,946 stones in total.
+Show all 37 rows
+Workshop — Ultimate Weapon Plus
+Ultimate Weapon Plus abilities become available only after you buy all 9 Ultimate Weapons. For Chrono Field, this adds a rotational effect: enemies inside the field spiral around the tower based on the listed rotation rate.
+Community testing credited to Priesten, yournicknm, and Tremnen describes CF+ as applying a tangential force within Chrono Field range. The in-game rotation rate is the theta value, meaning how far enemies travel in radians over 2 seconds. If enemies are slow enough, they can appear to orbit the tower continuously, with higher CF+ levels producing faster orbital cycles.
+CF+ Analysis by Priesten, yournicknm, and Tremnen
+Show all 15 rows
+Lab — Chrono Field Duration
+This lab increases how long Chrono Field stays active. It has 30 levels.
+Show all 30 rows
+Lab — Chrono Field Damage Reduction
+This lab reduces the damage your tower takes while Chrono Field is active. The reduction starts at 10%, and the lab has 1 level.
+Finishing it unlocks Chrono Field Reduction %. The reduction is applied to enemy damage after defense absolute is calculated.
+Lab — Chrono Field Reduction %
+This lab increases the amount of damage reduction you get while Chrono Field is active. It has 30 levels.
+Show all 30 rows
+Lab — Chrono Field Range
+This lab extends Chrono Field beyond your tower range. It has 20 levels.
+Show all 20 rows
+Lab
+Chrono Field labs unlock through Milestones at Tier 7 wave 90. This gives access to Chrono Field Duration, Chrono Field Damage Reduction, Chrono Field Reduction %, and Chrono Field Range.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Damage Per Meter
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-03) . Something out of date? Tell us in the Discord .

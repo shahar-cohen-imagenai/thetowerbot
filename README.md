@@ -685,6 +685,27 @@ than the 500-event ring.
 
 ### OCR autopilot
 
+**Strategy → Effective Paths advisor** accepts a local JSON or normalized CSV
+recommendation export. Download an example in the panel, replace its placeholder
+data with your account's results, and import it. The panel separates health,
+damage and economy paths and shows the source version, account, timestamps,
+unknown values and missing inputs. Imports are stored per profile in local
+`advisor.json`, which is excluded from git.
+
+This adapter does not connect to Google Sheets, calculate Effective Paths formulas,
+or accept arbitrary native workbook CSVs. Effective Paths currently excludes a
+standard Workshop path; its lab and other recommendations remain advisory.
+Guide presets continue to supply Workshop unlock planning. See the
+[import format](docs/advisor-import.md) for the supported normalized fields.
+
+Only recognized Workshop recommendations in coins with improving **displayed stat**
+targets can be added to a Strategy draft. Both source and account data must be
+less than 24 hours old with no reported missing inputs. A Workshop level is never
+converted into a stat target. Required unlocks must already be observed or enabled
+earlier in the draft. Adding a recommendation preserves existing priorities,
+targets, disabled rows, budgets and arming. Save or Revert still controls the draft;
+an import or draft addition never purchases an upgrade.
+
 In **Strategy → Purchases**, choose Battle or Workshop, then Attack, Defense
 or Utility. The catalog supplies upgrade names and aliases; OCR supplies your
 observed values, prices and availability. Unknown means unseen, not locked.
@@ -693,8 +714,16 @@ fresh, readable upgrade and currency balance. Targets refer to displayed stat
 values, rather than purchase counts. Lower cooldown targets work in the opposite
 direction for Shockwave Frequency and Wall Rebuild.
 
-Choose Manual, Turtle or Health, adjust the ordered rules and targets, enable
-battle autopilot, and Save. Turtle protects buffered Defense Absolute after
+The **Guide preset** selector applies to both Battle and Workshop. Choosing Turtle
+or Health fills both ordered plans, including prerequisite Workshop unlocks.
+**Reapply preset** updates an existing battle-only profile or restores the guide's
+default plans. Selecting Manual retains both lists for custom editing. Preset
+changes remain a draft until Save; Revert restores the saved profile.
+
+Preset selection preserves automation switches, arming, coin reserve, visit budget,
+unlock permission and card settings. The shared preset header shows any Workshop
+setup steps still needed. Enable the desired automation, set a coin budget, permit
+unlocks when desired, and Save. Turtle protects buffered Defense Absolute after
 Defense %, builds early economy and advances Thorns breakpoints. Health moves
 from early economy to health, lifesteal, attack speed, knockback and orbs.
 These are editable guide presets; missing critical combat readings make them
@@ -711,7 +740,11 @@ Workshop spending requires shopping enabled and armed, a nonzero **coin budget
 per visit**, enough coins above the **coin reserve**, and an enabled row.
 Unlock tiles additionally require **Allow Workshop unlocks**. Cash Bonus and
 Coin Bonus unlocks are separate rows. Confirmed unlocks appear as Unlocked;
-unseen later unlocks can still be added by their exact OCR name. Shopping visits
+observed child upgrades also confirm that their prerequisite is already unlocked.
+Workshop respects the plan's priority across categories. When a recognized,
+permitted prerequisite unlock needs more coins or a larger visit budget, lower
+priority Workshop spending waits so it cannot consume that unlock's funds.
+Unseen later unlocks can still be added by their exact OCR name in a profile. Shopping visits
 take priority over starting the next battle. Existing card controls are unchanged.
 
 The Live tier comparison uses completed farming runs and elapsed time; at least

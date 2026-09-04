@@ -1,0 +1,103 @@
+Skip to content TOWER HUB Tools Runs News Relics Tier List Resources Glossary Language: en en Advisor Wiki Patch Notes
+Patch Notes
+Version by version, what the developers changed.
+Patch V0.10
+The Tower v0.10 patch notes: smart missile and land mine damage buffs, inner mine and Chrono Field researches, Enemy Balance card nerf, and bug fixes.
+Patch V0.11
+Version 0.11 of The Tower: Idle Tower Defense added Demon Mode, Wave Skip, Critical Chance, card presets research, and smart missile buffs, plus iOS and store f
+Patch V0.12
+The Tower v0.12 patch notes: Recovery Package upgrades, the Intro Sprint card, Workshop Respec research, and new end-round stat tracking.
+Patch V0.13
+The Tower v0.13 added the perk system, new lab research, cross-platform cloud saves, and balance changes to regen, defense, and ultimate weapons.
+Patch V0.14
+V0.14 adds the Black Hole ultimate weapon, Energy Shield card, tier 12, and reworks tournament difficulty scaling plus various balance changes.
+Patch V0.15
+The Tower v0.15 patch notes: events, bots, themes, Champion league, super critical upgrades, and ultimate weapon damage rebalancing.
+Patch V0.16
+The Tower v0.16 added leaderboards, three new cards, a 7th card level, higher upgrade caps with exponential scaling, and a music manager.
+Patch V0.17
+The Tower v0.17 patch notes: Spotlight ultimate weapon, Amplify event bot, advanced target priority research, and lab rush cost overhaul.
+Patch V0.18
+The Tower v0.18 patch notes: milestones system, Protector enemy, Tier 13, new cards and lab research, plus balance and performance changes.
+Patch V0.19
+The Tower v0.19 patch notes: daily missions, The Wall and Render Armor upgrades, bot buffs, economy tweaks, and a major double-multiplier bug fix.
+Patch V0.2
+The Tower v0.2 patch notes: tournaments arrive, three new cards (Death Ray, Plasma Cannon, Energy Net), plus lab fixes and balance changes.
+Patch V0.20
+The Tower v0.20 adds tiers 14-15 with battle conditions, relics, tower skins, the Ultimate Crit card, lightspeed research, and many bug fixes.
+Patch V0.21
+V0.21 adds dual battle conditions to Silver+ tournaments, Ultimate Weapon PLUS upgrades, synced UW timers, and cloud save and bug fixes.
+Patch V0.22
+The Tower v0.22 introduced the module system with four equippable categories, raised the Def% cap to 98%, and fixed bounce shot performance and Berserk charging
+Patch V0.23
+The Tower v0.23 adds Elite enemies, lab speed-ups, workshop enhancements, the Nuke card, module favoriting and unmerging, plus many fixes.
+Patch V0.24
+The Tower v0.24 patch notes: bot rework, Death Wave overhaul, Ultimate Weapon changes, new tiers, performance rewrite, and tournament updates.
+Patch V0.25
+The Tower v0.25 added Card Mastery, the Legends league with Keys and Vault trees, lab QoL upgrades, and a major tournament rework.
+Patch V0.26
+The Tower v0.26 added Guilds, Guardians, module banners and shattering, a cloud save migration, vault tree tiers, and major balance and bug fixes.
+Patch V0.27
+V0.27 adds Tiers 19-21, the Fleets enemy type, Assist Modules, the Area of Effect card, and major system changes including attack speed refactoring and tourname
+Patch V0.28
+v0.28 adds the Dissonance difficulty modifier, Bot Bot and Bot+ abilities, the Overheat endgame mechanic, and a rotating relic shop, plus fixes and hotfix balan
+Patch V0.3
+Version 0.3 added Ultimate Upgrades with power stones from tournaments, iOS release, and major balance changes to ultimate weapons and enemy scaling.
+Patch v0.4.0
+v0.4.0 adds Poison Swamp and Golden Tower ultimate weapons, raises the tier cap to 10, and buffs several weapons and defensive stats.
+Patch V0.5
+Version 0.5 of The Tower added 8 languages, four new cards, Land Mines and Death Defy upgrades, and rebalanced ultimate weapons, chain lightning, and high-tier
+Patch V0.6
+The Tower v0.6 patch notes: cloud saves on Android, defensive build buffs, wave difficulty scaling changes, and balance tweaks to lifesteal and smart missiles.
+Patch V0.7
+The Tower v0.7 added new upgrade stats for missiles, Chrono Field, Swamp, and Golden Tower, plus target priorities, more round stats, and late-game performance
+Patch V0.8
+Version 0.8 added tier 11, new upgrades, and performance improvements for longer runs, plus tournament and UI fixes.
+Patch V0.9
+Version 0.9 added Chain Lightning Shock upgrades, Death Wave health and coin boosts, lab cost changes, and iOS notification and crash fixes.
+Version History
+The Tower v28 adds Dissonance runs, Bot+ abilities, a new Bot Bot, Overheat endgame mechanics, and tournament conditions. See what changed for players.
+More from the hub
+Tower Advisor
+Personalized UW & lab advice
+Run Tracker
+Log every run, see what actually changed
+Tower News
+Every creator upload + Reddit, live
+Relic Tier List
+Every event relic rated. Is the pass worth it?
+Tier List Maker
+Rank cards, UWs, labs & more, then export and share
+Resources
+Every Discord, tool & creator
+Glossary
+eHP, GT sync & every term explained
+Question Radar
+What the community asks right now
+Creator Pulse
+The weekly Tower YouTube overview
+Giveaway Helper
+Comments in, entrants deduped, duel or race picks the winner
+Clip Studio
+Turn streams into vertical clips, built for creators
+TOWER HUB
+Tools, data and community for The Tower, built from one live Legend-league account and shared with everyone, for free.
+Creator code FLIPSTARS
+Tools
+Tower Advisor
+Run Tracker
+Tier List Maker
+Giveaway Helper
+Clip Studio
+Community
+News Feed
+Creator Pulse
+Question Radar
+Resources
+Reference
+Wiki
+Glossary
+Watch
+YouTube
+Tower Hub is an unofficial fan project. The Tower: Idle Tower Defense is a game by TechTree Games; this site is not affiliated with or endorsed by them. Game artwork belongs to its respective owners.
+Agent-ready : this site exposes WebMCP tools for AI agents.

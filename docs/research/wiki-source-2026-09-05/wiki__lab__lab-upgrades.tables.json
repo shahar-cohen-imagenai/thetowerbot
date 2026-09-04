@@ -1,0 +1,669 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [],
+    "rows": [
+      [
+        "Lab Number",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      [
+        "Cost",
+        "Free",
+        "100",
+        "400",
+        "1,400",
+        "3,000"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Credit to Shantymatic for calculations (Outdated due to gem rush efficiency update)",
+    "headers": [
+      "Time",
+      "Gems",
+      "Gems/Day rate",
+      "Discount"
+    ],
+    "rows": [
+      [
+        "1 hour",
+        "7.5",
+        "180",
+        "0%"
+      ],
+      [
+        "1 day",
+        "163",
+        "163",
+        "9%"
+      ],
+      [
+        "1 week",
+        "1000",
+        "142.9",
+        "21%"
+      ],
+      [
+        "30 days",
+        "3550",
+        "118.3",
+        "34%"
+      ],
+      [
+        "90 days",
+        "8000",
+        "88.9",
+        "51%"
+      ],
+      [
+        "360 days",
+        "25000",
+        "69.4",
+        "61%"
+      ],
+      [
+        ">360 days",
+        "25000",
+        "N/A",
+        "N/A"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Boost",
+      "Duration",
+      "Cost One lab",
+      "Cost All labs",
+      "Effective time skip",
+      "Cost per lab per hour of effective time skip"
+    ],
+    "rows": [
+      [
+        "1.5x",
+        "1 hr",
+        "15",
+        "75",
+        "0.5",
+        "30"
+      ],
+      [
+        "1.5x",
+        "8 hrs",
+        "120",
+        "600",
+        "4"
+      ],
+      [
+        "1.5x",
+        "24 hrs",
+        "360",
+        "1\u202f800",
+        "12"
+      ],
+      [
+        "2x",
+        "1 hr",
+        "100",
+        "500",
+        "1",
+        "100"
+      ],
+      [
+        "2x",
+        "8 hrs",
+        "800",
+        "4\u202f000",
+        "8"
+      ],
+      [
+        "2x",
+        "24 hrs",
+        "2\u202f400",
+        "12\u202f000",
+        "24"
+      ],
+      [
+        "3x",
+        "1 hr",
+        "840",
+        "4\u202f200",
+        "2",
+        "420"
+      ],
+      [
+        "3x",
+        "8 hrs",
+        "6\u202f720",
+        "33\u202f600",
+        "16"
+      ],
+      [
+        "3x",
+        "24 hrs",
+        "20\u202f160",
+        "100\u202f800",
+        "48"
+      ],
+      [
+        "4x",
+        "1 hr",
+        "3\u202f360",
+        "16\u202f800",
+        "3",
+        "1 120"
+      ],
+      [
+        "4x",
+        "8 hrs",
+        "26\u202f880",
+        "134\u202f400",
+        "24"
+      ],
+      [
+        "4x",
+        "24 hrs",
+        "80\u202f640",
+        "403\u202f200",
+        "72"
+      ],
+      [
+        "5x",
+        "1 hr",
+        "11\u202f900",
+        "59\u202f500",
+        "4",
+        "2 975"
+      ],
+      [
+        "5x",
+        "8 hrs",
+        "95\u202f200",
+        "476\u202f000",
+        "32"
+      ],
+      [
+        "5x",
+        "24 hrs",
+        "285\u202f600",
+        "1\u202f428\u202f000",
+        "96"
+      ],
+      [
+        "6x",
+        "1 hr",
+        "60 000",
+        "300\u202f000",
+        "5",
+        "12 000"
+      ],
+      [
+        "6x",
+        "8 hrs",
+        "480\u202f000",
+        "2\u202f400\u202f000",
+        "40"
+      ],
+      [
+        "6x",
+        "24 hrs",
+        "1\u202f440\u202f000",
+        "7\u202f200\u202f000",
+        "120"
+      ],
+      [
+        "7x",
+        "1 hr",
+        "250 000",
+        "1 250 000",
+        "6",
+        "~ 41 667"
+      ],
+      [
+        "7x",
+        "8 hr",
+        "2 000 000",
+        "10 000 000",
+        "48"
+      ],
+      [
+        "7x",
+        "24 hr",
+        "6 000 000",
+        "30 000 000",
+        "144"
+      ],
+      [
+        "8x",
+        "1 hr",
+        "1 000 000",
+        "5 000 000",
+        "7",
+        "~ 142 857"
+      ],
+      [
+        "8x",
+        "8 hr",
+        "8 000 000",
+        "40 000 000",
+        "56"
+      ],
+      [
+        "8x",
+        "24 hr",
+        "24 000 000",
+        "120 000 000",
+        "168"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Main Research"
+    ],
+    "rows": [
+      [
+        "Main Research Game Speed Max Lv  7 Starting Cash Max Lv 99 Workshop Attack Discount Max Lv 99 Workshop Defense Discount Max Lv 99 Workshop Utility Discount Max Lv 99 Labs Coin Discount Max Lv 99 Labs Speed Max Lv 99 Buy multiplier Max Lv  4 More Round Stats Max Lv  1 Target Priority Max Lv  2 Card Presets Max Lv  1 Workshop Respec Max Lv  1 Reroll Daily Missions Max Lv 1 Workshop Enhancement Max Lv 1 Enhancment Coin Discount Max Lv 100"
+      ],
+      [
+        "Game Speed Max Lv  7",
+        "Starting Cash Max Lv 99"
+      ],
+      [
+        "Workshop Attack Discount Max Lv 99",
+        "Workshop Defense Discount Max Lv 99"
+      ],
+      [
+        "Workshop Utility Discount Max Lv 99",
+        "Labs Coin Discount Max Lv 99"
+      ],
+      [
+        "Labs Speed Max Lv 99",
+        "Buy multiplier Max Lv  4"
+      ],
+      [
+        "More Round Stats Max Lv  1",
+        "Target Priority Max Lv  2"
+      ],
+      [
+        "Card Presets Max Lv  1",
+        "Workshop Respec Max Lv  1"
+      ],
+      [
+        "Reroll Daily Missions Max Lv 1",
+        "Workshop Enhancement Max Lv 1"
+      ],
+      [
+        "Enhancment Coin Discount Max Lv 100",
+        ""
+      ],
+      [
+        "Attack Research Damage Max Lv 100 Attack Speed Max Lv 99 Critical Factor Max Lv 99 Range Max Lv 80 Damage/Meter Max Lv 99 Super Crit Chance Max Lv 50 Super Crit Mult Max Lv 40 Max Rend Armor Multiplier Max Lv 30 Light Speed Shots Max Lv 1"
+      ],
+      [
+        "Attack Research"
+      ],
+      [
+        "Damage Max Lv 100",
+        "Attack Speed Max Lv 99"
+      ],
+      [
+        "Critical Factor Max Lv 99",
+        "Range Max Lv 80"
+      ],
+      [
+        "Damage/Meter Max Lv 99",
+        "Super Crit Chance Max Lv 50"
+      ],
+      [
+        "Super Crit Mult Max Lv 40",
+        "Max Rend Armor Multiplier Max Lv 30"
+      ],
+      [
+        "Light Speed Shots Max Lv 1",
+        ""
+      ],
+      [
+        "Defense Research Health Max Lv 100 Health Regen Max Lv 100 Defense Absolute Max Lv 100 Defense\u00a0% Max Lv 50 Orb Speed Max Lv 20 Land Mine Damage Max Lv 20 Land Mine Decay Max Lv 35 Shockwave Size Max Lv 20 Orb Boss Hit Max Lv 10 Wall Health Max Lv 50 Wall Rebuild Max Lv 20 Wall Regen Max Lv 30 Wall Thorn Max Lv 20 Wall Invincibility Max Lv 10 Wall Fortification Max lv 60 Garlic Thorns Max Lv 10"
+      ],
+      [
+        "Defense Research"
+      ],
+      [
+        "Health Max Lv 100",
+        "Health Regen Max Lv 100"
+      ],
+      [
+        "Defense Absolute Max Lv 100",
+        "Defense\u00a0% Max Lv 50"
+      ],
+      [
+        "Orb Speed Max Lv 20",
+        "Land Mine Damage Max Lv 20"
+      ],
+      [
+        "Land Mine Decay Max Lv 35",
+        "Shockwave Size Max Lv 20"
+      ],
+      [
+        "Orb Boss Hit Max Lv 10",
+        "Wall Health Max Lv 50"
+      ],
+      [
+        "Wall Rebuild Max Lv 20",
+        "Wall Regen Max Lv 30"
+      ],
+      [
+        "Wall Thorn Max Lv 20",
+        "Wall Invincibility Max Lv 10"
+      ],
+      [
+        "Wall Fortification Max lv 60",
+        "Garlic Thorns Max Lv 10"
+      ],
+      [
+        "Utility Research Cash Bonus Max Lv 99 Cash / Wave Max Lv 99 Coins / Kill Bonus Max Lv 99 Coins/wave Max Lv 99 Interest Max Lv 99 Max Interest Max Lv 15 Package After Boss Max Lv 1 Recovery Package Amount Max Lv 20 Recovery Package Max Max Lv 20 Recovery Package Chance Max Lv 20 Enemy Attack Level Skip Max Lv 20 Enemy Health Level Skip Max Lv 20"
+      ],
+      [
+        "Utility Research"
+      ],
+      [
+        "Cash Bonus Max Lv 99",
+        "Cash / Wave Max Lv 99"
+      ],
+      [
+        "Coins / Kill Bonus Max Lv 99",
+        "Coins/wave Max Lv 99"
+      ],
+      [
+        "Interest Max Lv 99",
+        "Max Interest Max Lv 15"
+      ],
+      [
+        "Package After Boss Max Lv 1",
+        "Recovery Package Amount Max Lv 20"
+      ],
+      [
+        "Recovery Package Max Max Lv 20",
+        "Recovery Package Chance Max Lv 20"
+      ],
+      [
+        "Enemy Attack Level Skip Max Lv 20",
+        "Enemy Health Level Skip Max Lv 20"
+      ],
+      [
+        "$32"
+      ],
+      [
+        "Ultimate Weapon Research"
+      ],
+      [
+        "Missiles Despawn Time Max Lv 20",
+        "Missiles Explosion Max Lv 1"
+      ],
+      [
+        "Missiles Radius Max Lv 20",
+        "Chrono Field Duration Max Lv 30"
+      ],
+      [
+        "Chrono Field Damage Reduction Max Lv 1",
+        "Chrono Field Reduction\u00a0% Max Lv 30"
+      ],
+      [
+        "Swamp Radius Max Lv 30",
+        "Swamp Stun Max Lv 1"
+      ],
+      [
+        "Swamp Stun Chance Max Lv 30",
+        "Swamp Stun Time Max Lv 30"
+      ],
+      [
+        "Golden Tower Bonus Max Lv 25",
+        "Golden Tower Duration Max Lv 20"
+      ],
+      [
+        "Chain Lightning Shock Max Lv 1",
+        "Shock Chance Max Lv 30"
+      ],
+      [
+        "Shock Multiplier Max Lv 14",
+        "Death Wave Health Max Lv 30"
+      ],
+      [
+        "Death Wave Coin Bonus Max Lv 20",
+        "Inner Mine Blast Radius Max Lv 20"
+      ],
+      [
+        "Inner Mine Rotation Speed Max Lv 20",
+        "Chrono Field Range Max Lv 20"
+      ],
+      [
+        "Missle Amplifier Max Lv 25",
+        "Missile Barrage Max Lv 1"
+      ],
+      [
+        "Missile Barrage Quantity Max Lv 6",
+        "Inner Mine Stun Max Lv 1"
+      ],
+      [
+        "Black Hole Damage Max Lv 10",
+        "Extra Black Hole Max Lv 1"
+      ],
+      [
+        "Black Hole Coins Bonus Max Lv 20",
+        "Spotlight Coin Bonus Max Lv 20"
+      ],
+      [
+        "Spotlight Missiles Max Lv 18",
+        "Black Hole Disable Ranged Enemies Max lv 1"
+      ],
+      [
+        "Recharge Missile Barrage Max lv 7",
+        "Swamp Rend - Basic Enemies Max lv 30"
+      ],
+      [
+        "Swamp Rend - Additional Enemies Max lv 6",
+        "Chain Thunder Max lv 30"
+      ],
+      [
+        "Lightning Amplifier Max lv 30",
+        "Death Wave Cell Bonus Max lv 20"
+      ],
+      [
+        "Death Wave Damage Amplifier Max lv 30",
+        "Death Wave Armor Stripping Max lv 10"
+      ],
+      [
+        "Inner Land Mine - Chrono Jump Max lv 10",
+        ""
+      ],
+      [
+        "Card Research Second Wind Blast Max Lv 4 Double Death Ray Max Lv 30 Extra Orb Adjuster Max Lv 1 Extra Extra Orbs Max Lv 2 Energy Shield Extra Hit Max Lv 2 Super Tower Bonus Max Lv 30 Recharge Second Wind Max Lv 7 Recharge Demon Mode Max Lv 7 Recharge Nuke Max Lv 7 Card Mastery (1 lab per card) Max Lv 9"
+      ],
+      [
+        "Card Research"
+      ],
+      [
+        "Second Wind Blast Max Lv 4",
+        "Double Death Ray Max Lv 30"
+      ],
+      [
+        "Extra Orb Adjuster Max Lv 1",
+        "Extra Extra Orbs Max Lv 2"
+      ],
+      [
+        "Energy Shield Extra Hit Max Lv 2",
+        "Super Tower Bonus Max Lv 30"
+      ],
+      [
+        "Recharge Second Wind Max Lv 7",
+        "Recharge Demon Mode Max Lv 7"
+      ],
+      [
+        "Recharge Nuke Max Lv 7",
+        "Card Mastery (1 lab per card) Max Lv 9"
+      ],
+      [
+        "Perk Research Unlock Perks Max Lv 1 Waves Required Max Lv 100 Auto Pick Perks Max Lv 1 Standard Perks Bonus Max Lv 25 Perk Option Quantity Max Lv 2 First Perk Choice Max Lv 1 Ban Perks Max Lv 8 Improve Trade-Off Perks Max Lv 10 Auto Pick Ranking Max Lv 32"
+      ],
+      [
+        "Perk Research"
+      ],
+      [
+        "Unlock Perks Max Lv 1",
+        "Waves Required Max Lv 100"
+      ],
+      [
+        "Auto Pick Perks Max Lv 1",
+        "Standard Perks Bonus Max Lv 25"
+      ],
+      [
+        "Perk Option Quantity Max Lv 2",
+        "First Perk Choice Max Lv 1"
+      ],
+      [
+        "Ban Perks Max Lv 8",
+        "Improve Trade-Off Perks Max Lv 10"
+      ],
+      [
+        "Auto Pick Ranking Max Lv 32",
+        ""
+      ],
+      [
+        "Bot Research Flame Bot Cooldown Max Lv 25 Thunder Bot Cooldown Max Lv 25 Golden Bot Cooldown Max Lv 25 Amplify Bot Cooldown Max Lv 25 Flame Bot - Burn Stacks Max lv 5 Thunder Bot - Linger Time Max lv 20 Golden Bot - Duration Max lv 20 Amplify Bot - Duration Max lv 20"
+      ],
+      [
+        "Bot Research"
+      ],
+      [
+        "Flame Bot Cooldown Max Lv 25",
+        "Thunder Bot Cooldown Max Lv 25"
+      ],
+      [
+        "Golden Bot Cooldown Max Lv 25",
+        "Amplify Bot Cooldown Max Lv 25"
+      ],
+      [
+        "Flame Bot - Burn Stacks Max lv 5",
+        "Thunder Bot - Linger Time Max lv 20"
+      ],
+      [
+        "Golden Bot - Duration Max lv 20",
+        "Amplify Bot - Duration Max lv 20"
+      ],
+      [
+        "Enemies Research Common Enemy Health Max Lv 30 Common Enemy Attack Max Lv 30 Fast Enemy Health Max Lv 30 Fast Enemy Attack Max Lv 30 Fast Enemy Speed Max Lv 30 Tank Enemy Health Max Lv 30 Tank Enemy Attack Max Lv 30 Ranged Enemy Health Max Lv 30 Ranged Enemy Attack Max Lv 30 Boss Health Max Lv 30 Boss Attack Max Lv 30 Protector Health Max Lv 30 Protector Radius Max Lv 30 Protector Damage Reduction Max Lv 20 Ranged Enemy Range Max Lv 30 Vampire Enemy Attack Max Lv 30 Vampire Enemy Health Max Lv 30 Ray Enemy Attack Max Lv 30 Ray Enemy Health Max Lv 30 Scatter Enemy Attack Max Lv 30 Scatter Enemy Health Max Lv 30"
+      ],
+      [
+        "Enemies Research"
+      ],
+      [
+        "Common Enemy Health Max Lv 30",
+        "Common Enemy Attack Max Lv 30"
+      ],
+      [
+        "Fast Enemy Health Max Lv 30",
+        "Fast Enemy Attack Max Lv 30"
+      ],
+      [
+        "Fast Enemy Speed Max Lv 30",
+        "Tank Enemy Health Max Lv 30"
+      ],
+      [
+        "Tank Enemy Attack Max Lv 30",
+        "Ranged Enemy Health Max Lv 30"
+      ],
+      [
+        "Ranged Enemy Attack Max Lv 30",
+        "Boss Health Max Lv 30"
+      ],
+      [
+        "Boss Attack Max Lv 30",
+        "Protector Health Max Lv 30"
+      ],
+      [
+        "Protector Radius Max Lv 30",
+        "Protector Damage Reduction Max Lv 20"
+      ],
+      [
+        "Ranged Enemy Range Max Lv 30",
+        "Vampire Enemy Attack Max Lv 30"
+      ],
+      [
+        "Vampire Enemy Health Max Lv 30",
+        "Ray Enemy Attack Max Lv 30"
+      ],
+      [
+        "Ray Enemy Health Max Lv 30",
+        "Scatter Enemy Attack Max Lv 30"
+      ],
+      [
+        "Scatter Enemy Health Max Lv 30",
+        ""
+      ],
+      [
+        "Module Research Common Drop Chance Max Lv 10 Reroll Shards Max Lv 100 Daily Mission Shards Max Lv 50 Module Shard Costs Max Lv 30 Module Coin Cost Max Lv 30 Rare Drop Chance Max Lv 10 Unmerge Module Max Lv 1 Shatter Shards Max lv 5 Cannon Effect Bans Max Lv 4 Armor Effect Bans Max lv 4 Generator Effect Bans Max Lv 3 Core Effect Bans Max lv 7 Assist Module Substats Max Lv 30 Assist Module Bonus Max Lv 30"
+      ],
+      [
+        "Module Research"
+      ],
+      [
+        "Common Drop Chance Max Lv 10",
+        "Reroll Shards Max Lv 100"
+      ],
+      [
+        "Daily Mission Shards Max Lv 50",
+        "Module Shard Costs Max Lv 30"
+      ],
+      [
+        "Module Coin Cost Max Lv 30",
+        "Rare Drop Chance Max Lv 10"
+      ],
+      [
+        "Unmerge Module Max Lv 1",
+        "Shatter Shards Max lv 5"
+      ],
+      [
+        "Cannon Effect Bans Max Lv 4",
+        "Armor Effect Bans Max lv 4"
+      ],
+      [
+        "Generator Effect Bans Max Lv 3",
+        "Core Effect Bans Max lv 7"
+      ],
+      [
+        "Assist Module Substats Max Lv 30",
+        "Assist Module Bonus Max Lv 30"
+      ],
+      [
+        "Battle Condition Battle Condition Reduction Max Lv 10 Battle Condition Reduction Group 1 Max Lv 20 Battle Condition Reduction Group 2 Max Lv 20 Battle Condition Reduction Group 3 Max Lv 10 Battle Condition Reduction Group 4 Max Lv 10"
+      ],
+      [
+        "Battle Condition"
+      ],
+      [
+        "Battle Condition Reduction Max Lv 10",
+        "Battle Condition Reduction Group 1 Max Lv 20"
+      ],
+      [
+        "Battle Condition Reduction Group 2 Max Lv 20",
+        "Battle Condition Reduction Group 3 Max Lv 10"
+      ],
+      [
+        "Battle Condition Reduction Group 4 Max Lv 10",
+        ""
+      ]
+    ]
+  }
+]

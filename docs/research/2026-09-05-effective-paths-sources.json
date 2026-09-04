@@ -1,0 +1,37 @@
+{
+  "retrieved_on": "2026-09-05",
+  "landing_page": {
+    "url": "https://the-tower.notion.site/Effective-Paths-1bb91383b93f80d5aed2c098cbbd9e46",
+    "status": "read",
+    "note": "Embed label is older than live workbook version."
+  },
+  "setup_guide": {
+    "url": "https://the-tower.notion.site/Guide-to-Setting-Up-and-Using-the-Effective-Paths-1e591383b93f80379b0ec8b94fc5ba0f",
+    "status": "all rendered written sections read; 87 collapsed toggles expanded",
+    "rendered_text_characters": 62401,
+    "coverage_end": "Final Words",
+    "exclusions": ["illustrative screenshots not independently transcribed", "linked tutorial videos not watched", "child workbook formulas not fully audited"]
+  },
+  "workbook": {
+    "url": "https://docs.google.com/spreadsheets/d/1YwZtKP6B4WYhRba5T6APJ1YxKNdfnIGQnprgnxmO7zc/edit",
+    "export_url": "https://docs.google.com/spreadsheets/d/1YwZtKP6B4WYhRba5T6APJ1YxKNdfnIGQnprgnxmO7zc/export?format=xlsx",
+    "version": "v5.10.03.00",
+    "status": "read FAQ/changelog; downloaded public export and inspected sheet schema",
+    "export_bytes": 8177895,
+    "worksheet_count": 31,
+    "output_sheets": ["eHP", "eHP Stone", "eHP Coins", "eRegen", "eDamage", "eDamage Stone", "eDamage Coins", "eDamage Keys", "eEcon", "eEcon Stones", "eEcon Discount"],
+    "account_data": "public template; not the player's populated account"
+  },
+  "linked_child_templates_identified": {
+    "labs": "165-JujisYPpKi3RWew9O5gptDJ6rgr-71BbyoQafoaU",
+    "workshop": "1GRVlWERQmvfHgsWytiY6gJn8-7oDDnGbg1Bsb5x4TS8",
+    "ultimate_weapons": "1T9_3YekZ2jbcebtu0MbuKU5IhI8zUFAR4UvlLklEajw",
+    "themes_songs": "1I890hoosDHS0WGwvGpfMTSmlChEFcjvts9seiEygCbQ",
+    "bots": "1i35r-Tlfx5o1QIdtAYqgVkK2Hep9lH0PQ9Y7BtlyOBQ",
+    "relics": "13psLga5xkYIcUiupK9tHmlSsZapFD-IS96aCuUvfjP4",
+    "vault": "1fkPvE2s9rYjIqB5_uU4DS5Pc6N3eUx5-2imBmpdJvcY",
+    "cards": "1wVLlvWfmcjHRkAnQJzAQu_YZo_eW1FXMVTfYYQnF7Xc",
+    "modules": "1KCxnSAvhstAbFdBSYSO_3bKUPtCFX42Eb7Z13agPU9s",
+    "guardians": "1Q8dhx05NIzgk1JNbZkdL-Y6cX07U09AiFkct4p1tZg4"
+  }
+}

@@ -1,0 +1,26 @@
+The Utility tab in Workshop Enhancements contains upgrades that improve your economy, free upgrade frequency, package recovery, and enemy level skipping. Each enhancement has its own unlock requirement and maximum level, and all of them increase by 0.01x per level after being unlocked.
+On this page
+— Cash Bonus
+— Coin Bonus
+— Cells/Kill Bonus
+— Free Upgrades
+— Packages
+— Enemy Level Skips
+— Cash Bonus
+Cash Bonus is the only Utility enhancement that costs nothing to unlock — it becomes available automatically once you complete the Workshop Enhancement Labs. Unlocking it immediately raises your Cash Bonus multiplier by x1, and each additional level adds 0.01x. Beyond the multiplier itself, every upgrade also increases your cash per wave, interest percentage, and maximum interest per wave by 1% each. You can level it up to 400 times, reaching a maximum bonus of 5x.
+Show all 41 rows
+— Coin Bonus
+To unlock Coin Bonus, you need to have spent 50 billion coins on Utility enhancements. Once unlocked, it raises your Coin Bonus multiplier by x1 and gains 0.01x per level, capping at level 200 for a 3x bonus. This enhancement is particularly valuable because it affects both your tier bonus and your Coins per Kill, meaning the overall benefit is effectively squared.
+Show all 200 rows
+— Cells/Kill Bonus
+Cells/Kill Bonus requires 500 billion coins spent on Utility enhancements before it becomes available. It boosts your Cells per Kill multiplier by x1 upon unlocking and by 0.01x per level afterward, with a maximum level of 200 for a 3x bonus.
+— Free Upgrades
+Free Upgrades is locked behind a 5 trillion coin spending requirement on Utility enhancements. When unlocked, it increases all Free Upgrades by x1, with each level adding another 0.01x. The maximum level is 100, which gives you a 2x bonus.
+Show all 100 rows
+— Packages
+The Packages enhancement requires 50 trillion coins spent on Utility enhancements to unlock. It increases both your Max Recovery Package and Recovery Amount by x1 when first unlocked, then by 0.01x per level. You can level it up to 300 times, reaching a maximum bonus of 4x.
+Show all 31 rows
+— Enemy Level Skips
+Enemy Level Skips is the most expensive Utility enhancement to unlock, requiring 500 trillion coins spent on Utility enhancements. It boosts the Enemy Health and Enemy Damage Level Skip multiplier by x1 upon unlocking and by 0.01x per level, with a maximum level of 60 for a 1.6x bonus.
+Show all 60 rows
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2024-04-25) . Something out of date? Tell us in the Discord .

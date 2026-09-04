@@ -1,0 +1,23 @@
+Medals are a currency tied to the game's Events. You earn them through event-related activities and spend them in the Event Shop, and unlike some event rewards they stay in your account after an Event finishes.
+On this page
+Medals
+Obtaining Medals
+Spending Medals
+Relics
+Medals
+Medals are the currency used to buy items from the Event Shop. They sit alongside the game's other currencies but have a single purpose: everything you buy with them comes from that one shop.
+Obtaining Medals
+There are three ways to earn Medals. You can complete Event Missions while an Event is running, collect Weekly Rewards from Daily Missions, or use a Guardian with the Fetch module equipped.
+Spending Medals
+Medals can only be spent in the Event Shop, but they do not expire when an Event ends. If nothing in the current shop appeals to you, you can hold onto your Medals and spend them during a future Event instead.
+The Event Shop stocks Gems, Power Stones, Shards, Themes, Music and Bots. Relics also appear in the shop, but only while an Event rerun is active.
+Relics
+Relics are gated behind the Medals you earn during their specific Event. Only Medals gained while that Event is live count toward unlocking its Relic — Medals saved from an earlier Event or picked up from Daily Mission boxes do not contribute to the total.
+Related pages
+Daily Missions
+Events
+Guardian
+Modules
+Relics
+Themes Menu
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-03) . Something out of date? Tell us in the Discord .

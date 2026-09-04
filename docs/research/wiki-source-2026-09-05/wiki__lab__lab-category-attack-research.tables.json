@@ -1,0 +1,31 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Attack Research"
+    ],
+    "rows": [
+      [
+        "Damage Max Lv 100",
+        "Attack Speed Max Lv 99"
+      ],
+      [
+        "Critical Factor Max Lv 99",
+        "Range Max Lv 80"
+      ],
+      [
+        "Damage/Meter Max Lv 99",
+        "Super Crit Chance Max Lv 50"
+      ],
+      [
+        "Super Crit Mult Max Lv 40",
+        "Max Rend Armor Multiplier Max Lv 30"
+      ],
+      [
+        "Light Speed Shots Max Lv 1",
+        ""
+      ]
+    ]
+  }
+]

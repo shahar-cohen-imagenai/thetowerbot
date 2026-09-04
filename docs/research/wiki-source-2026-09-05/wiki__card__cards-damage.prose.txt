@@ -1,0 +1,10 @@
+Damage is a common card in The Tower: Idle Tower Defense. As the name suggests, it boosts how hard your tower hits, making it one of the most straightforward offensive cards you can slot into your loadout.
+Damage
+When equipped, the Damage card increases your tower's damage by a set amount. The exact value scales with the card's level, which you can see in the data table below.
+Because it is a common card, Damage is easy to obtain and upgrade early on. It is a reliable pick whenever you want a flat boost to your tower's killing power, especially in the early and mid game before rarer cards become available.
+Damage value per card level
+Card Mastery
+The Damage card has a mastery upgrade that costs 750 stones to unlock. Once unlocked, it increases the card's stat multiplier, raising the damage bonus the card provides beyond its base values.
+Keep in mind that the mastery only takes effect while the Damage card is equipped in your active loadout. If you swap it out, you lose the benefit until you slot it back in.
+Damage mastery value per lab level
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

@@ -1,0 +1,952 @@
+[
+  {
+    "type": "table",
+    "caption": "The three trees at a glance",
+    "headers": [
+      "Tree",
+      "Groups",
+      "Nodes",
+      "Total levels",
+      "Group unlock costs"
+    ],
+    "rows": [
+      [
+        "Power",
+        "4",
+        "47",
+        "223",
+        "25 Keys each"
+      ],
+      [
+        "Harmony",
+        "7",
+        "33",
+        "65",
+        "Gameplay free \u00b7 Cards / UWs / Modules 5 \u00b7 Bots / Workshop / Guardian 10"
+      ],
+      [
+        "Enemy (new)",
+        "4",
+        "36",
+        "1,080",
+        "Simple free \u00b7 Advanced 50 \u00b7 Elites 100 \u00b7 Fleets 150"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Attack (25 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Damage",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Attack Speed",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Critical Chance",
+        "+1%",
+        "10",
+        "5"
+      ],
+      [
+        "Crit Factor",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Damage / Meter",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Multishot Chance",
+        "+4%",
+        "10",
+        "5"
+      ],
+      [
+        "Rapid Fire Chance",
+        "+4%",
+        "10",
+        "5"
+      ],
+      [
+        "Bounce Shot Chance",
+        "+4%",
+        "10",
+        "5"
+      ],
+      [
+        "Super Crit Chance",
+        "+2%",
+        "10",
+        "5"
+      ],
+      [
+        "Super Crit Mult",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Rend Armor Chance",
+        "+4%",
+        "10",
+        "5"
+      ],
+      [
+        "Rend Armor Mult",
+        "+5%",
+        "10",
+        "5"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Defense (25 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Health",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Health Regen",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Defense %",
+        "+0.5%",
+        "20",
+        "3"
+      ],
+      [
+        "Defense Absolute",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Thorn Damage",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Knockback Chance",
+        "+1%",
+        "10",
+        "5"
+      ],
+      [
+        "Knockback Force",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Orb Speed",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Orbs",
+        "+1",
+        "20",
+        "2"
+      ],
+      [
+        "Shockwave Size",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Shockwave Frequency",
+        "-1s",
+        "20",
+        "2"
+      ],
+      [
+        "Death Defy",
+        "+2%",
+        "20",
+        "5"
+      ],
+      [
+        "Wall Health",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Wall Rebuild",
+        "-20s",
+        "20",
+        "5"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Utility (25 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Cash Bonus",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Cash / Wave",
+        "+100%",
+        "10",
+        "5"
+      ],
+      [
+        "Coins / Kill",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Coins / Wave",
+        "+100%",
+        "10",
+        "5"
+      ],
+      [
+        "Free Attack Upgrade",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Free Defense Upgrade",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Free Utility Upgrade",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Interest / Wave",
+        "+100%",
+        "10",
+        "5"
+      ],
+      [
+        "Recovery Amount",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Max Recovery",
+        "+20%",
+        "10",
+        "5"
+      ],
+      [
+        "Enemy Attack Skip",
+        "+0.5%",
+        "20",
+        "3"
+      ],
+      [
+        "Enemy Health Skip",
+        "+0.5%",
+        "20",
+        "3"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Ultimate Weapons (25 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Ultimate Damage",
+        "+5%",
+        "5",
+        "5"
+      ],
+      [
+        "Chain Lightning Damage",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Smart Missile Damage",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Death Wave Damage",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Inner Land Mine Damage",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Golden Tower Bonus",
+        "+1%",
+        "10",
+        "5"
+      ],
+      [
+        "Swamp Damage",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Spotlight Bonus",
+        "+5%",
+        "10",
+        "5"
+      ],
+      [
+        "Black Hole Size",
+        "+5%",
+        "10",
+        "5"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Gameplay (unlocked from the start)",
+    "headers": [
+      "Upgrade",
+      "What it does",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Auto Restart Run",
+        "Automatically restart battles after being defeated.",
+        "\u2014",
+        "20",
+        "1"
+      ],
+      [
+        "Ad Gem Stack",
+        "Ad gems can stack up [2,3,5]x",
+        "\u00d72 per level",
+        "10",
+        "4"
+      ],
+      [
+        "Damage Cap Slider",
+        "\u2014",
+        "\u2014",
+        "25",
+        "1"
+      ],
+      [
+        "Global Presets",
+        "\u2014",
+        "+3",
+        "20",
+        "1"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Cards (5 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "What it does",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Additional Card Slot",
+        "\u2014",
+        "+1",
+        "5",
+        "6"
+      ],
+      [
+        "Charge Berserker",
+        "\u2014",
+        "\u2014",
+        "5",
+        "1"
+      ],
+      [
+        "Demon Mode Automation",
+        "Demon mode will activate when it's cooldown is complete.",
+        "\u2014",
+        "10",
+        "1"
+      ],
+      [
+        "Smart Demon Mode Automation",
+        "Demon mode will activate to save the tower from a killing blow.",
+        "\u2014",
+        "25",
+        "1"
+      ],
+      [
+        "Nuke Automation",
+        "Nuke will activate when it's cooled down is complete.",
+        "\u2014",
+        "10",
+        "1"
+      ],
+      [
+        "Smart Nuke Automation",
+        "Nuke will activate to save the tower from a killing blow.",
+        "\u2014",
+        "25",
+        "1"
+      ],
+      [
+        "Death Ray Toggle",
+        "\u2014",
+        "\u2014",
+        "15",
+        "1"
+      ],
+      [
+        "Spawn Accelerator Toggle",
+        "\u2014",
+        "\u2014",
+        "20",
+        "1"
+      ],
+      [
+        "Life Saving Ordering",
+        "\u2014",
+        "\u2014",
+        "50",
+        "1"
+      ],
+      [
+        "Energy Shield Restriction",
+        "\u2014",
+        "\u2014",
+        "50",
+        "1"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Ultimate Weapons (5 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "What it does",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Missile Barrage Automation",
+        "Missile Barrage will activate when its cooldown is complete.",
+        "\u2014",
+        "10",
+        "1"
+      ],
+      [
+        "Smart Missile Barrage Automation",
+        "Missile Barrage will activate when the tower is hit.",
+        "\u2014",
+        "25",
+        "1"
+      ],
+      [
+        "Black Hole Size Slider",
+        "\u2014",
+        "\u2014",
+        "25",
+        "1"
+      ],
+      [
+        "Swamp Range Slider",
+        "\u2014",
+        "\u2014",
+        "25",
+        "1"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Modules (5 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "What it does",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Auto Shatter Rare Modules",
+        "Unlock a toggle to automatically shatter rare modules",
+        "\u2014",
+        "5",
+        "1"
+      ],
+      [
+        "Daily Mission Shard Type",
+        "\u2014",
+        "\u2014",
+        "10",
+        "1"
+      ],
+      [
+        "Free Mission Reroll",
+        "Unlimited free mission rerolls",
+        "\u2014",
+        "15",
+        "1"
+      ],
+      [
+        "Module Reroll Discount",
+        "\u2014",
+        "+2.5%",
+        "5",
+        "8"
+      ],
+      [
+        "Module Presets",
+        "\u2014",
+        "+3",
+        "20",
+        "1"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Bots (10 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "What it does",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Bot Respec Discount",
+        "Gem discount on bot respecs.",
+        "+33%",
+        "5",
+        "3"
+      ],
+      [
+        "Bot Presets",
+        "+3 bot presets and removes bot respec limits",
+        "+3",
+        "20",
+        "1"
+      ],
+      [
+        "Bot Range",
+        "\u2014",
+        "+2m",
+        "10",
+        "4"
+      ],
+      [
+        "Bot Cooldown Sliders",
+        "Add a slider to adjust each bots cooldown.",
+        "\u2014",
+        "15",
+        "1"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Workshop (10 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "What it does",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Workshop Respec Discount",
+        "\u2014",
+        "+33%",
+        "5",
+        "3"
+      ],
+      [
+        "Workshop Presets",
+        "+5 workshop presets",
+        "+3",
+        "20",
+        "1"
+      ],
+      [
+        "Enhancements Discount",
+        "\u2014",
+        "+2.5%",
+        "2",
+        "9"
+      ],
+      [
+        "Workshop Orb Adjuster",
+        "Adjust the range where workshop orbs orbit the tower",
+        "\u2014",
+        "15",
+        "1"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Guardian (10 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "What it does",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Guardian Respec Discount",
+        "\u2014",
+        "+33%",
+        "5",
+        "3"
+      ],
+      [
+        "Guardian Presets",
+        "\u2014",
+        "+3",
+        "20",
+        "1"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Simple (unlocked from the start)",
+    "headers": [
+      "Upgrade",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Basic Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Basic Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Basic Coin Bonus",
+        "+0.01",
+        "25",
+        "30"
+      ],
+      [
+        "Fast Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Fast Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Fast Speed",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Tank Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Tank Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Tank Mass",
+        "-1%",
+        "25",
+        "30"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Advanced (50 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Boss Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Boss Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Boss Common Drop Chance",
+        "+0.1%",
+        "25",
+        "30"
+      ],
+      [
+        "Ranged Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Ranged Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Ranged Attack Range",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Protector Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Protector Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Protector Radius",
+        "-1%",
+        "25",
+        "30"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Elites (100 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Vampire Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Vampire Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Vampire Attack Speed",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Scatter Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Scatter Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Scatter Attack Speed",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Ray Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Ray Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Ray Attack Speed",
+        "-1%",
+        "25",
+        "30"
+      ]
+    ]
+  },
+  {
+    "type": "table",
+    "caption": "Fleets (150 keys to unlock)",
+    "headers": [
+      "Upgrade",
+      "Per level",
+      "Keys / level",
+      "Max levels"
+    ],
+    "rows": [
+      [
+        "Saboteur Attack Speed",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Saboteur Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Saboteur Miss Chance",
+        "+1%",
+        "25",
+        "30"
+      ],
+      [
+        "Commander Pulse Effect",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Commander Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Commander Pulse Speed",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Overcharge Attack",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Overcharge Health",
+        "-1%",
+        "25",
+        "30"
+      ],
+      [
+        "Overcharge Attack Exponent",
+        "-1%",
+        "25",
+        "30"
+      ]
+    ]
+  }
+]

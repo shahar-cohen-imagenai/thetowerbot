@@ -1,0 +1,70 @@
+The Tower runs on several currencies, each with its own sources and uses. Some, like Cash, reset every run, while others, like Coins and Gems, persist and drive your long-term progression. Knowing where each one comes from and what it buys helps you plan upgrades and farming routes.
+This page covers all six currencies: Cash, Coins, Gems, Power Stones, Medals and Elite Cells.
+On this page
+Overview — Cash
+Overview — Coins
+Overview — Gems
+Overview — Power Stones
+Overview — Medals
+Overview — Elite Cells
+Overview — Bits
+Overview — Tokens
+Overview — Shards
+Overview
+Overview — Cash
+Cash is the currency you spend inside a run on temporary upgrades. It does not carry over between runs.
+You earn Cash by defeating enemies, finishing waves, the Cash/Wave upgrade, and Interest. Enemies start at a base value of $1, which rises by $1 every 10 waves up to wave 200, then slows to $1 every 20 waves after that.
+At the end of each wave, two systems pay out. Cash per Wave gives you a flat amount that scales with your upgrades and wave progress, and it is always applied first. Interest then pays a percentage of the Cash you are currently holding, up to a per-wave cap. Because Cash per Wave lands before Interest is calculated, it can push your balance up into a larger Interest payout if you were sitting below the cap.
+How much Cash you see depends heavily on how deep into a run you get, so improving your cash flow matters more the further you progress. You can raise it through the Cash Bonus and Cash/Wave upgrades in the Workshop and Lab, Interest/Wave and Max Interest in the Lab, the Cash and Enemy Balance cards, the Golden Tower ultimate weapon, and Cash Bonus or Cash/Wave sub-module effects.
+The Cash Bonus workshop enhancement unlocks free once you finish the Workshop Enhancement labs. Unlocking it adds x1 to the Cash Bonus multiplier, with a further 0.01x per level, and each level also raises cash per wave, interest percentage and max interest by 1%. It caps at level 400 for a 5x bonus.
+Enemy Value Breakdown
+Show all 16 rows
+Show all 41 rows
+Overview — Coins
+Coins are the backbone of the game. You spend them in the Workshop on upgrades that strengthen your tower before a run, and in the Lab on research.
+There are four sources of Coins: killing enemies other than Basics, the Coins/Wave upgrade, daily missions, and milestones.
+Your coin income scales with how far you push in a run and which upgrades you own. Ways to improve it include playing higher tiers, upgrading Coins/Kill and Coins/Wave in the Workshop and Lab, the Coins, Enemy Balance and Critical Coin cards, the Golden Tower ultimate weapon, the Black Hole, Spotlight and Death Wave coin bonus labs, Generator modules, and sub-module effects that boost coin stats or related ultimate weapon stats. Perks that raise Coin Bonus, Death Wave Quantity, Golden Tower Bonus or Black Hole Duration also help, as does a random ultimate weapon perk that generates coins. These pair with the Standard Perks Bonus lab, the Improve Trade-Off Perks lab alongside the Coin Trade-Off perk, and the guardian's Bounty chip, though the chip's impact is currently small.
+Higher tiers yield more coins, but only pay off if you can reach high enough waves, since spawn rates and the share of non-basic enemies grow with each wave. A middle ground between tier and achievable wave count is usually the most efficient farm.
+The Coin Bonus enhancement unlocks after spending 50 billion coins on Utility enhancements. It adds x1 to the Coin Bonus multiplier on unlock and 0.01x per level, up to level 200 for a 3x bonus. Because it multiplies both the tier bonus and Coins/Kill, its overall benefit is effectively squared.
+Show all 200 rows
+Overview — Gems
+Gems are a core currency for buying special items and upgrades.
+You can get Gems from floating Gems that appear around your tower (nicknamed Bob), worth two Gems each, with up to 10 per run spawning roughly every 400–500 waves and never more than once per 15 minutes. Ad Gems appear on screen about every 10 minutes and give five per claim. Other sources include offer walls/TapJoy, the free daily and weekly Gems in the store, tournaments, daily missions, weekly rewards from daily missions, guild weekly reward chests, milestones, exchanging Medals or Chips, and buying them with real money through the Tower Web Store, Google Play or the App Store.
+You spend Gems on cards, card slots, lab slots, rushing lab upgrades, modules and tournament tickets.
+Overview — Power Stones
+Power Stones are a premium currency spent on buying and upgrading Ultimate Weapons. Any purchase of 500 or more stones triggers a confirmation prompt.
+You can earn Power Stones from tournaments, exchanging Medals, weekly rewards from daily missions, and milestones. They can also be bought through monthly stone packs and other promotional offers on the Tower Web Store, Google Play or the App Store.
+Overview — Medals
+Medals are spent exclusively in the Event Shop.
+You earn them from event missions, weekly rewards from daily missions, and the guardian when it has the Fetch module equipped.
+Medals do not expire when an event ends, so you can hold onto them for a future Event Shop. The shop's stock can include Gems, Power Stones, shards, themes, music, bots, and relics during event reruns.
+Overview — Elite Cells
+Elite Cells are dropped by Elite enemies and spent on lab boosts. The only way to get them is killing the three Elite types: Vampire, Ray and Scatter.
+On tiers 1 through 13, each Elite drops between 1 and X cells, where X is your current tier, averaging (1+X)/2 cells per kill. From tier 14 onward, base drops follow fixed values per tier, shown in the table below.
+To increase your Elite Cell income, upgrade the Death Wave Cell Bonus lab, farm higher tiers and higher waves, take the Cells Bonus in Workshop Enhancements, and use the Enemy Balance, Wave Skip and Intro Sprint masteries, which raise cells per run or cells per hour.
+The Cells/Kill enhancement unlocks after spending 500 billion coins on Utility enhancements. It adds x1 on unlock and 0.01x per level, capping at level 200 for a 3x bonus.
+Base Cells Per Elite Per Tier
+Overview — Bits
+Bits are the currency behind Chips: you spend them to unlock and upgrade Chips, and to buy extra Chip Slots. Nothing else uses them, so every Bit you earn goes towards that system.
+You get Bits from Guild Weekly Reward Chests, or by buying them in the Guild Store with Tokens. Store purchases reset when a new Guild Season begins, so any unpurchased stock doesn't carry over.
+If you earn the maximum weekly amount, you're looking at roughly 740 Bits across a four-week month, or about 1,480 Bits over a full eight-week Guild Season. The tables below break down the sources and costs in detail.
+Overview — Tokens
+Tokens come from Weekly Challenge boxes and Guild Reward Chests. Their only purpose is spending in the Guild shop, where you trade them for items — including Bits. If you're working on your Chips, Tokens are the link between guild activity and Chip progression.
+Overview — Shards
+Details on Shards are still being put together. Check back once this section is complete.
+Overview
+The game hands out multiple currencies as you play through its modes and events, and each one has its own job. No single currency does everything — each feeds a specific upgrade path, and together they all contribute to making your tower stronger. Learning which currency powers which system means you can target the right activities for the upgrades you want.
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Cards
+Cash Bonus
+Cash Per Wave
+Chips
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Coin
+Critical Hits
+Bits
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-11-07) . Something out of date? Tell us in the Discord .

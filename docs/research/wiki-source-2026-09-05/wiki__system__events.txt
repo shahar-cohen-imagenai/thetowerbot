@@ -1,0 +1,121 @@
+Events are a recurring set of challenges that pay out medals when you complete them. You unlock events through Milestones by reaching wave 70 on tier 1.
+Medals are the event currency: you earn them from missions and spend them in the event shop on currencies, themes, relics, songs and bots.
+On this page
+Description
+Event Cycle
+Missions
+Possible Missions
+Removed Missions
+Rewards
+Event Shop
+Currencies
+Themes
+Relics
+Songs
+Bots
+Unlock Costs
+Bots Description
+Bot Respec
+Bot+
+Bot+ Abilities
+Bot+ Ability Costs
+Synchronicity
+Description
+Events are a series of challenges that reward medals when completed. They are unlocked in Milestones on tier 1 at wave 70.
+Event Cycle
+Events run on a two-week cycle. New missions appear during the first 8 days, followed by 6 days with no new missions. As soon as one event ends, the next one starts immediately.
+Missions
+Every event mission has 3 tiers. Each tier asks more of you and pays out more medals than the last.
+Seven missions are available on day one, and two more are added each day for the next seven days. Once a mission is live, it stays available until the event ends.
+Possible Missions
+The table below lists the missions that can appear during an event.
+Mission 1 2 3 Note Tips
+Always there
+Log in for X days 7 10 13
+Participate in X tournaments 1 2 3
+Buy X cards 20 40 80 Automatically completes when all cards are maxed
+Get the free gem reward in store X times 7 10 13
+Have a total research time of X (rushed labs count) 12d 30d 90d Actual time is lower before completing a couple of times [verify] Unlock all 5 labs before spending gems to speed up labs; all five labs running at 1.5x speed will complete this mission
+Base missions
+Kill X Common Enemies 50K 200K 900K
+Kill X fast enemies 6000 20000 150K
+Kill X ranged enemies 4000 15000 100K
+Show all 53 rows
+Removed Missions
+Some missions have been taken out of the game in past updates. The table below lists them.
+Mission 1 2 3 Removed in
+Death Defy at least X times on the same round 2 3 5 V28.3
+Rewards
+Completing missions earns you medals, and the medals you collect build credit toward unlocking relics. You do not spend medals to claim relics; the total you have earned is what counts. Medals carried over from previous events or earned from daily mission boxes do not count toward relic progress.
+Buying the event booster doubles the medals you earn, and boosted medals do count toward relic totals. The booster only applies to the event you bought it for, so you need to purchase it again for each event where you want doubled rewards. The event pass also adds 2 premium relics per event.
+Tier 1 2 3
+Medals 10 15 20
+Relic 1 (rare) Premium 1 (rare) 2 (epic) Premium 2 (epic)
+Medals Aquired 350 550 700 1100
+Event Shop
+The event shop is where you spend your medals. It stays open even when no event is running, and it sells currencies, themes, relics, songs and bots.
+Currencies
+Each event you can trade medals for gems, stones or shards. An exchange gives 150 gems, 15 stones or 250 shards. The cost rises after every purchase and resets when the next event begins.
+Shards come in four types, one for each Module type. Buying one type of shard raises the cost of the other types as well.
+Quantity Purchased 1 2 3 4 5 6 7 8+
+Medal Cost 40 65 90 130 175 230 380 380
+Themes
+Themes rotate with each event and are only available for a limited time, so you can miss them. Themes have come back in the past, but there is no guarantee any given theme will return. Once you buy one, you keep it forever. Each event offers one tower theme for 150 medals and one background for 250 medals.
+Relics
+Relics are unlocked by earning medals during an event rather than bought directly. Reaching 350 medals earned unlocks the first-tier relic, and 700 medals unlocks the second and final tier. Buying the event pass adds access to two more relics, one at 550 medals and one at 1100 medals.
+Some relics are also sold for medals in the shop, at price points such as 200 and 500 medals. These are marked as limited and may be unique to the event that offers them.
+Songs
+Three songs are available in the shop. They do not rotate, cost 200 medals each, and each one grants a +0.6% coin bonus.
+Bots
+Bots are sold exclusively for medals in the event shop, and any bot you buy is kept permanently rather than resetting each event. Five bots are offered: Flame, Thunder, Golden, Amplify and Bot Bot. The unlock cost goes up each time you buy a bot.
+You can toggle bots on and off in the shop between rounds.
+Unlock Costs
+The table below shows the medal cost to unlock each bot.
+Quantity 1 2 3 4 5
+Cost (Medals) 150 300 600 900 1200
+Bots Description
+The table below describes what each bot does.
+Bot Description Duration/Damage Reduction (Base) Cooldown (base) Damage/ Linger/Bonus (Base) Range (Base)
+Flame Damage enemies in an area around the bot 20% 75s 50x 30
+Thunder Stuns enemies in an area around the bot 5s 120s 20% 25
+Golden Enemies destroyed inside bot's range receive coin multiplier 20s 120s x2.0 20
+Amplify Amplify damage against enemies inside range 20s 120s x3.5 25
+Bot Bot Increases the effects of other bot effects within radius 20s 120s x1.05 25
+Bot Respec
+A bot respec refunds your bots and the medals spent on them. It costs 300 gems and can be used once per event. Lab research completed for bots is not refunded; only medal-based unlocks and upgrades are returned.
+Bot+
+After you have bought all five bots, you can add extra abilities to them. Each Bot+ ability costs 1250 stones per bot, and the abilities themselves can then be upgraded further with medals.
+Bot+ Abilities
+The table below lists the available Bot+ abilities.
+Bot Ability/Description
+Flame Wild Fire: Enemies hit by Flame Bot become Enflamed in addition to Burned, receiving {0}x extra damage. Duration of the damage amplification depends on current Flame Bot damage.
+Thunder Titan Shock: Enemies struck by Thunder Bot have a permanent {0}% decreased attack speed. This value is multiplied by the number of digits in the enemy's mass.
+Golden Bonus Cells: Elites killed in Golden Bot range grant {0}x more Cells.
+Amplify Echoing Shot: Tower Bullets within Range count as {0} bullets. Ultimate Weapon projectiles are also boosted, but by 1/3.
+Bot Bot Maximum Power: Boosts the Bot+ abilities of other bots by {0}x.
+Bot+ Ability Costs
+The table below shows the medal costs for upgrading Bot+ abilities.
+Cost (Medals) Wild Fire Damage Multiplier Titan Shock Attack Speed Bonus Cells Echoing Shot Projectiles Maximum Power Multiplier
+0 x1.5 5% x1.25 3 x1.25
+100 x1.6 6% x1.30 4 x1.30
+150 x1.7 7% x1.35 x1.35
+200 x1.8 8% x1.40 x1.40
+250 x1.9 9% x1.45 x1.45
+300 x2.0 10% x1.50 5 x1.50
+350 x2.1 11% x1.55 x1.55
+400 x2.2 12% x1.60 x1.60
+450 x2.3 13% x1.65 x1.65
+500 x2.4 14% x1.70 6 x1.70
+Show all 29 rows
+Synchronicity
+Unlocking all five Bot+ abilities opens up Synchronicity, a stone upgrade that lets you assign bots to synchronised pathing. It comes with two slots, and each extra slot costs 1500 stones, reaching the maximum of five slots for 4500 stones in total. As long as you own the bots and have the slots unlocked, you can freely move bots in and out of the slots.
+Related pages
+Amplify Bot
+Bot Bot
+Flame Bot
+Golden Bot
+Milestones
+Modules
+Themes Menu
+Thunder Bot
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-28) . Something out of date? Tell us in the Discord .

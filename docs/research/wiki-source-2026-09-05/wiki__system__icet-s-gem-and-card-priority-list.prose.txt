@@ -1,0 +1,17 @@
+This is a community-made spending order for your gems and card unlocks, aimed at getting your labs and card loadout running efficiently. It walks you through lab slots, card slot counts, and which cards to chase at each stage, finishing with when it makes sense to rush lab speed with gems.
+Disclaimer and Credit
+This priority list comes from Discord user IceTæ#6224, who shared it on the community Discord server. It was put together around game version 0.16 and was still considered current as of 0.17.
+One adjustment worth knowing: if you suddenly come into a large pile of gems, for example through the Tapjoy offerwall or stone packs, skip ahead. Buy lab slots 3 and 4 first, then unlock 5 card slots and lab slot 5, and only then pick the list back up from step 6.
+Priority List
+Start by buying your 2nd lab slot. After that, work up to 3 total card slots and pull cards until you have Attack Speed, Enemy Balance, and Coins unlocked.
+Next, buy the 3rd lab slot, expand to 5 total card slots, and keep pulling until you also have Health and Cash. Then take the 4th lab slot and go to 7 total card slots. Pull until you land either Extra Orb or Death Ray and equip whichever you get. Extra Orb scales very well once you invest in its lab upgrades, so aim to unlock the Orb Adjuster lab; until you have it, fill the slot with something like Extra Defense or leave the slot locked. If you pulled Wave Skip or Critical Coin along the way, add those too, and if you have both, buy an 8th slot so you can run them together.
+For the 5th lab slot, push toward 10 total card slots, unlocking them as you pull the cards you need: Wave Skip or Critical Coin if you still do not have them equipped, plus Plasma Cannon and Wave Accelerator. Max most or all of the cards you actually use up to rare, and pick up Death Ray if you have not yet. Be aware that the Death Ray card cannot drop until you have cleared wave 250 on each of the first 10 tiers, so hit that milestone before spending gems hunting for it.
+Once your setup is in place, use gems to rush lab speed up to your target. For most players that target is at least 50, though the right number depends on how long you intend to keep playing. Discord user Pi_#5088 built a Return of Investment Calculator for lab speed that works out the point where the time saved by faster research exceeds the time you spent researching it, since lab speed research itself occupies a lab slot.
+From there, max all your cards and add more card slots as needed. The Slow Aura card becomes especially valuable at high waves and in tournaments because of how much enemy speeds increase. Finally, feel free to rush whatever labs you like with gems, particularly when the "Total lab research time" event mission is active.
+Related pages
+Cards
+Events
+Lab Upgrades
+Labs Speed
+The Tower - Idle Tower Defense Wiki
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2025-01-06) . Something out of date? Tell us in the Discord .

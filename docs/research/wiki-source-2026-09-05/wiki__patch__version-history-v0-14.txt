@@ -1,0 +1,48 @@
+V0.14 introduced the Black Hole ultimate weapon and the epic Energy Shield card, alongside new lab enhancement panels that display research bonuses on ultimate weapon and card detail screens. Several new perks arrived, including a second Black Hole and guaranteed recovery packages after boss rounds, and tier 12 was added with max card slots raised to 16. Tournaments were reworked to scale difficulty much faster, now labeled Tier 2+, Tier 5+, etc., with a purple background to distinguish them. Balance changes buffed poison swamp, chain lightning, and landmine damage while reducing enemy damage scaling at tier 7 and above to help defensive builds.
+Change list
+Reproduced from the developer's release notes.
+New Ultimate Weapon - Black Hole
+Lab Enhancements Panel added to ultimate weapons detail panel to show your bonuses from lab research
+Poison swamp can now stun the same enemy more than once with different swamps
+Poison swamp damage max level increased from 15 to 17
+Poison swamp damage per level increased from 200 to 250%
+Chain lightning base damage increased from 75 to 80%, damage per level increased from 15 to 20%
+Chain lightning damage max level increased from 15 to 17
+Golden Tower costs for upgrading coin bonus and cooldown slightly increased
+Golden Tower coin bonus max level increased from 10 to 12
+New Card - Energy Shield (Epic)
+Cards panel active cards now show the current equipped quantity like 12/15
+Lab Enhancements Panel added to card detail panel to show your bonuses from lab research
+Energy shield extra charges (tier 10)
+Trade-off perk bonus (tier 8)
+Black Hole Damage Over Time (tier 7)
+Second Black Hole (tier 10)
+Package After Boss - guarantees a recovery package after each boss round (tier 6)
+Orbs Boss Hit - orbs can deal a % of health damage to bosses now (tier 11)
+Tier 12 added
+Max card slots increased from 15 to 16
+Added maxed upgrades button golden color, like maxed researches, to be clear that they are at max level
+In an effort to reduce the amount of time a tournament round lasts, the difficulty scaling on them have been increased a considerable amount. They now start off resembling exactly the tier as normal but scale much faster in tournament rounds. They're now referred to as Tier 2+, Tier 5+, etc
+While playing in a tournament the background is now a deep purple to help indicate it's a tournament round
+Inner land mine stun research reduced from 3.0 to 2.5 seconds
+Trade off Perk for lifesteal x2.5, but knockback disabled changed to -70% knockback force Trade off Perk for enemies speed -55%, but enemies damage x2.5 changed to -50% speed Health regen lab bonus increase raised from .02 to .03% per level
+Landmine damage max level raised from 45 to 90
+Tier 7 and above enemy damage scaling reduced to help defensive builds
+Lab research for inner land mine rotation speed reduced from 1.00 to 0.80 per level
+Enemies at very high waves (above 3000) made more difficult in general
+Perks wave requirement now adds 50 waves from the 20th perk to 30th, 100 waves from 30th to 40th, and 150 waves for above 40 picked perks
+v0.28 • v0.27 • v0.26 • v0.25 • v0.24 • v0.23 • v0.22 • v0.21 • v0.20 • v0.19 • v0.18 • v0.17 • v0.16 • v0.15 • v0.14 • v0.13 • v0.12 • v0.11 • v0.10 • v0.9 • v0.8 • v0.7 • v0.6 • v0.5 • v0.4 • v0.3 • v0.2
+Related pages
+Patch V0.10
+Patch V0.11
+Patch V0.12
+Patch V0.13
+Patch V0.15
+Patch V0.16
+Patch V0.17
+Patch V0.18
+Patch V0.19
+Patch V0.2
+Patch V0.20
+Patch V0.21
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-04-09) . Something out of date? Tell us in the Discord .

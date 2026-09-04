@@ -1,0 +1,29 @@
+Area of Effect is an epic card in The Tower: Idle Tower Defense. It strengthens several of your area-based attacks at once, making it a useful pick if your build leans on land mines, missiles, or similar effects.
+Area of Effect
+When equipped, Area of Effect raises the damage dealt by five specific area attacks: Inner Land Mine, Poison Swamp, Smart Missile, Flame Bot, and Land Mine. The size of the bonus depends on the card's level, shown in the data table below.
+Because the card touches several different sources of damage, it offers the most value when your setup uses more than one of these attacks. If your build relies on only one of them, a more focused card may serve you better.
+Area of Effect value per card level
+Card Level Effect
+1 5%
+2 8%
+3 11%
+4 14%
+5 17%
+6 20%
+7 25%
+Card Mastery
+Unlocking the Area of Effect card mastery costs 1000 stones. Once unlocked, it increases the radius of your area of effect attacks, letting them hit enemies across a wider area rather than only boosting their damage.
+The mastery bonus is not passive. It only takes effect while Area of Effect is equipped in your active loadout, so you need to keep the card slotted to benefit from the larger radius.
+Area of Effect mastery value per lab level
+Mastery Level Value
+0 2.5%
+1 5%
+2 7.5%
+3 10%
+4 12.5%
+5 15%
+6 17.5%
+7 20%
+8 22.5%
+9 25%
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

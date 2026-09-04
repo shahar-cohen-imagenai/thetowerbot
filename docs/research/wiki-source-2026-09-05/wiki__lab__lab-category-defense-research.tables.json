@@ -1,0 +1,43 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Defense Research"
+    ],
+    "rows": [
+      [
+        "Health Max Lv 100",
+        "Health Regen Max Lv 100"
+      ],
+      [
+        "Defense Absolute Max Lv 100",
+        "Defense\u00a0% Max Lv 50"
+      ],
+      [
+        "Orb Speed Max Lv 20",
+        "Land Mine Damage Max Lv 20"
+      ],
+      [
+        "Land Mine Decay Max Lv 35",
+        "Shockwave Size Max Lv 20"
+      ],
+      [
+        "Orb Boss Hit Max Lv 10",
+        "Wall Health Max Lv 50"
+      ],
+      [
+        "Wall Rebuild Max Lv 20",
+        "Wall Regen Max Lv 30"
+      ],
+      [
+        "Wall Thorn Max Lv 20",
+        "Wall Invincibility Max Lv 10"
+      ],
+      [
+        "Wall Fortification Max lv 60",
+        "Garlic Thorns Max Lv 10"
+      ]
+    ]
+  }
+]

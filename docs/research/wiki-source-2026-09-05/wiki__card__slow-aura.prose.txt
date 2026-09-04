@@ -1,0 +1,11 @@
+Slow Aura is a defensive card that slows any enemy inside your tower's range by a percentage of its speed. Because the reduction is proportional rather than a flat amount, faster enemies lose more raw speed, but nothing is ever fully stopped by this card alone.
+Description
+While equipped, Slow Aura applies a percentage-based speed reduction to enemies whenever they are within your tower's range. The effect only applies inside that radius, so enemies move at full speed until they enter it and recover if they leave it.
+Use
+Slow Aura stacks multiplicatively with other speed-reduction effects, specifically the Chrono Field ultimate weapon and the -40% enemy speed / x2.5 enemy damage perk. Because each effect multiplies the enemy's remaining speed rather than adding together, the combined slow can never push an enemy's speed all the way to zero. Keep this in mind when planning a slow-focused build: pairing Slow Aura with Chrono Field and the perk still leaves enemies crawling forward, so you need enough damage or crowd control to deal with them before they reach the tower.
+Related pages
+Cards
+Chrono Field
+Perks
+Ultimate Weapons
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2023-07-28) . Something out of date? Tell us in the Discord .

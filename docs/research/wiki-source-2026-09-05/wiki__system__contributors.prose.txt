@@ -1,0 +1,34 @@
+This page is the coordination hub for people who help maintain the wiki. It gathers everything a contributor needs in one place: a list of tasks that need doing, a record of completed work, editing guidance, trusted data sources, useful tools, and ways to reach other contributors.
+On this page
+Action List
+Change Log
+Wiki Editing Help
+Information Sources
+Tools
+Contributor Contact info
+This page brings together the resources used to keep the wiki up to date. You will find action lists, contact details, information sources, editing help, and tools, all aimed at making it easier for contributors to update and improve wiki content.
+Action List
+The action list tracks wiki content that needs updating or adding. Entries may come straight from patch notes or from revisiting older pages that need attention. If you spot something missing that belongs here, add it yourself.
+Items on the list are generally small jobs that should take under 20 minutes each. There is no formal project leader by design, so if you see a task you want to handle, volunteer for it and take ownership. The table below lists the current open actions.
+Action List
+Change Log
+The change log is a record of tasks that were completed on the action list and then removed from it. It preserves a history of what has been done, so you can check whether a piece of work has already been handled. The table below shows completed actions.
+Change Log
+Show all 130 rows
+Wiki Editing Help
+This section answers common questions and addresses frequent mistakes that come up when editing the wiki. Editing is not always straightforward, so contributors are encouraged to expand this section over time.
+If you run into a problem you think others will also face, add your question in the question column of the table below so another contributor can fill in the answer.
+Frequently Asked Questions
+Information Sources
+This section lists trusted sources for patch information and numerical game data. When you update the wiki, these are the references you should rely on for accuracy. If you know of another reliable source that is not listed, add it to the table below.
+Information Sources
+Tools
+This section is a work in progress. It is intended to hold scripts and tables that help with data conversion or routine editing steps, reducing the manual effort involved in repetitive wiki tasks. Check the table below as resources are added.
+Tools
+Contributor Contact info
+This section lets contributors get in touch with one another. Most contributors have busy lives outside the wiki, so sharing the workload across many people keeps things moving. Only list contact details you are comfortable being pinged on by other users.
+A Wiki-Updates thread is also available on the Discord server for coordination. The table below shows individual contributor contact details.
+Contributors
+Related pages
+Currency
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-01) . Something out of date? Tell us in the Discord .

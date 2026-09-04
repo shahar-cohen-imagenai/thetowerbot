@@ -1,0 +1,29 @@
+Health is a common card in The Tower: Idle Tower Defense. As the name suggests, it makes your tower harder to kill by boosting its health pool, giving you more room to survive incoming damage before a run ends.
+Health
+When equipped, the Health card increases your tower's health by the amount shown on the card. The exact bonus scales with the card's level, so upgrading the card raises how much extra health it provides. The per-level values are listed in the table below.
+Because it is a common card, Health is relatively easy to obtain and level up compared with rarer cards. It is a straightforward defensive option that matters most when enemies are getting through your damage output and chipping away at your tower, since a larger health pool buys you more time per run.
+Health value per card level
+Card Level Effect
+1 1.50
+2 2.00
+3 2.40
+4 2.80
+5 3.20
+6 3.60
+7 4.00
+Card Mastery
+Unlocking the Health card mastery costs 750 stones. Once unlocked, it increases the card's stat multiplier, making the health bonus the card provides stronger than its base values.
+The mastery effect is not passive across your whole account. It only applies while the Health card is equipped in your active loadout, so you need the card in a slot during a run to benefit from the improved multiplier. The mastery values at each level are shown in the table below.
+Health mastery value per lab level
+Mastery Level Value
+0 x1.2
+1 x1.4
+2 x1.6
+3 x1.8
+4 x2
+5 x2.2
+6 x2.4
+7 x2.6
+8 x2.8
+9 x3
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-07-18) . Something out of date? Tell us in the Discord .

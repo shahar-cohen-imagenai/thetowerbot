@@ -1,0 +1,31 @@
+[
+  {
+    "type": "table",
+    "caption": "",
+    "headers": [
+      "Card Research"
+    ],
+    "rows": [
+      [
+        "Second Wind Blast Max Lv 4",
+        "Double Death Ray Max Lv 30"
+      ],
+      [
+        "Extra Orb Adjuster Max Lv 1",
+        "Extra Extra Orbs Max Lv 2"
+      ],
+      [
+        "Energy Shield Extra Hit Max Lv 2",
+        "Super Tower Bonus Max Lv 30"
+      ],
+      [
+        "Recharge Second Wind Max Lv 7",
+        "Recharge Demon Mode Max Lv 7"
+      ],
+      [
+        "Recharge Nuke Max Lv 7",
+        "Card Mastery (1 lab per card) Max Lv 9"
+      ]
+    ]
+  }
+]

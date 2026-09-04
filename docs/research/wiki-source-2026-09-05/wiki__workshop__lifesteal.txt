@@ -1,0 +1,39 @@
+Lifesteal is a workshop upgrade that lets your tower recover health based on the damage it deals. It is a straightforward sustain tool that becomes more valuable as your damage output grows.
+On this page
+Description
+Workshop
+Cost
+Description
+Lifesteal heals your tower by a percentage of the damage you deal to enemies on hit. The healing amount is calculated by multiplying your lifesteal percentage by the damage dealt.
+This effect applies to any tower projectiles, including those from bounce or multishot. If your build uses multiple projectiles or ricocheting shots, each hit contributes to your healing.
+Workshop
+Lifesteal is unlocked in the workshop for 2000 coins after you have purchased Thorn Damage. It has 80 levels, starting at a base value of 0 and reaching a maximum of 4.46%.
+You can adjust the maximum lifesteal value through trade-off perks, which may raise or lower the cap depending on your choices.
+Cost
+The cost table below lists the coin cost for each level of Lifesteal.
+Level Value Cost Total Cost
+1 0.10% 60.00 0.00
+2 0.20% 86.00 146.00
+3 0.29% 119.00 265.00
+4 0.39% 162.00 427.00
+5 0.48% 215.00 642.00
+6 0.57% 279.00 921.00
+7 0.67% 356.00 1.28K
+8 0.75% 445.00 1.72K
+9 0.84% 547.00 2.27K
+10 0.93% 663.00 2.93K
+Show all 80 rows
+Related pages
+Attack Speed
+Attack Upgrades
+Black Hole
+Bounce Shot
+Cash Bonus
+Cash Per Wave
+Chain Lightning
+Chrono Field
+Coins Per Kill Bonus
+Coins Per Wave
+Critical Hits
+Damage
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-05-19) . Something out of date? Tell us in the Discord .

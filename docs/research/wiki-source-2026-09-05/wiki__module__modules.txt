@@ -1,0 +1,124 @@
+Modules are equippable upgrades that become available once you reach Tier 2 wave 90, and they provide some of the strongest long-term progression in the game. Each module belongs to one of four types and boosts a different part of your tower, from raw damage through to Ultimate Weapon power.
+This page covers how modules are earned and upgraded, how the merging system raises their rarity, and how their main, sub-module and unique effects work.
+On this page
+Modules
+Acquiring Modules
+Upgrading Modules
+Boss Drops
+Merging Modules
+What is Merging?
+Merge Materials
+Merge Walkthrough
+Module Stats
+Main Effect
+Cost
+Sub-Module Effects
+Unique Effects
+Assist Modules
+Modules
+There are four module types, each tied to a different area of your tower's power. Cannon modules focus on attack, Armor modules focus on defense, Generator modules focus on utility, and Core modules focus on Ultimate Weapons.
+Acquiring Modules
+You unlock modules by reaching Tier 2 wave 90. From that point you can pull modules using module tickets or gems, and you receive 10 free tickets the first time the feature opens. How further tickets are earned is not yet determined. Gem pulls cost 20 gems for a single draw or 200 gems for a ten-draw.
+There is always a Standard Banner with the normal chances of pulling each epic, and sometimes an extra featured banner runs alongside it with different odds. Each banner lets you view the distribution of epic pull rates so you can see exactly how your chances are affected. Modules you already own at 5-star Ancestral are less likely to be pulled again.
+Every purchased module is randomly assigned one of three rarities: Common, Rare or Epic. On the Standard Banner, Common modules have a 68.5% chance, Rare modules 29%, and Epic modules 2.5%. Pulled epics are often called "natural epics" or "unique" modules. Bad luck protection, known as a pity pull, guarantees an epic after 150 pulls without one, and every ten-pull is guaranteed to contain at least one rare module.
+Upgrading Modules
+You level modules up with shards and coins to improve their main stat. Every module begins with two sub-module effects (often called sub-stats), and further effect slots open at module levels 41, 101, 141 and 161. A module's maximum level depends on its rarity, so merging a module into a higher rarity lets you push it to a new level cap and, where applicable, strengthens its unique effect.
+Shards come from several sources. Shattering modules gives 5 shards per common and 10 per rare, and if a module has been merged, shattering it returns the combined value of everything that went into it. You can also earn shards from daily events or buy them in the event shop and the Guild store. Natural epics can only be shattered once you have formed a 5-star Ancestral of the same type.
+The restore button resets a module for free, refunding every shard and coin you spent on it. Reroll shards are not refunded, but all sub-module effects are kept, including ones that normally require higher levels. Because of this, there is no downside to keeping several modules with different effect sets and moving levels between them as you swap equipment.
+Rarity Rare Rare+ Epic Epic+ Legendary Legendary+ Mythic Mythic+ Ancestral 1* 2* 3* 4* 5*
+Max Level 30 40 60 80 100 120 140 160 200 220 240 260 280 300
+Max Sub-Stats 2 2 3 3 3 4 4 5 6 6 6 6 6 6
+Epic Copies (Total) 1 2 2 4 4 4 8 10 12 14 16 18
+Boss Drops
+Bosses can drop reroll shards along with common and rare modules. Reroll shards have a 15% drop chance, and the quantity you receive scales with the tier you are playing. Common modules start at a 2% drop chance while rare modules have a 0.5% base chance, and both of these rates can be raised through their respective labs. The drop amounts by tier are listed in the table below.
+Tier 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
+Shards 1 2 3 4 6 8 12 18 25 32 40 45 50 55 60 65 70 75 80 85 90
+Merging Modules
+A module's starting rarity fixes how far it can be merged and which rarities it can reach. Common modules cannot be merged at all. Rare modules can be merged up to Legendary+. Epic modules can be merged all the way to Ancestral with 5 stars, and Ancestral is the only rarity that uses stars.
+What is Merging?
+Merging raises the rarity of a primary module, which increases both the value and the scaling of its main stat and lifts the highest level that module can reach.
+Two points catch many players out. Rare modules never gain a unique ability from merging, even if you push them to epic or beyond. They also keep their original name forever, so a merged rare will never be identical to an epic you pulled with gems.
+Merge Materials
+The full list of merge materials is shown in game when you select modules to merge, and it uses two kinds of icon. The module icon represents a natural module, while the wildcard icon, which looks like orbs, stands in for any suitable module.
+The primary module always appears on the left of the merge equation and is simply the first module you tap. Everything shown after the "+" is the material cost: a module icon means the material must be the same module as the primary at the rarity displayed, while a wildcard icon accepts any module of the same type (Cannon, Armor, Generator or Core) at the rarity displayed.
+Ancestral modules can be raised to 5 stars. Each star costs a natural epic+ module and increases the main effect.
+Merge Walkthrough
+This walkthrough follows the in-game example of merging a module from rare to rare+. On the first selection screen the list was filtered by type (armor) and rarity (rare). Once the module to be merged was chosen, only valid merge materials were displayed and selectable, which makes it easy to see what the merge will consume.
+Note that the primary rare keeps its name throughout, and merging it to epic does not grant a unique effect. It remains useful afterwards, since it can still serve as wildcard material when you later merge a natural epic.
+Module Stats
+Modules carry three kinds of stats: the Main Effect, Sub-Module Effects, and Unique Effects.
+Main Effect
+The main effect boosts tower damage, health, Coin Bonus or Ultimate Weapon damage depending on the module's type. It is the only stat that grows when you level the module up. Reaching levels 41, 101, 141, 161, 201 and 241 also unlocks additional slots for sub-module effects.
+Cost
+The shard and coin cost for each module level is listed in the table below.
+Level Shard Coin Total Shard Total Coins
+1 0 0 0 0
+2 7 10,000 14 20,000
+11 20 45,000 108 210,000
+21 40 120,000 353 810,000
+31 75 350,000 838 2,540,000
+41 120 1,000,000 1,708 7,440,000
+51 180 3,000,000 2,968 19,440,000
+61 250 25,000,000 4,838 71,440,000
+71 350 100,000,000 7,438 396,440,000
+81 500 350,000,000 11,088 1,650,000,000
+Show all 28 rows
+Sub-Module Effects
+Which sub-module effects a module can roll depends on its type. Cannon modules, for example, roll effects that boost damage workshop stats. A sub-module effect's rarity is rolled independently of the module's own rarity, but the highest rarity an effect can reach matches the module's current rarity. A legendary module can therefore hold a common effect, yet that same effect could be rerolled up to legendary. The exact chances for each sub-module rarity are shown in the tables below, and the full list of possible effects is covered on the sub-module effects page.
+Effects you want to keep can be locked so rerolls leave them alone, though locking raises the reroll cost. There is also an Auto Roll feature: you define which effects and rarities you would accept, and the game rerolls rapidly until it hits one of them. Auto Roll can be cancelled partway through if you change your mind. If you have researched effect bans, such as Cannon Effect Bans, you can mark chosen effects as banned so they never appear in your reroll pool.
+Rarity Common Rare Epic Legendary Mythic Ancestral
+Chance 46.2% 40% 10% 2.5% 1.0% 0.3%
+Locks 0 1 2 3 4 5 6 7
+Cost 10 40 160 500 1000 1600 2250* 3000*
+Unique Effects
+Unique Effects belong only to modules that were drawn as epics. Merging a rare module up to epic will never give it a unique ability; natural epics are the sole source of these effects.
+Assist Modules
+Assist Modules let you equip a second module into a slot you already have filled. The feature unlocks as a milestone reward at Tier 19, wave 40, and each assist slot costs 1000 stones to open. Once unlocked, the slotted assist module contributes a weaker version of its unique effect, main effect and substats on top of your primary module.
+A fresh assist slot starts with the unique effect at Epic quality plus a 1% bonus to the main and sub effects. You can raise these efficiency percentages with stones, and with lab research that unlocks at Tier 19, wave 50. The tables below show the upgrade costs and efficiency values.
+Two restrictions apply. First, you cannot pair two modules that share the same name in one slot. Second, the assist module keeps its own level, separate from the primary copy, and you need to level it with module shards before it grants anything beyond its first two substats and a stronger main effect.
+Quantity-based substats, such as Inner Land Mine quantity, use a floor function rather than rounding. That means partial gains are discarded: an ancestral Death Wave effect that grants 3 waves needs at least 34% efficiency to actually add a wave, because 33% only yields +0.99, which floors to +0.
+Assist bonuses also respect the same hard caps as normal stats. They cannot push you past limits such as 98% defense, 90% Chrono Field slow, 150s Wall rebuild, 7s Shockwave Frequency, 40% Death Defy, or 37s Inner Land Mine cooldown.
+Since patch v27.1, the multiplier stat on every assist module applies multiplicatively. Before that patch, only the assist generator was multiplicative, while the cannon, armor and core assists were additive.
+Assist Module Rarity of Unique Effect
+Stone Cost Rarity
+1000 Epic(unlock)
+1000 Legendary
+1200 Mythic
+1400 Ancestral
+Total: 4600 Stones
+Assist Module Main Effect / Substat Stone Upgrade
+Value Stones Cost (This Level) Total Cost (Cumulative) Stones Needed to Max
+1% 0 0 8073
+2% 15 15 8058
+3% 18 33 8040
+4% 21 54 8019
+5% 24 78 7995
+6% 27 105 7968
+7% 30 135 7938
+8% 33 168 7905
+9% 36 204 7869
+10% 39 243 7830
+Show all 71 rows Assist Module Main Effect / Substat Labs
+Level Time Cost (Q Coins) Value
+1 10d 19h 11m 0.25 1%
+2 21d 14h 22m 0.5 2%
+3 32d 9h 33m 0.75 3%
+4 43d 4h 45m 1 4%
+5 53d 23h 56m 1.25 5%
+6 64d 19h 7m 1.5 6%
+7 75d 14h 19m 1.75 7%
+8 86d 9h 30m 2 8%
+9 97d 4h 41m 2.25 9%
+10 107d 23h 53m 2.5 10%
+Show all 30 rows
+Related pages
+Attack Upgrades
+Defense Upgrades
+Epic Module Unique Effect
+Events
+Guilds
+Module Labs
+Sub-Module Effects
+Ultimate Weapons
+Utility Upgrades
+Written for Tower Hub. Numbers and mechanics were cross-checked against our decoded save data and the community's Fandom wiki (last edited 2026-06-23) . Something out of date? Tell us in the Discord .
