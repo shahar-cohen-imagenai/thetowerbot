@@ -635,6 +635,34 @@ the dashboard physically cannot corrupt the log.
 A run left open by a killed process is closed out and marked `abandoned` on the
 next startup.
 
+### The ledger
+
+The `events` table is pruned at `EVENT_RETENTION_DAYS` (30). The `ledger`
+table is not — it is the account's permanent history of everything that
+happens *outside* a run: workshop and card purchases, the rows it skipped
+and why, shopping visits, policy changes, and each run's coin payout. In-run
+upgrades never appear: they are bought with per-run cash that resets, which
+is not account history. The dashboard serves it at **/ledger/**, newest
+first, with the running coin and gem balance after every line.
+
+Rehearsals (`shopping.enabled` without `armed`) are recorded but hidden
+behind a toggle. They carry the price they would have paid and a delta of
+zero, so they can never move a balance.
+
+**Unexplained lines.** The bot can see the Workshop and the Cards page and
+nothing else — not labs, lab slots, modules, relics, ultimate weapons, the
+guild, the shop, or ad rewards. The community's own gem order puts lab slots
+first, so the largest gem sink on this account is invisible to it. Rather
+than let the running balance drift, the ledger compares every balance it
+reads against what its own lines predict and writes the difference as an
+`UNEXPLAINED` line: "−140 gems, balance moved outside the bot".
+
+Two limits worth knowing. A gain and a loss of equal size between two
+readings cancel out and produce no line — what is reported is the *net*
+movement between observations. And the bot only reads a balance during a
+shopping visit, so an `UNEXPLAINED` line is dated to the visit that
+*revealed* the gap, not to when the spend actually happened.
+
 ## Configure
 
 Add buttons in `config.py` → `ACTIONS`, one `Action(name, template, threshold)`
