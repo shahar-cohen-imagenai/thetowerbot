@@ -322,7 +322,7 @@ aborted=…, reason=…)`, and every purchase attempt along the way publishes
 its own `Purchased` or `PurchaseSkipped` event — so a visit is as legible in
 the event feed as any other run, not one entry that shows up after the fact.
 
-> **Three things here are still unverified on a live device.**
+> **Two things here are still unverified on a live device.**
 >
 > The coin balance is read with OCR, and has never been read that way on a
 > live device. `shopping.header_numbers()` runs `ocr.read()` over the frame
@@ -349,14 +349,24 @@ the event feed as any other run, not one entry that shows up after the fact.
 > prices, which are not part of the OCR row-addressing work, so the gap
 > stays real there.
 >
-> The workshop buy point has never been tapped on a live device. A row
-> purchase taps the centre of the row's own matched template (`match.center`
-> in `shopping.py`), not `config.buy_point()`. That function exists in the
-> first place because an in-run upgrade's label is itself a button that
-> opens an info panel instead of buying anything — `config.buy_point()` is
-> how that trap is avoided for in-run upgrades. Nobody has yet confirmed
-> whether a workshop tile behaves the same way. It needs one deliberate,
-> watched tap on a cheap row to settle, not a batch run.
+> One thing about closing that gap has changed. `tools/harvest_menu_glyphs.py`
+> now finds workshop prices the way the bot does, by OCR, and crops the price
+> box itself — where the old version cropped a measured region that
+> deliberately included the coin icon beside the number. The digits it
+> harvests are unchanged (verified against the old harvester on the same
+> fixtures: both reach `0 3 4 5 7`), but the coin glyph is no longer among
+> them, and the cards half supplies only the gem. The committed `coin` entry
+> is fine; it simply could not be re-harvested from workshop fixtures if it
+> were ever lost.
+
+The workshop buy point used to be the third thing on that list. It is
+settled now: a watched live visit tried both tap points the codebase had and
+neither bought anything — the row label and the tile centre each left coins
+and price unmoved — while a tap on the price strip bought (coins 1740 →
+1680, price 56 → 92). So a row purchase taps the price box OCR just read,
+which is `tiles.Row.tap`. `config.buy_point()` was never involved and still
+is not: it exists because an IN-RUN upgrade's label opens an info panel
+instead of buying, and the in-run surface has not been cut over.
 
 ## Capturing templates
 
