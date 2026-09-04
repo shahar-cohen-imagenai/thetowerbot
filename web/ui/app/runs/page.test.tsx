@@ -41,7 +41,9 @@ group("RunsPage", () => {
     await screen.findByText("Run #1");
     // Stat tiles pulled from the matching run row.
     expect(screen.getByText("12")).toBeDefined(); // wave
-    await screen.findByText(/RUN\s+#1 started/);
+    // A RunStarted is drawn as the feed's run-boundary divider ("RUN #1")
+    // rather than as an ordinary row, so it reads as the start of a group.
+    await screen.findByText(/RUN\s+#1/);
 
     searchParams.delete("id");
   });

@@ -1,4 +1,6 @@
-import { Card } from "@/components/ui/card";
+import { PageHeader } from "@/components/PageHeader";
+import { SectionNav } from "@/components/SectionNav";
+import { SectionCard } from "@/components/ui/section-card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -6,8 +8,6 @@ import {
 // Every number and claim here comes from the community wiki the game's
 // Discord points newcomers at (tower-hub.com). Where the community disagrees
 // with itself, that disagreement is kept rather than papered over.
-const SECTION_HEADING = "text-xs uppercase tracking-wide text-muted-foreground";
-
 function SourceLine({ paths }: { paths: string[] }) {
   return (
     <p className="text-xs text-muted-foreground">
@@ -29,16 +29,27 @@ function SourceLine({ paths }: { paths: string[] }) {
   );
 }
 
+const SECTIONS = [
+  { id: "account", label: "This account" },
+  { id: "workshop", label: "Workshop order" },
+  { id: "gems", label: "Gems" },
+  { id: "cards", label: "Card mechanics" },
+  { id: "limits", label: "Limits" },
+];
+
 export default function GuidePage() {
   return (
-    <div className="flex max-w-3xl flex-col gap-4">
-      <p className="text-sm text-muted-foreground">
+    <div className="flex gap-6">
+      <SectionNav items={SECTIONS} label="Contents" />
+
+      <div className="flex min-w-0 max-w-3xl flex-1 flex-col gap-4">
+      <PageHeader title="Guide" meta="community strategy" />
+      <p className="max-w-[68ch] text-sm text-muted-foreground">
         The community strategy the bot&apos;s default buy order is drawn from - so
         you can judge whether you agree with it.
       </p>
 
-      <Card className="gap-3 p-3 text-sm">
-        <h2 className={SECTION_HEADING}>Where this account is</h2>
+      <SectionCard id="account" title="Where this account is" contentClassName="text-sm">
         <p>
           Every guide below describes upgrades this account cannot actually see
           yet, and a guide that does not say so is misleading. Put this first.
@@ -118,10 +129,9 @@ export default function GuidePage() {
           unlocks. It is not a clever heuristic; it is the only move that
           makes the rest of the advice below applicable.
         </p>
-      </Card>
+      </SectionCard>
 
-      <Card className="gap-3 p-3 text-sm">
-        <h2 className={SECTION_HEADING}>Workshop order</h2>
+      <SectionCard id="workshop" title="Workshop order" contentClassName="text-sm">
         <p className="text-muted-foreground">
           The consensus splits the Workshop into three jobs, and the order
           between them matters more than the order within them.
@@ -190,10 +200,9 @@ export default function GuidePage() {
         </div>
 
         <SourceLine paths={["/wiki/guide/beginner-guide", "/wiki/guide/coin-guide-basics"]} />
-      </Card>
+      </SectionCard>
 
-      <Card className="gap-3 p-3 text-sm">
-        <h2 className={SECTION_HEADING}>Gems</h2>
+      <SectionCard id="gems" title="Gems" contentClassName="text-sm">
         <p className="text-muted-foreground">
           Gems are the currency to be most careful with, and the community
           order is specific:
@@ -228,10 +237,9 @@ export default function GuidePage() {
         </ul>
 
         <SourceLine paths={["/wiki/guide/gem-guide"]} />
-      </Card>
+      </SectionCard>
 
-      <Card className="gap-3 p-3 text-sm">
-        <h2 className={SECTION_HEADING}>Card mechanics</h2>
+      <SectionCard id="cards" title="Card mechanics" contentClassName="text-sm">
 
         <Table>
           <TableBody>
@@ -278,14 +286,15 @@ export default function GuidePage() {
         </p>
 
         <SourceLine paths={["/wiki/card/cards"]} />
-      </Card>
+      </SectionCard>
 
-      <Card
+      <SectionCard
+        id="limits"
+        title="What the bot will not do"
         role="region"
         aria-label="What the bot will not do"
-        className="gap-3 p-3 text-sm"
+        contentClassName="text-sm"
       >
-        <h2 className={SECTION_HEADING}>What the bot will not do</h2>
         <p className="text-muted-foreground">
           This section matters as much as the advice above. Each limit is a
           real constraint, not a missing feature.
@@ -323,7 +332,8 @@ export default function GuidePage() {
         </ul>
 
         <SourceLine paths={["/wiki/guide/footguns"]} />
-      </Card>
+      </SectionCard>
+      </div>
     </div>
   );
 }

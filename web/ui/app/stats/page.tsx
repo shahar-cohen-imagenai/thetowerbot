@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import {
-  Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
+  Bar, BarChart, CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer,
+  Tooltip, XAxis, YAxis,
 } from "recharts";
+import { PageHeader } from "@/components/PageHeader";
+import { StatTile } from "@/components/StatTile";
+import { SectionCard } from "@/components/ui/section-card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchStats } from "@/lib/api";
+import { duration } from "@/lib/format";
+import { median } from "@/lib/useDerived";
 import type { StatsPayload } from "@/lib/types";
 
 // dataviz skill: chart surface/border tokens, so the Tooltip reads correctly
@@ -21,19 +28,20 @@ const TOOLTIP_STYLE = {
   cursor: { stroke: "var(--border)" },
 };
 
-// One series per panel here, so one hue (the palette's slot 1) does
-// identity work for all four charts - it reads as one system rather than
-// four unrelated colors, and a single series needs no legend box (the
-// panel title already names what's plotted).
-const SERIES_COLOR = "var(--chart-1)";
+// Each panel plots a different quantity, so each takes its own slot from the
+// validated categorical palette rather than four repetitions of slot 1. A
+// single series still needs no legend - the panel title names what's plotted.
+const WAVE = "var(--chart-1)";
+const DURATION = "var(--chart-3)";
+const TAPS = "var(--chart-2)";
+const SCREENS = "var(--chart-4)";
 
 function Panel({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border p-3">
-      <h2 className="mb-1 text-xs uppercase tracking-wide text-muted-foreground">{title}</h2>
+    <SectionCard title={title}>
       {note ? <p className="mb-2 text-xs text-muted-foreground">{note}</p> : null}
       <div className="h-64">{children}</div>
-    </section>
+    </SectionCard>
   );
 }
 
@@ -47,16 +55,51 @@ function EmptyPanel({ children }: { children: React.ReactNode }) {
 
 export default function StatsPage() {
   const [stats, setStats] = useState<StatsPayload | null>(null);
-  useEffect(() => { fetchStats().then(setStats).catch(() => setStats(null)); }, []);
+  // A failed fetch used to land in the same `null` as "still loading", so an
+  // unreachable bot said "Loading…" forever.
+  const [failed, setFailed] = useState<string | null>(null);
 
-  if (!stats) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  useEffect(() => {
+    fetchStats()
+      .then((s) => { setStats(s); setFailed(null); })
+      .catch((e: Error) => setFailed(e.message));
+  }, []);
+
+  if (failed) {
+    return (
+      <div className="rounded-md border border-warn bg-warn-surface p-3">
+        <p className="text-sm text-warn">Could not load stats.</p>
+        <p className="mt-1 font-mono text-xs text-muted-foreground">{failed}</p>
+      </div>
+    );
+  }
+  if (!stats) return <Skeleton rows={5} />;
   if (!stats.runs.length) {
     // An explicit empty state, never zeros that look like real data.
     return <p className="text-sm text-muted-foreground">No stored runs yet. (Running with --no-store?)</p>;
   }
 
+  const waves = stats.runs.map((r) => r.wave).filter((w): w is number => w != null);
+  const medianWave = median(waves);
+  const medianLength = median(stats.runs.map((r) => r.duration));
+
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="flex flex-col gap-4">
+      <PageHeader title="Stats" meta={`${stats.runs.length} runs`} />
+
+      {/* Derived client-side from the runs already on the page - the numbers
+          you would otherwise read off four charts by eye. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile label="runs" value={stats.runs.length} />
+        <StatTile label="median wave" value={medianWave == null ? "—" : Math.round(medianWave)} />
+        <StatTile label="best wave" value={waves.length ? Math.max(...waves) : "—"} tone="live" />
+        <StatTile
+          label="median length"
+          value={medianLength == null ? "—" : duration(medianLength)}
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
       <Panel title="Wave per run">
         <ResponsiveContainer>
           <LineChart data={stats.runs}>
@@ -64,9 +107,22 @@ export default function StatsPage() {
             <XAxis dataKey="id" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
             <Tooltip {...TOOLTIP_STYLE} />
+            {/* Gives every point something to be read against, which a bare
+                line does not. */}
+            {medianWave != null ? (
+              <ReferenceLine
+                y={medianWave} stroke="var(--muted-foreground)" strokeDasharray="3 4"
+                label={{
+                  value: `median ${Math.round(medianWave)}`,
+                  position: "insideTopRight",
+                  fill: "var(--muted-foreground)",
+                  fontSize: 10,
+                }}
+              />
+            ) : null}
             <Line
               type="monotone" dataKey="wave" dot={false}
-              stroke={SERIES_COLOR} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
+              stroke={WAVE} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
             />
           </LineChart>
         </ResponsiveContainer>
@@ -81,7 +137,7 @@ export default function StatsPage() {
             <Tooltip {...TOOLTIP_STYLE} />
             <Line
               type="monotone" dataKey="duration" dot={false}
-              stroke={SERIES_COLOR} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
+              stroke={DURATION} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
             />
           </LineChart>
         </ResponsiveContainer>
@@ -98,7 +154,7 @@ export default function StatsPage() {
               <XAxis dataKey="action" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip {...TOOLTIP_STYLE} />
-              <Bar dataKey="count" fill={SERIES_COLOR} radius={[4, 4, 0, 0]} maxBarSize={24} />
+              <Bar dataKey="count" fill={TAPS} radius={[4, 4, 0, 0]} maxBarSize={24} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
@@ -114,13 +170,14 @@ export default function StatsPage() {
               <XAxis dataKey="screen" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip {...TOOLTIP_STYLE} />
-              <Bar dataKey="count" fill={SERIES_COLOR} radius={[4, 4, 0, 0]} maxBarSize={24} />
+              <Bar dataKey="count" fill={SCREENS} radius={[4, 4, 0, 0]} maxBarSize={24} />
             </BarChart>
           </ResponsiveContainer>
         ) : (
           <EmptyPanel>No screen events recorded yet.</EmptyPanel>
         )}
       </Panel>
+      </div>
     </div>
   );
 }

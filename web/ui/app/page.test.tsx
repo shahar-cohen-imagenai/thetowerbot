@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe as group, expect, it, vi } from "vitest";
 import LivePage from "./page";
 
@@ -45,19 +45,25 @@ group("LivePage history mode", () => {
   it("swaps the feed into history mode on row click, and 'back to live' restores it", async () => {
     render(<LivePage />);
 
-    const row = (await screen.findByText("12")).closest("tr");
+    // Scoped to the table: the wave now also appears in the status strip, so
+    // an unscoped search for "12" matches the tile as well as the row.
+    const table = await screen.findByRole("table");
+    const row = within(table).getByText("12").closest("tr");
     fireEvent.click(row!);
 
-    await screen.findByText(/— run #7/);
+    await screen.findByText(/Replaying run #7/);
     // Names both screens (not "SCREEN MENU -> undefined"): the stored row's
     // `curr` came back from the `screen` column, not a top-level `curr` field.
-    const line = screen.getByText(/SCREEN\s+MENU -> GAME/);
+    // Asserted on the row's title, which carries the whole composed line - the
+    // visible row splits the type into its own chip, so the label and the
+    // message are no longer in one element.
+    const line = screen.getByTitle(/SCREEN\s+MENU -> GAME/);
     expect(line).toBeDefined();
     expect(line.textContent).not.toMatch(/undefined/);
 
     fireEvent.click(screen.getByText("back to live"));
 
-    expect(screen.queryByText(/— run #7/)).toBeNull();
-    expect(screen.queryByText(/SCREEN\s+MENU -> GAME/)).toBeNull();
+    expect(screen.queryByText(/Replaying run #7/)).toBeNull();
+    expect(screen.queryByTitle(/SCREEN\s+MENU -> GAME/)).toBeNull();
   });
 });

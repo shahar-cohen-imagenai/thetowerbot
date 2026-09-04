@@ -2,39 +2,89 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* ============================================================================
+   "Telemetry" - a dark-first instrument console.
+
+   Dark is the default because this dashboard is watched rather than used:
+   long dwell, second monitor, peripheral vision. The device frame is a bright
+   9:16 video, and against a near-black ground it reads as the light source of
+   the page instead of a hole punched in it.
+
+   Every token below declares both palettes in one `light-dark()` call, so the
+   two are read as a pair and can never drift apart. That function resolves
+   against `color-scheme`, which is set on :root just below - so the theme
+   switch is one property, not a second copy of the whole token set.
+   ========================================================================= */
+
 @theme inline {
+  /* Faces. `--font-inter` / `--font-jetbrains-mono` are injected by next/font
+     in app/layout.tsx; the fallbacks are what renders if that ever fails. */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Ramp */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
+  --color-rail: var(--rail);
+  --color-well: var(--well);
   --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint-foreground: var(--faint-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Accent */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* Machine state. Reserved: these three never decorate anything, they only
+     report what the bot is doing. The accent above is for chrome. */
+  --color-live: var(--live);
+  --color-live-foreground: var(--live-foreground);
+  --color-live-surface: var(--live-surface);
+  --color-warn: var(--warn);
+  --color-warn-foreground: var(--warn-foreground);
+  --color-warn-surface: var(--warn-surface);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-surface: var(--danger-surface);
+  --color-destructive: var(--destructive);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* The entire motion budget. Nothing else animates.
+     On a second monitor, motion must be either slow enough to be ambient or
+     tied to one discrete real event and then over. Nothing here loops fast,
+     and only the heartbeat loops at all. */
+  --animate-heartbeat: heartbeat 2.4s ease-in-out infinite;
+  --animate-breathe: breathe 1.5s ease-in-out infinite;
+  --animate-arrive: arrive 500ms ease-out 1;
+  --animate-ripple: ripple 600ms ease-out 1;
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -44,80 +94,151 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Dark is the default; "system" viewers on a light OS get the light palette;
+   an explicit choice from the theme toggle beats the OS in either direction.
+   The [data-theme] rules come last so they win at equal specificity. */
+:root { color-scheme: dark; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) { color-scheme: light; }
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  /* dataviz skill categorical palette, light mode (references/palette.md) -
-     these are this project's first real charts, so the grayscale shadcn
-     placeholders are replaced with the validated slot order (blue, orange,
-     aqua, yellow, magenta, ...). Only slot 1 is used by the current charts
-     (each is single-series), but the full order is here for the next one. */
-  --chart-1: #2a78d6;
-  --chart-2: #eb6834;
-  --chart-3: #1baf7a;
-  --chart-4: #eda100;
-  --chart-5: #e87ba4;
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /*                        light                      dark                  */
+  /* Three planes plus an inset. Chroma 0.008 on a violet hue through the
+     whole neutral ramp - just enough tint that the greys read as chosen
+     rather than inherited from the scaffold. */
+  --rail:          light-dark(oklch(0.965 0.004 285), oklch(0.145 0.010 285));
+  --background:    light-dark(oklch(0.985 0.003 285), oklch(0.175 0.008 285));
+  --card:          light-dark(oklch(1     0     0  ), oklch(0.215 0.008 285));
+  /* Inset surfaces - the feed, code blocks, inputs. Recedes from the card in
+     dark and from the canvas in light, so a well always reads as carved in. */
+  --well:          light-dark(oklch(0.965 0.004 285), oklch(0.145 0.008 285));
+  --popover:       light-dark(oklch(1     0     0  ), oklch(0.215 0.008 285));
+  --muted:         light-dark(oklch(0.960 0.004 285), oklch(0.265 0.008 285));
+  --border:        light-dark(oklch(0.900 0.006 285), oklch(0.300 0.008 285));
+  --border-strong: light-dark(oklch(0.820 0.008 285), oklch(0.380 0.010 285));
+  --input:         light-dark(oklch(0.900 0.006 285), oklch(0.320 0.008 285));
+
+  --foreground:         light-dark(oklch(0.200 0.010 285), oklch(0.960 0.004 285));
+  --card-foreground:    var(--foreground);
+  --popover-foreground: var(--foreground);
+  /* Light's muted foreground is raised from shadcn's stock 0.556, which sits
+     right on the 4.5:1 line against white. */
+  --muted-foreground:   light-dark(oklch(0.500 0.010 285), oklch(0.680 0.008 285));
+  /* Timestamps and other text that must be present without being read. */
+  --faint-foreground:   light-dark(oklch(0.620 0.010 285), oklch(0.580 0.008 285));
+
+  /* Violet is the one hue not already spoken for: green/amber/red are machine
+     state below, and --chart-1..5 own blue, orange, aqua, yellow and magenta.
+     It sits ~42 degrees off chart-1, so an accent never reads as a series. */
+  --primary:            light-dark(oklch(0.520 0.200 300), oklch(0.700 0.170 300));
+  --primary-foreground: light-dark(oklch(0.990 0     0  ), oklch(0.160 0.030 300));
+  --ring:               var(--primary);
+
+  --secondary:            var(--muted);
+  --secondary-foreground: var(--foreground);
+  --accent:               var(--muted);
+  --accent-foreground:    var(--foreground);
+
+  /* Machine state. Each hue carries a foreground for solid fills and a
+     surface for tints; the surfaces come from one formula rather than a
+     hand-picked opacity per call site. */
+  --live:    light-dark(oklch(0.580 0.150 150), oklch(0.780 0.170 150));
+  --warn:    light-dark(oklch(0.600 0.130 78),  oklch(0.800 0.150 78));
+  --danger:  light-dark(oklch(0.550 0.210 27),  oklch(0.680 0.200 25));
+  --live-foreground:   light-dark(oklch(0.990 0 0), oklch(0.150 0.030 150));
+  --warn-foreground:   light-dark(oklch(0.990 0 0), oklch(0.160 0.030 78));
+  --danger-foreground: light-dark(oklch(0.990 0 0), oklch(0.980 0.010 25));
+  --live-surface:   color-mix(in oklch, var(--live),   transparent 88%);
+  --warn-surface:   color-mix(in oklch, var(--warn),   transparent 88%);
+  --danger-surface: color-mix(in oklch, var(--danger), transparent 88%);
+  /* shadcn primitives style themselves off --destructive; it is the same red
+     as --danger so a Button and a hand-rolled banner cannot disagree. */
+  --destructive: var(--danger);
+
+  /* dataviz skill categorical palette (references/palette.md) - the validated
+     slot order (blue, orange, aqua, yellow, magenta). Left exactly as it was:
+     these were chosen against the guidance and the facelift has no quarrel
+     with them. */
+  --chart-1: light-dark(#2a78d6, #3987e5);
+  --chart-2: light-dark(#eb6834, #d95926);
+  --chart-3: light-dark(#1baf7a, #199e70);
+  --chart-4: light-dark(#eda100, #c98500);
+  --chart-5: light-dark(#e87ba4, #d55181);
+
+  /* The nav rail is the one recessed plane, so it reads as chrome rather than
+     as another card. */
+  --sidebar: var(--rail);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  /* Consoles want tighter corners than the shadcn default 0.625rem. */
+  --radius: 0.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    /* dataviz skill categorical palette, dark mode - same slots, dark steps. */
-    --chart-1: #3987e5;
-    --chart-2: #d95926;
-    --chart-3: #199e70;
-    --chart-4: #c98500;
-    --chart-5: #d55181;
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+/* Keyframes live at the top level rather than inside @theme so they are
+   emitted whether or not a utility referencing them survives a build. */
+
+/* 1. The connected dot. The only infinite animation in the application. */
+@keyframes heartbeat {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* 5. The status strip while the stream is down. Dimming says "this data is
+      frozen" more directly than any label could. */
+@keyframes breathe {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.4; }
+}
+
+/* 2. The newest feed row, once. Catches the eye without moving the layout. */
+@keyframes arrive {
+  from { background-color: color-mix(in oklch, var(--primary), transparent 90%); }
+  to { background-color: transparent; }
+}
+
+/* 3. A tap landing on the device frame. The one place motion is load-bearing:
+      you see the tap rather than reading that it happened. */
+@keyframes ripple {
+  from { transform: scale(0.6); opacity: 0.9; }
+  to { transform: scale(2.4); opacity: 0; }
+}
+
+/* Tailwind's motion-safe: variant already gates each animation, so this only
+   has to catch transitions and anything added later without that prefix.
+   The feed's arrival highlight is the one effect worth keeping in some form:
+   it becomes an instant hold rather than vanishing entirely. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Windows high-contrast throws the palette away, which would otherwise leave
+   the device overlay's match boxes and the feed's type chips as invisible
+   fills on a flat ground. */
+@media (forced-colors: active) {
+  [data-state="tapped"],
+  [data-state="matched"] {
+    forced-color-adjust: none;
+    border-color: Highlight;
+  }
+  [role="switch"][aria-checked="true"] {
+    forced-color-adjust: none;
+    background: Highlight;
   }
 }
 
@@ -125,10 +246,27 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* One visible focus treatment everywhere. The primitives use a soft
+     focus-visible ring, which is weak on a near-black ground; this is the
+     floor, and it is what the raw radio inputs and links inherit. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
   body {
     @apply bg-background text-foreground;
   }
   html {
     @apply font-sans;
+  }
+  /* Every number this app shows is machine output, and machine output is
+     mono (see the type rule in the facelift plan). Lining figures there mean
+     columns of run ids, scores and elapsed times align for free. */
+  .font-mono,
+  code,
+  kbd,
+  pre,
+  samp {
+    font-variant-numeric: tabular-nums;
   }
 }

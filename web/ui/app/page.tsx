@@ -3,10 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { DeviceView } from "@/components/DeviceView";
 import { EventFeed } from "@/components/EventFeed";
+import { MiniBarList } from "@/components/MiniBarList";
 import { RunTable } from "@/components/RunTable";
 import { SnapshotStrip } from "@/components/SnapshotStrip";
 import { StatBar } from "@/components/StatBar";
 import { WaveSparkline } from "@/components/WaveSparkline";
+import { Card } from "@/components/ui/card";
+import { SectionCard } from "@/components/ui/section-card";
 import { fetchRunEvents, fetchRuns, fetchStatus, fetchUnknown } from "@/lib/api";
 import { useEventStream } from "@/lib/useEventStream";
 import type { BotEvent, RunRow, Snapshot, StatusPayload } from "@/lib/types";
@@ -55,57 +58,78 @@ export default function LivePage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <StatBar status={status} connected={connected} />
+      <StatBar status={status} connected={connected} runs={runs} />
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <section className="rounded-lg border p-3">
-          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Current run</h2>
-          {status?.run ? (
-            <p className="font-mono text-sm">
-              #{status.run.id} · {Math.round(status.run.elapsed)}s ·{" "}
-              {Object.entries(status.run.taps).map(([k, v]) => `${k} x${v}`).join(" · ") || "no taps yet"}
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground">idle</p>
-          )}
-        </section>
-
-        <section className="rounded-lg border p-3">
-          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Device</h2>
+      {/* The device frame is the hero: a bright 9:16 video is the most
+          information-dense object on the page, and it spent its life capped at
+          320px in one third of a row, smaller than the sparkline beside it. */}
+      <div className="grid gap-4 xl:grid-cols-[minmax(300px,400px)_1fr]">
+        {/* Sticky: the frame is the thing you keep half an eye on, and it
+            should not scroll away while you read the feed beside it. */}
+        <Card size="sm" className="gap-0 self-start py-0 xl:sticky xl:top-4">
           <DeviceView boxes={status?.boxes ?? []} size={status?.frame_size ?? null} />
-        </section>
+        </Card>
 
-        <section className="rounded-lg border p-3">
-          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Waves</h2>
-          <WaveSparkline waves={waves} />
-        </section>
+        <div className="flex flex-col gap-4">
+          {/* Both halves come from /api/status. `skips` is keyed by reason and
+              had never been rendered anywhere - it is the field that answers
+              "the bot is running but nothing is happening, why?". */}
+          <SectionCard title="Activity — this session">
+            <div className="grid gap-6 sm:grid-cols-2">
+              <MiniBarList
+                title="taps"
+                counts={status?.taps ?? {}}
+                empty="No taps yet this session."
+              />
+              <MiniBarList
+                title="skips by reason"
+                counts={status?.skips ?? {}}
+                highlightLeader
+                empty="Nothing skipped yet."
+              />
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Waves">
+            <WaveSparkline waves={waves} />
+          </SectionCard>
+
+          {/* The feed sits beside the device rather than under it: a 9:16 hero
+              is tall, and anything shorter in the next column leaves a dead
+              half-screen. This is also where the reader's eyes actually live. */}
+          <SectionCard
+            title="Events"
+            tone={history ? "warn" : undefined}
+            action={
+              history ? (
+                <button
+                  onClick={() => setHistory(null)}
+                  className="rounded-md border px-2 py-0.5 text-xs normal-case"
+                >
+                  back to live
+                </button>
+              ) : null
+            }
+          >
+            {history ? (
+              <p className="mb-2 rounded-md bg-warn-surface px-2 py-1 font-mono text-[11px] text-warn">
+                Replaying run #{history.id} · {history.events.length} events — the live stream keeps
+                running underneath.
+              </p>
+            ) : null}
+            <EventFeed events={history ? history.events : events} live={!history} />
+          </SectionCard>
+        </div>
       </div>
 
-      <section className="rounded-lg border p-3">
-        <h2 className="mb-2 flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
-          Events
-          {history ? (
-            <>
-              <span>— run #{history.id}</span>
-              <button onClick={() => setHistory(null)} className="rounded border px-2 py-0.5 normal-case">
-                back to live
-              </button>
-            </>
-          ) : null}
-        </h2>
-        <EventFeed events={history ? history.events : events} />
-      </section>
-
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-lg border p-3">
-          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Run history</h2>
+        <SectionCard title="Run history">
           <RunTable runs={runs} onSelect={showRun} />
-        </section>
+        </SectionCard>
 
-        <section className="rounded-lg border p-3">
-          <h2 className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Unknown screens</h2>
+        <SectionCard title="Unknown screens">
           <SnapshotStrip shots={shots} />
-        </section>
+        </SectionCard>
       </div>
     </div>
   );

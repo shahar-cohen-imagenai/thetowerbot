@@ -60,7 +60,7 @@ afterEach(() => {
 });
 
 /** The red banner, found by the border that makes it read as a failure. */
-const redBanner = () => document.querySelector(".border-red-500");
+const redBanner = () => document.querySelector(".border-danger");
 
 describe("ControlPage", () => {
   it("offers Start when the bot is stopped", async () => {
