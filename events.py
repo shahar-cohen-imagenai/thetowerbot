@@ -162,6 +162,24 @@ class PurchaseSkipped(Event):
 
 
 @dataclass(frozen=True, kw_only=True)
+class RowUnmatched(Event):
+    """A configured row was not among the rows OCR read off the page.
+
+    Two very different things look identical without this: a row that has
+    been bought and is gone from the page (normal, permanent), and a row
+    whose name OCR garbles on every scan (a defect that would otherwise
+    present as a row that mysteriously never buys). `read` carries the raw
+    strings so the difference is visible in the feed rather than guessed at.
+
+    Names are published verbatim - NOT normalised. Normalisation is what
+    hid the difference; `'Damage / Meter C'` is the whole point.
+    """
+
+    item: str
+    read: tuple[str, ...]
+
+
+@dataclass(frozen=True, kw_only=True)
 class ShoppingEnded(Event):
     visit: int
     bought: int

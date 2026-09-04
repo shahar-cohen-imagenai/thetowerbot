@@ -822,3 +822,36 @@ def test_arrival_is_judged_by_the_page_heading_not_a_row_template(
     assert "Unlock Cash Bonuses" in session._exhausted, (
         "a row genuinely gone from the page must be given up on, once"
     )
+
+
+def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
+    session, fake_header
+) -> None:
+    """A garbled name must be loud, not merely unbought.
+
+    Live evidence that this is real and not defensive: OCR read
+    'Damage / Meter C' off the ATTACK tab, the coin glyph having joined the
+    row name. A row spelled that way in a strategy would never match, and
+    without this event the feed would show nothing at all - the row would
+    simply never be bought, forever, for no visible reason.
+
+    menu_workshop_utility_restocked.png is the honest version of the same
+    shape: the configured row was bought in an earlier session and is gone,
+    and three other rows are on the page.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Unlock Cash Bonuses",
+                     template="workshop/unlock_cash_bonuses.png",
+                     category="UTILITY", layout="tile"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    session.advance(frame("menu_workshop_utility_restocked"), device, policy)
+
+    unmatched = session._bus.of_type("RowUnmatched")
+    assert unmatched, "nothing said why the row was never bought"
+    assert unmatched[0].item == "Unlock Cash Bonuses"
+    assert unmatched[0].read == (
+        "Cash Bonus", "Cash / Wave", "Unlock Coin Bonuses",
+    )

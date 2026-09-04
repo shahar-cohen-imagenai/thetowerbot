@@ -774,8 +774,14 @@ class ShoppingSession:
             ab_logger.exception("the OCR comparison itself failed")
 
         if seen is None:
-            # Not on this tab, or not on the visible screenful - Phase 2's
-            # scroll-and-map is what will tell those two apart.
+            # Bought and gone, garbled by OCR, or below the fold on a tab
+            # that has outgrown one screenful. RowUnmatched carries what was
+            # actually read so those stay distinguishable in the feed - and
+            # it is the tripwire for the third case, which is the trigger
+            # for building scroll-and-map (spec §4).
+            self._bus.publish(events.RowUnmatched(
+                item=rule.name, read=tuple(row.name for row in visible),
+            ))
             self._bus.publish(events.PurchaseSkipped(item=rule.name, reason="no_match"))
             self._exhausted.add(rule.name)
             return
