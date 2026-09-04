@@ -150,15 +150,27 @@ def rows_from(boxes: tuple[ocr.TextBox, ...], found: tuple[Rect, ...]) -> tuple[
         # and a stat value that happens to parse as a number ('3') would
         # otherwise be read as the price.
         price = None
+        # The tile's centre is NOT a button - it is the gap between the
+        # label and the value panel, and a live device ignored a tap there
+        # (coins and price both unmoved). The price strip IS inside the buy
+        # button, so the price box that was just read is also the thing to
+        # tap. Deriving the tap from the read means the two cannot drift
+        # apart: whatever this row charges is what gets tapped.
+        #
+        # A priceless tile keeps the centre. Nothing buys such a row (a None
+        # price is refused upstream), so this is only a sensible-default
+        # for a tap that never happens.
+        tap = _centre(tile)
         if price_boxes:
             price_boxes.sort(key=lambda b: b.rect.y)
             price = ocr.parse_number(price_boxes[-1].text)
+            tap = _centre(price_boxes[-1].rect)
 
         rows.append(
             Row(
                 name=name,
                 price=price,
-                tap=_centre(tile),
+                tap=tap,
                 rect=tile,
                 confidence=min(box.confidence for box in label_boxes),
             )
