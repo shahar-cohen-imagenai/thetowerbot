@@ -1073,21 +1073,61 @@ Phase 1 is finished when the code is merged, but it has not *served its
 purpose* until it has run against the live game. That is the gate on Phase 2.
 
 1. Set the active strategy's `shopping.enabled = true` and leave
-   `shopping.armed = false`. Nothing taps.
-2. Run the bot for enough visits that prices escalate past the digits the
-   `menu` atlas is missing (`1`, `6`, `8`, `9`) — that is where the template
-   reader is expected to refuse and OCR is expected to succeed.
-3. Read the comparison log:
+   `shopping.armed = false`. Nothing taps: the bot reads the workshop,
+   compares the two readers, and buys nothing.
+
+2. Run it **without `--tui`**, and redirect stderr to a file — the A/B is
+   log-only (deliberately: giving it an event would mean schema churn in
+   `events.py` and `db.py` for scaffolding Phase 2 deletes), `--tui`
+   silences stdlib logging so rich can own the terminal, and
+   `basicConfig` writes to stderr, which nothing captures on its own:
 
 ```bash
-grep 'ocr_ab' <logfile> | grep -v 'readers agree'
+uv run tower_bot.py 2>&1 | tee rehearsal.log
 ```
 
-4. **Every disagreement must be explained before Phase 2 begins.** A
-   disagreement where OCR is right and the atlas refused is the expected
-   outcome and the argument for the cut-over. A disagreement where OCR
-   produced a confident wrong number is a stop.
-5. Capture scrolled fixtures during this session — Phase 2's map tests need
+3. **Advance the prices by hand.** This is the step that makes the
+   rehearsal worth running, and it is manual work — there is no way around
+   it. Prices escalate only when an upgrade is actually *bought*, and step 1
+   guarantees the bot never buys anything, so a dry run left alone forever
+   sees only the prices the account already has. The fixture-era prices
+   (30/40/50/75) happen to contain none of the four digits the `menu` atlas
+   is missing (`1`, `6`, `8`, `9` — see README, "The `menu` atlas is
+   incomplete"), so a rehearsal at those prices can only ever report
+   agreement, which proves nothing about the case Phase 2 rests on.
+
+   So: **play the account manually while the dry run watches.** Buy
+   workshop upgrades yourself — attack and defense rows both, and at least
+   one unlock tile — until the visible prices contain each of `1`, `6`, `8`
+   and `9`. The bot is reading the same screen you are; every visit it makes
+   while you play produces a comparison line. (Any other way of moving the
+   prices does as well — an account that is already further along, or a
+   second armed session on a throwaway save. What does not work is leaving
+   an unarmed bot running overnight.)
+
+4. Read the comparison log. Each line carries its logger name, so `ocr_ab`
+   is what selects the A/B; agreements are logged too, and are the noise
+   here:
+
+```bash
+grep 'tower_bot.ocr_ab' rehearsal.log | grep -v 'readers agree'
+```
+
+   An empty result means one of two very different things — no
+   disagreements, or no comparisons at all. Check which before reading it
+   as a clean rehearsal:
+
+```bash
+grep -c 'tower_bot.ocr_ab' rehearsal.log   # must be well above zero
+```
+
+5. **Every disagreement must be explained before Phase 2 begins.** The
+   line to hunt for is `the template reader could not read a price, OCR
+   read N` — OCR right where the atlas refused, which is the argument for
+   the cut-over. `neither reader could read a price` argues nothing either
+   way. A disagreement where OCR produced a confident wrong number is a
+   stop.
+6. Capture scrolled fixtures during this session — Phase 2's map tests need
    them and none exist today.
 
 ---

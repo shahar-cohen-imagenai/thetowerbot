@@ -444,6 +444,12 @@ fixture showing a price that contains `1`, `6`, `8` or `9`, add it alongside
 the existing ones, then re-run `uv run tools/harvest_menu_glyphs.py` followed
 by `uv run tools/label_glyphs.py --size-class menu --reference modal`.
 
+Before spending that effort, note that this gap is on its way out: an OCR
+reader now runs alongside the template path in dry-run and logs where the
+two disagree (`tower_bot.ocr_ab`), precisely so a price the `menu` atlas
+refuses and OCR reads can be counted before the templates are retired. See
+`docs/superpowers/specs/2026-09-04-ocr-row-addressing-design.md`.
+
 ### Brightness, the older heuristic
 
 Setting the strategy's `affordability` to `brightness` selects it outright.
