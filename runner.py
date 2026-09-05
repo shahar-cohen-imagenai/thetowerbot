@@ -20,6 +20,8 @@ pay (device.py pulls cv2 in regardless).
 
 from __future__ import annotations
 
+from account_state import AccountState
+
 import logging
 import threading
 import time
@@ -74,6 +76,7 @@ class BotRunner:
         first_run_id: int = 1,
         bot_factory: Callable[..., Any] = _default_bot_factory,
         shopping: Any | None = None,
+        account_state: AccountState | None = None,
     ) -> None:
         self._bus = bus
         self._controls = controls
@@ -90,6 +93,7 @@ class BotRunner:
         # button slow for no gain.
         self._shopping = shopping
         self.autopilot_state = AutopilotState()
+        self.account_state = account_state or AccountState()
 
         self._lock = threading.Lock()
         self._bot: Any | None = None
@@ -177,6 +181,7 @@ class BotRunner:
             # the sink here would put a cross-thread handshake on the Start
             # path to tidy up a scan count.
             self._state.reset()
+            self.account_state.reset_confirmation()
             self.autopilot_state.clear_battle()
             self.autopilot_state.decision("idle", "Waiting for a fresh battle observation")
 
@@ -209,6 +214,7 @@ class BotRunner:
                 screen_confirmations=strategy.screen_confirmations,
                 navigation_cooldown=strategy.navigation_cooldown,
                 autopilot_state=self.autopilot_state,
+                account_state=self.account_state,
             )
 
             self._bot = bot

@@ -389,3 +389,14 @@ def test_concurrent_starts_spawn_exactly_one_bot(runner_parts) -> None:
         assert len(refused) == 7
     finally:
         runner.stop()
+
+
+def test_account_state_survives_runner_restart(runner_parts: tuple) -> None:
+    runner, made, _, _, _ = runner_parts
+    shared = runner.account_state
+    runner.start()
+    assert made[-1].kwargs['account_state'] is shared
+    runner.stop()
+    runner.start()
+    assert made[-1].kwargs['account_state'] is shared
+    runner.stop()

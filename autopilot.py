@@ -1,6 +1,8 @@
 """Serialized OCR battle navigation with observable, acknowledged purchases."""
 from __future__ import annotations
 
+from account_state import AccountState
+
 import copy
 import threading
 import time
@@ -106,8 +108,10 @@ class Search:
 
 
 class BattleAutopilot:
-    def __init__(self, state: AutopilotState | None = None, bus: Any | None = None) -> None:
+    def __init__(self, state: AutopilotState | None = None, bus: Any | None = None,
+                 account_state: AccountState | None = None) -> None:
         self.state = state or AutopilotState()
+        self.account_state = account_state
         self.bus = bus
         self.pending: tuple[ObservedUpgrade, float] | None = None
         self.search: Search | None = None
@@ -198,8 +202,10 @@ class BattleAutopilot:
 
     def step(self, screen: Image, device: Any, policy: AutopilotPolicy, *,
              cash: int | None = None, observation: Observation | None = None,
-             cooldown: float = .75) -> bool:
+             run_id: int | None = None, cooldown: float = .75) -> bool:
         observation = observation or observe_frame(screen, "battle")
+        if self.account_state is not None:
+            self.account_state.observe_run(observation, run_id)
         now = observation.observed_at
         with self._command_lock:
             if self._manual is None and not self.pending and self._queued:

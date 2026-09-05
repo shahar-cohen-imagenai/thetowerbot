@@ -18,6 +18,8 @@ Usage:
 
 from __future__ import annotations
 
+from account_state import AccountState, AccountRepository
+
 import argparse
 import dataclasses
 import ipaddress
@@ -90,7 +92,9 @@ class TowerBot:
         screen_confirmations: int = config.SCREEN_CONFIRMATIONS,
         navigation_cooldown: float = config.NAVIGATION_COOLDOWN_SECONDS,
         autopilot_state: AutopilotState | None = None,
+        account_state: AccountState | None = None,
     ) -> None:
+        self.account_state = account_state
         self.device = device
         self.templates = templates
         self.bus = bus
@@ -111,7 +115,8 @@ class TowerBot:
             disabled_reason="no shopping session was configured for this bot",
         )
         self.wallet: int | None = None
-        self.autopilot = BattleAutopilot(autopilot_state, bus)
+        self.autopilot = BattleAutopilot(autopilot_state, bus, account_state)
+        self.shopping.account_state = account_state
         self.shopping.observations = self.autopilot.state
         # Read once, here, rather than per scan: both configure an object
         # that carries state across scans (the tracker's part-confirmed
@@ -448,6 +453,8 @@ class TowerBot:
         reading = screens.classify(self.screen, self.templates)
         previous = self.tracker.state
         if self.tracker.observe(reading) is not None:
+            if self.account_state is not None:
+                self.account_state.reset_confirmation()
             self.bus.publish(
                 events.ScreenChanged(
                     prev=previous.value,
@@ -558,7 +565,8 @@ class TowerBot:
             if settings.strategy.autopilot.enabled or self.autopilot.has_work:
                 if in_run_anchor is not None and not speed_changed and not commands:
                     clicked = self.autopilot.step(self.screen, self.device, settings.strategy.autopilot,
-                                                   cash=self.wallet, cooldown=settings.strategy.click_cooldown)
+                                                   cash=self.wallet, cooldown=settings.strategy.click_cooldown,
+                                                   run_id=self.runs.current_id)
             else:
                 self.autopilot.suspend("Autopilot is off; legacy purchases are active")
                 for rule in settings.strategy.actions:
@@ -1085,9 +1093,8 @@ def prepare_store(
 
     Also closes out any run a killed process left with `ended_at IS NULL`:
     without a RunEnded, the row - and the dashboard's "live" badge on it -
-    would otherwise persist forever. This is the only place that legitimately
-    holds the writable connection outside the store sink's own thread, so it
-    is the one place that can fix that up.
+    would otherwise persist forever. This startup migration runs before the telemetry sink and account repository
+    begin collecting observations.
     """
     conn = db.connect(path)
     try:
@@ -1256,6 +1263,8 @@ def main(argv: list[str] | None = None) -> int:
     db_path = Path(args.db)
     seed_seq, last_run = prepare_store(db_path) if args.store else (0, 0)
 
+    account_state = AccountState(AccountRepository(db_path) if args.store else None)
+
     bus = events.EventBus(start_seq=seed_seq)
     state = BotState()
     sinks: list[events.Sink] = [TuiSink(state=state) if args.tui else LogSink()]
@@ -1356,6 +1365,7 @@ def main(argv: list[str] | None = None) -> int:
                 checks=checks,
                 shopping=shopping_session,
                 first_run_id=last_run + 1,
+                account_state=account_state,
                 frames=frames,
             )
             install_signal_handlers(bot)
@@ -1376,6 +1386,7 @@ def main(argv: list[str] | None = None) -> int:
                 shopping=shopping_session,
                 frames=frames,
                 first_run_id=last_run + 1,
+                account_state=account_state,
             )
 
             app = create_app(
@@ -1405,6 +1416,7 @@ def main(argv: list[str] | None = None) -> int:
                 checks=checks,
                 shopping=shopping_session,
                 first_run_id=last_run + 1,
+                account_state=account_state,
                 frames=frames,
             )
             install_signal_handlers(bot)
