@@ -11,7 +11,11 @@ This folder is the resumable execution package for the Tower bot autonomy roadma
 
 ## Current handoff
 
-Five tasks are complete: B01, B02, B03, E01, and O01. Fifty-eight remain. B04 is partial and is the only dependency-ready task. Its next slice is the automatic read-only Stats collection flow.
+Six tasks are complete: B01, B02, B03, B04, E01, and O01. Fifty-seven remain.
+
+B04 closed the first wave, so seven tasks are dependency-ready at once: B05, B08,
+C01, C03, F01, L01 and U01. They have no dependency on each other and may run in
+parallel, one task per branch and per sibling worktree.
 
 ## Start in Claude Code
 

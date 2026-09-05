@@ -21,8 +21,53 @@ _RECORDED_READERS = (
     ('workshop.defense', 'menu_workshop_defense'),
     ('workshop.utility', 'menu_workshop_utility'),
     ('battle.attack', 'in_run_lit'),
+    ('battle.defense', 'in_run_defense'),
+    ('battle.utility', 'in_run_utility'),
     ('missions.daily', 'menu_missions'),
 )
+
+# Screens read at two genuinely different points in an account's life: the
+# rows on the second capture are not the rows on the first, which is what
+# makes the screen id a property of the page rather than of one save file.
+#
+# Only the Workshop tabs qualify, and the bar is deliberately this high.
+# in_run_early parses to the same four rows, prices and targets as in_run_lit;
+# stats_summary_early and stats_tiers_early parse identically to their
+# originals; menu_missions_weekly differs from menu_missions by a daily
+# rotation, which is not an unlock. Those captures are still evidence - see
+# _RECORDED_READERS, where two of them give battle.defense and battle.utility
+# their first recorded layout - but they are not stage evidence, and listing
+# them here would make this table mean nothing.
+_RECORDED_UNLOCK_STAGES = (
+    ('workshop.attack', ('menu_workshop_attack', 'menu_workshop_attack_early')),
+    ('workshop.defense', ('menu_workshop_defense', 'menu_workshop_defense_early')),
+    ('workshop.utility', ('menu_workshop_utility', 'menu_workshop_utility_early')),
+)
+
+# Rows the game shows and the catalog cannot name. perception already refuses
+# them a tap and reports them as `discovered:<label>`; listing them turns that
+# silent refusal into visible, ownable work. Extending the catalog is a
+# purchasing change and belongs to the catalog task, not to screen discovery.
+_UNCATALOGUED_LABELS = (
+    ('attackrange', 'menu_workshop_attack_early'),
+    ('unlockmultishotupgrades', 'menu_workshop_attack_early'),
+    ('unlockthornupgrades', 'menu_workshop_defense_early'),
+)
+
+# What remains out of scope, and who owns it. An entry with no owner is a
+# standing property of the design rather than work someone will pick up.
+_UNSUPPORTED_OWNERS = {
+    'later_unlock_stage_layouts_outside_workshop': 'B08',
+    'battle_history_export': 'B08',
+    'native_stat_export': 'B08',
+    'missions_claim_actions': 'T01',
+    'missions_reward_currency': 'T01',
+    'missions_milestone_claim_state': 'T01',
+    'missions_beyond_the_recorded_strip': 'T01',
+    'other_locales': 'V06',
+    'other_resolutions': 'V06',
+    'unknown_overlays': 'by_design',
+}
 
 # Three independent anchors measured on the recorded Daily Missions capture:
 # the page title at (32, 249, 433, 40), the WEEKLY CHALLENGE banner at
@@ -143,7 +188,12 @@ def capabilities() -> dict[str, Any]:
         'locale': 'en',
         'readers': dict(_RECORDED_READERS),
         'recorded_verified': [reader for reader, _ in _RECORDED_READERS],
-        'existing_runtime_supported': ['battle.defense', 'battle.utility'],
+        'existing_runtime_supported': [],
+        'recorded_unlock_stages': {screen: list(names)
+                                   for screen, names in _RECORDED_UNLOCK_STAGES},
+        'uncatalogued_labels': dict(_UNCATALOGUED_LABELS),
+        'account_screens': ['account.settings', 'account.stats.summary',
+                            'account.stats.tiers'],
         'recognized_overlays': {
             'workshop.info_overlay': 'menu_workshop_info_panel',
             'workshop.ultimate_explainer': 'menu_workshop_explainer_modal',
@@ -153,9 +203,14 @@ def capabilities() -> dict[str, Any]:
             'must_cover_screen_center': True,
             'recorded_evidence': list(_GUARDED_OVERLAY_EVIDENCE),
         },
+        'unsupported_owners': dict(_UNSUPPORTED_OWNERS),
         'unsupported': [
-            'later_unlock_stage_layouts',
-            'nested_account_menus', 'battle_history_export', 'native_stat_export',
+            # 'nested_account_menus' was removed once the Settings -> Stats
+            # menu was read and proven. 'later_unlock_stage_layouts' narrowed
+            # to the screens that still have no second-stage capture rather
+            # than disappearing: the Workshop tabs have one, nothing else does.
+            'later_unlock_stage_layouts_outside_workshop',
+            'battle_history_export', 'native_stat_export',
             'other_locales', 'other_resolutions', 'unknown_overlays',
             # A claimable capture and the full 5..35 strip are now recorded
             # (menu_missions_claimable and menu_missions_weekly), so the

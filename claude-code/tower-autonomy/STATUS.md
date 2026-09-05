@@ -2,16 +2,16 @@
 
 > This file is the human-readable view. `manifest.json` is the machine-readable source for task selection.
 
-- [x] 5 completed
-- [ ] 58 remaining
-- [ ] Next dependency-ready task: B04
+- [x] 6 completed
+- [ ] 57 remaining
+- [ ] Next dependency-ready tasks: B05, B08, C01, C03, F01, L01, U01
 
 ## Account truth and execution
 
 - [x] [B01 — Identify the exact running build](tasks/B01.md) — complete
 - [x] [B02 — Version the game concept catalog](tasks/B02.md) — complete
 - [x] [B03 — Persist account and run state separately](tasks/B03.md) — complete
-- [ ] [B04 — Discover all supported screens and rows](tasks/B04.md) — partial
+- [x] [B04 — Discover all supported screens and rows](tasks/B04.md) — complete
 - [ ] [B05 — Journal and verify every transaction](tasks/B05.md) — partial
 - [ ] [B06 — Recover the device and bot lifecycle](tasks/B06.md) — partial
 - [ ] [B07 — Allocate currencies and reserves](tasks/B07.md) — partial

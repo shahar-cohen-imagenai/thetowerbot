@@ -262,3 +262,207 @@ def test_defence_heading_alias_preserves_runtime_health_target(
     assert discovery.screen_id == f'{context}.defense'
     row = next(r for r in perception.observe_frame(frame, context).rows if r.upgrade_id == 'health')
     assert row.tap is not None
+
+
+# --- Second unlock stage -----------------------------------------------------
+#
+# The captures below were recorded on a younger account than the originals.
+# They are the evidence behind dropping 'later_unlock_stage_layouts' from the
+# support matrix: the same reader must name the same screen on an account whose
+# rows are not the same rows.
+
+@pytest.mark.parametrize('name,context,expected', [
+    ('menu_workshop_attack_early', 'workshop', 'workshop.attack'),
+    ('menu_workshop_defense_early', 'workshop', 'workshop.defense'),
+    ('menu_workshop_utility_early', 'workshop', 'workshop.utility'),
+    ('in_run_early', 'battle', 'battle.attack'),
+    ('in_run_attack_paused', 'battle', 'battle.attack'),
+    ('in_run_defense', 'battle', 'battle.defense'),
+    ('in_run_utility', 'battle', 'battle.utility'),
+])
+def test_a_second_unlock_stage_resolves_the_same_screen_ids(
+    name: str, context: str, expected: str,
+) -> None:
+    import screen_discovery
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    result = screen_discovery.discover(frame, recorded(name), context)
+    assert (result.screen_id, result.readable) == (expected, True)
+
+
+def _rows_by_id(name: str, context: str) -> dict[str, object]:
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    return {row.upgrade_id: row for row in
+            perception.parse_frame(frame, recorded(name), context).rows}
+
+
+@pytest.mark.parametrize('name,context', [
+    ('menu_workshop_attack', 'workshop'), ('menu_workshop_attack_early', 'workshop'),
+    ('menu_workshop_defense', 'workshop'), ('menu_workshop_defense_early', 'workshop'),
+    ('menu_workshop_utility', 'workshop'), ('menu_workshop_utility_early', 'workshop'),
+    ('in_run_lit', 'battle'), ('in_run_early', 'battle'),
+    ('in_run_defense', 'battle'), ('in_run_utility', 'battle'),
+])
+def test_a_tap_belongs_to_exactly_the_row_that_produced_it(name: str, context: str) -> None:
+    """The acceptance gate's second clause, stated per frame.
+
+    "A new tab does not shift a purchase to a different target" is only true
+    if a row's tap point is inside that row and inside no other. A tap that
+    lands in a neighbour is the exact failure the gate names, and it would not
+    be caught by checking identities alone.
+    """
+    rows = _rows_by_id(name, context)
+    taps = {key: row.tap for key, row in rows.items() if row.tap is not None}
+    assert taps, f'{name} exposed no purchasable row to check'
+    for key, (x, y) in taps.items():
+        own = rows[key].rect
+        assert own.x <= x < own.x + own.w and own.y <= y < own.y + own.h, (
+            f'{key} taps outside its own row on {name}')
+        for other, row in rows.items():
+            if other == key:
+                continue
+            assert not (row.rect.x <= x < row.rect.x + row.rect.w
+                        and row.rect.y <= y < row.rect.y + row.rect.h), (
+                f'{key} taps inside {other} on {name}')
+
+
+@pytest.mark.parametrize('late,early,context', [
+    ('menu_workshop_attack', 'menu_workshop_attack_early', 'workshop'),
+    ('menu_workshop_defense', 'menu_workshop_defense_early', 'workshop'),
+    ('in_run_lit', 'in_run_early', 'battle'),
+])
+def test_an_upgrade_keeps_its_identity_and_its_own_target_across_stages(
+    late: str, early: str, context: str,
+) -> None:
+    """An upgrade seen on both accounts is the same upgrade, priced differently.
+
+    The price is asserted to be read independently per stage precisely because
+    the identity is shared: binding a stale price to a live row is the way a
+    correct identity still produces a wrong purchase.
+    """
+    first, second = _rows_by_id(late, context), _rows_by_id(early, context)
+    shared = set(first) & set(second)
+    assert shared, f'{late} and {early} share no upgrade to compare'
+    for key in shared:
+        for rows in (first, second):
+            row = rows[key]
+            assert row.upgrade_id == key
+            if row.tap is not None:
+                assert row.price is not None
+                x, y = row.tap
+                assert row.rect.x <= x < row.rect.x + row.rect.w
+                assert row.rect.y <= y < row.rect.y + row.rect.h
+
+
+def test_an_uncatalogued_row_on_a_younger_account_is_named_but_never_tappable() -> None:
+    """A real upgrade the catalog has never heard of.
+
+    The second-stage Attack page carries Attack Range and an Unlock Multishot
+    row, neither of which resolves. The reader must say it saw something it
+    cannot name rather than skip the row silently, and must not offer a target
+    for it.
+    """
+    rows = _rows_by_id('menu_workshop_attack_early', 'workshop')
+    discovered = {key: row for key, row in rows.items() if key.startswith('discovered:')}
+    assert discovered, 'the capture no longer carries an uncatalogued row'
+    for row in discovered.values():
+        assert row.tap is None
+
+
+def test_the_ultimate_weapons_page_is_not_mistaken_for_a_purchase_screen() -> None:
+    """Recorded, deliberately unclaimed.
+
+    Reading Ultimate Weapons belongs to its own task. What must hold here is
+    that an unclaimed page is refused outright rather than parsed as whichever
+    upgrade screen it most resembles.
+    """
+    import screen_discovery
+    frame = cv2.imread(str(FIXTURES / 'menu_workshop_ultimate.png'))
+    boxes = recorded('menu_workshop_ultimate')
+    result = screen_discovery.discover(frame, boxes, 'workshop')
+    assert result.screen_id is None and not result.readable
+    assert perception.parse_frame(frame, boxes, 'workshop').rows == ()
+
+
+def test_a_first_wave_game_over_never_exposes_battle_rows() -> None:
+    """The wave-1 capture joins the existing game-over evidence."""
+    import screen_discovery
+    frame = cv2.imread(str(FIXTURES / 'game_over_wave1.png'))
+    boxes = recorded('game_over_wave1')
+    result = screen_discovery.discover(frame, boxes, 'battle')
+    assert result.screen_id is None and not result.readable
+    assert perception.parse_frame(frame, boxes, 'battle').rows == ()
+
+
+def test_the_support_matrix_no_longer_claims_stages_and_nested_menus_are_unseen() -> None:
+    """Recorded evidence must move an item out of 'unsupported'.
+
+    'unsupported' means no capture exists. Once one does, leaving the entry in
+    place understates the bot and, worse, makes the list stop meaning anything.
+    """
+    import screen_discovery
+    capabilities = screen_discovery.capabilities()
+    unsupported = capabilities['unsupported']
+    assert 'later_unlock_stage_layouts' not in unsupported
+    assert 'nested_account_menus' not in unsupported
+    # Narrowed rather than dropped: the Workshop tabs have a second stage and
+    # nothing else does, so the honest entry names the remainder.
+    assert 'later_unlock_stage_layouts_outside_workshop' in unsupported
+    # Still genuinely out of scope, and each attributed to the task that owns it.
+    assert {'other_locales', 'other_resolutions', 'unknown_overlays'} <= set(unsupported)
+    assert capabilities['unsupported_owners']['missions_claim_actions'] == 'T01'
+    assert capabilities['unsupported_owners']['other_resolutions'] == 'V06'
+
+
+def test_every_recorded_reader_names_evidence_that_exists() -> None:
+    import screen_discovery
+    readers = screen_discovery.capabilities()['readers']
+    assert {'battle.defense', 'battle.utility'} <= set(readers)
+    for name in readers.values():
+        assert (FIXTURES / f'{name}.png').exists()
+        assert (FIXTURES / 'ocr' / f'{name}.json').exists()
+
+
+def test_every_claimed_unlock_stage_pair_really_shows_different_rows() -> None:
+    """The table has to earn each row, not just list it.
+
+    Two captures of one account would satisfy any check that only counts
+    entries, and would quietly turn this table into decoration. So read both
+    captures of every claimed pair and require the row sets to differ. This is
+    the check that rejected battle, account stats and missions: their second
+    captures parse identically, or differ only by a daily rotation.
+    """
+    import screen_discovery
+    stages = screen_discovery.capabilities()['recorded_unlock_stages']
+    assert set(stages) == {'workshop.attack', 'workshop.defense', 'workshop.utility'}
+    for screen, names in stages.items():
+        assert len(names) >= 2, f'{screen} claims a stage list of one capture'
+        context = screen.split('.')[0]
+        seen = [set(_rows_by_id(name, context)) for name in names]
+        for later in seen[1:]:
+            assert later != seen[0], f'{screen} claims two stages that read alike'
+
+
+def test_a_capture_that_is_not_stage_evidence_is_not_claimed_as_stage_evidence() -> None:
+    """in_run_early is real evidence, and not evidence of a second stage.
+
+    It is recorded, it is read, and it parses to exactly the rows in_run_lit
+    parses to. Keeping it out of the stage table while keeping it in the
+    fixtures is the distinction the matrix exists to make.
+    """
+    import screen_discovery
+    stages = screen_discovery.capabilities()['recorded_unlock_stages']
+    assert 'battle.attack' not in stages
+    assert set(_rows_by_id('in_run_lit', 'battle')) == set(_rows_by_id('in_run_early', 'battle'))
+
+
+def test_uncatalogued_labels_seen_on_recorded_evidence_are_listed() -> None:
+    """Naming the gap is the point.
+
+    These rows exist in the game and not in the catalog. The reader already
+    refuses to tap them; recording them here is what turns a silent refusal
+    into a piece of work someone can pick up.
+    """
+    import screen_discovery
+    pending = screen_discovery.capabilities()['uncatalogued_labels']
+    assert 'attackrange' in pending
+    assert all(isinstance(where, str) and where for where in pending.values())
