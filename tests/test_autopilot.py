@@ -220,3 +220,40 @@ def test_a_blank_tab_bar_is_refused() -> None:
     """No visible cell borders is not evidence of three cells."""
     import autopilot
     assert autopilot.battle_tab_point(_tab_bar(()), 'ATTACK') is None
+
+
+def test_every_observed_row_is_drawn_and_the_bought_one_is_flagged() -> None:
+    """The overlay is how you see what the planner was looking at.
+
+    The legacy matcher recorded a box per rule "whether or not the tap
+    happens, because matched but rejected is exactly what you open the
+    device view to see". The autopilot owns in-run buying now, so the same
+    has to hold for the rows it reads - otherwise the device view goes blank
+    on exactly the frames where something is being decided.
+    """
+    bot, device, frame, observation, policy = parts()
+
+    bot.step(frame, device, policy, cash=100, observation=observation)
+
+    drawn = {box["name"]: box for box in bot.boxes}
+    assert drawn.keys() == {row.name for row in observation.rows}, (
+        "every row the planner read should be drawn, not only the bought one"
+    )
+    bought = [box for box in bot.boxes if box["tapped"]]
+    assert [box["name"] for box in bought] == ["Damage"]
+    assert (bought[0]["tap_x"], bought[0]["tap_y"]) == device.actions[0][1:]
+    for box in bot.boxes:
+        assert box["w"] > 0 and box["h"] > 0
+
+
+def test_a_scan_that_buys_nothing_still_draws_the_rows() -> None:
+    bot, device, frame, observation, policy = parts()
+    from dataclasses import replace as _replace
+
+    # Nothing affordable: the planner reads the panel and declines.
+    bot.step(frame, device, _replace(policy, cash_reserve=10_000),
+             cash=1, observation=observation)
+
+    assert device.actions == []
+    assert [box["name"] for box in bot.boxes] == [row.name for row in observation.rows]
+    assert not any(box["tapped"] for box in bot.boxes)
