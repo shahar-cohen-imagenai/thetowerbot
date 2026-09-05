@@ -11,7 +11,9 @@ import threading
 from typing import Any
 
 import db
+import ultimate_weapons
 from concepts import REGISTRY
+from modules import ModulesInventory
 from perception import Observation
 from account_screens import ScreenReadings
 
@@ -63,6 +65,16 @@ class AccountRevision:
     # because a slot has no catalog identity to hang a Fact on. None means
     # nobody has counted them, never that the account owns none.
     lab_slots_owned: int | None = None
+    modules: ModulesInventory | None = None
+    # Card slot counts, read off the Cards page. None means that page has
+    # never been read, which is not the same account fact as a card
+    # collection that is empty - see cards.py.
+    cards: tuple[Fact, ...] | None = None
+    # Kept out of the Fact sections above on purpose. A UW reading holds raw
+    # stone quantities and lab-adjusted ones in separately typed collections,
+    # and a flat Fact - one concept_id, one value - has nowhere to carry that
+    # difference, so storing UWs there would erase it.
+    ultimate_weapons: ultimate_weapons.UltimateWeaponsRecord | None = None
 
 
 @dataclass(frozen=True)
@@ -95,10 +107,17 @@ class AccountRepository:
         value = json.loads(row['detail'])
         value['revision_id'] = row['id']
         for section in ('workshop_stats', 'workshop_levels', 'lab_levels', 'lab_jobs',
-                        'effective_account_stats', 'inventory', 'unlocks', 'settings'):
+                        'effective_account_stats', 'inventory', 'unlocks', 'settings',
+                        'cards'):
             if value.get(section) is not None:
                 value[section] = tuple(Fact(f['concept_id'], f['value'], f['status'],
                     Evidence(**{**f['evidence'], 'rect': tuple(f['evidence']['rect'])})) for f in value[section])
+        if value.get('modules') is not None:
+            value['modules'] = ModulesInventory.from_payload(value['modules'])
+        if value.get('ultimate_weapons') is not None:
+            # Revalidated on the way out, so a row edited in the database
+            # cannot smuggle a lab-adjusted value into a raw stone collection.
+            value['ultimate_weapons'] = ultimate_weapons.decode(value['ultimate_weapons'])
         return AccountRevision(**value)
 
     def _connect(self) -> sqlite3.Connection:
@@ -291,3 +310,35 @@ class AccountState:
                 self._error = str(exc)
                 logger.error('Lab persistence failed: %s', exc)
                 return False
+    def observe_modules(self, inventory: ModulesInventory) -> None:
+        """Save a module inventory a reader actually resolved.
+
+        `unknown` and `unreadable` inventories say nothing about the account
+        and must never replace what an earlier reading proved, so they are
+        dropped here rather than written as an empty loadout. An unchanged
+        inventory writes no revision, exactly as an unchanged workshop value
+        does. Confirming a reading across two frames belongs with the reader
+        that produces one; there is no recorded Modules capture yet.
+        """
+        with self._lock:
+            if self.repository is None or inventory.status not in ('observed', 'locked', 'unavailable'):
+                return
+            if not self._restored:
+                try:
+                    self._revision = self.repository.latest()
+                    self._restored = True
+                    self._error = None
+                except (sqlite3.Error, ValueError, TypeError) as exc:
+                    self._error = str(exc)
+                    return
+            if self._revision is not None and self._revision.modules == inventory:
+                return
+            candidate = replace(self._revision or AccountRevision(), revision_id=None,
+                parent_revision_id=self._revision.revision_id if self._revision else None,
+                created_at=inventory.observed_at, modules=inventory)
+            try:
+                self._revision = self.repository.save_account(candidate, ())
+                self._error = None
+            except sqlite3.Error as exc:
+                self._error = str(exc)
+                logger.error('Module persistence failed: %s', exc)

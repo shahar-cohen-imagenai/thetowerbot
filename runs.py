@@ -51,6 +51,17 @@ class RunTracker:
         """
         return self._next_id
 
+    def elapsed(self, now: float) -> float | None:
+        """Seconds since the open run began, or None while none is open.
+
+        None rather than 0.0, and the distinction is not pedantic: a planner
+        reading 0.0 between runs would take every menu frame for the opening
+        seconds of a battle. `now` is monotonic, as in transition().
+        """
+        if self._started_at is None:
+            return None
+        return max(0., now - self._started_at)
+
     def transition(self, curr: ScreenState, now: float) -> events.Event | None:
         """Return an unstamped RunStarted / RunEnded, or None.
 

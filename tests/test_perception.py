@@ -114,3 +114,42 @@ def test_frame_evidence_is_honest_and_low_confidence_tile_blocks_promotion(monke
     assert (result.frame_width, result.frame_height) == (250, 250)
     assert result.rows[0].confidence == .4
     assert result.rows[0].raw_value == '100'
+
+
+@pytest.mark.parametrize("name,speed,regen,paused", [
+    ("in_run_lit", 1., 0., False),
+    ("in_run_early", 1.5, .04, False),
+    ("in_run_attack_paused", 0., .04, True),
+    ("in_run_defense", 0., .04, True),
+])
+def test_hud_speed_recovery_and_pause_are_read_from_recorded_evidence(
+    name: str, speed: float, regen: float, paused: bool
+) -> None:
+    from perception import parse_frame
+    frame = cv2.imread(str(FIXTURES / f"{name}.png"))
+    result = parse_frame(frame, recorded(name), "battle", now=100)
+    assert result.combat["game_speed"] == speed
+    assert result.combat["health_regen"] == pytest.approx(regen)
+    assert result.paused is paused
+
+
+def test_hud_readers_refuse_a_band_holding_two_candidates() -> None:
+    """A second x-multiplier or rate in the band means it is not the widget."""
+    from perception import parse_frame
+    frame = cv2.imread(str(FIXTURES / "in_run_early.png"))
+    boxes = recorded("in_run_early")
+    speed = next(b for b in boxes if b.text == "x1.5")
+    rate = next(b for b in boxes if b.text == "0.04/s")
+    doubled = (*boxes,
+               ocr.TextBox("x2.0", .99, config.Rect(speed.rect.x - 200, speed.rect.y, *speed.rect[2:])),
+               ocr.TextBox("0.09/s", .99, config.Rect(rate.rect.x, rate.rect.y + 20, *rate.rect[2:])))
+    result = parse_frame(frame, doubled, "battle", now=100)
+    assert "game_speed" not in result.combat  # absent, never averaged or zeroed
+    assert "health_regen" not in result.combat
+
+
+def test_pause_is_unknown_on_a_frame_that_never_identified_itself() -> None:
+    from perception import parse_frame
+    frame = cv2.imread(str(FIXTURES / "in_run_lit.png"))
+    result = parse_frame(frame, (), "battle", now=100)
+    assert result.paused is None  # not False: nothing was read

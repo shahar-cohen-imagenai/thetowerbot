@@ -497,7 +497,7 @@
       "id": "C01",
       "domain": "cards_modules",
       "title": "Read cards, slots and mastery",
-      "status": "missing",
+      "status": "partial",
       "depends_on": [
         "B03",
         "B04"
@@ -527,7 +527,7 @@
       "id": "C03",
       "domain": "cards_modules",
       "title": "Read primary and assist modules",
-      "status": "missing",
+      "status": "partial",
       "depends_on": [
         "B03",
         "B04"
@@ -694,7 +694,7 @@
       "id": "U01",
       "domain": "ultimate_weapons",
       "title": "Read Ultimate Weapons and UW+",
-      "status": "missing",
+      "status": "partial",
       "depends_on": [
         "B03",
         "B04"
