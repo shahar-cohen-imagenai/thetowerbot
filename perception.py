@@ -19,6 +19,13 @@ from device import Image
 
 _NUMBER = re.compile(r"(?:x|\$)?\s*(\d+(?:\.\d+)?)\s*([KMBTqQ]?)\s*(?:%|/s|/sec|s|sec)?")
 _MULTIPLIERS = {"": 1, "K": 1e3, "M": 1e6, "B": 1e9, "T": 1e12, "q": 1e15, "Q": 1e18}
+# The game speed readout, the health recovery rate and the pause banner. The
+# `x` and the `/s` are required, not decoration: they are what separates the
+# speed multiplier from a stat and the recovery rate from a health total, so
+# an unlabelled number in the same band is never mistaken for either.
+_SPEED = re.compile(r"x\s*(\d+(?:\.\d+)?)")
+_REGEN = re.compile(r"([\d.]+[KMBTqQ]?)\s*/\s*s(?:ec)?")
+_PAUSED = re.compile(r"game\s*paused", re.I)
 
 
 def stat_number(text: str) -> float | None:
@@ -81,6 +88,10 @@ class Observation:
     frame_digest: str | None = None
     frame_width: int = 0
     frame_height: int = 0
+    # None means the frame never identified itself as a battle screen, which
+    # is not the same as the game running: absence of the banner is evidence
+    # only on a frame whose upgrade panel was read.
+    paused: bool | None = None
 
     def status_for(self, upgrade_id: str) -> str:
         """Absence on this frame means unseen, never locked or unavailable."""
@@ -144,9 +155,35 @@ def parse_frame(
             if counts[row.upgrade_id] > 1 else row for row in rows]
     combat: dict[str, float] = {}
     cash = None
+    paused: bool | None = None
     if context == "battle":
+        # The banner names itself, so it needs no geometry of its own; on an
+        # identified battle frame its absence is what says the game is running.
+        # The speed readout below is the independent second opinion, and the
+        # two are kept as separate observations precisely so a disagreement
+        # stays visible instead of averaging into one confident answer.
+        paused = any(_PAUSED.fullmatch(b.text.strip()) for b in boxes)
+        # The speed readout sits just above the upgrade heading, in the same
+        # band config.SPEED_READOUT_REGION measures from the IN_RUN anchor -
+        # recorded at y 1394..1398 against a heading at y 1659 in in_run_lit,
+        # in_run_early, in_run_defense, in_run_utility and
+        # in_run_attack_paused. Two candidates mean the band is not the
+        # widget; refuse rather than pick one.
+        speeds = [m for m in (_SPEED.fullmatch(b.text.strip()) for b in boxes
+                              if heading.rect.y - 285 < b.rect.y < heading.rect.y - 235) if m]
+        if len(speeds) == 1:
+            combat["game_speed"] = float(speeds[0][1])
         # Constrain unlabeled numbers to their HUD, never the upgrade grid.
         hud = [b for b in boxes if heading.rect.y - 260 < b.rect.y < heading.rect.y]
+        # Health recovery per second, in the same half of the HUD as the
+        # health total it feeds. The regen tiles in the grid below carry the
+        # same "/sec" text, which is exactly why this is bounded to the HUD.
+        regens = [m for m in (_REGEN.fullmatch(b.text.strip()) for b in hud
+                              if b.rect.x < screen.shape[1] / 2) if m]
+        if len(regens) == 1:
+            recovery = stat_number(regens[0][1])
+            if recovery is not None and recovery >= 0:
+                combat["health_regen"] = recovery
         waves = [(b, re.fullmatch(r"Wave\s*(\d+)", b.text, re.I)) for b in hud]
         waves = [(b, m) for b, m in waves if m]
         if len(waves) == 1:
@@ -169,7 +206,8 @@ def parse_frame(
                       and b.rect.x < screen.shape[1] * .4 and b.text.strip().startswith("$")]
         if len(cash_boxes) == 1:
             cash = price_number(cash_boxes[0].text)
-    return Observation(category, tuple(rows), combat, cash, now, heading.rect.y, **evidence)
+    return Observation(category, tuple(rows), combat, cash, now, heading.rect.y,
+                       paused=paused, **evidence)
 
 
 def observe_frame(screen: Image, context: str, *, locale: str = 'en') -> Observation:
