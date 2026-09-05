@@ -158,6 +158,68 @@ def test_capability_matrix_names_recorded_evidence_and_missing_scope() -> None:
         assert (FIXTURES / 'ocr' / f'{name}.json').exists()
 
 
+@pytest.mark.parametrize('name', [
+    'menu_missions_claimable', 'menu_missions_scrolled', 'menu_missions_weekly',
+])
+def test_a_mission_whose_text_ends_in_upgrades_still_reads_as_missions(name: str) -> None:
+    """A mission is described in prose, and the prose is not a heading.
+
+    "Buy 20 battle upgrades" is an ordinary daily. Refusing the whole page
+    because a card mentions upgrades makes the reader fail on any day that
+    mission is drawn, which strands a visit on the page with every action
+    held. These three captures all carry it.
+    """
+    import screen_discovery
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    boxes = recorded(name)
+    assert any(tiles.normalise(b.text).endswith('upgrades') for b in boxes), (
+        f'{name} no longer carries the mission this guards against')
+    result = screen_discovery.discover(frame, boxes, 'missions')
+    assert (result.screen_id, result.readable) == ('missions.daily', True)
+
+
+@pytest.mark.parametrize('name', ['menu_workshop_attack', 'menu_workshop_attack_early'])
+def test_a_real_upgrade_screen_is_still_refused_in_the_missions_context(name: str) -> None:
+    """The guard's actual job, kept: an upgrade page is never read as missions."""
+    import screen_discovery
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    result = screen_discovery.discover(frame, recorded(name), 'missions')
+    assert result.screen_id is None and not result.readable
+
+
+def test_an_upgrade_heading_away_from_its_measured_band_does_not_gate_missions() -> None:
+    """The guard keys on a heading where a heading actually sits.
+
+    A box reading exactly "ATTACK UPGRADES" but at a card's y is not the
+    heading of an upgrade page; treating it as one is the bug being fixed,
+    just with a label instead of a description.
+    """
+    import screen_discovery
+    frame = cv2.imread(str(FIXTURES / 'menu_missions_claimable.png'))
+    boxes = recorded('menu_missions_claimable') + (
+        ocr.TextBox('ATTACK UPGRADES', .99, config.Rect(40, 1100, 400, 40)),)
+    result = screen_discovery.discover(frame, boxes, 'missions')
+    assert (result.screen_id, result.readable) == ('missions.daily', True)
+
+
+def test_the_missions_band_counting_drawn_is_no_longer_an_inference() -> None:
+    """`menu_missions_claimable` reads 8/8 on a page holding four claimable
+    and four in-progress missions. Finished-of-offered would read 4/8 there,
+    so the band counts what was drawn. That was listed as unproven while the
+    only capture was a 2/8 page with nothing completed on it."""
+    import missions_screen, screen_discovery
+    assert 'missions.shown_of_offered' not in screen_discovery.capabilities()['unproven']
+    holder = missions_screen.MissionsReadings()
+    holder.scan(cv2.imread(str(FIXTURES / 'menu_missions_claimable.png')))
+    latest = holder.snapshot()['latest']
+    assert (latest['shown'], latest['offered'], latest['unseen']) == (8, 8, 0)
+    # `shown` cannot be a count of what the reader parsed: the band says 8
+    # while only five cards are on the frame, and four of those are CLAIM
+    # rows that carry no "N / M" text and so parse as unreadable.
+    assert len(latest['missions']) < latest['shown']
+    assert [m for m in latest['missions'] if m['status'] == 'unreadable']
+
+
 def test_new_heading_cannot_validate_an_existing_target() -> None:
     import screen_discovery
     frame = cv2.imread(str(FIXTURES / 'menu_workshop_attack.png'))

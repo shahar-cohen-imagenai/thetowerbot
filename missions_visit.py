@@ -7,14 +7,23 @@ from a coordinate remembered across scans. Claiming a mission reward or a
 weekly milestone is deliberately absent: missions_screen cannot yet read a
 claimable state, so there is nothing here to verify a claim against.
 
-One known limit: a visit that cannot locate the return control ends `failed`
-on the missions page, and the passive guard then holds every action for as
-long as that page is up, publishing `missions_screen_guard` each scan. The
-bot stops rather than tapping its way off a page it has no verified target
-on, which is the intended trade; recovering from it is a later slice's work.
-`nav/missions_return.png` matches the recorded page at 1.0000, so this is a
-limit to know about rather than an expected path - the same one
-account_collection already has when the Stats panel is left open.
+One known limit: a visit can end `failed` while still ON the missions page,
+and the passive guard then holds every action for as long as that page is
+up, publishing `missions_screen_guard` each scan. The bot stops rather than
+tapping its way off a page it has no verified target on, which is the
+intended trade; recovering from it is a later slice's work.
+
+Two routes reach it, and the second is the one that matters. Failing to
+locate the return control is remote - `nav/missions_return.png` matches the
+recorded page at 1.0000. But the READ step gets there first and for an
+ordinary reason: any frame the missions reader cannot parse finishes the
+visit `missions_unreadable`, on the page. This was first described as a
+limit reachable only via the return control, which understated it - a guard
+in screen_discovery used to reject the whole page whenever any box on it
+ended in "upgrades", which the daily mission "Buy 20 battle upgrades" does.
+That guard is now scoped to a heading at its measured place, but the shape
+of the limit is unchanged: an unreadable page strands a visit, and every
+future reader gap reopens the same door.
 
 Shaped after account_collection.StatsCollection and reusing its parts - the
 same one-action-per-step rule, the same ambiguity-refusing locator, the same
