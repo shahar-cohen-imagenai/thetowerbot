@@ -497,7 +497,7 @@
       "id": "C01",
       "domain": "cards_modules",
       "title": "Read cards, slots and mastery",
-      "status": "missing",
+      "status": "partial",
       "depends_on": [
         "B03",
         "B04"
