@@ -694,7 +694,7 @@
       "id": "U01",
       "domain": "ultimate_weapons",
       "title": "Read Ultimate Weapons and UW+",
-      "status": "missing",
+      "status": "partial",
       "depends_on": [
         "B03",
         "B04"

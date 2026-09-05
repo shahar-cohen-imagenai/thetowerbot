@@ -11,6 +11,7 @@ import threading
 from typing import Any
 
 import db
+import ultimate_weapons
 from concepts import REGISTRY
 from perception import Observation
 from account_screens import ScreenReadings
@@ -54,6 +55,11 @@ class AccountRevision:
     inventory: tuple[Fact, ...] | None = None
     unlocks: tuple[Fact, ...] | None = None
     settings: tuple[Fact, ...] | None = None
+    # Kept out of the Fact sections above on purpose. A UW reading holds raw
+    # stone quantities and lab-adjusted ones in separately typed collections,
+    # and a flat Fact - one concept_id, one value - has nowhere to carry that
+    # difference, so storing UWs there would erase it.
+    ultimate_weapons: ultimate_weapons.UltimateWeaponsRecord | None = None
 
 
 @dataclass(frozen=True)
@@ -90,6 +96,10 @@ class AccountRepository:
             if value.get(section) is not None:
                 value[section] = tuple(Fact(f['concept_id'], f['value'], f['status'],
                     Evidence(**{**f['evidence'], 'rect': tuple(f['evidence']['rect'])})) for f in value[section])
+        if value.get('ultimate_weapons') is not None:
+            # Revalidated on the way out, so a row edited in the database
+            # cannot smuggle a lab-adjusted value into a raw stone collection.
+            value['ultimate_weapons'] = ultimate_weapons.decode(value['ultimate_weapons'])
         return AccountRevision(**value)
 
     def _connect(self) -> sqlite3.Connection:

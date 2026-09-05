@@ -54,6 +54,19 @@ _UNCATALOGUED_LABELS = (
     ('unlockthornupgrades', 'menu_workshop_defense_early'),
 )
 
+# The Ultimate Upgrades page IS recorded, but only at its locked stage: the
+# capture is an account whose UW system is still shut behind tournaments, so
+# it carries an unlock offer and a prerequisite and not one owned weapon.
+# Everything only an owned weapon could show is therefore still unread.
+# ultimate_weapons.py reads this table instead of keeping its own copy, so a
+# reader and the matrix describing it cannot drift apart.
+ULTIMATE_WEAPON_GAPS = {
+    'ultimate_weapon_owned_page_layout': 'B08',
+    'ultimate_weapon_stone_upgrade_rows': 'U02',
+    'ultimate_weapon_toggles_and_cooldowns': 'U03',
+    'uw_plus_system_state': 'U04',
+}
+
 # What remains out of scope, and who owns it. An entry with no owner is a
 # standing property of the design rather than work someone will pick up.
 _UNSUPPORTED_OWNERS = {
@@ -67,6 +80,7 @@ _UNSUPPORTED_OWNERS = {
     'other_locales': 'V06',
     'other_resolutions': 'V06',
     'unknown_overlays': 'by_design',
+    **ULTIMATE_WEAPON_GAPS,
 }
 
 # Three independent anchors measured on the recorded Daily Missions capture:
@@ -204,6 +218,16 @@ def capabilities() -> dict[str, Any]:
             'recorded_evidence': list(_GUARDED_OVERLAY_EVIDENCE),
         },
         'unsupported_owners': dict(_UNSUPPORTED_OWNERS),
+        # Recorded, and honest about which stage was recorded. Absent from
+        # 'readers' deliberately: discover() still refuses this page, because
+        # it is not a screen the purchase loop may ever be handed rows from.
+        'ultimate_weapons': {
+            'recorded_stage': 'menu_workshop_ultimate',
+            'recorded_stage_meaning': 'locked_system',
+            'reader': 'ultimate_weapons.read_page',
+            'base_identities': 9,
+            'unread': sorted(ULTIMATE_WEAPON_GAPS),
+        },
         'unsupported': [
             # 'nested_account_menus' was removed once the Settings -> Stats
             # menu was read and proven. 'later_unlock_stage_layouts' narrowed
@@ -222,6 +246,10 @@ def capabilities() -> dict[str, Any]:
             # observes; it never claims a reward or names a currency.
             'missions_claim_actions', 'missions_reward_currency',
             'missions_milestone_claim_state', 'missions_beyond_the_recorded_strip',
+            # Not "no capture exists" for the page - one does - but "no
+            # capture exists of an account that owns a UW", which is what
+            # every entry below would have to be read from.
+            *sorted(ULTIMATE_WEAPON_GAPS),
         ],
         # Declared readers whose behaviour is consistent with the recorded
         # evidence but NOT demonstrated by it. Kept apart from 'unsupported'
