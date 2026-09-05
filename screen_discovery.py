@@ -68,6 +68,27 @@ ULTIMATE_WEAPON_GAPS = {
     'uw_plus_system_state': 'U04',
 }
 
+# Replay coverage, declared here so the support matrix and the fixture set
+# cannot drift apart. A capability is `covered` when a positive, an
+# unavailable and an ambiguous example of it all exist and are replayed by
+# tests/test_fixtures.py; `_REPLAY_GAPS` names the ones that do not, with the
+# task that owns closing them. Listing a capability as enabled while nothing
+# has ever shown what it does on a state it must not act on is the gap this
+# table exists to make visible.
+_REPLAY_MANIFEST = 'tests/fixtures/replay/manifest.json'
+_ACCOUNT_SNAPSHOTS = 'tests/fixtures/account'
+_REPLAY_COVERED = (
+    'workshop.attack', 'workshop.defense', 'workshop.utility',
+    'battle.attack', 'battle.defense', 'battle.utility',
+    'missions.daily', 'cards.inventory',
+    'account.settings', 'account.stats.summary',
+)
+# The Tiers table has no reader state meaning present-and-not-usable: a tier
+# nobody has reached is written as a literal 0 and an unread cell is dropped,
+# and both land on 'unreadable'. Telling them apart needs a capture of an
+# account with a tier history.
+_REPLAY_GAPS = {'account.stats.tiers.unavailable': 'B08'}
+
 # What remains out of scope, and who owns it. An entry with no owner is a
 # standing property of the design rather than work someone will pick up.
 _UNSUPPORTED_OWNERS = {
@@ -288,6 +309,12 @@ def capabilities() -> dict[str, Any]:
         'uncatalogued_labels': dict(_UNCATALOGUED_LABELS),
         'account_screens': ['account.settings', 'account.stats.summary',
                             'account.stats.tiers'],
+        'replay_coverage': {
+            'manifest': _REPLAY_MANIFEST,
+            'account_snapshots': _ACCOUNT_SNAPSHOTS,
+            'covered': list(_REPLAY_COVERED),
+            'gaps': dict(_REPLAY_GAPS),
+        },
         'recognized_overlays': {
             'workshop.info_overlay': 'menu_workshop_info_panel',
             'workshop.ultimate_explainer': 'menu_workshop_explainer_modal',

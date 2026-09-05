@@ -1,0 +1,21 @@
+{
+  "screen_id": "account.settings",
+  "frame_digest": "f8c637d7c5e351869bc76d91ccad0f0c9a1648dcbb3041510bc04706bc940c53",
+  "fields": [
+    [
+      "game_version",
+      "v29.0.1",
+      "observed"
+    ]
+  ],
+  "tiers": [],
+  "controls": {
+    "stats": [
+      "located",
+      [
+        721,
+        847
+      ]
+    ]
+  }
+}

@@ -466,3 +466,40 @@ def test_uncatalogued_labels_seen_on_recorded_evidence_are_listed() -> None:
     pending = screen_discovery.capabilities()['uncatalogued_labels']
     assert 'attackrange' in pending
     assert all(isinstance(where, str) and where for where in pending.values())
+
+
+def test_every_enabled_capability_declares_replay_coverage_or_an_owned_gap() -> None:
+    """The matrix has to answer for the readers it turns on.
+
+    'readers' and 'account_screens' are the list of things this bot will act
+    on the output of. Until B08 there was no place that said, for any of
+    them, what happens on a state they must NOT act on - a maxed row, a
+    control drawn twice, a page the reader should refuse. `replay_coverage`
+    is that place: every enabled capability is either covered by three
+    replayed examples in tests/fixtures/replay/manifest.json, or named as a
+    gap with the task that owns closing it. A capability in neither list is
+    the silent case this check exists to prevent.
+    """
+    import screen_discovery
+    capabilities = screen_discovery.capabilities()
+    coverage = capabilities['replay_coverage']
+    enabled = set(capabilities['readers']) | set(capabilities['account_screens'])
+    gapped = {key.rsplit('.', 1)[0] for key in coverage['gaps']}
+
+    assert set(coverage['covered']) | gapped == enabled
+    assert not set(coverage['covered']) & gapped, (
+        'a capability is either fully covered or has a named gap, never both')
+    # A gap is work, so it carries an owner and never quietly re-enters
+    # 'unsupported' - the screen is read, it is only one state that has no
+    # example.
+    assert coverage['gaps'] == {'account.stats.tiers.unavailable': 'B08'}
+    assert not gapped & set(capabilities['unsupported'])
+
+
+def test_replay_coverage_never_claims_a_capability_the_matrix_calls_unsupported() -> None:
+    """Coverage is for what is enabled. Listing an unsupported capability
+    here would read as evidence for a reader that does not exist."""
+    import screen_discovery
+    capabilities = screen_discovery.capabilities()
+    assert not set(capabilities['replay_coverage']['covered']) & set(
+        capabilities['unsupported'])
