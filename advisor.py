@@ -84,6 +84,17 @@ class AdvisorError(ValueError):
         self.field = field
 
 
+def inspect_native_workbooks(effective_paths: bytes, ids_master: bytes) -> dict[str, Any]:
+    """Validate native source identity separately from normalized row imports.
+
+    A known native layout never authorizes Workshop staging or spending. Account
+    input mapping, calculation parity and native path adapters are prerequisites.
+    """
+    from effective_paths_contract import validate_native_workbooks
+
+    return validate_native_workbooks(effective_paths, ids_master)
+
+
 def _profile_name(profile: object) -> str:
     if not isinstance(profile, str) or _PROFILE.fullmatch(profile) is None:
         raise AdvisorError(

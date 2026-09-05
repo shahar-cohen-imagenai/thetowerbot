@@ -12,7 +12,12 @@ from pathlib import Path
 
 API_VERSION = 1
 PROJECT_ROOT = Path(__file__).resolve().parent
-SOURCE_FILES = ("pyproject.toml", "uv.lock", "catalog/concepts.v1.json")
+SOURCE_FILES = (
+    "pyproject.toml",
+    "uv.lock",
+    "catalog/concepts.v1.json",
+    "contracts/effective-paths-v5.10.03.00-ids-v4.2.3.json",
+)
 
 
 @dataclass(frozen=True)
