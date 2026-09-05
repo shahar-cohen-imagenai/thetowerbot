@@ -477,9 +477,13 @@ def test_capabilities_declare_what_this_capture_cannot_prove() -> None:
     import screen_discovery
     unproven = screen_discovery.capabilities()['unproven']
     for name in ('missions.identity_across_reordering',
-                 'missions.identity_across_ocr_jitter',
-                 'missions.shown_of_offered'):
+                 'missions.identity_across_ocr_jitter'):
         assert name in unproven and unproven[name]
+    # Retired, not forgotten: `menu_missions_claimable` reads 8/8 on a page
+    # whose eight cards span two scroll positions and whose four claimable
+    # rows would make a finished-of-offered band read 4/8. The reordering and
+    # OCR-jitter entries stay - both still rest on one recorded ordering.
+    assert 'missions.shown_of_offered' not in unproven
     # These are unverified, not unsupported: the reader really does run.
     assert not any(name in screen_discovery.capabilities()['unsupported']
                    for name in unproven)

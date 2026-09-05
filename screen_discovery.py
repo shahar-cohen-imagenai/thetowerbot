@@ -63,6 +63,36 @@ def _has_guarded_overlay(screen: Image) -> bool:
     )
 
 
+# The two measured y bands an upgrade heading occupies: the Workshop page's
+# and the in-run panel's. Shared, so that recognising a heading and refusing
+# one are the same judgement made in one place.
+_WORKSHOP_HEADING_Y = (380, 420)
+_BATTLE_HEADING_Y = (1640, 1680)
+_UPGRADE_HEADINGS = ('attackupgrades', 'defenseupgrades', 'utilityupgrades')
+
+
+def _upgrade_label(box: ocr.TextBox) -> str | None:
+    """The upgrade category this box names, or None if it names none.
+
+    An exact label, never a suffix. A mission card reading "Buy 20 battle
+    upgrades" ends in the same word and is prose, not a heading.
+    """
+    label = tiles.normalise(box.text).replace('defence', 'defense')
+    return label.removesuffix('upgrades') if label in _UPGRADE_HEADINGS else None
+
+
+def _is_upgrade_heading(box: ocr.TextBox) -> bool:
+    """Whether this box is an upgrade heading WHERE an upgrade heading sits.
+
+    Position is part of the identity. Without it this is a word match, and
+    any text anywhere on any screen can borrow a heading's meaning.
+    """
+    return (_upgrade_label(box) is not None and box.confidence >= .9
+            and 0 <= box.rect.x <= 70
+            and (_WORKSHOP_HEADING_Y[0] <= box.rect.y <= _WORKSHOP_HEADING_Y[1]
+                 or _BATTLE_HEADING_Y[0] <= box.rect.y <= _BATTLE_HEADING_Y[1]))
+
+
 def _single(boxes: tuple[ocr.TextBox, ...], label: str,
             bounds: tuple[int, int]) -> ocr.TextBox | None:
     """The one trusted box with this label inside a measured y band, or None.
@@ -89,8 +119,11 @@ def missions_count(boxes: tuple[ocr.TextBox, ...]) -> tuple[int, int] | None:
 
 def _discover_missions(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
     """Claim the Daily Missions page only on all three measured anchors."""
-    if any(tiles.normalise(b.text).replace('defence', 'defense').endswith('upgrades')
-           for b in boxes):
+    # An upgrade page must never be read as missions. Keyed on a heading at
+    # its measured place, because the missions page is FULL of prose that
+    # mentions upgrades: "Buy 20 battle upgrades" is an ordinary daily, and
+    # matching it here made the reader fail on any day it was drawn.
+    if any(_is_upgrade_heading(b) for b in boxes):
         return ScreenDiscovery(None, False, 'unsupported_layout')
     title = _single(boxes, 'dailymissions', _MISSIONS_TITLE_Y)
     banner = _single(boxes, 'weeklychallenge', _MISSIONS_BANNER_Y)
@@ -124,10 +157,14 @@ def capabilities() -> dict[str, Any]:
             'later_unlock_stage_layouts',
             'nested_account_menus', 'battle_history_export', 'native_stat_export',
             'other_locales', 'other_resolutions', 'unknown_overlays',
-            # The recorded Missions page is a zero-progress capture: nothing on
-            # it is claimable, its weekly strip runs off the right edge, and
-            # its reward icons were never separated from one another. This
-            # reader observes; it never claims a reward or names a currency.
+            # A claimable capture and the full 5..35 strip are now recorded
+            # (menu_missions_claimable and menu_missions_weekly), so the
+            # limits below are no longer about missing evidence. They are
+            # about the reader: a card whose progress bar is replaced by a
+            # CLAIM button carries no "N / M" text, so it parses as
+            # `unreadable` with no mission id at all. The reader sees that a
+            # card is there and honestly reports it cannot identify it. It
+            # observes; it never claims a reward or names a currency.
             'missions_claim_actions', 'missions_reward_currency',
             'missions_milestone_claim_state', 'missions_beyond_the_recorded_strip',
         ],
@@ -147,10 +184,6 @@ def capabilities() -> dict[str, Any]:
                 '"Kill zo0basic enemies" at confidence .9208, above the .90 '
                 'gate. A misread cannot inherit a clean mission id, but a '
                 'stable id for that mission is unproven on a single sample.',
-            'missions.shown_of_offered':
-                'That the "N/M Missions" band counts drawn-of-offered rather '
-                'than finished-of-offered is inferred from the separate '
-                'completed counter, not stated by the page.',
         },
     }
 
@@ -186,20 +219,19 @@ def discover(
         return ScreenDiscovery(None, False, 'overlay_geometry')
     if context == 'missions':
         return _discover_missions(boxes)
-    headings = [b for b in boxes if tiles.normalise(b.text).replace('defence', 'defense') in (
-        'attackupgrades', 'defenseupgrades', 'utilityupgrades')]
+    headings = [b for b in boxes if _upgrade_label(b) is not None]
     if len(headings) != 1 or headings[0].confidence < .9:
         return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')
     heading = headings[0]
-    category = tiles.normalise(heading.text).replace('defence', 'defense').removesuffix('upgrades')
+    category = _upgrade_label(heading)
     if context == 'workshop':
         titles = [b for b in boxes if tiles.normalise(b.text) == 'workshop']
         valid = (len(titles) == 1 and titles[0].confidence >= .9
                  and 230 <= titles[0].rect.y <= 270
-                 and 380 <= heading.rect.y <= 420)
+                 and _WORKSHOP_HEADING_Y[0] <= heading.rect.y <= _WORKSHOP_HEADING_Y[1])
     else:
         valid = ('workshop' not in labels
-                 and 1640 <= heading.rect.y <= 1680)
+                 and _BATTLE_HEADING_Y[0] <= heading.rect.y <= _BATTLE_HEADING_Y[1])
     if not valid or not (0 <= heading.rect.x <= 70):
         return ScreenDiscovery(None, False, 'unsupported_layout')
     screen_id = f'{context}.{category}'
