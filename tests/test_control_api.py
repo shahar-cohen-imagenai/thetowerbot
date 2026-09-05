@@ -280,3 +280,69 @@ def test_an_unknown_command_is_refused_by_the_route(wired) -> None:
 
     assert response.status_code == 422
     assert controls.drain() == ()
+
+
+# -- Collect stats transaction ---------------------------------------------
+class _FakeRunner:
+    """Only what the account routes touch: a transaction and one request gate."""
+
+    def __init__(self, error: Exception | None = None) -> None:
+        from account_collection import StatsCollection
+
+        self.collection = StatsCollection()
+        self.autopilot_state = None
+        self._error = error
+
+    def status(self) -> dict:
+        return {"running": True, "since": 1.0, "error": None}
+
+    def request_stats_collection(self) -> dict:
+        if self._error is not None:
+            raise self._error
+        self.collection.request(now=100.0)
+        return self.collection.snapshot()
+
+
+def _account_client(runner: object | None) -> TestClient:
+    from autopilot import AutopilotState
+
+    if runner is not None:
+        runner.autopilot_state = AutopilotState()
+    return TestClient(create_app(
+        state=BotState(), sse=SseSink(), bus=EventBus(), db_path=None,
+        controls=Controls(strategy=Strategy.from_config()), runner=runner,
+    ))
+
+
+def test_collecting_stats_arms_the_transaction_and_reports_it_on_the_account() -> None:
+    runner = _FakeRunner()
+    with _account_client(runner) as client:
+        assert client.get("/api/account").json()["collection"]["status"] == "idle"
+        armed = client.post("/api/account/collect").json()
+        assert armed["status"] == "running"
+        assert armed["step"] == "open_settings"
+        reported = client.get("/api/account").json()["collection"]
+        assert reported["status"] == "running"
+        assert reported["result"] is None
+
+
+@pytest.mark.parametrize("status_code,message", [
+    (409, "A stats collection is already running"),
+    (503, "Stats collection is unavailable: the OCR engine could not be built"),
+])
+def test_a_refused_collection_keeps_the_runner_s_status_code_and_reason(
+    status_code: int, message: str,
+) -> None:
+    from runner import RunnerError
+
+    with _account_client(_FakeRunner(RunnerError(message, status_code))) as client:
+        response = client.post("/api/account/collect")
+        assert response.status_code == status_code
+        assert response.json()["detail"] == message
+
+
+def test_a_backend_without_a_runner_cannot_be_asked_to_walk_the_game() -> None:
+    """Absent, not null: no runner means no transaction was ever possible."""
+    with _account_client(None) as client:
+        assert "collection" not in client.get("/api/account").json()
+        assert client.post("/api/account/collect").status_code == 412

@@ -260,7 +260,30 @@ def create_app(
 
     @app.get("/api/account")
     def account_snapshot() -> dict[str, Any]:
-        return accounts.snapshot()
+        # `collection` is absent, not null, on a backend with no runner: a
+        # browser has to tell "cannot run transactions here" apart from "no
+        # transaction has been run yet".
+        payload = accounts.snapshot()
+        collection = getattr(runner, "collection", None)
+        if collection is not None:
+            payload["collection"] = collection.snapshot()
+        return payload
+
+    @app.post("/api/account/collect")
+    def collect_stats() -> dict[str, Any]:
+        """Arm the read-only Home -> Settings -> Stats -> Home transaction.
+
+        Arms it only - the scan loop is what walks it, one verified step per
+        frame - and every refusal comes from the runner rather than being
+        re-derived here.
+        """
+        request = getattr(runner, "request_stats_collection", None)
+        if request is None:
+            raise HTTPException(412, "This backend cannot run device transactions")
+        try:
+            return request()
+        except RunnerError as exc:
+            raise HTTPException(exc.status_code, str(exc)) from None
 
     autopilot_state = runner.autopilot_state if runner is not None else AutopilotState()
     advisor_store = advisor if advisor is not None else AdvisorStore(

@@ -18,6 +18,7 @@ Usage:
 
 from __future__ import annotations
 
+from account_collection import StatsCollection
 from account_state import AccountState, AccountRepository
 from account_screens import ScreenReadings
 
@@ -94,10 +95,15 @@ class TowerBot:
         navigation_cooldown: float = config.NAVIGATION_COOLDOWN_SECONDS,
         autopilot_state: AutopilotState | None = None,
         account_state: AccountState | None = None,
+        collection: StatsCollection | None = None,
     ) -> None:
         self.account_state = account_state
         self._screen_readings = account_state.screen_readings if account_state is not None else ScreenReadings()
         self._screen_readings.reset_current()
+        # Owned by the runner when there is one, so a browser can arm a
+        # transaction the loop then walks. A bot built without one gets its
+        # own idle instance rather than an AttributeError on every scan.
+        self.collection = collection if collection is not None else StatsCollection()
         self.device = device
         self.templates = templates
         self.bus = bus
@@ -485,17 +491,59 @@ class TowerBot:
         # passive reader owns the frame before every possible action path,
         # including paused scans and an already-active shopping visit.
         screen_readings = self.account_state.screen_readings if self.account_state is not None else self._screen_readings
-        if screen_readings.scan(self.screen):
+        panel = screen_readings.scan(self.screen)
+        # Pause is the operator's stop-touching-my-device control, and this
+        # block is the one path that taps while the guard is up - so pause
+        # has to reach it. The runner already refuses to ARM a transaction on
+        # a paused bot; ending one already walking is the same rule applied
+        # at the next step boundary, before that step can act.
+        if self.collection.active and settings.paused:
+            self.collection.cancel(
+                'paused', 'The bot was paused mid-transaction; it was not resumed.')
+        # An armed Collect stats transaction owns the frame the same way a
+        # panel does, on the menu as well as on the panel itself: it is the
+        # one sanctioned exception to the guard above, and nothing else may
+        # tap while it walks. Its steps refuse to act on any frame this same
+        # scan did not identify - see account_collection.
+        if panel or self.collection.active:
             self.controls.drain()
             self.wallet = None
-            self.autopilot.suspend('Account screen observation; actions held')
+            reason, detail = (
+                ('account_screen_guard', 'Account panel or OCR error; actions held')
+                if panel else
+                ('collect_stats_transaction',
+                 'A read-only Collect stats transaction holds actions')
+            )
+            self.autopilot.suspend('Account screen observation; actions held' if panel else detail)
+            action = self.collection.advance(
+                screen=self.screen, device=self.device, templates=self.templates,
+                readings=screen_readings, state=state.value, tuning=settings.strategy,
+            )
+            # A tap nobody can find afterwards is the failure this guards
+            # against: the transaction's taps get the same Tapped event and
+            # the same overlay crosshair as every other tap path, and the
+            # "actions held" skip is published only on the scans where that
+            # is actually what happened.
             if self.frames is not None:
-                self.frames.set_boxes([])
-            self.bus.publish(events.Skipped(action='*', reason='account_screen_guard',
-                                           detail='Account panel or OCR error; actions held'))
+                self.frames.set_boxes([] if action is None else [{
+                    'name': f'collect_stats:{action.name}',
+                    'x': int(action.rect[0]) if action.rect else int(action.x),
+                    'y': int(action.rect[1]) if action.rect else int(action.y),
+                    'w': int(action.rect[2]) if action.rect else 0,
+                    'h': int(action.rect[3]) if action.rect else 0,
+                    'tap_x': int(action.x), 'tap_y': int(action.y),
+                    'score': float(action.score), 'tapped': True,
+                }])
+            if action is None:
+                self.bus.publish(events.Skipped(action='*', reason=reason, detail=detail))
+            else:
+                self.bus.publish(events.Tapped(
+                    action=f'collect_stats:{action.step}', x=action.x, y=action.y,
+                    score=action.score,
+                ))
             self.bus.publish(events.ScanCompleted(screen=state.value,
                 duration_ms=(time.monotonic() - started) * 1000, wallet=None))
-            return False
+            return action is not None
 
         # The wallet region is anchored to the IN_RUN template, so it can only
         # be read on that screen. Clear it elsewhere: a stale wallet would let

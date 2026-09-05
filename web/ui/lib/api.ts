@@ -1,4 +1,4 @@
-import type { AccountSnapshot, ConceptCatalog } from "./account";
+import type { AccountSnapshot, ConceptCatalog, StatsCollection } from "./account";
 import type {
   AdvisorSnapshot,
   AdvisorDraftResult,
@@ -212,3 +212,10 @@ export const shutdown = () => send<{ stopping: boolean }>("/api/shutdown", "POST
 
 export const fetchAccount = () => getJson<AccountSnapshot>("/api/account", { cache: "no-store" });
 export const fetchConcepts = () => getJson<ConceptCatalog>("/api/concepts");
+
+/** Arms the read-only Home -> Settings -> Stats -> Home transaction. The scan
+ *  loop walks it; this only returns the state the runner armed. A 409 means
+ *  the runner refused (already running, paused, wrong screen) and a 503 that
+ *  the reader it needs could not load - neither is queued for later. */
+export const collectStats = () =>
+  send<StatsCollection>("/api/account/collect", "POST", undefined, "lifecycle");

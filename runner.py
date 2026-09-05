@@ -20,6 +20,7 @@ pay (device.py pulls cv2 in regardless).
 
 from __future__ import annotations
 
+from account_collection import StatsCollection
 from account_state import AccountState
 
 import logging
@@ -94,6 +95,10 @@ class BotRunner:
         self._shopping = shopping
         self.autopilot_state = AutopilotState()
         self.account_state = account_state or AccountState()
+        # One transaction object for the runner's whole lifetime, handed to
+        # every bot it starts - the same reason account_state is shared. The
+        # browser arms it here; the scan loop is what walks it.
+        self.collection = StatsCollection()
 
         self._lock = threading.Lock()
         self._bot: Any | None = None
@@ -133,6 +138,30 @@ class BotRunner:
                 self._bot.autopilot.submit(command)
             except ValueError as exc:
                 raise RunnerError(str(exc), 409) from None
+
+    def request_stats_collection(self) -> dict[str, Any]:
+        """Arm one read-only Home -> Settings -> Stats -> Home transaction.
+
+        Every refusal here is about evidence the caller cannot supply
+        later: a stopped or paused loop would never walk the steps, a
+        battle is the wrong screen to leave, and a reader that could not
+        load cannot identify the panels the steps must verify. None of
+        them queues - a command the loop cannot honour now is refused, not
+        banked, exactly as request_autopilot refuses.
+        """
+        with self._lock:
+            if not self._running_locked() or self._bot is None:
+                raise RunnerError("Start the bot before collecting stats", 409)
+            unavailable = getattr(self._shopping, "disabled_reason", None)
+            if unavailable:
+                raise RunnerError(f"Stats collection is unavailable: {unavailable}", 503)
+            if self._controls.snapshot().paused:
+                raise RunnerError("Collecting stats requires an unpaused bot", 409)
+            if self._bot.screen_state.value != "MAIN_MENU":
+                raise RunnerError("Collecting stats requires a confirmed main menu", 409)
+            if not self.collection.request():
+                raise RunnerError("A stats collection is already running", 409)
+            return self.collection.snapshot()
 
     # -- lifecycle ---------------------------------------------------------
     def start(self) -> dict[str, Any]:
@@ -183,6 +212,14 @@ class BotRunner:
             self._state.reset()
             self.account_state.reset_confirmation()
             self.account_state.screen_readings.reset_current()
+            # A transaction half-walked by the previous bot must not resume
+            # under a new one: its remembered step assumes a panel the
+            # emulator may no longer be showing. Cancelling keeps the failure
+            # visible instead of silently rearming.
+            self.collection.cancel(
+                "bot_restarted",
+                "A new bot replaced the one walking this transaction; it was not resumed.",
+            )
             self.autopilot_state.clear_battle()
             self.autopilot_state.decision("idle", "Waiting for a fresh battle observation")
 
@@ -216,6 +253,7 @@ class BotRunner:
                 navigation_cooldown=strategy.navigation_cooldown,
                 autopilot_state=self.autopilot_state,
                 account_state=self.account_state,
+                collection=self.collection,
             )
 
             self._bot = bot
@@ -246,6 +284,10 @@ class BotRunner:
             # next bot must not reissue this one's run ids.
             with self._lock:
                 self.account_state.screen_readings.reset_current()
+                self.collection.cancel(
+                    "bot_stopped",
+                    "The scan loop ended before the transaction finished.",
+                )
                 self._harvest_locked(bot)
 
     def _harvest_locked(self, bot: Any) -> None:

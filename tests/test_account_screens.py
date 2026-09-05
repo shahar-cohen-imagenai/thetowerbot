@@ -276,3 +276,277 @@ def test_invalid_confidence_cannot_be_hidden_by_label_confidence(confidence: flo
     field = next(f for f in parse('stats_summary', boxes).fields if f.key == 'coins_earned')
     assert field.status == 'unreadable'
     assert field.raw_value is None
+
+
+# -- Collect stats transaction ----------------------------------------------
+# Home -> Settings -> Stats -> Home, read-only. The recorded Settings capture
+# is withheld (it shows an account identifier), so these drive the recorded
+# Settings OCR over a Stats frame: the reader identifies a panel from its OCR,
+# never from the pixels underneath, and the transaction only ever tests the
+# identity the reader published for that frame.
+def drive(bot: Any, monkeypatch: pytest.MonkeyPatch, script: list[tuple[str, Any]]) -> None:
+    """Run one scan per (fixture, ocr boxes) pair in `script`."""
+    for name, boxes in script:
+        bot._screen = any_frame(name)
+        monkeypatch.setattr(ocr, 'read', lambda *args, **kwargs: boxes)
+        bot.run_once()
+
+
+def settings_boxes(extra: tuple[ocr.TextBox, ...] = ()) -> tuple[ocr.TextBox, ...]:
+    return recorded('settings_safe') + extra
+
+
+def home() -> tuple[str, tuple[ocr.TextBox, ...]]:
+    return ('main_menu', ())
+
+
+def any_frame(name: str) -> Any:
+    """An account fixture or a menu fixture, by name."""
+    path = FIXTURES / f'{name}.png'
+    if not path.exists():
+        path = FIXTURES.parent / f'{name}.png'
+    image = cv2.imread(str(path))
+    assert image is not None, f'missing fixture: {name}.png'
+    return image
+
+
+@pytest.fixture
+def collecting(bot_on_main_menu: Any) -> Any:
+    """An armed transaction with jitter off, so tap coordinates are exact.
+
+    The transaction taps through the shared jitter helpers like every other
+    tap path; zeroing the radius here is what lets the coordinates below be
+    recomputed from the fixtures by hand. That the helpers are reached at all
+    is pinned separately, by test_transaction_taps_go_through_the_shared_jitter.
+    """
+    bot = bot_on_main_menu(Shopping(enabled=False))
+    bot.account_state = AccountState()
+    bot.controls.apply({'tap_jitter_px': 0, 'tap_delay': 0})
+    bot.collection.request(now=100.)
+    return bot
+
+
+def test_collect_stats_walks_home_settings_stats_and_home_read_only(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Success: three located taps, one per step, and a recorded reading."""
+    drive(collecting, monkeypatch, [
+        home(),                                   # tap the settings control
+        ('stats_summary', settings_boxes()),      # Settings seen: tap Stats
+        ('stats_summary', recorded('stats_summary')),  # Stats read: tap close
+        # Two home frames: the tracker debounces, so the first frame after
+        # the panel closes has not confirmed the main menu again yet.
+        home(), home(),
+    ])
+    result = collecting.collection.snapshot()
+    assert result['status'] == 'completed'
+    assert result['result']['reason'] == 'collected'
+    assert result['result']['screen_id'] == 'account.stats.summary'
+    assert result['trail'] == ['open_settings', 'open_stats', 'collect', 'confirm_home']
+    # The Stats control is tapped where THIS frame's OCR put it (664+114//2,
+    # 826+42//2); the other two are template matches on the recorded frames.
+    assert collecting.device.taps == [(1029, 373), (721, 847), (904, 508)]
+    readings = collecting.account_state.snapshot()['screen_readings']['readings']
+    assert [r['screen_id'] for r in readings] == ['account.settings', 'account.stats.summary']
+    assert not collecting.collection.active
+
+
+def test_collect_stats_stops_after_one_tap_when_settings_never_opens(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Retry budget: the step waits, then fails closed without tapping again.
+
+    Exactly as many frames as the transaction owns: the scan after it stops
+    belongs to ordinary automation again, which is free to tap BATTLE.
+    """
+    drive(collecting, monkeypatch, [home()] * 8)
+    result = collecting.collection.snapshot()
+    assert result['status'] == 'failed'
+    assert result['result']['reason'] == 'settings_not_reached'
+    assert result['result']['screen_id'] is None
+    assert collecting.device.taps == [(1029, 373)]
+
+
+def test_collect_stats_refuses_an_ambiguous_stats_control_without_tapping(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Ambiguous: two Stats candidates are not a target to choose between."""
+    duplicate = next(b for b in recorded('settings_safe') if b.text == 'Stats')
+    drive(collecting, monkeypatch, [
+        home(),
+        ('stats_summary', settings_boxes((duplicate,))),
+    ])
+    result = collecting.collection.snapshot()
+    assert result['result']['reason'] == 'stats_control_ambiguous'
+    assert collecting.device.taps == [(1029, 373)]
+
+
+def test_collect_stats_takes_no_action_from_a_screen_it_cannot_confirm(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No-action failure: an unconfirmed home never yields a first tap."""
+    collecting.tracker.state = screens.ScreenState.UNKNOWN
+    monkeypatch.setattr(screens, 'classify', lambda *_: screens.ScreenReading(
+        screens.ScreenState.UNKNOWN, 1., {'MAIN_MENU': 1.}))
+    drive(collecting, monkeypatch, [home()] * 8)
+    result = collecting.collection.snapshot()
+    assert result['status'] == 'failed'
+    assert result['result']['reason'] == 'home_not_confirmed'
+    assert collecting.device.taps == []
+
+
+def test_collect_stats_fails_closed_when_the_reader_cannot_read_the_panel(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Unreadable is not absent: an OCR error stops the transaction at once."""
+    def fail(*args: Any, **kwargs: Any) -> Any:
+        raise RuntimeError('engine gone')
+    drive(collecting, monkeypatch, [home()])
+    monkeypatch.setattr(ocr, 'read', fail)
+    collecting._screen = any_frame('stats_summary')
+    collecting.run_once()
+    result = collecting.collection.snapshot()
+    assert result['result']['reason'] == 'settings_unreadable'
+    assert 'engine gone' not in result['result']['detail']
+    assert collecting.device.taps == [(1029, 373)]
+
+
+def test_an_idle_transaction_leaves_the_passive_guard_exactly_as_it_was(
+    bot_on_main_menu: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bot = bot_on_main_menu(Shopping(enabled=False))
+    bot.account_state = AccountState()
+    drive(bot, monkeypatch, [('stats_summary', recorded('stats_summary'))])
+    assert bot.device.taps == []
+    assert bot.collection.snapshot()['status'] == 'idle'
+    assert bot.account_state.snapshot()['screen_readings']['current_screen_id'] == 'account.stats.summary'
+
+
+def test_control_targets_keep_absent_ambiguous_and_unreadable_apart() -> None:
+    from account_screens import control_targets
+    boxes = recorded('settings_safe')
+    stats = next(b for b in boxes if b.text == 'Stats')
+    assert control_targets('account.settings', boxes)['stats'].status == 'located'
+    assert control_targets('account.settings', boxes + (stats,))['stats'].status == 'ambiguous'
+    assert control_targets('account.settings', tuple(
+        replace(b, confidence=.5) if b == stats else b for b in boxes))['stats'].status == 'unreadable'
+    assert control_targets('account.settings', ())['stats'].status == 'absent'
+    # Tap targets are navigation evidence for one frame, never account facts.
+    assert control_targets('account.stats.summary', boxes) == {}
+
+
+def test_a_missing_or_ambiguous_template_is_never_tapped() -> None:
+    import numpy as np
+    from account_collection import locate_control
+    blank = np.zeros((2400, 1080, 3), dtype=np.uint8)
+    assert locate_control(blank, None, 'settings_control').status == 'unusable'
+    assert locate_control(blank, np.zeros((40, 40, 3), dtype=np.uint8),
+                          'settings_control').status == 'ambiguous'
+    assert locate_control(any_frame('menu_main'), np.full((40, 40, 3), 7, dtype=np.uint8),
+                          'settings_control').status == 'absent'
+    # A template larger than the frame, and a frame that is not the one every
+    # coordinate in this repo was measured at: both unusable, never a tap.
+    assert locate_control(blank, np.zeros((2500, 40, 3), dtype=np.uint8),
+                          'settings_control').status == 'unusable'
+    assert locate_control(np.zeros((1200, 540, 3), dtype=np.uint8),
+                          np.zeros((40, 40, 3), dtype=np.uint8),
+                          'settings_control').status == 'unusable'
+
+
+def test_an_unexamined_frame_is_never_read_as_a_clear_main_menu(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A resized emulator is unknown geometry, not an empty menu.
+
+    The screen tracker is debounced, so it still says MAIN_MENU while the
+    account reader has looked at nothing at all. That pair must not become
+    the precondition for the one tap made before a panel identity exists.
+    """
+    import numpy as np
+    monkeypatch.setattr(screens, 'classify', lambda *_: screens.ScreenReading(
+        screens.ScreenState.MAIN_MENU, 1., {'MAIN_MENU': 1.}))
+    monkeypatch.setattr(ocr, 'read', lambda *args, **kwargs: ())
+    for _ in range(8):
+        collecting._screen = np.zeros((1200, 540, 3), dtype=np.uint8)
+        collecting.run_once()
+    evidence = collecting.account_state.screen_readings.current_evidence()
+    assert evidence == {'screen_id': None, 'error': None, 'scanned': False, 'controls': {}}
+    assert collecting.collection.snapshot()['result']['reason'] == 'home_not_confirmed'
+    assert collecting.device.taps == []
+
+
+def test_a_scanned_clear_menu_is_distinguishable_from_one_never_read() -> None:
+    from account_screens import ScreenReadings
+    state = ScreenReadings()
+    assert state.current_evidence()['scanned'] is False
+    state.observe(parse('stats_summary'))
+    assert state.current_evidence()['scanned'] is True
+    state.reset_current()
+    assert state.current_evidence()['scanned'] is False
+
+
+def test_pausing_mid_walk_ends_the_transaction_before_its_next_tap(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Pause is the operator's stop control; it must reach the one path that
+    taps while the account guard holds every other action."""
+    drive(collecting, monkeypatch, [home()])
+    assert collecting.device.taps == [(1029, 373)]
+    collecting.controls.apply({'paused': True})
+    # The very frames that would otherwise have produced the remaining two taps.
+    drive(collecting, monkeypatch, [
+        ('stats_summary', settings_boxes()),
+        ('stats_summary', recorded('stats_summary')),
+    ])
+    result = collecting.collection.snapshot()
+    assert result['status'] == 'failed' and result['result']['reason'] == 'paused'
+    assert collecting.device.taps == [(1029, 373)]
+
+
+def test_every_transaction_tap_is_published_and_drawn(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A tap nobody can find afterwards is the failure being guarded against."""
+    from frames import FrameBuffer
+    import events as events_module
+    collecting.frames = FrameBuffer()
+    drive(collecting, monkeypatch, [home()])
+    # The scan that tapped leaves a crosshair on the device view, not a blank
+    # overlay: it is what an operator opens to see where the bot touched.
+    assert collecting.frames.boxes() == [{
+        'name': 'collect_stats:settings_control', 'x': 1000, 'y': 351, 'w': 58, 'h': 44,
+        'tap_x': 1029, 'tap_y': 373, 'score': pytest.approx(.994, abs=.01), 'tapped': True,
+    }]
+    drive(collecting, monkeypatch, [
+        ('stats_summary', settings_boxes()),
+        ('stats_summary', recorded('stats_summary')),
+        home(), home(),
+    ])
+    published = collecting.bus.published
+    taps = [e for e in published if isinstance(e, events_module.Tapped)]
+    assert [(e.action, e.x, e.y) for e in taps] == [
+        ('collect_stats:open_settings', 1029, 373),
+        ('collect_stats:open_stats', 721, 847),
+        ('collect_stats:collect', 904, 508),
+    ]
+    assert all(e.score >= .9 for e in taps)
+    # The scans that tapped do not also claim actions were held.
+    held = [e for e in published if isinstance(e, events_module.Skipped)
+            and e.reason == 'collect_stats_transaction']
+    assert len(held) == 2
+    assert collecting.device.taps == [(1029, 373), (721, 847), (904, 508)]
+
+
+def test_transaction_taps_go_through_the_shared_jitter(
+    collecting: Any, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import jitter
+    seen: list[tuple[int, int, float]] = []
+    real = jitter.point
+    monkeypatch.setattr('account_collection.jitter.point',
+                        lambda x, y, radius, *a: seen.append((x, y, radius)) or real(x, y, radius))
+    collecting.controls.apply({'tap_jitter_px': 8, 'tap_delay': 0})
+    drive(collecting, monkeypatch, [home()])
+    assert seen == [(1029, 373, 8)]
+    tapped = collecting.device.taps[0]
+    assert abs(tapped[0] - 1029) <= 8 * 4 and abs(tapped[1] - 373) <= 8 * 4

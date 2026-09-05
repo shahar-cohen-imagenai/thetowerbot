@@ -20,6 +20,25 @@ export interface AccountSnapshot {
   persistence_available: boolean; error: string | null; errors: { account: string | null; run: string | null };
   revision: AccountRevision | null; unknown_state: AccountRevision | null;
   screen_readings?: AccountScreenReadings;
+  /** Absent means this backend cannot walk the game at all - not "idle". */
+  collection?: StatsCollection;
+}
+export interface CollectionResult {
+  status: string; reason: string; detail: string; screen_id: string | null; finished_at: number;
+}
+export interface StatsCollection {
+  status: "idle" | "running" | "completed" | "failed";
+  step: string; requested_at: number | null; trail: string[]; result: CollectionResult | null;
+}
+/** Says what the transaction did, never what the account contains. A stopped
+ *  run reports where it stopped; it never implies a value was read. */
+export function describeCollection(collection: StatsCollection): string {
+  const step = collection.step.replace(/_/g, " ");
+  if (collection.status === "running") return `Walking the game now: ${step}. All other automation is held.`;
+  const result = collection.result;
+  if (!result) return "No collection has run this session.";
+  if (result.status === "completed") return `Last run read ${result.screen_id ?? "a Stats panel"} and returned to the main menu.`;
+  return `Last run stopped (${result.reason.replace(/_/g, " ")}). ${result.detail}`;
 }
 export interface ScreenField {
   key: string; label: string; raw_value: string | null;

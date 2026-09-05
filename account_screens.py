@@ -29,6 +29,36 @@ _TITLE = Rect(350, 460, 370, 110)
 _MIN_CONFIDENCE = .90
 _ROW_TOLERANCE = 18
 
+# The one Settings row a read-only transaction may reach for. The recorded
+# Settings capture is withheld because it also shows an account identifier,
+# so the only supported evidence is that panel's single 'Stats' OCR token at
+# (664, 826, 114, 42). These bounds are that measurement plus tolerance, not
+# a claim about the rest of the panel.
+_SETTINGS_STATS = Rect(600, 780, 250, 130)
+
+# control name -> (owning screen id, normalised label, measured bounds)
+_CONTROLS: tuple[tuple[str, str, str, Rect], ...] = (
+    ('stats', 'account.settings', 'stats', _SETTINGS_STATS),
+)
+
+
+@dataclass(frozen=True)
+class ControlTarget:
+    """Where a named control was found on ONE frame, or why it was not.
+
+    `status` keeps located, absent, ambiguous, unreadable and unusable
+    apart deliberately: a control nobody could see is not the same fact as
+    two candidates for it, and none of the four failures may become a tap.
+    """
+
+    name: str
+    point: tuple[int, int] | None
+    status: str
+    # The evidence that located it, so a tap can be published and drawn with
+    # the same numbers that justified it rather than with a bare coordinate.
+    score: float = 0.
+    rect: tuple[int, int, int, int] | None = None
+
 
 @dataclass(frozen=True)
 class ScreenField:
@@ -172,6 +202,33 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
                          hashlib.sha256(screen.tobytes()).hexdigest(), fields, tiers)
 
 
+def control_targets(screen_id: str, boxes: tuple[ocr.TextBox, ...]) -> dict[str, ControlTarget]:
+    """Tap targets derived from ONE frame's OCR, for that frame only.
+
+    Only the named controls above are ever located, so no other Settings
+    OCR - the account identifier included - leaves this module. A duplicate
+    label is ambiguous and an untrusted one is unreadable; neither yields a
+    point, and neither is reported as absence.
+    """
+    targets: dict[str, ControlTarget] = {}
+    for name, owner, label, bounds in _CONTROLS:
+        if owner != screen_id:
+            continue
+        matches = tuple(b for b in boxes if _inside(b, bounds) and _normal(b.text) == label)
+        if len(matches) > 1:
+            targets[name] = ControlTarget(name, None, 'ambiguous')
+        elif not matches:
+            targets[name] = ControlTarget(name, None, 'absent')
+        elif not _trusted(matches[0]):
+            targets[name] = ControlTarget(name, None, 'unreadable')
+        else:
+            rect = matches[0].rect
+            targets[name] = ControlTarget(
+                name, (rect.x + rect.w // 2, rect.y + rect.h // 2), 'located',
+                matches[0].confidence, (rect.x, rect.y, rect.w, rect.h))
+    return targets
+
+
 class ScreenReadings:
     """Thread-safe, bounded in-memory history; no persistence or advisor input."""
 
@@ -180,6 +237,15 @@ class ScreenReadings:
         self._current: str | None = None
         self._readings: dict[str, ScreenReading] = {}
         self._error: str | None = None
+        # Whether the last frame was actually examined. A frame this reader
+        # never looked at - the wrong geometry, or an OCR failure - yields the
+        # same (None, None) pair as a clean panel-free menu, and those are not
+        # the same fact. Anything that acts on "no panel" must require this.
+        self._scanned = False
+        # Belongs to the frame the last scan() read and to no other. Never
+        # serialized: snapshot() is the API's payload, and a tap target is
+        # navigation evidence for the scan loop, not an account observation.
+        self._controls: dict[str, ControlTarget] = {}
 
     def snapshot(self) -> dict[str, Any]:
         with self._lock:
@@ -187,13 +253,27 @@ class ScreenReadings:
                     'readings': [asdict(reading) for reading in self._readings.values()],
                     'error': self._error}
 
+    def current_evidence(self) -> dict[str, Any]:
+        """What the last frame showed, for a transaction step to check.
+
+        `scanned` False means this reader reached no conclusion about that
+        frame at all - never that the frame was clean.
+        """
+        with self._lock:
+            return {'screen_id': self._current, 'error': self._error,
+                    'scanned': self._scanned, 'controls': dict(self._controls)}
+
     def reset_current(self) -> None:
         self.observe(None)
 
-    def observe(self, reading: ScreenReading | None, *, error: str | None = None) -> None:
+    def observe(self, reading: ScreenReading | None, *, error: str | None = None,
+                controls: dict[str, ControlTarget] | None = None,
+                scanned: bool = False) -> None:
         with self._lock:
             self._current = reading.screen_id if reading is not None else None
             self._error = error
+            self._scanned = scanned or reading is not None
+            self._controls = dict(controls or {})
             if reading is not None:
                 self._readings[reading.screen_id] = reading
 
@@ -205,18 +285,28 @@ class ScreenReadings:
         """
         self.observe(None)
         observed_at = time.time()
+        # Left unscanned deliberately: every region in this module was
+        # measured at 1080x2400, so on any other frame this reader has not
+        # looked at the screen rather than found it clean.
         if screen.shape[:2] != (2400, 1080):
             return False
         try:
             crop = screen[_TITLE.y:_TITLE.y + _TITLE.h, _TITLE.x:_TITLE.x + _TITLE.w]
             titles = ocr.read(crop, strict=True, min_confidence=0.)
             if not any(_normal(b.text) in ('stats', 'settings') for b in titles):
+                # A supported frame the title reader did examine: no account
+                # panel title on it. That IS an observation, and the only one
+                # that may stand for "the menu is clear".
+                self.observe(None, scanned=True)
                 return False
             boxes = ocr.read(screen, strict=True)
             reading = parse_frame(screen, boxes, now=observed_at)
-            self.observe(reading, error=None if reading else 'Account panel could not be read reliably')
+            self.observe(reading, error=None if reading else 'Account panel could not be read reliably',
+                         controls=control_targets(reading.screen_id, boxes) if reading else None,
+                         scanned=True)
             return True
         except Exception:
             # Do not leak engine diagnostics (or arbitrary OCR) through the API.
+            # Unscanned, not clean: the frame was never read.
             self.observe(None, error='Account screen OCR failed; actions held for this scan')
             return True

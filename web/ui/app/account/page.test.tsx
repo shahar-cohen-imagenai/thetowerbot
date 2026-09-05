@@ -1,14 +1,15 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AccountPage from "./page";
-const { fetchAccount, fetchConcepts } = vi.hoisted(() => ({ fetchAccount: vi.fn(), fetchConcepts: vi.fn() }));
-vi.mock("@/lib/api", () => ({ fetchAccount, fetchConcepts }));
+const { fetchAccount, fetchConcepts, collectStats } = vi.hoisted(() => ({ fetchAccount: vi.fn(), fetchConcepts: vi.fn(), collectStats: vi.fn() }));
+vi.mock("@/lib/api", () => ({ fetchAccount, fetchConcepts, collectStats }));
 const concept = { concept_id: "stats.damage", name: "Damage", domain: "stats", kind: "stat", unit: null, execution_scopes: ["workshop"], prerequisites: null, unlocks: [], rule_verified: false };
 const unknown = { revision_id: null, registry_version: "1", account_id: null, game_version: null, workshop_stats: [], workshop_levels: null, lab_levels: null, inventory: null, effective_account_stats: null, unlocks: null, settings: null };
 const snapshot = { persistence_available: true, error: null, errors: { account: null, run: null }, revision: null, unknown_state: unknown };
 const fact = { concept_id: "stats.damage", value: 0, status: "verified", evidence: { observed_at: 1, confidence: .96, raw_name: "Damage", raw_value: "0.00", rect: [1, 2, 3, 4], frame_width: 400, frame_height: 800, frame_digest: "abc123", frame_ref: null } };
 beforeEach(() => {
   fetchAccount.mockReset().mockResolvedValue(snapshot);
+  collectStats.mockReset().mockResolvedValue({ status: "running", step: "open_settings", requested_at: 1, trail: ["open_settings"], result: null });
   fetchConcepts.mockReset().mockResolvedValue({ registry_version: "1", concepts: [concept, { ...concept, concept_id: "cards.damage", name: "Damage card", domain: "cards", kind: "card", execution_scopes: [] }] });
 });
 describe("Account inspector", () => {
@@ -67,6 +68,52 @@ describe("Account inspector", () => {
     fireEvent.change(screen.getByLabelText("Domain"), { target: { value: "cards" } });
     expect(screen.queryByText("Damage")).toBeNull();
     expect(screen.getByText("Damage card")).toBeDefined();
+  });
+  it("arms the read-only collection and reports that the bot is walking the game", async () => {
+    const idle = { status: "idle", step: "idle", requested_at: null, trail: [], result: null };
+    fetchAccount.mockResolvedValue({ ...snapshot, collection: idle });
+    render(<AccountPage />);
+    await screen.findByText("No collection has run this session.");
+    fetchAccount.mockResolvedValue({ ...snapshot, collection: { ...idle, status: "running", step: "open_stats" } });
+    fireEvent.click(screen.getByRole("button", { name: "Collect stats" }));
+    await screen.findByText("Walking the game now: open stats. All other automation is held.");
+    expect(collectStats).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Collecting…" })).toHaveProperty("disabled", true);
+  });
+  it("reports where a stopped collection stopped without implying anything was read", async () => {
+    fetchAccount.mockResolvedValue({ ...snapshot, collection: {
+      status: "failed", step: "idle", requested_at: 1, trail: ["open_settings", "open_stats"],
+      result: { status: "failed", reason: "settings_not_reached", detail: "The Settings panel was not observed.", screen_id: null, finished_at: 9 },
+    } });
+    render(<AccountPage />);
+    await screen.findByText(/Last run stopped \(settings not reached\)/);
+    expect(screen.getByText(/The Settings panel was not observed\./)).toBeDefined();
+    // A stopped run must never read as a completed one, nor as a Stats panel.
+    expect(screen.queryByText(/returned to the main menu/)).toBeNull();
+    expect(screen.getByRole("button", { name: "Collect stats" })).toHaveProperty("disabled", false);
+  });
+  it("reports a completed collection by the panel it actually read", async () => {
+    fetchAccount.mockResolvedValue({ ...snapshot, collection: {
+      status: "completed", step: "idle", requested_at: 1, trail: ["open_settings", "open_stats", "collect", "confirm_home"],
+      result: { status: "completed", reason: "collected", detail: "ok", screen_id: "account.stats.summary", finished_at: 9 },
+    } });
+    render(<AccountPage />);
+    await screen.findByText("Last run read account.stats.summary and returned to the main menu.");
+    expect(screen.getByRole("button", { name: "Collect stats" })).toHaveProperty("disabled", false);
+  });
+  it("surfaces a refusal without claiming the game was touched", async () => {
+    fetchAccount.mockResolvedValue({ ...snapshot, collection: { status: "idle", step: "idle", requested_at: null, trail: [], result: null } });
+    collectStats.mockRejectedValue(new Error("Collecting stats requires a confirmed main menu"));
+    render(<AccountPage />);
+    await screen.findByText("No collection has run this session.");
+    fireEvent.click(screen.getByRole("button", { name: "Collect stats" }));
+    await screen.findByText(/Could not start a collection: Collecting stats requires a confirmed main menu\. Nothing was tapped\./);
+  });
+  it("distinguishes a backend that cannot walk the game from an idle transaction", async () => {
+    render(<AccountPage />);
+    await screen.findByText("This backend cannot walk the game. Open Settings → Stats yourself, then refresh.");
+    expect(screen.queryByRole("button", { name: "Collect stats" })).toBeNull();
+    expect(collectStats).not.toHaveBeenCalled();
   });
   it("renders screen observations separately and retains them after failed refresh", async () => {
     fetchAccount.mockResolvedValue({ ...snapshot, screen_readings: {
