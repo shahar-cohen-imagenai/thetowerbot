@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Activity, BookOpen, ChartLine, List, Power, Receipt, SlidersHorizontal, TriangleAlert,
+  Activity, BookOpen, Contact, ChartLine, List, Power, Receipt, SlidersHorizontal, TriangleAlert,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,6 +25,7 @@ const GROUPS: { label: string; items: Item[] }[] = [
       { href: "/stats/", label: "Stats", icon: ChartLine },
       { href: "/errors/", label: "Errors", icon: TriangleAlert },
       { href: "/ledger/", label: "Ledger", icon: Receipt },
+      { href: "/account/", label: "Account", icon: Contact },
     ],
   },
   {

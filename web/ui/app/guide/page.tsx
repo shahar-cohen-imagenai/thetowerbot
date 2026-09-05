@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { SectionNav } from "@/components/SectionNav";
 import { SectionCard } from "@/components/ui/section-card";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table, TableBody, TableCell, TableRow,
 } from "@/components/ui/table";
 
 // Every number and claim here comes from the community wiki the game's
@@ -49,86 +49,9 @@ export default function GuidePage() {
         you can judge whether you agree with it.
       </p>
 
-      <SectionCard id="account" title="Where this account is" contentClassName="text-sm">
-        <p>
-          Every guide below describes upgrades this account cannot actually see
-          yet, and a guide that does not say so is misleading. Put this first.
-        </p>
-
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Measured on the live device</TableHead>
-              <TableHead>2026-09-03</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell>Coins</TableCell>
-              <TableCell>1.77K</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Gems</TableCell>
-              <TableCell>40</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Tier</TableCell>
-              <TableCell>1</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Highest wave</TableCell>
-              <TableCell>10</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-
-        <p className="text-muted-foreground">
-          The Workshop&apos;s three tabs hold almost nothing yet:
-        </p>
-
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Tab</TableHead>
-              <TableHead>What is actually there</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell>Attack</TableCell>
-              <TableCell className="whitespace-normal">
-                Damage (lvl value 3), Attack Speed (1.00), Critical Chance
-                (1.00%), Critical Factor (x1.20), and a locked Unlock Range
-                Upgrades — 50 coins
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Defense</TableCell>
-              <TableCell className="whitespace-normal">
-                Health (5), Health Regen (0.00/sec), and a locked Unlock
-                Defense Upgrades — 75 coins
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Utility</TableCell>
-              <TableCell className="whitespace-normal">
-                Nothing at all except a locked Unlock Cash Bonuses — 40 coins
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-
-        <p>
-          So Cash/Wave, Coins/Wave, Cash Bonus, Coins/Kill, Def Abs, Def% and
-          Thorns — the seven upgrades every guide below names first — do not
-          exist on this account. All seven are behind those three unlock
-          tiles, which cost 165 coins together against a balance of 1.77K.
-        </p>
-        <p className="text-muted-foreground">
-          That is why the bot&apos;s shipped buy order leads with the three
-          unlocks. It is not a clever heuristic; it is the only move that
-          makes the rest of the advice below applicable.
-        </p>
+      <SectionCard id="account" title="This account" contentClassName="text-sm">
+        <p>Check the <a href="/account/" className="text-primary underline">account inspector</a> for saved observations, source evidence, and missing inputs before applying this guide.</p>
+        <p className="text-muted-foreground">This is general community advice. Your balances, levels and unlocks must come from account observations; unknown values are not zero or locked.</p>
       </SectionCard>
 
       <SectionCard id="workshop" title="Workshop order" contentClassName="text-sm">

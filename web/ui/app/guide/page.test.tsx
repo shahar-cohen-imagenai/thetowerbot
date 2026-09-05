@@ -5,16 +5,17 @@ import GuidePage from "./page";
 describe("Guide", () => {
   it("gives the workshop order the bot actually ships with", () => {
     render(<GuidePage />);
-    expect(screen.getByText(/Unlock Cash Bonuses/)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Economy first" })).toBeInTheDocument();
     // Two paragraphs legitimately name Coins/Kill (the "what's already
     // unlocked" section and this workshop-order bullet), so a single-match
     // getByText throws here - assert at least one match instead.
     expect(screen.getAllByText(/Coins\/Kill/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("says where this account is, not just where the guides assume", () => {
+  it("directs account-specific questions to observed evidence", () => {
     render(<GuidePage />);
-    expect(screen.getByRole("heading", { name: /where this account is/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /account inspector/i })).toHaveAttribute("href", "/account/");
+    expect(screen.queryByText("2026-09-03")).toBeNull();
   });
 
   it("states what the bot will not do and why", () => {

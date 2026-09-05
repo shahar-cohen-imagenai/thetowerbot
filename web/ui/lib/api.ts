@@ -1,3 +1,4 @@
+import type { AccountSnapshot, ConceptCatalog } from "./account";
 import type {
   AdvisorSnapshot,
   AdvisorDraftResult,
@@ -208,3 +209,6 @@ export const stopBot = () => send<BotStatus>("/api/bot/stop", "POST", undefined,
  * belongs to is named here rather than described.
  */
 export const shutdown = () => send<{ stopping: boolean }>("/api/shutdown", "POST", undefined, "lifecycle");
+
+export const fetchAccount = () => getJson<AccountSnapshot>("/api/account", { cache: "no-store" });
+export const fetchConcepts = () => getJson<ConceptCatalog>("/api/concepts");
