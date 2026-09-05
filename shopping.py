@@ -18,6 +18,7 @@ from __future__ import annotations
 from account_state import AccountState
 
 import logging
+import time
 from dataclasses import dataclass, replace
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Any
@@ -28,6 +29,7 @@ import jitter
 import ocr
 import pages
 import tiles
+import transactions
 import upgrades
 import vision
 from device import Image, tap
@@ -138,6 +140,26 @@ class PendingPurchase:
     coins: int
     visible_ids: frozenset[str]
     frames: int = 0
+    # The durable row this pending answers for, when a journal is attached.
+    key: str | None = None
+
+
+@dataclass
+class PendingCard:
+    """A card tap waiting for the gem balance to answer for it.
+
+    Separate from PendingPurchase, which is typed to a workshop row and is
+    confirmed by that row changing. A card batch leaves no row behind - the
+    button looks identical before and after - so the only evidence a card
+    was actually opened is that the gems fell by what it cost.
+    """
+
+    item: str
+    price: int
+    gems_before: int
+    frames: int = 0
+    # The durable row this pending answers for, when a journal is attached.
+    key: str | None = None
 
 
 @dataclass
@@ -164,7 +186,13 @@ class ShoppingSession:
         reader: NumberReader,
         threshold: float = 0.8,
         disabled_reason: str | None = None,
+        journal: transactions.TransactionJournal | None = None,
     ) -> None:
+        # The durable half of every spend. Optional because the visit logic
+        # is fully testable without a database, and a session built without
+        # one simply keeps no crash-proof record - it does not behave
+        # differently while the process lives.
+        self.journal = journal
         self.account_state: AccountState | None = None
         self._templates = templates
         self._bus = bus
@@ -213,6 +241,7 @@ class ShoppingSession:
         self._blind_streak = 0
         self.observations: AutopilotState | None = None
         self._pending: PendingPurchase | None = None
+        self._pending_card: PendingCard | None = None
         self._search: RowSearch | None = None
         self._coin_spent = 0
         # Permanent unlock evidence outlives an individual shopping visit.
@@ -272,6 +301,12 @@ class ShoppingSession:
         self._spent = 0
         self._coin_spent = 0
         self._pending = None
+        self._pending_card = None
+        # Deliberately NOT resolving open transactions here, unlike reset()
+        # and _end_visit(). Those close what this process opened; a row
+        # still open at the START of a visit was opened by a process that
+        # died, and clearing it on the way in would throw away the one
+        # record that stops its tap from being paid for twice.
         self._search = None
         self._cards_bought = 0
         self._exhausted = set()
@@ -297,6 +332,8 @@ class ShoppingSession:
         self._step = Step.IDLE
         self._categories = []
         self._pending = None
+        self._pending_card = None
+        self._resolve_open_transactions()
         self._search = None
 
     # -- one step ------------------------------------------------------------
@@ -625,6 +662,19 @@ class ShoppingSession:
         if self._pending is not None:
             self._confirm_purchase(observation, coins, device, shopping, screen)
             return
+        # An attempt on disk that no live pending answers for: the process
+        # that made it died between the tap and its confirmation. Those
+        # coins may already be gone, and nothing readable from here can
+        # say. The only safe move is not to tap.
+        stale = self._unanswered_transaction()
+        if stale is not None:
+            self._bus.publish(events.PurchaseSkipped(
+                item=stale.item, reason="unreconciled",
+                detail="an earlier attempt was never confirmed",
+                coins_before=coins,
+            ))
+            self._step = self._next_after_categories(shopping)
+            return
         rules = [r for r in shopping.rows_for(category) if r.name not in self._exhausted]
         if not rules:
             self._categories.pop(0)
@@ -689,11 +739,20 @@ class ShoppingSession:
                                                     detail=detail, coins_before=coins))
             self._exhausted.add(rule.name)
             return
+        intent = self._open_intent(
+            item=seen.name, category=seen.category, currency="coins",
+            price=seen.price, wallet_before=coins, armed=shopping.armed,
+        )
         if not self._try_tap(*seen.tap, device, shopping, screen):
+            self._abandon_intent(intent, "the tap was never sent")
             return
+        self._mark_acted(intent)
         self._exhausted.add(rule.name)
         if shopping.armed:
-            self._pending = PendingPurchase(seen, coins, frozenset(r.upgrade_id for r in visible))
+            self._pending = PendingPurchase(
+                seen, coins, frozenset(r.upgrade_id for r in visible),
+                key=intent.key if intent is not None else None,
+            )
             if self.observations is not None:
                 self.observations.decision("verifying", f"Confirming Workshop purchase: {seen.name}", seen.upgrade_id)
         else:
@@ -737,11 +796,16 @@ class ShoppingSession:
                 self.observations.observe(replace(observation, rows=(*observation.rows, confirmed)))
             if unlocked:
                 self._completed_unlocks.add(before.upgrade_id)
+            self._close(pending.key, wallet_after=coins, effect_changed=True)
             self._record_purchase(before, pending.coins, dry_run=False, verified=confirmed)
             self._pending = None
             return
         pending.frames += 1
         if pending.frames >= 3:
+            # The row did not change within the window. Whether the coins
+            # moved anyway is exactly what is not known, so the journal
+            # records that and claims nothing further.
+            self._close(pending.key, wallet_after=coins, effect_changed=None)
             self._bus.publish(events.PurchaseSkipped(item=before.name, reason="unconfirmed",
                                                     detail="purchase did not produce a readable change"))
             if self.observations is not None:
@@ -807,6 +871,27 @@ class ShoppingSession:
             self._abort(device, shopping, screen, "unreadable balance")
             return
 
+        # A tap already went out and has not been answered for. Nothing else
+        # in this step may run until it is - buying again while the first
+        # purchase is unproven is how one tap becomes two.
+        if self._pending_card is not None:
+            self._confirm_card(gems, device, shopping, screen)
+            return
+
+        # An attempt on disk that no live pending answers for: the process
+        # that made it died between the tap and its confirmation. Those gems
+        # may already be spent, and nothing readable from here can say. The
+        # only safe move is not to tap.
+        stale = self._unanswered_transaction()
+        if stale is not None:
+            self._bus.publish(events.PurchaseSkipped(
+                item=stale.item, reason="unreconciled",
+                detail="an earlier attempt was never confirmed",
+                gems_before=gems,
+            ))
+            self._step = Step.RETURN
+            return
+
         item = cards.batch
         template_path = config.CARD_BUTTONS[item]
         match = vision.locate_template(screen, self._templates.get(template_path), self._threshold)
@@ -849,9 +934,108 @@ class ShoppingSession:
             return
 
         x, y = match.center
+        # Written BEFORE the tap, which is the only ordering that helps: a
+        # journal entry made afterwards is lost by exactly the crash it
+        # exists to survive.
+        intent = self._open_intent(
+            item=item, category="CARDS", currency="gems", price=price,
+            wallet_before=gems, armed=shopping.armed,
+        )
         if not self._try_tap(x, y, device, shopping, screen):
+            self._abandon_intent(intent, "the tap was never sent")
             return
+        self._mark_acted(intent)
 
+        if shopping.armed:
+            # The tap is now a question, not a result. _confirm_card answers
+            # it off the next frame's gem balance.
+            self._pending_card = PendingCard(
+                item=item, price=price, gems_before=gems,
+                key=intent.key if intent is not None else None,
+            )
+        else:
+            # A rehearsal never tapped, so no balance will ever move and
+            # there is nothing to confirm. Mirrors the workshop path, which
+            # records an unarmed purchase immediately for the same reason.
+            self._record_card(item, price, gems, dry_run=True)
+
+    # -- the durable journal ------------------------------------------------
+
+    def _unanswered_transaction(self) -> transactions.Transaction | None:
+        """An attempt on disk that this process cannot account for.
+
+        In a living session every attempt is opened, acted on and resolved
+        inside one step, so the only way one is found still open here is
+        that the process which made it died before it could be answered.
+        """
+        if self.journal is None:
+            return None
+        still_open = self.journal.open_transactions()
+        return still_open[0] if still_open else None
+
+    def _open_intent(
+        self, *, item: str, category: str, currency: str, price: int,
+        wallet_before: int, armed: bool,
+    ) -> transactions.Transaction | None:
+        """Record what is about to be attempted. None when nothing will be.
+
+        A rehearsal writes nothing: it sends no tap, so there is no window
+        for a crash to fall into and nothing for a later process to
+        reconcile.
+        """
+        if self.journal is None or not armed:
+            return None
+        return self.journal.open(transactions.Intent(
+            item=item, category=category, currency=currency, price=price,
+            wallet_before=wallet_before, ts=time.time(),
+        ))
+
+    def _mark_acted(self, intent: transactions.Transaction | None) -> None:
+        if self.journal is not None and intent is not None:
+            self.journal.record_action(intent.key, at=time.time())
+
+    def _abandon_intent(
+        self, intent: transactions.Transaction | None, reason: str
+    ) -> None:
+        """Close an intent whose device action was never sent.
+
+        Nothing moved, so this resolves cleanly rather than being left for
+        a restart to puzzle over.
+        """
+        if self.journal is not None and intent is not None:
+            self.journal.resolve(
+                intent.key, wallet_after=intent.wallet_before,
+                effect_changed=False, ts=time.time(),
+            )
+            logger.debug("intent for %s abandoned: %s", intent.item, reason)
+
+    def _close(
+        self, key: str | None, *, wallet_after: int | None,
+        effect_changed: bool | None,
+    ) -> None:
+        """Answer one journalled attempt with the evidence that followed."""
+        if self.journal is not None and key is not None:
+            self.journal.resolve(
+                key, wallet_after=wallet_after, effect_changed=effect_changed,
+                ts=time.time(),
+            )
+
+    def _resolve_open_transactions(self, wallet_after: int | None = None) -> None:
+        """Close whatever this visit left open, honestly.
+
+        Called when a visit ends by any route. Without evidence the verdict
+        is UNPROVEN, which is the true answer and also keeps the next visit
+        from being refused forever by a row nobody will ever answer.
+        """
+        if self.journal is None:
+            return
+        for txn in self.journal.open_transactions():
+            self.journal.resolve(
+                txn.key, wallet_after=wallet_after, effect_changed=None,
+                ts=time.time(),
+            )
+
+    def _record_card(self, item: str, price: int, gems: int, *, dry_run: bool) -> None:
         self._cards_bought += 1
         self._bought += 1
         self._spent += price
@@ -861,8 +1045,43 @@ class ShoppingSession:
             # here rather than being reused for the wrong currency (see
             # events.Purchased's own docstring).
             item=item, category="CARDS", price=price, gems_before=gems,
-            dry_run=not shopping.armed,
+            dry_run=dry_run,
         ))
+
+    def _confirm_card(self, gems: int, device: Any, shopping: Shopping,
+                      screen: Image) -> None:
+        """Answer an outstanding card tap from the gem balance.
+
+        The evidence is a fall of exactly the price. A smaller fall, no
+        fall, or a rise all leave it unproven: gems arrive from missions
+        and rewards at any moment, so "the balance is lower" on its own
+        does not name this purchase as the cause.
+        """
+        pending = self._pending_card
+        if gems == pending.gems_before - pending.price:
+            self._pending_card = None
+            self._close(pending.key, wallet_after=gems, effect_changed=True)
+            self._record_card(pending.item, pending.price, pending.gems_before,
+                              dry_run=False)
+            return
+
+        pending.frames += 1
+        if pending.frames >= 3:
+            self._pending_card = None
+            # The gems did not move as predicted and the frames ran out.
+            # Whether they moved for some other reason is exactly what is
+            # not known, so the journal records that and nothing more.
+            self._close(pending.key, wallet_after=gems, effect_changed=None)
+            self._bus.publish(events.PurchaseSkipped(
+                item=pending.item, reason="unconfirmed",
+                detail="card purchase did not move the gem balance",
+                gems_before=gems,
+            ))
+            # Aborting rather than moving on, exactly as an unconfirmed
+            # workshop purchase does: the gems may in fact be gone, and a
+            # visit that cannot tell has no business tapping again.
+            self._abort(device, shopping, screen,
+                        "card purchase acknowledgement was inconclusive")
 
     # -- tapping and ending ------------------------------------------------
 
@@ -945,4 +1164,6 @@ class ShoppingSession:
         self._step = Step.IDLE
         self._categories = []
         self._pending = None
+        self._pending_card = None
+        self._resolve_open_transactions()
         self._search = None

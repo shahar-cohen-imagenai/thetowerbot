@@ -88,6 +88,31 @@ CREATE TABLE IF NOT EXISTS ledger (
 CREATE UNIQUE INDEX IF NOT EXISTS ledger_seq_idx  ON ledger(seq) WHERE seq IS NOT NULL;
 CREATE INDEX IF NOT EXISTS ledger_ts_idx   ON ledger(ts);
 CREATE INDEX IF NOT EXISTS ledger_kind_idx ON ledger(kind);
+
+-- Written BEFORE the device action it describes, which is the whole point:
+-- a row here is the only thing that outlives a process that dies between
+-- the tap and its confirmation. `ledger` records what provably happened;
+-- this records what was attempted, so a restart can tell the difference
+-- between "never tapped" and "tapped, outcome unknown".
+CREATE TABLE IF NOT EXISTS transactions (
+    key           TEXT PRIMARY KEY,
+    ts            REAL NOT NULL,
+    stage         TEXT NOT NULL,
+    item          TEXT NOT NULL,
+    category      TEXT,
+    currency      TEXT,
+    price         INTEGER,
+    wallet_before INTEGER,
+    evidence      TEXT,
+    acted_at      REAL,
+    resolved_at   REAL,
+    outcome       TEXT,
+    spent         INTEGER,
+    detail        TEXT
+);
+
+CREATE INDEX IF NOT EXISTS transactions_stage_idx ON transactions(stage);
+CREATE INDEX IF NOT EXISTS transactions_ts_idx    ON transactions(ts);
 """
 
 

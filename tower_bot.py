@@ -51,6 +51,7 @@ import ledger
 import ocr
 import screens
 import speed
+import transactions
 import vision
 from affordability import (
     AffordabilityCheck,
@@ -1102,7 +1103,12 @@ def build_shopping(
             disabled_reason,
         )
 
-    return ShoppingSession(templates, bus, reader, disabled_reason=disabled_reason)
+    return ShoppingSession(
+        templates, bus, reader, disabled_reason=disabled_reason,
+        # The journal owns a path rather than a connection, so a session
+        # built here is still usable from the scan-loop thread.
+        journal=transactions.TransactionJournal(config.DB_PATH),
+    )
 
 
 def print_debug_scores(screen: Image, templates: vision.TemplateCache) -> None:
