@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { SectionCard } from "@/components/ui/section-card";
-import { fetchAccount, fetchConcepts } from "@/lib/api";
-import { ACCOUNT_SECTIONS, evidenceAge, readerSupported } from "@/lib/account";
-import type { AccountConcept, AccountFact, AccountSection, AccountSnapshot, ConceptCatalog } from "@/lib/account";
+import { collectStats, fetchAccount, fetchConcepts } from "@/lib/api";
+import { ACCOUNT_SECTIONS, describeCollection, evidenceAge, readerSupported } from "@/lib/account";
+import type { AccountConcept, AccountFact, AccountSection, AccountSnapshot, ConceptCatalog, StatsCollection } from "@/lib/account";
 import { ScreenReadings } from "./ScreenReadings";
 
 const date = (seconds: number) => new Date(seconds * 1000).toLocaleString();
@@ -27,6 +27,29 @@ function FactEvidence({ fact, concept, now }: { fact: AccountFact; concept?: Acc
       <div><dt className="text-foreground">Frame image</dt><dd>{evidence.frame_ref ? `Reference: ${evidence.frame_ref}` : "Image not retained; digest and OCR evidence only."}</dd></div>
     </dl>
   </details>;
+}
+
+/** Arms the read-only Settings -> Stats walk. Deliberately not a Refresh:
+ *  this moves the emulator, so it says so, reports where a stopped run
+ *  stopped, and never claims a value was read. */
+function CollectStats({ collection, onArmed }: { collection?: StatsCollection; onArmed: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const running = collection?.status === "running";
+  return <SectionCard title="Collect stats" tone={collection?.result?.status === "failed" ? "warn" : undefined}>
+    <p className="text-sm text-muted-foreground">A read-only transaction: the bot opens Settings, reads the Stats panel and returns to the main menu. It buys nothing and changes nothing in the game, and it holds all other automation while it walks.</p>
+    {!collection
+      ? <p className="mt-3 text-sm">This backend cannot walk the game. Open Settings → Stats yourself, then refresh.</p>
+      : <>
+        <p className="mt-3 text-sm">{describeCollection(collection)}</p>
+        <button disabled={busy || running}
+          onClick={() => { setBusy(true); setError(null); collectStats().then(onArmed).catch((e: Error) => setError(e.message)).finally(() => setBusy(false)); }}
+          className="mt-3 rounded-md border px-3 py-2 text-sm disabled:opacity-50">
+          {running ? "Collecting…" : busy ? "Starting…" : "Collect stats"}
+        </button>
+      </>}
+    {error && <p role="alert" className="mt-3 text-sm text-danger">Could not start a collection: {error}. Nothing was tapped.</p>}
+  </SectionCard>;
 }
 
 export default function AccountPage() {
@@ -73,6 +96,7 @@ export default function AccountPage() {
         <SectionCard title="Account identity"><p>{state?.account_id ?? "Unknown account"}</p><p className="text-xs text-muted-foreground">Game version: {state?.game_version ?? "unknown"}</p><p className="break-all text-xs text-muted-foreground">Registry: {state?.registry_version ?? "unknown"}</p></SectionCard>
         <SectionCard title="Reader capability"><p>Saved Workshop values</p><p className="text-xs text-muted-foreground">{account.persistence_available ? "Persistence available" : "Persistence unavailable"}. {account.screen_readings ? "Settings and Stats screen observations are available separately for this session." : "Other permanent readers have no supported ingestion in this account API."}</p></SectionCard>
       </div>
+      <CollectStats collection={account.collection} onArmed={() => setReload(n => n + 1)} />
       <ScreenReadings data={account.screen_readings} />
       <SectionCard title="Missing optimizer inputs" tone="warn">
         <p className="text-sm text-muted-foreground">Unknown does not mean locked, unavailable in the game, or zero. Catalog membership does not prove ownership or execution support.</p>

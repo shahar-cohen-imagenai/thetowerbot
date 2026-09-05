@@ -417,3 +417,99 @@ def test_screen_reading_lifecycle_retains_history_without_stale_current(runner_p
     snapshot = state.snapshot()
     assert snapshot['current_screen_id'] is None
     assert snapshot['readings'][0]['observed_at'] == 123.
+
+
+# -- Collect stats transaction ---------------------------------------------
+class _MenuBot(FakeBot):
+    """A FakeBot that reports a screen, the way request_stats_collection asks."""
+
+    screen: str = "MAIN_MENU"
+
+    @property
+    def screen_state(self) -> Any:
+        return type("S", (), {"value": self.screen})()
+
+
+@pytest.fixture
+def menu_runner(runner_parts) -> tuple[BotRunner, list]:
+    runner, made, _, _, _ = runner_parts
+    runner._bot_factory = lambda **kwargs: made.append(_MenuBot(**kwargs)) or made[-1]
+    return runner, made
+
+
+def test_collect_stats_is_refused_until_a_running_unpaused_bot_is_on_the_menu(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    runner, made = menu_runner
+    with pytest.raises(RunnerError) as stopped:
+        runner.request_stats_collection()
+    assert stopped.value.status_code == 409
+    runner.start()
+    try:
+        made[-1].screen = "IN_RUN"
+        with pytest.raises(RunnerError) as battling:
+            runner.request_stats_collection()
+        assert battling.value.status_code == 409
+        made[-1].screen = "MAIN_MENU"
+        runner._controls.apply({"paused": True})
+        with pytest.raises(RunnerError) as held:
+            runner.request_stats_collection()
+        assert held.value.status_code == 409
+        assert not runner.collection.active
+        runner._controls.apply({"paused": False})
+        assert runner.request_stats_collection()["status"] == "running"
+        # Never queued: a second request is refused, not banked behind the first.
+        with pytest.raises(RunnerError) as busy:
+            runner.request_stats_collection()
+        assert busy.value.status_code == 409
+        assert runner.collection.active
+    finally:
+        runner.stop()
+
+
+def test_collect_stats_is_unavailable_when_the_reader_could_not_load(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """Unavailable is 503 and distinct from a refusal: nothing is armed."""
+    runner, _ = menu_runner
+    runner._shopping = ShoppingSession(object(), None, digits.NumberReader(),
+                                       disabled_reason="the OCR engine could not be built")
+    runner.start()
+    try:
+        with pytest.raises(RunnerError) as unavailable:
+            runner.request_stats_collection()
+        assert unavailable.value.status_code == 503
+        assert "OCR engine" in str(unavailable.value)
+        assert not runner.collection.active
+        assert runner.collection.snapshot()["status"] == "idle"
+    finally:
+        runner.stop()
+
+
+def test_a_restart_cancels_a_half_walked_transaction_and_lets_a_retry_start(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    runner, _ = menu_runner
+    runner.start()
+    runner.request_stats_collection()
+    runner.stop()
+    ended = runner.collection.snapshot()
+    assert ended["status"] == "failed" and ended["result"]["reason"] == "bot_stopped"
+    runner.start()
+    try:
+        # The failure is not resumed, and it does not block the next attempt.
+        assert not runner.collection.active
+        assert runner.request_stats_collection()["status"] == "running"
+    finally:
+        runner.stop()
+
+
+def test_every_bot_is_handed_the_runner_s_own_transaction(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    runner, made = menu_runner
+    runner.start()
+    runner.stop()
+    runner.start()
+    runner.stop()
+    assert [bot.kwargs["collection"] for bot in made] == [runner.collection] * 2
