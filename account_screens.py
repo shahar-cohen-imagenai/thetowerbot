@@ -29,11 +29,12 @@ _TITLE = Rect(350, 460, 370, 110)
 _MIN_CONFIDENCE = .90
 _ROW_TOLERANCE = 18
 
-# The one Settings row a read-only transaction may reach for. The recorded
-# Settings capture is withheld because it also shows an account identifier,
-# so the only supported evidence is that panel's single 'Stats' OCR token at
-# (664, 826, 114, 42). These bounds are that measurement plus tolerance, not
-# a claim about the rest of the panel.
+# The one Settings row a read-only transaction may reach for. The measurement
+# behind these bounds is that panel's single 'Stats' OCR token at
+# (664, 826, 114, 42), plus tolerance - not a claim about the rest of the
+# panel. A redacted capture of the panel is now recorded as
+# settings_redacted.png, with the account identifier painted out of the image
+# itself; the unredacted capture stays out of the repository.
 _SETTINGS_STATS = Rect(600, 780, 250, 130)
 
 # control name -> (owning screen id, normalised label, measured bounds)

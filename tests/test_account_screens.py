@@ -5,8 +5,10 @@ Stats PNG/OCR captured September 5, 2026, 08:46:51 UTC (summary) and
 summary cdcc34514b3e6a9d42d22049e294883f5667e2f079f5741f6119f7567cb29385;
 tiers 25ddf0b0f27c5ee2f9e57d8170d3a04a3f5a9d1efad5f272f4fd4523e26ce44e.
 JSON retains OCR confidence/native bounds; missing zeros are not reconstructed.
-Settings fixture contains only safe SETTINGS/Stats/version OCR tokens. Its image
-and other OCR are excluded because they contain an account identifier. Aggregate
+settings_safe contains only safe SETTINGS/Stats/version OCR tokens; the matching
+unredacted image and its other OCR are excluded because they carry an account
+identifier. settings_redacted is a later capture of the same panel with that
+identifier painted out of the image, so its PNG is kept and read. Aggregate
 history and tier rows establish neither upgrade levels nor unlocks. Runtime frame
 digests hash decoded BGR pixels, distinct from these PNG file digests.
 """
@@ -550,3 +552,82 @@ def test_transaction_taps_go_through_the_shared_jitter(
     assert seen == [(1029, 373, 8)]
     tapped = collecting.device.taps[0]
     assert abs(tapped[0] - 1029) <= 8 * 4 and abs(tapped[1] - 373) <= 8 * 4
+
+
+# --- The nested Settings -> Stats menu --------------------------------------
+#
+# settings_redacted is the first Settings *image* that may be kept: the account
+# identifier is painted out of the capture itself, so the panel's geometry can
+# be checked rather than only its safe OCR tokens.
+#
+# stats_summary_early and stats_tiers_early were recorded later than the
+# originals and parse to exactly the same values. They are deliberately NOT
+# treated here as a second unlock stage - screen_discovery's stage table
+# excludes them for that reason - but they do show the reader returning the
+# same reading from a separate capture of the same panel.
+
+@pytest.mark.parametrize('name,screen_id', [
+    ('stats_summary_early', 'account.stats.summary'),
+    ('stats_tiers_early', 'account.stats.tiers'),
+    ('settings_redacted', 'account.settings'),
+])
+def test_each_recorded_account_panel_resolves_its_own_screen_id(
+    name: str, screen_id: str,
+) -> None:
+    assert parse(name).screen_id == screen_id
+
+
+@pytest.mark.parametrize('later,original', [
+    ('stats_summary_early', 'stats_summary'),
+    ('stats_tiers_early', 'stats_tiers'),
+])
+def test_a_separate_capture_of_one_panel_reads_the_same_values(
+    later: str, original: str,
+) -> None:
+    """Same panel, different capture, same reading - and no value invented.
+
+    Asserting the equality is what keeps these fixtures from being mistaken
+    for a second unlock stage somewhere down the line: if a future capture
+    really did come from a younger account, this test would fail and say so.
+    """
+    first, second = parse(original), parse(later)
+    assert {f.key: f.raw_value for f in first.fields} == {f.key: f.raw_value for f in second.fields}
+    assert len(first.tiers) == len(second.tiers)
+    assert all(f.raw_value is not None or f.status != 'observed' for f in second.fields)
+
+
+def test_the_early_summary_keeps_a_missing_value_missing() -> None:
+    fields = {f.key: f for f in parse('stats_summary_early').fields}
+    assert fields['cells_earned_per_hour'].status == 'insufficient_data'
+    assert fields['cells_earned_per_hour'].raw_value == 'Need More Data'
+
+
+def test_the_tier_table_is_read_without_row_positions() -> None:
+    result = parse('stats_tiers_early')
+    assert result.tiers
+    assert parse('stats_tiers_early', tuple(reversed(recorded('stats_tiers_early')))) == result
+
+
+def test_the_stats_control_exists_only_on_the_settings_panel() -> None:
+    """The nested menu, stated as the two facts that keep it safe.
+
+    Settings offers a way into Stats; a Stats panel does not offer a way into
+    itself. 'absent' is the honest answer on the inner screens, and it is not
+    the same answer as 'ambiguous' or 'unreadable' - none of which may become
+    a tap.
+    """
+    import account_screens
+    located = account_screens.control_targets('account.settings', recorded('settings_redacted'))
+    assert located['stats'].status == 'located'
+    assert located['stats'].point is not None
+    for name in ('stats_summary_early', 'stats_tiers_early'):
+        inner = account_screens.control_targets('account.settings', recorded(name))
+        assert inner['stats'].status == 'absent'
+        assert inner['stats'].point is None
+
+
+def test_the_redacted_settings_capture_carries_no_account_identifier() -> None:
+    """The reason this image may be kept at all, asserted rather than assumed."""
+    texts = {b.text.strip() for b in recorded('settings_redacted')}
+    assert 'Stats' in texts
+    assert not any(t.startswith('PRIVATE') for t in texts)

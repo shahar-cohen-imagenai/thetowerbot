@@ -2,9 +2,12 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import cv2
+import pytest
 
+import config
 from tests.test_perception import recorded
 
 
@@ -162,3 +165,58 @@ def test_urgent_survival_precedes_discovering_unseen_economy() -> None:
     bot.step(frame, device, policy, cash=100, observation=observation)
     assert bot.pending is not None
     assert bot.pending[0].upgrade_id == "defense_absolute"
+
+
+# --- The in-run tab bar ------------------------------------------------------
+#
+# battle_tab_point is the one place in the bot that turns a category into a
+# coordinate by index arithmetic rather than by reading something. That is safe
+# only while the guard in front of it holds, and the guard had no test.
+
+def _tab_bar(boundaries: tuple[int, ...]) -> Any:
+    """A dark frame with a bright cell border at each given x."""
+    import numpy as np
+    w, h = config.EXPECTED_RESOLUTION
+    frame = np.zeros((h, w, 3), dtype=np.uint8)
+    for x in boundaries:
+        frame[h - 80:h - 20, max(0, x - 2):min(w, x + 3)] = 255
+    return frame
+
+
+@pytest.mark.parametrize('category,expected_x', [
+    ('ATTACK', 180), ('DEFENSE', 540), ('UTILITY', 900),
+])
+def test_three_cells_give_each_category_its_own_centre(category: str, expected_x: int) -> None:
+    import autopilot
+    w, h = config.EXPECTED_RESOLUTION
+    frame = _tab_bar((0, w // 3, 2 * w // 3, w - 1))
+    assert autopilot.battle_tab_point(frame, category) == (expected_x, h - 50)
+
+
+def test_a_fourth_tab_fails_closed_instead_of_tapping_the_wrong_one() -> None:
+    """The failure the acceptance gate names, at the tab bar.
+
+    With four cells the thirds are no longer borders, so the index would point
+    into the middle of a cell that is not the one asked for. Returning None
+    holds the action; returning a coordinate would buy on the wrong tab.
+    """
+    import autopilot
+    w, _ = config.EXPECTED_RESOLUTION
+    frame = _tab_bar((0, w // 4, w // 2, 3 * w // 4, w - 1))
+    for category in ('ATTACK', 'DEFENSE', 'UTILITY'):
+        assert autopilot.battle_tab_point(frame, category) is None
+
+
+def test_an_unknown_category_and_a_wrong_resolution_are_both_refused() -> None:
+    import autopilot
+    import numpy as np
+    w, h = config.EXPECTED_RESOLUTION
+    good = _tab_bar((0, w // 3, 2 * w // 3, w - 1))
+    assert autopilot.battle_tab_point(good, 'ULTIMATE') is None
+    assert autopilot.battle_tab_point(np.zeros((h, w // 2, 3), dtype=np.uint8), 'ATTACK') is None
+
+
+def test_a_blank_tab_bar_is_refused() -> None:
+    """No visible cell borders is not evidence of three cells."""
+    import autopilot
+    assert autopilot.battle_tab_point(_tab_bar(()), 'ATTACK') is None

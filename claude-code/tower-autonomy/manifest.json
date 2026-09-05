@@ -6,17 +6,24 @@
     "B01",
     "B02",
     "B03",
+    "B04",
     "E01",
     "O01"
   ],
   "next_ready_task_ids": [
-    "B04"
+    "B05",
+    "B08",
+    "C01",
+    "C03",
+    "F01",
+    "L01",
+    "U01"
   ],
   "counts": {
     "total": 63,
-    "completed": 5,
-    "remaining": 58,
-    "partial_remaining": 19,
+    "completed": 6,
+    "remaining": 57,
+    "partial_remaining": 18,
     "not_started": 39
   },
   "domains": {
@@ -225,14 +232,14 @@
       "id": "B04",
       "domain": "foundation",
       "title": "Discover all supported screens and rows",
-      "status": "partial",
+      "status": "completed",
       "depends_on": [
         "B02",
         "B03"
       ],
       "work": "Generalize OCR navigation to menus, nested tabs, scroll lists, popups and account readers; use available in-game Battle History/stat exports; validate screen geometry and locale; distinguish locked, unseen, unavailable, maxed and unreadable.",
       "acceptance": "Recorded screens across supported unlock stages resolve stable IDs without fixed row ordering; new tabs do not shift a purchase to a different target.",
-      "ready": true,
+      "ready": false,
       "task_file": "tasks/B04.md"
     },
     {
@@ -246,7 +253,7 @@
       ],
       "work": "Introduce durable intent, preconditions, one device action, confirmation and reconciliation. Correlate wallet, level/inventory and UI acknowledgement; separate free upgrades and passive income from purchased effects.",
       "acceptance": "A crash after a successful tap does not buy twice; a free upgrade does not falsely confirm a cash purchase; card opening is not logged as bought without evidence.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/B05.md"
     },
     {
@@ -288,7 +295,7 @@
       ],
       "work": "Extend OCR fixtures with before/after action sequences and account snapshots for each supported subsystem, ambiguous reads, expensive confirmations, overlays and late-game layouts.",
       "acceptance": "Each enabled capability has positive, unavailable and ambiguous-state examples plus a reproducible focused verification command; unsupported capabilities remain disabled.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/B08.md"
     },
     {
@@ -302,7 +309,7 @@
       ],
       "work": "Read wave, tier, game speed, elapsed time, health/recovery/wall state, enemy damage and modifiers, perks, cash, UW/card state and run purpose as separate observations.",
       "acceptance": "The planner detects a changed run/build and expires cached rows; decision-critical missing HUD values prevent the affected action instead of defaulting to zero.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/F01.md"
     },
     {
@@ -437,7 +444,7 @@
       ],
       "work": "Read lab ownership, unlocked research, exact levels/costs/durations, active jobs, queues, speeds and acceleration state; model unlock milestones.",
       "acceptance": "All owned lab slots and active completions survive a restart; an unseen lab is not assumed unresearched.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/L01.md"
     },
     {
@@ -497,7 +504,7 @@
       ],
       "work": "Inventory card identities, copies, levels, unlocked/equipped slots, presets, in-run locks and mastery ownership; distinguish passive bonuses from active abilities.",
       "acceptance": "Exact equipped cards and available slots are known before calculating effective stats; missing card observations remain explicit.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/C01.md"
     },
     {
@@ -527,7 +534,7 @@
       ],
       "work": "Inventory Cannon/Armor/Generator/Core and assist modules, equipped slots, levels, rarity, stars, unique effects, subeffects, shards, original natural-epic provenance, independent primary/assist levels, assist quantity flooring, banner/pity state and restrictions.",
       "acceptance": "Account state distinguishes unique-effect rarity scaling, main stats and primary/assist effects; every equipped module resolves to the correct category.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/C03.md"
     },
     {
@@ -694,7 +701,7 @@
       ],
       "work": "Read owned UWs, offered unlock choices, raw levels/values/costs, labs, toggles, cooldowns/durations, plus-system state and account prerequisites.",
       "acceptance": "All nine base UW identities and current observed ownership are represented; lab/subeffect-adjusted values never masquerade as raw stone upgrades.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/U01.md"
     },
     {

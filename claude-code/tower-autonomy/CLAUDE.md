@@ -8,7 +8,9 @@ You are continuing an existing implementation program. Treat this folder as the 
 2. Keep every task with `status != "completed"` whose complete `depends_on` set appears in `completed_task_ids`.
 3. Prefer `next_ready_task_ids` in listed order unless the user names another dependency-ready task.
 4. Read only that task’s `tasks/<ID>.md` before exploring relevant code.
-5. B04 is the current continuation point. Its next slice is automatic read-only Stats collection; do not create a new graph ID for that slice.
+5. Seven tasks are dependency-ready. Take the one the user names, else the first
+   entry of `next_ready_task_ids`. Do not create a graph ID that `manifest.json`
+   does not already list.
 
 Never infer completion from a source file, test, branch, or PR existing. The task acceptance gate must be proven and the implementation must be merged to `main`.
 
