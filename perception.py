@@ -218,9 +218,19 @@ def observe_frame(screen: Image, context: str, *, locale: str = 'en') -> Observa
     return parse_frame(screen, boxes if discovery.readable else (), context)
 
 
-def read_cash(screen: Image, anchor: tuple[int, int]) -> int | None:
-    """OCR the anchored wallet with margin so adjacent digits stay one word."""
-    region = config.WALLET_REGION
+def read_cash(
+    screen: Image,
+    anchor: tuple[int, int],
+    region: config.Region | None = None,
+) -> int | None:
+    """OCR the anchored wallet with margin so adjacent digits stay one word.
+
+    `region` defaults to WALLET_REGION, which is measured from the IN_RUN
+    panel anchor. Callers holding the cash counter's own match pass
+    WALLET_FROM_CASH instead, so the read does not depend on the distance
+    between the top and bottom of the screen.
+    """
+    region = config.WALLET_REGION if region is None else region
     x, y = anchor[0] + region.dx, anchor[1] + region.dy
     h, w = screen.shape[:2]
     if x < 0 or y < 0 or x + region.w > w or y + region.h > h:

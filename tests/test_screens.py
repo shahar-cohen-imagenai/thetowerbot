@@ -5,6 +5,7 @@ from pathlib import Path
 import cv2
 import pytest
 
+import config
 import screens
 import vision
 
@@ -35,17 +36,33 @@ def test_classifies_each_fixture(
     assert screens.classify(frame(fixture), cache).state is expected
 
 
-@pytest.mark.parametrize("fixture", ["main_menu", "in_run_lit", "game_over"])
+@pytest.mark.parametrize(
+    "fixture,expected",
+    [("main_menu", "MAIN_MENU"), ("in_run_lit", "IN_RUN"), ("game_over", "GAME_OVER")],
+)
 def test_winning_anchor_beats_the_runner_up_by_a_wide_margin(
-    cache: vision.TemplateCache, fixture: str
+    cache: vision.TemplateCache, fixture: str, expected: str
 ) -> None:
     """A correctness-only test would still pass with a badly re-cut anchor.
-    Asserting the margin is what actually guards the thresholds."""
-    reading = screens.classify(frame(fixture), cache)
-    ranked = sorted(reading.scores.values(), reverse=True)
+    Asserting the margin is what actually guards the thresholds.
 
-    assert ranked[0] >= 0.8, f"winner {ranked[0]:.3f} below threshold"
-    assert ranked[1] <= 0.5, f"runner-up {ranked[1]:.3f} too close"
+    Scored against SCREEN_ANCHORS directly rather than through classify:
+    classify reports IN_RUN's score from the cash counter, and that fires on
+    game-over frames too by design - the death modal does not cover the HUD -
+    so the three numbers classify returns are deliberately no longer mutually
+    exclusive. The anchor templates still are, and they are what this test
+    was written to guard. The cash probe's own margin is asserted in
+    test_run_hud.py::test_menu_and_run_scores_are_far_apart.
+    """
+    img = frame(fixture)
+    scores = {
+        name: vision.best_score(img, cache.get(path))[0]
+        for name, path in config.SCREEN_ANCHORS.items()
+    }
+
+    assert scores[expected] >= 0.8, f"winner {scores[expected]:.3f} below threshold"
+    runner_up = max(score for name, score in scores.items() if name != expected)
+    assert runner_up <= 0.5, f"runner-up {runner_up:.3f} too close"
 
 
 def test_unrecognised_frame_is_unknown(cache: vision.TemplateCache) -> None:

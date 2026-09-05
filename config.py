@@ -127,6 +127,37 @@ SCREEN_ANCHORS: dict[str, str] = {
     "GAME_OVER": "screens/game_over.png",
 }
 
+# --- The run HUD's cash counter -------------------------------------------
+# IN_RUN is detected by this, not by the upgrade panel's header bar. The
+# header bar is per-tab - screens/in_run.png is the ATTACK crop, and the
+# DEFENSE and UTILITY bars score 0.46 and 0.33 against it - so anchoring the
+# screen state to it made two thirds of a run read as UNKNOWN.
+#
+# The cash counter is the opposite: identical on every tab, because it
+# belongs to the top HUD rather than to the panel. Cash exists only inside a
+# run, so its presence IS the run. Measured across every committed fixture:
+# 1.000 on all in-run and game-over frames, at most 0.613 on any menu.
+#
+# GAME_OVER frames score 1.000 too - the death modal leaves the HUD visible
+# behind it - so GAME_OVER keeps precedence in screens.classify.
+RUN_CASH_ANCHOR: str = "screens/run_cash.png"
+
+# Searched in this absolute box rather than full-frame: the counter is always
+# top-left, and a full-frame match would find the "$" in an upgrade's price.
+# Tall enough for both cutout geometries - see RUN_CASH_REFERENCE_Y.
+RUN_CASH_SEARCH: Region = Region(dx=0, dy=0, w=400, h=400)
+
+# The wallet box, measured from the cash counter's own match rather than from
+# the IN_RUN panel anchor. That indirection is the point: the panel is pinned
+# to the BOTTOM of the screen and the wallet to the TOP, and emulators
+# reserve different amounts of the top for a display cutout, so the gap
+# between them is not a constant. Measured: an Android Studio AVD
+# (Pixel-class, cutout) puts the counter at y=171 and BlueStacks (no cutout)
+# at y=35 - same resolution, same templates at 1.000, 136px apart. Anchoring
+# the wallet to the counter cancels that difference out on any emulator
+# instead of encoding one of them.
+WALLET_FROM_CASH: Region = Region(dx=-7, dy=-9, w=230, h=72)
+
 # --- Unknown-screen snapshots ---------------------------------------------
 UNKNOWN_DIR: Path = Path(__file__).parent / "unknown"
 UNKNOWN_MIN_INTERVAL: float = 30.0

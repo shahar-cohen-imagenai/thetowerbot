@@ -615,13 +615,34 @@ class TowerBot:
             else None
         )
 
+        # Measured from the cash counter this frame matched, not from the
+        # panel anchor above. The panel is pinned to the bottom of the screen
+        # and the wallet to the top, and emulators reserve different amounts
+        # of the top for a display cutout, so the gap between the two is not
+        # a constant - see config.WALLET_FROM_CASH. Anchoring the wallet to
+        # the counter also means it survives the DEFENSE and UTILITY tabs,
+        # where there is no panel anchor to measure from at all.
+        #
+        # Still gated on IN_RUN, and for the original reason: the counter is
+        # visible behind the death modal too, so this would otherwise read a
+        # finished run's cash and let the affordability gate spend it.
+        cash_anchor = (
+            reading.cash_top_left
+            if (
+                state is screens.ScreenState.IN_RUN
+                and reading.state is screens.ScreenState.IN_RUN
+                and reading.cash_top_left is not None
+            )
+            else None
+        )
+
         self.wallet = None
-        if in_run_anchor is not None:
+        if cash_anchor is not None:
             self.wallet = self.reader.read(
-                self.screen, config.WALLET_REGION, in_run_anchor, "wallet"
+                self.screen, config.WALLET_FROM_CASH, cash_anchor, "wallet"
             )
             if self.wallet is None and (settings.strategy.autopilot.enabled or self.autopilot.has_work):
-                self.wallet = read_cash(self.screen, in_run_anchor)
+                self.wallet = read_cash(self.screen, cash_anchor, config.WALLET_FROM_CASH)
         if isinstance(self.affordability, DigitAffordability):
             self.affordability.wallet = self.wallet
 

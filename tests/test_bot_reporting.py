@@ -259,7 +259,10 @@ class ScriptedReader:
     ) -> int | None:
         self.calls.append((size_class, anchor))
         for name, configured in (
-            ("wallet", config.WALLET_REGION),
+            # WALLET_FROM_CASH, not WALLET_REGION: the bot anchors the
+            # wallet to the run HUD's cash counter so the read survives both
+            # a missing display cutout and the non-ATTACK upgrade tabs.
+            ("wallet", config.WALLET_FROM_CASH),
             ("price", config.PRICE_REGION),
             ("wave", config.MODAL_WAVE_REGION),
             ("coins", config.MODAL_COINS_REGION),
