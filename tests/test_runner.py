@@ -513,3 +513,73 @@ def test_every_bot_is_handed_the_runner_s_own_transaction(
     runner.start()
     runner.stop()
     assert [bot.kwargs["collection"] for bot in made] == [runner.collection] * 2
+
+
+# -- Missions visit ---------------------------------------------------------
+def test_a_missions_visit_is_refused_until_a_running_unpaused_bot_is_on_the_menu(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    runner, made = menu_runner
+    with pytest.raises(RunnerError) as stopped:
+        runner.request_missions_visit()
+    assert stopped.value.status_code == 409
+    runner.start()
+    try:
+        made[-1].screen = "IN_RUN"
+        with pytest.raises(RunnerError) as battling:
+            runner.request_missions_visit()
+        assert battling.value.status_code == 409
+        made[-1].screen = "MAIN_MENU"
+        runner._controls.apply({"paused": True})
+        with pytest.raises(RunnerError) as held:
+            runner.request_missions_visit()
+        assert held.value.status_code == 409
+        assert not runner.visit.active
+        runner._controls.apply({"paused": False})
+        assert runner.request_missions_visit()["status"] == "running"
+        with pytest.raises(RunnerError) as busy:
+            runner.request_missions_visit()
+        assert busy.value.status_code == 409
+        assert runner.visit.active
+    finally:
+        runner.stop()
+
+
+def test_two_transactions_are_never_armed_at_once_in_either_order(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """Both walk out of the same main menu. A second one armed behind the
+    first would read the first one's screen as its own arrival evidence."""
+    runner, _ = menu_runner
+    runner.start()
+    try:
+        runner.request_stats_collection()
+        with pytest.raises(RunnerError) as during_collection:
+            runner.request_missions_visit()
+        assert during_collection.value.status_code == 409
+        assert not runner.visit.active
+        runner.collection.cancel("test", "cleared for the other direction")
+        runner.request_missions_visit()
+        with pytest.raises(RunnerError) as during_visit:
+            runner.request_stats_collection()
+        assert during_visit.value.status_code == 409
+        assert not runner.collection.active
+    finally:
+        runner.stop()
+
+
+def test_a_restart_cancels_a_half_walked_visit_and_lets_a_retry_start(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    runner, _ = menu_runner
+    runner.start()
+    runner.request_missions_visit()
+    runner.stop()
+    ended = runner.visit.snapshot()
+    assert ended["status"] == "failed" and ended["result"]["reason"] == "bot_stopped"
+    runner.start()
+    try:
+        assert not runner.visit.active
+        assert runner.request_missions_visit()["status"] == "running"
+    finally:
+        runner.stop()

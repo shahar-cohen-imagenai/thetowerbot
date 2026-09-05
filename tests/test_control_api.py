@@ -346,3 +346,61 @@ def test_a_backend_without_a_runner_cannot_be_asked_to_walk_the_game() -> None:
     with _account_client(None) as client:
         assert "collection" not in client.get("/api/account").json()
         assert client.post("/api/account/collect").status_code == 412
+
+
+# -- Missions visit ---------------------------------------------------------
+class _FakeMissionsRunner:
+    """Only what the missions routes touch: a visit, a reader, a request gate."""
+
+    def __init__(self, error: Exception | None = None) -> None:
+        from missions_screen import MissionsReadings
+        from missions_visit import MissionsVisit
+
+        self.visit = MissionsVisit()
+        self.missions = MissionsReadings()
+        self.autopilot_state = None
+        self._error = error
+
+    def status(self) -> dict:
+        return {"running": True, "since": 1.0, "error": None}
+
+    def request_missions_visit(self) -> dict:
+        if self._error is not None:
+            raise self._error
+        self.visit.request(now=100.0)
+        return self.visit.snapshot()
+
+
+def test_visiting_missions_arms_the_walk_and_reports_it_on_the_page() -> None:
+    runner = _FakeMissionsRunner()
+    with _account_client(runner) as client:
+        before = client.get("/api/missions").json()
+        assert before["visit"]["status"] == "idle"
+        # Nothing read yet is a null reading, not an absent key: the browser
+        # can tell "no missions page has been read" from "cannot read one".
+        assert before["latest"] is None and before["scanned"] is False
+        armed = client.post("/api/missions/visit").json()
+        assert armed["status"] == "running" and armed["step"] == "open_missions"
+        assert client.get("/api/missions").json()["visit"]["status"] == "running"
+
+
+@pytest.mark.parametrize("status_code,message", [
+    (409, "A missions visit is already running"),
+    (409, "A stats collection is already walking the menus"),
+    (503, "Missions visits are unavailable: the OCR engine could not be built"),
+])
+def test_a_refused_visit_keeps_the_runner_s_status_code_and_reason(
+    status_code: int, message: str,
+) -> None:
+    from runner import RunnerError
+
+    with _account_client(_FakeMissionsRunner(RunnerError(message, status_code))) as client:
+        response = client.post("/api/missions/visit")
+        assert response.status_code == status_code
+        assert response.json()["detail"] == message
+
+
+def test_a_backend_without_a_runner_cannot_be_asked_to_visit_missions() -> None:
+    with _account_client(None) as client:
+        assert client.get("/api/missions").json() == {}
+        assert client.post("/api/missions/visit").status_code == 412

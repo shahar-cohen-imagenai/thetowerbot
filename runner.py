@@ -21,6 +21,8 @@ pay (device.py pulls cv2 in regardless).
 from __future__ import annotations
 
 from account_collection import StatsCollection
+from missions_screen import MissionsReadings
+from missions_visit import MissionsVisit
 from account_state import AccountState
 
 import logging
@@ -99,6 +101,10 @@ class BotRunner:
         # every bot it starts - the same reason account_state is shared. The
         # browser arms it here; the scan loop is what walks it.
         self.collection = StatsCollection()
+        # The Missions visit and the reader it takes its arrival evidence
+        # from, owned here for the same reason and on the same terms.
+        self.visit = MissionsVisit()
+        self.missions = MissionsReadings()
 
         self._lock = threading.Lock()
         self._bot: Any | None = None
@@ -159,9 +165,36 @@ class BotRunner:
                 raise RunnerError("Collecting stats requires an unpaused bot", 409)
             if self._bot.screen_state.value != "MAIN_MENU":
                 raise RunnerError("Collecting stats requires a confirmed main menu", 409)
+            if self.visit.active:
+                raise RunnerError("A missions visit is already walking the menus", 409)
             if not self.collection.request():
                 raise RunnerError("A stats collection is already running", 409)
             return self.collection.snapshot()
+
+    def request_missions_visit(self) -> dict[str, Any]:
+        """Arm one read-only Home -> Missions -> read -> Home visit.
+
+        The same refusals as request_stats_collection, for the same reason:
+        a command the loop cannot honour NOW is refused rather than banked.
+        Two transactions may never be armed at once - they would walk the
+        same menus from different steps, and the second one's evidence would
+        be the first one's screen.
+        """
+        with self._lock:
+            if not self._running_locked() or self._bot is None:
+                raise RunnerError("Start the bot before visiting missions", 409)
+            unavailable = getattr(self._shopping, "disabled_reason", None)
+            if unavailable:
+                raise RunnerError(f"Missions visits are unavailable: {unavailable}", 503)
+            if self._controls.snapshot().paused:
+                raise RunnerError("Visiting missions requires an unpaused bot", 409)
+            if self._bot.screen_state.value != "MAIN_MENU":
+                raise RunnerError("Visiting missions requires a confirmed main menu", 409)
+            if self.collection.active:
+                raise RunnerError("A stats collection is already walking the menus", 409)
+            if not self.visit.request():
+                raise RunnerError("A missions visit is already running", 409)
+            return self.visit.snapshot()
 
     # -- lifecycle ---------------------------------------------------------
     def start(self) -> dict[str, Any]:
@@ -220,6 +253,10 @@ class BotRunner:
                 "bot_restarted",
                 "A new bot replaced the one walking this transaction; it was not resumed.",
             )
+            self.visit.cancel(
+                "bot_restarted",
+                "A new bot replaced the one walking this visit; it was not resumed.",
+            )
             self.autopilot_state.clear_battle()
             self.autopilot_state.decision("idle", "Waiting for a fresh battle observation")
 
@@ -254,6 +291,8 @@ class BotRunner:
                 autopilot_state=self.autopilot_state,
                 account_state=self.account_state,
                 collection=self.collection,
+                visit=self.visit,
+                missions=self.missions,
             )
 
             self._bot = bot
@@ -287,6 +326,10 @@ class BotRunner:
                 self.collection.cancel(
                     "bot_stopped",
                     "The scan loop ended before the transaction finished.",
+                )
+                self.visit.cancel(
+                    "bot_stopped",
+                    "The scan loop ended before the visit finished.",
                 )
                 self._harvest_locked(bot)
 

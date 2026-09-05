@@ -136,7 +136,77 @@ def locate_control(screen: Image, template: Image | None, name: str,
                          float(best), (location[0], location[1], width, height))
 
 
-class StatsCollection:
+def at_home(state: str, evidence: dict[str, Any]) -> bool:
+    """Home means the anchor AND a positive reading of "no panel".
+
+    `scanned` is required, not merely a null screen id: an overlay keeps
+    the main menu anchor underneath it, and a frame the reader never
+    examined - the wrong geometry, or a failed engine - reports the same
+    empty screen id as a genuinely clear menu. Only the examined-and-clear
+    case may precede the one tap a transaction makes before it has a
+    positive panel identity to check against.
+
+    Module-level so that every transaction walking out of the main menu
+    tests home the same way; missions_visit is the second caller.
+    """
+    return (state == HOME_STATE and bool(evidence['scanned'])
+            and evidence['screen_id'] is None and evidence['error'] is None)
+
+
+class ControlTaps:
+    """The one device-touching path every read-only transaction shares.
+
+    A transaction mixing this in owns `_threshold`, `_tuning`, `_step` and
+    the three outcomes `_wait`, `_finish` and `_enter`. How a control is
+    located, and which readings are refused rather than tapped, lives here
+    once. Shared rather than copied deliberately: this is the code that
+    actually touches the device, so a second transaction cannot drift from
+    the refusals the first one is tested for.
+
+    `following` is the caller's own Step enum - the two transactions walk
+    different steps, and nothing here needs to know which.
+    """
+
+    _threshold: float
+    _tuning: Strategy | None
+
+    def _tap_target(self, target: ControlTarget | None, device: Any, name: str,
+                    following: Enum, moment: float) -> CollectionAction | None:
+        """Tap a located control, or stop on any of the four failure states.
+
+        Jittered through the same helpers every other tap path uses, and for
+        the same reasons: a pixel-exact tap at zero reaction delay is a
+        signature. `click_cooldown` is deliberately not applied - as in
+        navigate.Navigator, each step already gates on fresh evidence that
+        cannot repeat, so there is no burst for a cooldown to suppress.
+        """
+        if target is None or target.status == 'absent':
+            return self._wait(f'{name}_absent', f'The {name.replace("_", " ")} was not visible on '
+                              'this frame, so nothing was tapped.', moment)
+        if target.point is None:
+            return self._finish('failed', f'{name}_{target.status}', f'The {name.replace("_", " ")} '
+                                f'reading was {target.status}; refusing to tap a guessed target.',
+                                moment)
+        x, y = target.point
+        if self._tuning is not None:
+            x, y = jitter.point(x, y, self._tuning.tap_jitter_px)
+            jitter.pause(self._tuning.tap_delay, self._tuning.timing_jitter)
+        step = self._step.name.lower()
+        tap(device, x, y)
+        self._enter(following)
+        return CollectionAction(step, name, int(x), int(y), target.score, target.rect)
+
+    def _tap(self, screen: Image, device: Any, templates: Any, template: str, name: str,
+             following: Enum, moment: float) -> CollectionAction | None:
+        try:
+            image = templates.get(template)
+        except (OSError, ValueError, AttributeError):
+            image = None
+        return self._tap_target(locate_control(screen, image, name, self._threshold),
+                                device, name, following, moment)
+
+
+class StatsCollection(ControlTaps):
     """At most one read-only Collect stats transaction, driven one frame at a time."""
 
     def __init__(self, *, threshold: float = MATCH_THRESHOLD,
@@ -245,19 +315,7 @@ class StatsCollection:
                                 'returned to the main menu.', moment)
 
     # -- internals ---------------------------------------------------------
-    @staticmethod
-    def _home(state: str, evidence: dict[str, Any]) -> bool:
-        """Home means the anchor AND a positive reading of "no panel".
-
-        `scanned` is required, not merely a null screen id: an overlay keeps
-        the main menu anchor underneath it, and a frame the reader never
-        examined - the wrong geometry, or a failed engine - reports the same
-        empty screen id as a genuinely clear menu. Only the examined-and-clear
-        case may precede the one tap this transaction makes before it has a
-        positive panel identity to check against.
-        """
-        return (state == HOME_STATE and bool(evidence['scanned'])
-                and evidence['screen_id'] is None and evidence['error'] is None)
+    _home = staticmethod(at_home)
 
     def _enter(self, step: Step) -> None:
         self._step = step
@@ -276,38 +334,3 @@ class StatsCollection:
         self._step = Step.IDLE
         self._waited = 0
         return None
-
-    def _tap_target(self, target: ControlTarget | None, device: Any, name: str,
-                    following: Step, moment: float) -> CollectionAction | None:
-        """Tap a located control, or stop on any of the four failure states.
-
-        Jittered through the same helpers every other tap path uses, and for
-        the same reasons: a pixel-exact tap at zero reaction delay is a
-        signature. `click_cooldown` is deliberately not applied - as in
-        navigate.Navigator, each step already gates on fresh evidence that
-        cannot repeat, so there is no burst for a cooldown to suppress.
-        """
-        if target is None or target.status == 'absent':
-            return self._wait(f'{name}_absent', f'The {name.replace("_", " ")} was not visible on '
-                              'this frame, so nothing was tapped.', moment)
-        if target.point is None:
-            return self._finish('failed', f'{name}_{target.status}', f'The {name.replace("_", " ")} '
-                                f'reading was {target.status}; refusing to tap a guessed target.',
-                                moment)
-        x, y = target.point
-        if self._tuning is not None:
-            x, y = jitter.point(x, y, self._tuning.tap_jitter_px)
-            jitter.pause(self._tuning.tap_delay, self._tuning.timing_jitter)
-        step = self._step.name.lower()
-        tap(device, x, y)
-        self._enter(following)
-        return CollectionAction(step, name, int(x), int(y), target.score, target.rect)
-
-    def _tap(self, screen: Image, device: Any, templates: Any, template: str, name: str,
-             following: Step, moment: float) -> CollectionAction | None:
-        try:
-            image = templates.get(template)
-        except (OSError, ValueError, AttributeError):
-            image = None
-        return self._tap_target(locate_control(screen, image, name, self._threshold),
-                                device, name, following, moment)
