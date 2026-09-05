@@ -92,6 +92,13 @@ _UNSUPPORTED_OWNERS = {
     'missions_reward_currency': 'T01',
     'missions_milestone_claim_state': 'T01',
     'missions_beyond_the_recorded_strip': 'T01',
+    # No Modules capture exists at any resolution, so there is no layout to
+    # key a reader off. modules.py models the inventory and refuses to read
+    # one; recording the screen is fixture work, and acting on modules is not
+    # this reader's to do.
+    'modules_screen_layout': 'B08',
+    'modules_banner_pity_state': 'B08',
+    'module_upgrade_merge_actions': 'C04',
     'other_locales': 'V06',
     'other_resolutions': 'V06',
     'unknown_overlays': 'by_design',
@@ -311,6 +318,11 @@ def capabilities() -> dict[str, Any]:
             # observes; it never claims a reward or names a currency.
             'missions_claim_actions', 'missions_reward_currency',
             'missions_milestone_claim_state', 'missions_beyond_the_recorded_strip',
+            # Listed with the missing captures rather than the reader limits:
+            # the Modules screen has never been recorded, so `discover` refuses
+            # its context outright instead of guessing at anchors.
+            'modules_screen_layout', 'modules_banner_pity_state',
+            'module_upgrade_merge_actions',
             # The recorded Cards page is an account with an empty collection:
             # its slot band reads exactly, and every tile below it is a
             # padlock. So the page is supported and the collection is not,
