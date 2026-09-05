@@ -5,12 +5,14 @@ import hashlib
 import math
 import re
 import time
-from dataclasses import dataclass
+from collections import Counter
+from dataclasses import dataclass, replace
 
 import cv2
 
 import config
 import ocr
+import screen_discovery
 import tiles
 import upgrades
 from device import Image
@@ -80,6 +82,13 @@ class Observation:
     frame_width: int = 0
     frame_height: int = 0
 
+    def status_for(self, upgrade_id: str) -> str:
+        """Absence on this frame means unseen, never locked or unavailable."""
+        matches = [row for row in self.rows if row.upgrade_id == upgrade_id]
+        if not matches:
+            return 'unseen'
+        return matches[0].status if len(matches) == 1 else 'unreadable'
+
 
 def parse_frame(
     screen: Image, boxes: tuple[ocr.TextBox, ...], context: str, *, now: float | None = None
@@ -100,7 +109,7 @@ def parse_frame(
         inside = sorted((b for b in boxes if contains(rect, b.rect)), key=lambda b: (b.rect.y, b.rect.x))
         markers = {b.text.strip().upper() for b in inside}
         labels = [b.text for b in inside if stat_number(b.text) is None
-                  and b.text.strip().upper() not in ("MAX", "MAXED", "LOCKED")
+                  and b.text.strip().upper() not in ("MAX", "MAXED", "LOCKED", "UNAVAILABLE")
                   and not any(c.isdigit() for c in b.text)]
         raw_name = " ".join(labels)
         if not raw_name:
@@ -120,14 +129,19 @@ def parse_frame(
             status, price = "maxed", None
         elif "LOCKED" in markers:
             status, price = "locked", None
+        elif "UNAVAILABLE" in markers:
+            status, price = "unavailable", None
         rows.append(ObservedUpgrade(
             entry.id if entry else "discovered:" + tiles.normalise(raw_name),
             entry.name if entry else raw_name, category, context, value, price, status, now,
             rect, (price_box.rect.x + price_box.rect.w // 2,
-                   price_box.rect.y + price_box.rect.h // 2) if price_box and price is not None else None,
+                   price_box.rect.y + price_box.rect.h // 2) if entry and price_box and price is not None else None,
             confidence=min([heading.confidence, *(b.confidence for b in raw_boxes if contains(rect, b.rect))]),
             raw_name=raw_name, raw_value=value_boxes[0].text if len(value_boxes) == 1 else None,
         ))
+    counts = Counter(row.upgrade_id for row in rows)
+    rows = [replace(row, status="unreadable", tap=None, price=None, confidence=0.)
+            if counts[row.upgrade_id] > 1 else row for row in rows]
     combat: dict[str, float] = {}
     cash = None
     if context == "battle":
@@ -158,8 +172,12 @@ def parse_frame(
     return Observation(category, tuple(rows), combat, cash, now, heading.rect.y, **evidence)
 
 
-def observe_frame(screen: Image, context: str) -> Observation:
-    return parse_frame(screen, ocr.read(screen), context)
+def observe_frame(screen: Image, context: str, *, locale: str = 'en') -> Observation:
+    boxes = ocr.read(screen)
+    discovery = screen_discovery.discover(screen, boxes, context, locale=locale)
+    # Empty OCR preserves frame evidence while preventing unsupported frames
+    # from promoting account facts or exposing price/tap targets.
+    return parse_frame(screen, boxes if discovery.readable else (), context)
 
 
 def read_cash(screen: Image, anchor: tuple[int, int]) -> int | None:
