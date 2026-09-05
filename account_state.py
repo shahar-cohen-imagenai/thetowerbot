@@ -12,6 +12,7 @@ from typing import Any
 
 import db
 from concepts import REGISTRY
+from modules import ModulesInventory
 from perception import Observation
 from account_screens import ScreenReadings
 
@@ -54,6 +55,7 @@ class AccountRevision:
     inventory: tuple[Fact, ...] | None = None
     unlocks: tuple[Fact, ...] | None = None
     settings: tuple[Fact, ...] | None = None
+    modules: ModulesInventory | None = None
 
 
 @dataclass(frozen=True)
@@ -90,6 +92,8 @@ class AccountRepository:
             if value.get(section) is not None:
                 value[section] = tuple(Fact(f['concept_id'], f['value'], f['status'],
                     Evidence(**{**f['evidence'], 'rect': tuple(f['evidence']['rect'])})) for f in value[section])
+        if value.get('modules') is not None:
+            value['modules'] = ModulesInventory.from_payload(value['modules'])
         return AccountRevision(**value)
 
     def _connect(self) -> sqlite3.Connection:
@@ -230,3 +234,36 @@ class AccountState:
             except sqlite3.Error as exc:
                 self._run_error = str(exc)
                 logger.error('Run persistence failed: %s', exc)
+
+    def observe_modules(self, inventory: ModulesInventory) -> None:
+        """Save a module inventory a reader actually resolved.
+
+        `unknown` and `unreadable` inventories say nothing about the account
+        and must never replace what an earlier reading proved, so they are
+        dropped here rather than written as an empty loadout. An unchanged
+        inventory writes no revision, exactly as an unchanged workshop value
+        does. Confirming a reading across two frames belongs with the reader
+        that produces one; there is no recorded Modules capture yet.
+        """
+        with self._lock:
+            if self.repository is None or inventory.status not in ('observed', 'locked', 'unavailable'):
+                return
+            if not self._restored:
+                try:
+                    self._revision = self.repository.latest()
+                    self._restored = True
+                    self._error = None
+                except (sqlite3.Error, ValueError, TypeError) as exc:
+                    self._error = str(exc)
+                    return
+            if self._revision is not None and self._revision.modules == inventory:
+                return
+            candidate = replace(self._revision or AccountRevision(), revision_id=None,
+                parent_revision_id=self._revision.revision_id if self._revision else None,
+                created_at=inventory.observed_at, modules=inventory)
+            try:
+                self._revision = self.repository.save_account(candidate, ())
+                self._error = None
+            except sqlite3.Error as exc:
+                self._error = str(exc)
+                logger.error('Module persistence failed: %s', exc)

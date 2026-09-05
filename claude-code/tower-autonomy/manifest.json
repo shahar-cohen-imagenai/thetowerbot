@@ -527,7 +527,7 @@
       "id": "C03",
       "domain": "cards_modules",
       "title": "Read primary and assist modules",
-      "status": "missing",
+      "status": "partial",
       "depends_on": [
         "B03",
         "B04"
