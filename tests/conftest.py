@@ -249,6 +249,25 @@ def bot_in_run() -> Callable[[Shopping], TowerBot]:
 
 
 @pytest.fixture
+def bot_in_run_on() -> Callable[[str], TowerBot]:
+    """Factory: a bot confirmed IN_RUN on a named in-run frame.
+
+    Which tab the frame shows is the point. `screens/in_run.png` is the
+    ATTACK header crop, so only an ATTACK frame carries a panel anchor;
+    DEFENSE and UTILITY frames are IN_RUN by their cash counter alone and
+    classify with `top_left=None`. A test about what the loop does on each
+    tab has to be able to pick the tab.
+    """
+    def build(frame_name: str) -> TowerBot:
+        return _shopping_bot(
+            frame_name, state=screens.ScreenState.IN_RUN,
+            policy=Shopping(), auto_navigate=False,
+        )
+
+    return build
+
+
+@pytest.fixture
 def bot_in_run_paused() -> TowerBot:
     """A bot IN_RUN on a frame whose speed widget reads x0.0 - the game
     stopped dead at the widget's bottom step.

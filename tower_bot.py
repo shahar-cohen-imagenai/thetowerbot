@@ -703,7 +703,18 @@ class TowerBot:
             # settings only as an on/off filter, so neither reordering nor
             # a per-row threshold could reach the matcher.
             if settings.strategy.autopilot.enabled or self.autopilot.has_work:
-                if in_run_anchor is not None and not speed_changed and not commands:
+                # Deliberately NOT gated on `in_run_anchor`. That anchor is
+                # the ATTACK tab's header crop, and it used to be what made
+                # the screen IN_RUN at all, so requiring it here was free.
+                # Once IN_RUN became the cash counter's job, the panel match
+                # started coming back None on the DEFENSE and UTILITY tabs -
+                # and this gate quietly became "the autopilot only runs on
+                # ATTACK". Every economy preset opens UTILITY as its first
+                # act, so one tab tap parked the autopilot for the rest of
+                # the run: it could not read the tab it had just opened, and
+                # could not navigate back off it either. `step()` takes no
+                # anchor; it re-reads the panel from the frame itself.
+                if not speed_changed and not commands:
                     clicked = self.autopilot.step(self.screen, self.device, settings.strategy.autopilot,
                                                    cash=self.wallet, cooldown=settings.strategy.click_cooldown,
                                                    run_id=self.runs.current_id,
