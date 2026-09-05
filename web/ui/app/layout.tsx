@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Sidebar } from "@/components/Sidebar";
 import { EventStreamProvider } from "@/lib/useEventStream";
+import { RuntimeGate } from "@/components/RuntimeGate";
 import "./globals.css";
 
 // Self-hosted at build time, so the exported site has no runtime dependency on
@@ -45,7 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <EventStreamProvider>
           <div className="flex min-h-dvh flex-col md:flex-row">
             <Sidebar />
-            <main className="min-w-0 flex-1 p-4">{children}</main>
+            <RuntimeGate>
+              <main className="min-w-0 flex-1 p-4">{children}</main>
+            </RuntimeGate>
           </div>
         </EventStreamProvider>
       </body>

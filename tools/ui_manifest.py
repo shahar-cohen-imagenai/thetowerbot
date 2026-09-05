@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-SOURCE_ROOTS = ("app", "components", "lib", "public")
+SOURCE_ROOTS = ("app", "components", "lib", "public", "scripts")
 SOURCE_FILES = (
     "package.json",
     "package-lock.json",

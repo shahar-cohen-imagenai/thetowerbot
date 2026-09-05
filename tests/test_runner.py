@@ -98,6 +98,20 @@ def test_a_fresh_runner_is_not_running(runner_parts) -> None:
     assert status["error"] is None
 
 
+def test_runner_identity_uses_the_connected_device_without_an_extra_lookup(runner_parts) -> None:
+    runner, _, devices, _, _ = runner_parts
+    device = type("Device", (), {"serial": "emulator-5554"})()
+    runner._device_factory = lambda: devices.append(device) or device
+
+    assert runner.identity() == {"serial": None, "game_version": None}
+    runner.start()
+    try:
+        assert runner.identity() == {"serial": "emulator-5554", "game_version": None}
+        assert devices == [device]
+    finally:
+        runner.stop()
+
+
 def test_start_connects_a_device_and_spawns_a_bot(runner_parts) -> None:
     runner, made, devices, _, _ = runner_parts
     status = runner.start()

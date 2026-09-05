@@ -10,7 +10,7 @@ import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 // Everything that changes what the built site contains.
-export const SOURCE_ROOTS = ["app", "components", "lib", "public"];
+export const SOURCE_ROOTS = ["app", "components", "lib", "public", "scripts"];
 export const SOURCE_FILES = [
   "package.json",
   "package-lock.json",

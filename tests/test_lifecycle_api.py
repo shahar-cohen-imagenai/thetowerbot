@@ -13,6 +13,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import config
+from autopilot import AutopilotState
 from control import Controls
 from events import EventBus
 from runner import RunnerError
@@ -26,6 +27,7 @@ class FakeRunner:
     """Records what the routes asked for, without any threads."""
 
     def __init__(self) -> None:
+        self.autopilot_state = AutopilotState()
         self.running = False
         self.starts = 0
         self.stops = 0

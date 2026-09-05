@@ -77,6 +77,20 @@ def test_committed_build_matches_the_ui_sources() -> None:
     )
 
 
+def test_ui_hash_changes_when_the_build_pipeline_changes(tmp_path: Path) -> None:
+    """Build scripts set the embedded compatibility identity, so drift there
+    must invalidate the static bundle just like a component edit does."""
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    pipeline = scripts / "publish.mjs"
+    pipeline.write_text("export const version = 1;\n")
+    before = ui_hash(tmp_path)
+
+    pipeline.write_text("export const version = 2;\n")
+
+    assert ui_hash(tmp_path) != before
+
+
 EVENT_REDUCER_PATH = UI_DIR / "lib" / "eventReducer.ts"
 
 
