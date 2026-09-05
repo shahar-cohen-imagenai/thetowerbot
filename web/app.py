@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any, AsyncIterator, Awaitable, Callable, Mapping, Literal
 
 from fastapi import FastAPI, HTTPException, Request, Response
-from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -33,6 +33,7 @@ import config
 import db
 import events
 import upgrades
+from runtime_identity import API_VERSION, PROCESS_IDENTITY, read_frontend_identity
 from advisor import AdvisorStore
 from web.advisor import advisor_router
 from autopilot import AutopilotState
@@ -257,6 +258,41 @@ def create_app(
     )
     app.include_router(advisor_router(advisor_store, store, autopilot_state))
 
+    @app.middleware("http")
+    async def require_compatible_browser(request: Request, call_next: Callable) -> Response:
+        if request.url.path.startswith("/api/") and request.method in {
+            "POST", "PUT", "PATCH", "DELETE",
+        }:
+            emergency = request.url.path == "/api/bot/stop"
+            if request.url.path == "/api/control" and request.method == "PATCH":
+                try:
+                    emergency_body = json.loads(await request.body())
+                    emergency = (
+                        isinstance(emergency_body, dict)
+                        and set(emergency_body) == {"paused"}
+                        and emergency_body["paused"] is True
+                    )
+                except (json.JSONDecodeError, UnicodeDecodeError):
+                    emergency = False
+            if not emergency:
+                backend_header = request.headers.get("x-tower-backend-hash")
+                api_header = request.headers.get("x-tower-api-version")
+                ui_header = request.headers.get("x-tower-ui-hash")
+                frontend = await asyncio.to_thread(
+                    read_frontend_identity, STATIC_DIR / ".build-manifest.json"
+                )
+                mismatch = (
+                    (backend_header is not None and backend_header != PROCESS_IDENTITY.source_hash)
+                    or (api_header is not None and api_header != str(API_VERSION))
+                    or (ui_header is not None and ui_header != frontend.source_hash)
+                )
+                if mismatch:
+                    return JSONResponse(
+                        status_code=409,
+                        content={"detail": "Dashboard build does not match this runtime; reload before retrying."},
+                    )
+        return await call_next(request)
+
     @app.get("/api/upgrades")
     async def upgrade_catalog() -> list[dict[str, Any]]:
         return upgrades.catalog_payload()
@@ -324,6 +360,86 @@ def create_app(
             if runner is not None
             else {"running": False, "since": None, "error": None}
         )
+        runtime_capabilities: list[str] = []
+        if controls is not None:
+            runtime_capabilities.append("control")
+        if runner is not None:
+            runtime_capabilities.append("lifecycle")
+        if store is not None:
+            runtime_capabilities.append("strategies")
+        if runner is not None:
+            runtime_capabilities.append("autopilot")
+        runtime_capabilities.append("advisor")
+
+        control_snapshot = controls.snapshot() if controls is not None else None
+        strategy = control_snapshot.strategy if control_snapshot is not None else None
+        running = payload["bot"]["running"]
+        paused = control_snapshot.paused if control_snapshot is not None else False
+        screen = payload["screen"]
+        if not running:
+            readiness = {"mode": "stopped", "reasons": ["bot is stopped"]}
+        elif paused:
+            readiness = {"mode": "paused", "reasons": ["automation is paused"]}
+        elif controls is None:
+            readiness = {
+                "mode": "observing",
+                "reasons": ["no automation controls are loaded"],
+            }
+        elif (
+            shopping is not None
+            and getattr(shopping, "active", False) is True
+            and strategy.shopping.enabled
+        ):
+            readiness = {"mode": "automation_enabled", "reasons": []}
+        elif screen == "IN_RUN" and not (
+            any(action.enabled for action in strategy.actions)
+            or strategy.autopilot.enabled
+        ):
+            readiness = {
+                "mode": "observing",
+                "reasons": ["all automation policies are disabled for IN_RUN"],
+            }
+        elif screen == "MAIN_MENU" and (
+            strategy.auto_navigate or strategy.shopping.enabled
+        ):
+            readiness = {"mode": "automation_enabled", "reasons": []}
+        elif screen in config.NAV_BUTTONS and strategy.auto_navigate:
+            readiness = {"mode": "automation_enabled", "reasons": []}
+        elif screen != "IN_RUN":
+            readiness = {
+                "mode": "observing",
+                "reasons": [
+                    "waiting for an in-run screen observation"
+                    if screen == "UNKNOWN"
+                    else f"automation policies are disabled for {screen}"
+                ],
+            }
+        else:
+            readiness = {"mode": "automation_enabled", "reasons": []}
+
+        if store is not None and controls is not None:
+            active = store.active_name()
+            live = strategy.name
+            if active != live:
+                readiness["reasons"].append(
+                    f"live profile {live!r} differs from active profile {active!r}"
+                )
+        identity = (
+            runner.identity()
+            if runner is not None and hasattr(runner, "identity")
+            else {"serial": None, "game_version": None}
+        )
+        payload["runtime"] = {
+            "api_version": API_VERSION,
+            "backend": PROCESS_IDENTITY.payload(),
+            "frontend": read_frontend_identity(
+                STATIC_DIR / ".build-manifest.json"
+            ).payload(),
+            "capabilities": runtime_capabilities,
+            "profile": strategy.name if strategy is not None else None,
+            "device": identity,
+            "readiness": readiness,
+        }
         return payload
 
     @app.get("/api/runs")

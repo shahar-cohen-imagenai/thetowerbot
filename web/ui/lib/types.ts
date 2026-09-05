@@ -102,6 +102,35 @@ export interface StatusPayload {
   boxes: MatchBox[];
   frame_size: { width: number; height: number } | null;
   bot: BotStatus;
+  /** Added by runtime contract v1. Older servers omit this field; reads keep
+   * working, while browser writes fail closed during their fresh preflight. */
+  runtime?: RuntimeMetadata;
+}
+
+export type ReadinessMode = "stopped" | "paused" | "observing" | "automation_enabled";
+
+export interface RuntimeMetadata {
+  api_version: 1;
+  backend: {
+    revision: string | null;
+    source_hash: string | null;
+    started_at: number;
+  };
+  frontend: {
+    source_hash: string | null;
+    expected_backend_hash: string | null;
+    built_at: number | null;
+  };
+  capabilities: string[];
+  profile: string | null;
+  device: {
+    serial: string | null;
+    game_version: string | null;
+  };
+  readiness: {
+    mode: ReadinessMode;
+    reasons: string[];
+  };
 }
 
 /** A row from the `runs` table. */

@@ -96,6 +96,7 @@ class BotRunner:
         self._thread: threading.Thread | None = None
         self._since: float | None = None
         self._error: str | None = None
+        self._device_serial: str | None = None
         # Seeded from the database once, at launch. Carried forward from each
         # bot's own tracker after that - see _harvest_locked().
         self._next_run_id = first_run_id
@@ -112,6 +113,11 @@ class BotRunner:
                 "since": self._since if running else None,
                 "error": self._error,
             }
+
+    def identity(self) -> dict[str, str | None]:
+        """Identity already learned during start; this never performs ADB I/O."""
+        with self._lock:
+            return {"serial": self._device_serial, "game_version": None}
 
     def request_autopilot(self, command: dict[str, Any]) -> None:
         with self._lock:
@@ -153,6 +159,8 @@ class BotRunner:
                     events.BotError(message=str(exc), traceback=traceback.format_exc())
                 )
                 raise RunnerError(str(exc), 503) from None
+
+            self._device_serial = getattr(device, "serial", None)
 
             # A fresh bot's counters start at zero; the state sink's must too,
             # or the status bar mixes this bot's uptime with the last one's

@@ -5,6 +5,28 @@ screen*.png
 unknown/
 .bifrost-worktrees/
 
+# Local research, implementation notes, and agent workspaces.
+/docs/
+/.claude/
+/.codex/
+/.superpowers/
+/.worktrees/
+/worktrees/
+
+# Local caches, editor metadata, and unpublished UI staging directories.
+.DS_Store
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.tsbuildinfo
+/web/.static-publish-*/
+
+# Local credentials; checked-in examples remain available.
+.env
+.env.*
+!.env.example
+!.env.sample
+
 # The event log is machine-local state, not source.
 tower_bot.db
 tower_bot.db-wal
@@ -31,7 +53,3 @@ strategies/.active
 # Staging output from tools/harvest_speed_glyphs.py - unlabelled crops that
 # get renamed into templates/speed/ by hand, not artefacts to commit.
 templates/speed/harvest/
-
-# Generated research captures are local inputs; keep authored summaries trackable.
-/docs/research/wiki-source-*/
-/docs/research/*-runtime-*.json

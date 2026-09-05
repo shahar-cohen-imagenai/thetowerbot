@@ -581,8 +581,7 @@ by `uv run tools/label_glyphs.py --size-class menu --reference modal`.
 Before spending that effort, note that this gap is on its way out: an OCR
 reader now runs alongside the template path in dry-run and logs where the
 two disagree (`tower_bot.ocr_ab`), precisely so a price the `menu` atlas
-refuses and OCR reads can be counted before the templates are retired. See
-`docs/superpowers/specs/2026-09-04-ocr-row-addressing-design.md`.
+refuses and OCR reads can be counted before the templates are retired.
 
 ### Brightness, the older heuristic
 
@@ -695,8 +694,8 @@ unknown values and missing inputs. Imports are stored per profile in local
 This adapter does not connect to Google Sheets, calculate Effective Paths formulas,
 or accept arbitrary native workbook CSVs. Effective Paths currently excludes a
 standard Workshop path; its lab and other recommendations remain advisory.
-Workshop unlock prerequisites stay in your editable purchase plan. See the
-[import format](docs/advisor-import.md) for the supported normalized fields.
+Workshop unlock prerequisites stay in your editable purchase plan. Use the
+JSON or CSV example in the advisor panel as the import template.
 
 Only recognized Workshop recommendations in coins with improving **displayed stat**
 targets can be added to a Strategy draft. Both source and account data must be
