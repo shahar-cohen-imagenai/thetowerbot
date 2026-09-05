@@ -68,4 +68,24 @@ describe("Account inspector", () => {
     expect(screen.queryByText("Damage")).toBeNull();
     expect(screen.getByText("Damage card")).toBeDefined();
   });
+  it("renders screen observations separately and retains them after failed refresh", async () => {
+    fetchAccount.mockResolvedValue({ ...snapshot, screen_readings: {
+      current_screen_id: "account.settings", error: null, readings: [{
+        screen_id: "account.settings", observed_at: 100, frame_width: 1080, frame_height: 2400,
+        frame_digest: "settings-frame", tiers: [], fields: [{
+          key: "game_version", label: "Game version", raw_value: "v29.0.1", status: "observed", confidence: .99, rect: [824, 1908, 124, 38],
+        }],
+      }],
+    } });
+    render(<AccountPage />);
+    await screen.findByText("v29.0.1");
+    expect(screen.getByText("no saved revision")).toBeDefined();
+    expect(screen.getByText("Unknown account")).toBeDefined();
+    expect(screen.getByText("Visible at last refresh")).toBeDefined();
+    fetchAccount.mockRejectedValue(new Error("503"));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+    await screen.findByText(/Could not load account: 503/);
+    expect(screen.getByText("v29.0.1")).toBeDefined();
+    expect(screen.getByText("settings-frame")).toBeDefined();
+  });
 });

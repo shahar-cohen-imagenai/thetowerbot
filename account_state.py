@@ -13,6 +13,7 @@ from typing import Any
 import db
 from concepts import REGISTRY
 from perception import Observation
+from account_screens import ScreenReadings
 
 logger = logging.getLogger(__name__)
 
@@ -121,6 +122,7 @@ class AccountRepository:
 class AccountState:
     def __init__(self, repository: AccountRepository | None = None) -> None:
         self.repository = repository
+        self.screen_readings = ScreenReadings()
         self._lock = threading.RLock()
         self._revision: AccountRevision | None = None
         self._error: str | None = None
@@ -140,6 +142,7 @@ class AccountState:
     def snapshot(self) -> dict[str, Any]:
         with self._lock:
             return {'persistence_available': self.repository is not None,
+                    'screen_readings': self.screen_readings.snapshot(),
                     'error': self._error or self._run_error,
                     'errors': {'account': self._error, 'run': self._run_error},
                     'revision': json.loads(_encoded(self._revision)) if self._revision else None,

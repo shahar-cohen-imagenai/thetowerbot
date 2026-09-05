@@ -400,3 +400,20 @@ def test_account_state_survives_runner_restart(runner_parts: tuple) -> None:
     runner.start()
     assert made[-1].kwargs['account_state'] is shared
     runner.stop()
+
+
+def test_screen_reading_lifecycle_retains_history_without_stale_current(runner_parts: tuple) -> None:
+    from account_screens import ScreenReading
+    runner, _, _, _, _ = runner_parts
+    state = runner.account_state.screen_readings
+    reading = ScreenReading('account.settings', 123., 1080, 2400, 'a' * 64, (), ())
+    state.observe(reading)
+    runner.start()
+    try:
+        assert state.snapshot()['current_screen_id'] is None
+        state.observe(reading)
+    finally:
+        runner.stop()
+    snapshot = state.snapshot()
+    assert snapshot['current_screen_id'] is None
+    assert snapshot['readings'][0]['observed_at'] == 123.

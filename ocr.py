@@ -62,24 +62,34 @@ def _engine_or_none() -> Any | None:
     return _engine
 
 
-def read(screen: Image | None) -> tuple[TextBox, ...]:
-    """Every text box on `screen` that clears the confidence floor."""
+def read(screen: Image | None, *, strict: bool = False,
+         min_confidence: float | None = None) -> tuple[TextBox, ...]:
+    """Read boxes, optionally surfacing errors or retaining guard candidates.
+
+    Existing callers retain the configured confidence floor and empty-on-error
+    behavior. A passive modal guard can retain uncertain titles without ever
+    accepting their values as observations.
+    """
     if screen is None:
         return ()
     with _lock:
         engine = _engine_or_none()
         if engine is None:
+            if strict:
+                raise RuntimeError('OCR engine unavailable')
             return ()
         try:
             result, _elapsed = engine(screen)
         except Exception:
             logger.exception("OCR failed on a %s frame", getattr(screen, "shape", "?"))
+            if strict:
+                raise RuntimeError('OCR inference failed') from None
             return ()
 
     boxes: list[TextBox] = []
     try:
         for box, text, confidence in result or ():
-            if confidence < config.OCR_CONFIDENCE_FLOOR:
+            if confidence < (config.OCR_CONFIDENCE_FLOOR if min_confidence is None else min_confidence):
                 logger.debug("dropped %r at confidence %.3f", text, confidence)
                 continue
             xs = [int(point[0]) for point in box]
@@ -96,6 +106,8 @@ def read(screen: Image | None) -> tuple[TextBox, ...]:
         # degrade to "nothing read", never raise out of the scan loop - but
         # a caught exception that leaves no trace is its own defect.
         logger.exception("could not turn the OCR result into boxes")
+        if strict:
+            raise RuntimeError('OCR output invalid') from None
         return ()
     return tuple(boxes)
 

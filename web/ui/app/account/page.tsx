@@ -6,6 +6,7 @@ import { SectionCard } from "@/components/ui/section-card";
 import { fetchAccount, fetchConcepts } from "@/lib/api";
 import { ACCOUNT_SECTIONS, evidenceAge, readerSupported } from "@/lib/account";
 import type { AccountConcept, AccountFact, AccountSection, AccountSnapshot, ConceptCatalog } from "@/lib/account";
+import { ScreenReadings } from "./ScreenReadings";
 
 const date = (seconds: number) => new Date(seconds * 1000).toLocaleString();
 
@@ -63,15 +64,16 @@ export default function AccountPage() {
   return <div className="mx-auto flex max-w-6xl flex-col gap-4">
     <PageHeader title="Account inspector" meta={account?.revision ? `revision ${account.revision.revision_id}` : unavailable ? "account state unavailable" : awaitingAccount ? "loading account" : "no saved revision"}
       action={<button disabled={loading} onClick={() => setReload(n => n + 1)} className="rounded-md border px-3 py-2 text-sm disabled:opacity-50">{loading ? "Loading…" : "Refresh"}</button>} />
-    <p className="max-w-3xl text-sm text-muted-foreground">Permanent account observations and the inputs still missing. Saved workshop values are not upgrade levels. No estimates or battle stats are substituted.</p>
+    <p className="max-w-3xl text-sm text-muted-foreground">Saved account evidence, recent game screen observations, and the inputs still missing. Workshop values and account totals are not individual upgrade levels.</p>
     {error && <p role="alert" className="rounded-md border border-danger p-3 text-danger">Could not load account: {error}. {account ? "Previously loaded evidence remains below; refresh failed." : "Account state is unavailable, not empty."}</p>}
     {account?.error && <p role="alert" className="rounded-md border border-danger p-3 text-danger">Account service warning: {account.error}. Saved evidence may be incomplete.</p>}
     {account && <>
       <div className="grid gap-4 sm:grid-cols-3">
         <SectionCard title="Saved observations"><p className="font-mono text-3xl">{unavailable ? "Unavailable" : facts.length}</p><p className="text-xs text-muted-foreground">{unavailable ? "Saved state could not be restored; observation count is unknown." : account.revision ? "Expand a value to inspect its evidence." : "Nothing verified yet; this is not a zero-value account."}</p></SectionCard>
         <SectionCard title="Account identity"><p>{state?.account_id ?? "Unknown account"}</p><p className="text-xs text-muted-foreground">Game version: {state?.game_version ?? "unknown"}</p><p className="break-all text-xs text-muted-foreground">Registry: {state?.registry_version ?? "unknown"}</p></SectionCard>
-        <SectionCard title="Reader capability"><p>Workshop stat values</p><p className="text-xs text-muted-foreground">{account.persistence_available ? "Persistence available" : "Persistence unavailable"}. Other permanent readers have no supported ingestion in this account API.</p></SectionCard>
+        <SectionCard title="Reader capability"><p>Saved Workshop values</p><p className="text-xs text-muted-foreground">{account.persistence_available ? "Persistence available" : "Persistence unavailable"}. {account.screen_readings ? "Settings and Stats screen observations are available separately for this session." : "Other permanent readers have no supported ingestion in this account API."}</p></SectionCard>
       </div>
+      <ScreenReadings data={account.screen_readings} />
       <SectionCard title="Missing optimizer inputs" tone="warn">
         <p className="text-sm text-muted-foreground">Unknown does not mean locked, unavailable in the game, or zero. Catalog membership does not prove ownership or execution support.</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{sections.map(([key, label]) => <div key={key} className="rounded-md bg-muted/40 p-3 text-sm"><p className="font-medium">{label}</p><p className="text-xs text-muted-foreground">{state?.[key]?.length ? `${state[key]!.length} saved observations; coverage may be partial` : key === "workshop_stats" ? unavailable ? "Unknown · account state unavailable" : "Not yet scanned / no verified values" : "Unknown · reader unavailable in this API"}</p></div>)}</div>
