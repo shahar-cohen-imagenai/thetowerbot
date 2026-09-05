@@ -9,6 +9,7 @@ inferred from the events.
 """
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import cv2
 import pytest
@@ -49,6 +50,38 @@ class FakeDevice:
 
     def swipe(self, *args: float) -> None:
         self.swipes.append(args)
+
+
+@pytest.mark.parametrize("name,upgrade_id,expected_taps", [
+    ("Unfamiliar Power", "discovered:unfamiliarpower", 0),
+    ("Golden Tower", "discovered:goldentower", 0),
+    ("Damage", "damage", 1),
+])
+def test_only_legacy_identity_can_purchase_an_affordable_observed_row(
+    session, monkeypatch, fake_header, name: str, upgrade_id: str, expected_taps: int,
+) -> None:
+    row = ObservedUpgrade(upgrade_id, name, "ATTACK", "workshop", 1, 5,
+                          "available", 1, config.Rect(0, 0, 100, 100), (50, 80))
+    monkeypatch.setattr(shopping_mod, "observe_frame", lambda *_:
+                        Observation("ATTACK", (row,), {}, None, 1, 270))
+    policy = a_policy(armed=True, coin_budget=100, workshop=(
+        ShoppingRule(name=name, category="ATTACK", target=2),
+    ))
+    device = FakeDevice()
+    session.begin(policy, run_count=1)
+    session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                      frame("menu_workshop_attack"), device, policy)
+    assert len(device.taps) == expected_taps
+    if expected_taps == 0:
+        assert any(e.reason == "unknown_identity" for e in session._bus.of_type("PurchaseSkipped"))
+        assert row.payload()["upgrade_id"] == upgrade_id
+
+
+def test_unknown_targets_and_mismatched_observation_identity_fail_closed() -> None:
+    row = ObservedUpgrade("discovered:damage", "Damage", "ATTACK", "workshop", 1, 5,
+                          "available", 1, config.Rect(0, 0, 100, 100), (50, 80))
+    assert shopping_mod._row_named("Damage", (row,), "ATTACK") is None
+    assert shopping_mod._target_reached("discovered:damage", 10, 2) is False
 
 
 @pytest.fixture(autouse=True)

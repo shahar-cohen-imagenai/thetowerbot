@@ -51,9 +51,14 @@ class ObservedUpgrade:
     rect: config.Rect
     tap: tuple[int, int] | None
 
+    @property
+    def concept_id(self) -> str | None:
+        entry = upgrades.by_id(self.upgrade_id)
+        return entry.concept_id if entry and upgrades.resolve(self.name, self.category) == entry else None
+
     def payload(self) -> dict:
         return {k: getattr(self, k) for k in (
-            "upgrade_id", "name", "category", "context", "value", "price", "status", "observed_at"
+            "upgrade_id", "concept_id", "name", "category", "context", "value", "price", "status", "observed_at"
         )}
 
 

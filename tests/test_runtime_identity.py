@@ -16,6 +16,17 @@ from strategy import Strategy
 from web import app as web_app
 
 
+def test_backend_hash_includes_runtime_concept_metadata(tmp_path: Path) -> None:
+    (tmp_path / "worker.py").write_text("VERSION = 1\n")
+    catalog = tmp_path / "catalog"
+    catalog.mkdir()
+    data = catalog / "concepts.v1.json"
+    data.write_text('{"registry_version": "one"}')
+    before = runtime_identity.source_hash(tmp_path)
+    data.write_text('{"registry_version": "two"}')
+    assert runtime_identity.source_hash(tmp_path) != before
+
+
 def test_captured_backend_identity_does_not_follow_later_source_edits(tmp_path: Path) -> None:
     (tmp_path / "worker.py").write_text("OLD = True\n")
     captured = runtime_identity.capture_backend_identity(tmp_path, started_at=123.0)

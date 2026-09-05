@@ -67,6 +67,19 @@ def test_workshop_unlock_keeps_its_own_identity() -> None:
     assert result.rows[0].value is None
 
 
+def test_observations_keep_unknown_ocr_visible_without_canonical_execution_identity() -> None:
+    from perception import parse_frame
+    frame = cv2.imread(str(FIXTURES / "in_run_lit.png"))
+    boxes = tuple(ocr.TextBox("Unfamiliar Power" if b.text == "Damage" else b.text,
+                              b.confidence, b.rect) for b in recorded("in_run_lit"))
+    result = parse_frame(frame, boxes, "battle", now=100)
+    unknown = next(r for r in result.rows if r.name == "Unfamiliar Power")
+    assert unknown.upgrade_id == "discovered:unfamiliarpower"
+    assert unknown.payload()["concept_id"] is None
+    known = next(r for r in result.rows if r.upgrade_id == "critical_chance")
+    assert known.payload()["concept_id"] == "stats.critical_chance"
+
+
 def test_wallet_crop_ocr_reads_recorded_balance_without_a_digit_atlas() -> None:
     from perception import read_cash
     frame = cv2.imread(str(FIXTURES / "in_run_lit.png"))

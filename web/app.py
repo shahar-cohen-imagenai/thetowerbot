@@ -33,6 +33,7 @@ import config
 import db
 import events
 import upgrades
+from concepts import REGISTRY
 from runtime_identity import API_VERSION, PROCESS_IDENTITY, read_frontend_identity
 from advisor import AdvisorStore
 from web.advisor import advisor_router
@@ -296,6 +297,10 @@ def create_app(
     @app.get("/api/upgrades")
     async def upgrade_catalog() -> list[dict[str, Any]]:
         return upgrades.catalog_payload()
+
+    @app.get("/api/concepts")
+    async def concept_catalog() -> dict[str, Any]:
+        return REGISTRY.payload()
 
     @app.get("/api/autopilot/presets")
     async def autopilot_presets() -> list[dict[str, Any]]:
