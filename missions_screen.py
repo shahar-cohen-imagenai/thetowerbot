@@ -18,8 +18,10 @@ import hashlib
 import math
 import re
 import time
+import threading
 from collections import Counter
-from dataclasses import dataclass, replace
+from dataclasses import asdict, dataclass, replace
+from typing import Any
 
 import ocr
 import screen_discovery
@@ -28,6 +30,16 @@ from config import Rect
 from device import Image
 
 _MIN_CONFIDENCE = .90
+
+# Every bound in this module was measured on the 1080x2400 capture. A frame of
+# any other size is one this reader has not looked at, never one it found clear.
+_EXPECTED_FRAME = (2400, 1080)
+
+# The page title at (32, 249, 433, 40), with margin. Cropping it is what keeps
+# this reader affordable in a loop that scans every two seconds: a full-frame
+# OCR runs only once this band says the missions page is actually up.
+_TITLE = Rect(0, 220, 620, 80)
+_TITLE_LABEL = 'dailymissions'
 
 # "completed 0/35" measured at (796, 326, 261, 36) - the daily counter, and
 # the only evidence this reader has for whether a weekly milestone is reached.
@@ -124,6 +136,11 @@ class MissionsReading:
     shown: int | None
     offered: int | None
     unseen: int | None
+    # How many mission cards the FRAME draws, independent of how many the
+    # count band claims and of how many carried readable text. The band and
+    # the parsed count can agree on a short read - a band misread low, a card
+    # that yielded no OCR - and then only the drawn cards contradict them.
+    cards_drawn: int
     missions: tuple[MissionEntry, ...]
     milestones: tuple[MilestoneEntry, ...]
     complete: bool
@@ -139,10 +156,11 @@ class MissionsReading:
 
         'unseen' is a claim about the WORLD - this mission is not on the
         page - and may only be made once the page was read completely: every
-        card the page says it is showing was parsed, and every parsed card
-        was identified. If any card's identity is unknown, or fewer cards
-        were read than the page says are drawn, then this mission cannot be
-        ruled out, and the answer is 'unreadable' - a claim about our
+        card the page says it is showing was parsed, every card the FRAME
+        draws was parsed, and every parsed card was identified. If any card's
+        identity is unknown, or fewer cards were read than either the page
+        says are drawn or the frame actually holds, then this mission cannot
+        be ruled out, and the answer is 'unreadable' - a claim about our
         EVIDENCE. A card that is visibly on screen must never be reported as
         absent just because we failed to name it.
         """
@@ -153,6 +171,7 @@ class MissionsReading:
         if matches:
             return 'ambiguous'
         if (self.shown is None or len(self.missions) != self.shown
+                or len(self.missions) != self.cards_drawn
                 or any(m.mission_id is None for m in self.missions)):
             return 'unreadable'
         return 'unseen'
@@ -315,7 +334,8 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
     completed, completed_target = _counter(boxes)
     counted = screen_discovery.missions_count(boxes)
     shown, offered = counted if counted else (None, None)
-    missions = tuple(m for m in (_mission(card, boxes) for card in _cards(screen)) if m)
+    cards = _cards(screen)
+    missions = tuple(m for m in (_mission(card, boxes) for card in cards) if m)
     # Two cards under one identity are ambiguous, and ambiguity is its own
     # answer: it is not 'unreadable' (both were read) and not 'available'.
     repeated = Counter(m.mission_id for m in missions if m.mission_id is not None)
@@ -327,7 +347,95 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
         hashlib.sha256(screen.tobytes()).hexdigest(),
         completed, completed_target, shown, offered,
         offered - shown if shown is not None and offered is not None else None,
-        missions, _milestones(boxes, completed),
+        len(cards), missions, _milestones(boxes, completed),
         # Never complete: the weekly strip is cut off by the right edge of the
         # capture and only `shown` of `offered` missions are on the page.
         complete=False)
+
+
+class MissionsReadings:
+    """The latest Daily Missions reading, for the scan loop and the API.
+
+    Thread-safe, holds one reading and no history, and persists nothing. It
+    keeps the same distinction the reader itself keeps: a frame this reader
+    never examined reports `scanned` False, which is not the same fact as a
+    frame examined and found to hold no missions page. Only the second may
+    stand for "no missions page is up".
+    """
+
+    def __init__(self) -> None:
+        self._lock = threading.RLock()
+        self._reading: MissionsReading | None = None
+        # The last reading that succeeded, kept after the page is left: a
+        # visit walks away from the missions page before anyone reads its
+        # result, so the current frame is nearly always a menu by then. It
+        # carries its own `observed_at`, which is what says how old it is.
+        self._latest: MissionsReading | None = None
+        self._error: str | None = None
+        self._scanned = False
+
+    def snapshot(self) -> dict[str, Any]:
+        """Detached payload. Carries no coordinate: a card's or a chest's
+        `rect` is reading evidence, and nothing here may become a tap target.
+
+        `latest` is retained and may be from an earlier frame;
+        `current_screen_id` is about the frame just scanned. Keeping them in
+        one payload under two names is what stops a stale reading being read
+        as "the missions page is up right now".
+        """
+        with self._lock:
+            latest = None if self._latest is None else {
+                k: v for k, v in asdict(self._latest).items() if k != 'frame_digest'}
+            if latest is not None:
+                # Both entry types name this field `rect`. Stripping it by
+                # any other name is a filter that quietly ships it instead.
+                for key in ('missions', 'milestones'):
+                    latest[key] = [{k: v for k, v in entry.items() if k != 'rect'}
+                                   for entry in latest[key]]
+            current = None if self._reading is None else self._reading.screen_id
+            return {'latest': latest, 'current_screen_id': current,
+                    'error': self._error, 'scanned': self._scanned}
+
+    def current_evidence(self) -> dict[str, Any]:
+        """What the last frame showed, for a transaction step to check."""
+        with self._lock:
+            screen_id = None if self._reading is None else self._reading.screen_id
+            return {'screen_id': screen_id, 'error': self._error, 'scanned': self._scanned}
+
+    def observe(self, reading: MissionsReading | None, *, error: str | None = None,
+                scanned: bool = False) -> None:
+        with self._lock:
+            self._reading = reading
+            if reading is not None:
+                self._latest = reading
+            self._error = error
+            self._scanned = scanned or reading is not None
+
+    def scan(self, screen: Image) -> bool:
+        """Update from this frame; return whether all actions must hold.
+
+        Actions hold whenever the missions page is up or might be: the bot
+        has no verified target on that page, so a tap aimed at the menu
+        underneath it would land somewhere nobody chose.
+        """
+        self.observe(None)
+        if screen.shape[:2] != _EXPECTED_FRAME:
+            return False
+        try:
+            crop = screen[_TITLE.y:_TITLE.y + _TITLE.h, _TITLE.x:_TITLE.x + _TITLE.w]
+            titles = ocr.read(crop, strict=True, min_confidence=0.)
+            if not any(tiles.normalise(b.text) == _TITLE_LABEL for b in titles):
+                # Examined, and no missions title on it. This is the one
+                # branch that may stand for "no missions page is up".
+                self.observe(None, scanned=True)
+                return False
+            reading = parse_frame(screen, ocr.read(screen, strict=True))
+            self.observe(reading, scanned=True,
+                         error=None if reading else
+                         'The missions page is up but could not be read reliably')
+            return True
+        except Exception:
+            # Unscanned, not clear, and without the engine's own words: a
+            # failed reader has looked at nothing.
+            self.observe(None, error='Missions OCR failed; actions held for this scan')
+            return True

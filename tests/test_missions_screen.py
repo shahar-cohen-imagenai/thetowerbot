@@ -420,6 +420,23 @@ def test_absence_is_not_claimed_when_fewer_cards_were_read_than_are_drawn() -> N
     assert reading.status_for('buy_cards') == 'unreadable'
 
 
+def test_absence_needs_the_drawn_cards_too_not_just_the_bands_word_for_it() -> None:
+    """The count band agreeing with a short read does not make the read whole.
+
+    Two failures at once - the band misreading LOW to 1/8 while the second
+    card yields no OCR at all - make `shown` and the parsed count agree on a
+    page that was never fully read. Only the cards actually drawn on the
+    frame contradict them, so absence has to be checked against those as
+    well; otherwise a mission plainly on screen is reported `unseen`.
+    """
+    boxes = retext(recorded(), '2/8 Missions', '1/8 Missions')
+    boxes = tuple(b for b in boxes if b not in in_card(boxes, CARD_TWO))
+    reading = read(boxes)
+    assert reading.shown == 1 and len(reading.missions) == 1
+    assert reading.cards_drawn == 2
+    assert reading.status_for('buy_cards') == 'unreadable'
+
+
 def test_an_unreadable_shown_count_stops_the_reader_before_any_reading() -> None:
     """The count band is one of the three identity anchors, so it cannot be
     missing from a reading that exists. status_for still guards against a
@@ -481,3 +498,102 @@ def test_the_missions_reader_exposes_no_field_a_tap_could_be_read_from() -> None
         'reward_values', 'rewards_status', 'confidence', 'rect'}
     assert {f.name for f in fields(missions_screen.MilestoneEntry)} == {
         'threshold', 'status', 'confidence', 'rect'}
+
+
+# --- the scan-loop holder -------------------------------------------------
+
+def workshop() -> Image:
+    return cv2.imread(str(FIXTURES / 'menu_workshop.png'))
+
+
+def test_the_holder_reads_the_missions_page_and_holds_actions_on_it() -> None:
+    readings = missions_screen.MissionsReadings()
+    assert readings.scan(frame()) is True
+    evidence = readings.current_evidence()
+    assert evidence == {'screen_id': 'missions.daily', 'error': None, 'scanned': True}
+    assert readings.snapshot()['latest']['shown'] == 2
+    assert readings.snapshot()['current_screen_id'] == 'missions.daily'
+
+
+def test_a_supported_page_that_is_not_missions_is_examined_and_clear() -> None:
+    """'Clear' is a positive observation, and only this branch may make it."""
+    readings = missions_screen.MissionsReadings()
+    assert readings.scan(workshop()) is False
+    assert readings.current_evidence() == {
+        'screen_id': None, 'error': None, 'scanned': True}
+
+
+def test_the_wrong_geometry_is_unscanned_rather_than_clear() -> None:
+    """Every bound in this module was measured at 1080x2400. Off it, this
+    reader has not looked at the screen - which is not the same fact as
+    having looked and found no missions page."""
+    readings = missions_screen.MissionsReadings()
+    assert readings.scan(cv2.resize(frame(), (540, 1200))) is False
+    assert readings.current_evidence()['scanned'] is False
+
+
+def test_a_wrong_geometry_frame_invalidates_an_earlier_clear_reading() -> None:
+    """A clear observation belongs to the frame it was made on.
+
+    The fresh-holder case above only proves the constructor default. This is
+    the one that bites: the bot is on a clear menu, the emulator is resized
+    mid-walk, and without the reset in `scan` the reader keeps asserting
+    "examined, and no missions page" about a frame it refused to look at -
+    which is exactly what authorises a transaction's next tap.
+    """
+    readings = missions_screen.MissionsReadings()
+    assert readings.scan(workshop()) is False
+    assert readings.current_evidence()['scanned'] is True
+    assert readings.scan(cv2.resize(frame(), (540, 1200))) is False
+    assert readings.current_evidence() == {
+        'screen_id': None, 'error': None, 'scanned': False}
+
+
+def test_an_ocr_failure_holds_actions_and_never_reports_a_clear_menu(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    def boom(*_args: object, **_kwargs: object) -> tuple[ocr.TextBox, ...]:
+        raise RuntimeError('engine gone')
+
+    readings = missions_screen.MissionsReadings()
+    monkeypatch.setattr(missions_screen.ocr, 'read', boom)
+    assert readings.scan(frame()) is True
+    evidence = readings.current_evidence()
+    assert evidence['scanned'] is False and evidence['screen_id'] is None
+    # The engine's own words never reach the API payload.
+    assert 'engine gone' not in evidence['error']
+
+
+def test_a_missions_title_we_cannot_parse_holds_actions_rather_than_passing(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """The title says this IS the missions page; failing to read the rest of
+    it is an error to hold on, never a frame to hand back to the tapping
+    paths as though no page were up."""
+    readings = missions_screen.MissionsReadings()
+    monkeypatch.setattr(missions_screen, 'parse_frame', lambda *a, **k: None)
+    assert readings.scan(frame()) is True
+    evidence = readings.current_evidence()
+    assert evidence['screen_id'] is None and evidence['scanned'] is True
+    assert evidence['error']
+
+
+def test_the_holder_snapshot_exposes_no_field_a_tap_could_be_read_from() -> None:
+    """Asserted as exact key sets, not as a substring blocklist.
+
+    A blocklist of '"x"'/'"point' matches nothing in a serialized
+    `"rect": [17, 738, 1046, 242]`, so it passed while every card shipped
+    its bounds. Naming the whole payload is what makes a new coordinate
+    field fail this rather than slip through it.
+    """
+    readings = missions_screen.MissionsReadings()
+    readings.scan(frame())
+    snapshot = readings.snapshot()
+    latest = snapshot['latest']
+    assert latest['missions'] and latest['milestones']
+    for entry in latest['missions']:
+        assert set(entry) == {
+            'mission_id', 'raw_text', 'progress', 'target', 'status',
+            'reward_values', 'rewards_status', 'confidence'}
+    for entry in latest['milestones']:
+        assert set(entry) == {'threshold', 'status', 'confidence'}
+    assert 'rect' not in json.dumps(snapshot)
+    assert 'frame_digest' not in latest

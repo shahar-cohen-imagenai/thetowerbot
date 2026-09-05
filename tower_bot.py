@@ -19,6 +19,8 @@ Usage:
 from __future__ import annotations
 
 from account_collection import StatsCollection
+from missions_screen import MissionsReadings
+from missions_visit import MissionsVisit
 from account_state import AccountState, AccountRepository
 from account_screens import ScreenReadings
 
@@ -96,6 +98,8 @@ class TowerBot:
         autopilot_state: AutopilotState | None = None,
         account_state: AccountState | None = None,
         collection: StatsCollection | None = None,
+        visit: MissionsVisit | None = None,
+        missions: MissionsReadings | None = None,
     ) -> None:
         self.account_state = account_state
         self._screen_readings = account_state.screen_readings if account_state is not None else ScreenReadings()
@@ -104,6 +108,10 @@ class TowerBot:
         # transaction the loop then walks. A bot built without one gets its
         # own idle instance rather than an AttributeError on every scan.
         self.collection = collection if collection is not None else StatsCollection()
+        # The same arrangement for the Missions page: the runner owns them
+        # when there is one, and a bot built without either gets its own.
+        self.visit = visit if visit is not None else MissionsVisit()
+        self.missions = missions if missions is not None else MissionsReadings()
         self.device = device
         self.templates = templates
         self.bus = bus
@@ -492,6 +500,11 @@ class TowerBot:
         # including paused scans and an already-active shopping visit.
         screen_readings = self.account_state.screen_readings if self.account_state is not None else self._screen_readings
         panel = screen_readings.scan(self.screen)
+        # The same passive ownership for the Daily Missions page. The bot has
+        # no verified target on it, so a tap aimed at the menu underneath
+        # would land somewhere nobody chose - it holds actions exactly as a
+        # panel does, whether or not a visit is walking.
+        missions_page = self.missions.scan(self.screen)
         # Pause is the operator's stop-touching-my-device control, and this
         # block is the one path that taps while the guard is up - so pause
         # has to reach it. The runner already refuses to ARM a transaction on
@@ -500,25 +513,46 @@ class TowerBot:
         if self.collection.active and settings.paused:
             self.collection.cancel(
                 'paused', 'The bot was paused mid-transaction; it was not resumed.')
-        # An armed Collect stats transaction owns the frame the same way a
-        # panel does, on the menu as well as on the panel itself: it is the
-        # one sanctioned exception to the guard above, and nothing else may
-        # tap while it walks. Its steps refuse to act on any frame this same
-        # scan did not identify - see account_collection.
-        if panel or self.collection.active:
+        if self.visit.active and settings.paused:
+            self.visit.cancel(
+                'paused', 'The bot was paused mid-visit; it was not resumed.')
+        # An armed transaction owns the frame the same way a panel does, on
+        # the menu as well as on the page itself: these are the only
+        # sanctioned exceptions to the guard above, and nothing else may tap
+        # while one walks. Their steps refuse to act on any frame this same
+        # scan did not identify - see account_collection and missions_visit.
+        # At most one is ever armed; the runner refuses to arm the second.
+        if panel or missions_page or self.collection.active or self.visit.active:
             self.controls.drain()
             self.wallet = None
-            reason, detail = (
-                ('account_screen_guard', 'Account panel or OCR error; actions held')
-                if panel else
-                ('collect_stats_transaction',
-                 'A read-only Collect stats transaction holds actions')
-            )
+            if panel:
+                reason, detail = ('account_screen_guard',
+                                  'Account panel or OCR error; actions held')
+            elif missions_page:
+                reason, detail = ('missions_screen_guard',
+                                  'The missions page is up; actions held')
+            elif self.collection.active:
+                reason, detail = ('collect_stats_transaction',
+                                  'A read-only Collect stats transaction holds actions')
+            else:
+                reason, detail = ('missions_visit_transaction',
+                                  'A read-only Missions visit holds actions')
             self.autopilot.suspend('Account screen observation; actions held' if panel else detail)
-            action = self.collection.advance(
-                screen=self.screen, device=self.device, templates=self.templates,
-                readings=screen_readings, state=state.value, tuning=settings.strategy,
-            )
+            if self.collection.active:
+                walking = 'collect_stats'
+                action = self.collection.advance(
+                    screen=self.screen, device=self.device, templates=self.templates,
+                    readings=screen_readings, state=state.value, tuning=settings.strategy,
+                )
+            elif self.visit.active:
+                walking = 'missions_visit'
+                action = self.visit.advance(
+                    screen=self.screen, device=self.device, templates=self.templates,
+                    readings=screen_readings, missions=self.missions,
+                    state=state.value, tuning=settings.strategy,
+                )
+            else:
+                walking, action = None, None
             # A tap nobody can find afterwards is the failure this guards
             # against: the transaction's taps get the same Tapped event and
             # the same overlay crosshair as every other tap path, and the
@@ -526,7 +560,7 @@ class TowerBot:
             # is actually what happened.
             if self.frames is not None:
                 self.frames.set_boxes([] if action is None else [{
-                    'name': f'collect_stats:{action.name}',
+                    'name': f'{walking}:{action.name}',
                     'x': int(action.rect[0]) if action.rect else int(action.x),
                     'y': int(action.rect[1]) if action.rect else int(action.y),
                     'w': int(action.rect[2]) if action.rect else 0,
@@ -538,7 +572,7 @@ class TowerBot:
                 self.bus.publish(events.Skipped(action='*', reason=reason, detail=detail))
             else:
                 self.bus.publish(events.Tapped(
-                    action=f'collect_stats:{action.step}', x=action.x, y=action.y,
+                    action=f'{walking}:{action.step}', x=action.x, y=action.y,
                     score=action.score,
                 ))
             self.bus.publish(events.ScanCompleted(screen=state.value,
