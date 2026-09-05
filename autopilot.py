@@ -15,6 +15,7 @@ import config
 import events
 import upgrades
 from device import Image, tap
+from combat_context import CombatContext, RunIdentity
 from perception import Observation, ObservedUpgrade, observe_frame
 from policy import AutopilotPolicy, UpgradeRule, choose
 
@@ -23,24 +24,43 @@ class AutopilotState:
     def __init__(self) -> None:
         self._lock = threading.RLock()
         self._rows: dict[tuple[str, str], dict] = {}
+        # The run and build each cached row was read under, kept beside the
+        # rows rather than inside them: the rows are deep-copied into the
+        # dashboard payload, and identity is bookkeeping, not an observation
+        # anybody reads off the screen.
+        self._origins: dict[tuple[str, str], RunIdentity] = {}
         self._view: dict[str, Any] = dict(
             phase="idle", reason="Autopilot is off", next_upgrade_id=None,
             category=None, combat={}, updated_at=None, verified_purchases=0, last_purchase=None,
         )
 
-    def observe(self, observation: Observation) -> None:
+    def observe(self, observation: Observation, identity: RunIdentity = RunIdentity()) -> None:
         with self._lock:
             for row in observation.rows:
                 self._rows[(row.context, row.upgrade_id)] = row.payload()
+                self._origins[(row.context, row.upgrade_id)] = identity
             self._view.update(category=observation.category, updated_at=observation.observed_at)
             if not observation.rows or any(r.context == "battle" for r in observation.rows):
                 self._view["combat"] = dict(observation.combat)
 
-    def rows(self, context: str, now: float) -> dict[str, dict]:
+    def rows(self, context: str, now: float,
+             identity: RunIdentity | None = None) -> dict[str, dict]:
+        """Cached rows for `context`, with anything stale reduced to unknown.
+
+        Two independent expiries, and the second is why identity is tracked at
+        all: age alone cannot notice that the run restarted or the build
+        changed a second ago, and a price cached under the previous run buys
+        the wrong thing at full confidence. Expiry blanks the value and the
+        price rather than zeroing them - an expired row is a row nobody has
+        read yet, not a free upgrade.
+        """
         with self._lock:
             result = {key[1]: dict(row) for key, row in self._rows.items() if key[0] == context}
-        for row in result.values():
-            if now - row["observed_at"] > 60:
+            origins = {key[1]: self._origins.get(key, RunIdentity())
+                       for key in self._rows if key[0] == context}
+        for upgrade_id, row in result.items():
+            changed_run = identity is not None and origins[upgrade_id].differs_from(identity)
+            if changed_run or now - row["observed_at"] > 60:
                 row.update(status="unknown", value=None, price=None)
         return result
 
@@ -63,6 +83,7 @@ class AutopilotState:
     def clear_battle(self) -> None:
         with self._lock:
             self._rows = {k: v for k, v in self._rows.items() if k[0] != "battle"}
+            self._origins = {k: v for k, v in self._origins.items() if k[0] != "battle"}
             self._view.update(combat={}, category=None)
 
     def snapshot(self) -> dict[str, Any]:
@@ -111,6 +132,11 @@ class BattleAutopilot:
     def __init__(self, state: AutopilotState | None = None, bus: Any | None = None,
                  account_state: AccountState | None = None) -> None:
         self.state = state or AutopilotState()
+        # Every battle fact this planner decides from, observed separately and
+        # bound to the run and build it came from. Purchases read their cash
+        # through it, which is what stops a dropped wallet read from becoming
+        # a zero balance or a stale one from becoming a purchase.
+        self.context = CombatContext()
         self.account_state = account_state
         self.bus = bus
         self.pending: tuple[ObservedUpgrade, float] | None = None
@@ -152,6 +178,7 @@ class BattleAutopilot:
         if clear_battle:
             self.pending = None
             self.state.clear_battle()
+            self.context.clear()
             self._blocked.clear()
 
     def _emit(self, event: events.Event) -> None:
@@ -202,11 +229,17 @@ class BattleAutopilot:
 
     def step(self, screen: Image, device: Any, policy: AutopilotPolicy, *,
              cash: int | None = None, observation: Observation | None = None,
-             run_id: int | None = None, cooldown: float = .75) -> bool:
+             run_id: int | None = None, cooldown: float = .75,
+             identity: RunIdentity = RunIdentity(), elapsed: float | None = None) -> bool:
         observation = observation or observe_frame(screen, "battle")
         if self.account_state is not None:
             self.account_state.observe_run(observation, run_id)
         now = observation.observed_at
+        # Before any branch below can return: a frame that arrives under a
+        # different run or build expires what the previous one left behind,
+        # whether or not this step gets as far as deciding anything.
+        self.context.observe(observation, identity=identity, elapsed=elapsed,
+                             cash=cash if cash is not None else observation.cash, now=now)
         with self._command_lock:
             if self._manual is None and not self.pending and self._queued:
                 self._manual, self._queued = self._queued, None
@@ -222,7 +255,7 @@ class BattleAutopilot:
         if not policy.enabled and not self._manual and not self.pending:
             self.suspend("Autopilot is off")
             return False
-        self.state.observe(observation)
+        self.state.observe(observation, identity)
         if self._policy != policy:
             self.search = None
             self._policy = policy
@@ -276,15 +309,18 @@ class BattleAutopilot:
                     self._manual = None
                     self.state.decision("manual", "Scan complete; unseen upgrades remain unknown")
             return moved
-        cached = self.state.rows("battle", now)
+        cached = self.state.rows("battle", now, identity)
         enabled = [r for r in policy.effective_rules() if r.enabled and self._blocked.get(r.upgrade_id, 0) <= now]
         if not enabled:
             self.state.decision("waiting", "No eligible rules; enable upgrades or wait for a fresh scan")
             return False
-        combat = dict(observation.combat)
-        actual_cash = cash if cash is not None else observation.cash
-        if actual_cash is not None:
-            combat["cash"] = actual_cash
+        # Fresh facts only, each aged on its own clock. A fact that is
+        # unknown, unreadable, expired or unsupported is simply absent here,
+        # and the guides refuse to decide without the keys they need - which
+        # is the whole reason none of them is ever filled in with a zero.
+        combat = self.context.combat(now)
+        wallet = self.context.reading("cash", now)
+        actual_cash = int(wallet.value) if wallet.known and isinstance(wallet.value, (int, float)) else None
         decision = choose(replace(policy, rules=tuple(enabled)), cached, combat)
         # Discover the configured inventory even when a guide must wait for stats.
         missing = next((r.upgrade_id for r in enabled if r.upgrade_id not in cached
@@ -307,8 +343,11 @@ class BattleAutopilot:
         self.search = None
         if row.status != "available" or row.price is None or row.tap is None:
             return False
-        if actual_cash is None:
-            self.state.decision("blocked", "Waiting for a reliable cash reading", target)
+        refusal = self.context.refuse("This purchase", ("cash",), now=now)
+        if refusal is not None or actual_cash is None:
+            # The wallet is decision-critical and has no safe default: no
+            # reading means no purchase, however affordable the price looks.
+            self.state.decision("blocked", refusal or "This purchase is held: cash is unreadable", target)
             return False
         if row.price > actual_cash - policy.cash_reserve:
             self.state.decision("saving", f"Saving cash for {row.name}; reserve protected", target)

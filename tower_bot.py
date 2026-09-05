@@ -58,6 +58,7 @@ from affordability import (
     DigitAffordability,
 )
 from autopilot import AutopilotState, BattleAutopilot
+from combat_context import RunIdentity, build_revision
 from perception import read_cash
 from control import Controls, Live
 from device import EmulatorError, Image, capture_screen, connect_device, tap
@@ -186,6 +187,22 @@ class TowerBot:
         if self._screen is None:
             return self.refresh_screen()
         return self._screen
+
+    def run_identity(self, settings: Live) -> RunIdentity:
+        """Which run, and which build, this scan is observing.
+
+        Assembled once per scan from three independent sources - the run
+        tracker's open run, the account revision the Workshop was last read
+        into, and the purpose the run was started for - because a battle fact
+        is only meaningful under all three. Any of them may be None: not
+        knowing the build is not evidence that the build changed, and
+        combat_context treats it that way.
+        """
+        return RunIdentity(
+            run_id=self.runs.current_id,
+            build_revision=build_revision(self.account_state),
+            purpose=settings.strategy.autopilot.purpose,
+        )
 
     # -- the core helper ---------------------------------------------------
     def find_and_click_image(
@@ -667,7 +684,9 @@ class TowerBot:
                 if in_run_anchor is not None and not speed_changed and not commands:
                     clicked = self.autopilot.step(self.screen, self.device, settings.strategy.autopilot,
                                                    cash=self.wallet, cooldown=settings.strategy.click_cooldown,
-                                                   run_id=self.runs.current_id)
+                                                   run_id=self.runs.current_id,
+                                                   identity=self.run_identity(settings),
+                                                   elapsed=self.runs.elapsed(time.monotonic()))
             else:
                 self.autopilot.suspend("Autopilot is off; legacy purchases are active")
                 for rule in settings.strategy.actions:
