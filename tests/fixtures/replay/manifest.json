@@ -1,0 +1,380 @@
+{
+  "schema_version": 1,
+  "note": [
+    "Replay coverage for every capability the support matrix has enabled.",
+    "Each capability names three examples in one vocabulary: positive (an",
+    "observation the runtime may act on or record), unavailable (present and",
+    "not actionable) and ambiguous (read and not trusted, or a page the",
+    "reader refused outright). `recording: recorded` means a capture of that",
+    "state exists. `recording: derived` means the example is built by editing",
+    "the OCR of a named capture; every edit states the exact rect it touches",
+    "and the text that rect held, so a derived example cannot drift into",
+    "describing a state no capture ever showed.",
+    "Verify with: .venv/bin/python -m pytest -p no:allure_pytest",
+    "tests/test_fixtures.py tests/test_screen_discovery.py -q"
+  ],
+  "capabilities": {
+    "workshop.attack": {
+      "adapter": "grid",
+      "context": "workshop",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "menu_workshop_attack",
+          "observation": "damage",
+          "expect_status": "available",
+          "why": "The row the purchase loop is meant to be able to buy."
+        },
+        "unavailable": {
+          "recording": "derived",
+          "frame": "menu_workshop_attack",
+          "observation": "damage",
+          "expect_status": "maxed",
+          "edits": [{"at": [407, 615, 55, 37], "was": "30", "set_text": "MAXED"}],
+          "why": "No capture of a maxed Workshop row exists on either recorded account. The price strip is where the game writes MAXED, so the edit puts the marker exactly where the reader looks for a price."
+        },
+        "ambiguous": {
+          "recording": "recorded",
+          "frame": "menu_workshop_attack_early",
+          "observation": "discovered:attackrange",
+          "expect_status": "uncatalogued",
+          "why": "A real upgrade the catalog cannot name. Recorded, not derived: the second-stage Attack page carries it."
+        }
+      }
+    },
+    "workshop.defense": {
+      "adapter": "grid",
+      "context": "workshop",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "menu_workshop_defense",
+          "observation": "health",
+          "expect_status": "available"
+        },
+        "unavailable": {
+          "recording": "derived",
+          "frame": "menu_workshop_defense",
+          "observation": "health",
+          "expect_status": "maxed",
+          "edits": [{"at": [407, 615, 54, 37], "was": "30", "set_text": "MAXED"}],
+          "why": "As workshop.attack: no maxed Workshop row has been captured."
+        },
+        "ambiguous": {
+          "recording": "recorded",
+          "frame": "menu_workshop_defense_early",
+          "observation": "discovered:unlockthornupgrades",
+          "expect_status": "uncatalogued",
+          "why": "The second-stage Defense page carries an unlock row the catalog has never heard of."
+        }
+      }
+    },
+    "workshop.utility": {
+      "adapter": "grid",
+      "context": "workshop",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "menu_workshop_utility",
+          "observation": "unlock_cash_bonuses",
+          "expect_status": "available"
+        },
+        "unavailable": {
+          "recording": "derived",
+          "frame": "menu_workshop_utility",
+          "observation": "unlock_cash_bonuses",
+          "expect_status": "maxed",
+          "edits": [{"at": [480, 583, 67, 46], "was": "40", "set_text": "MAXED"}]
+        },
+        "ambiguous": {
+          "recording": "derived",
+          "frame": "menu_workshop_utility",
+          "observation": "unlock_cash_bonuses",
+          "expect_status": "unreadable",
+          "edits": [{"at": [480, 583, 67, 46], "was": "40", "set_text": "???"}],
+          "why": "Neither recorded Utility page carries an uncatalogued row, so the garbled-price form stands in. A price nobody could read must cost the row its target, not its identity."
+        }
+      }
+    },
+    "battle.attack": {
+      "adapter": "grid",
+      "context": "battle",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "in_run_lit",
+          "observation": "damage",
+          "expect_status": "available"
+        },
+        "unavailable": {
+          "recording": "derived",
+          "frame": "in_run_lit",
+          "observation": "damage",
+          "expect_status": "maxed",
+          "edits": [{"at": [364, 1861, 73, 41], "was": "$10", "set_text": "MAXED"}],
+          "why": "An in-run row does reach MAXED in play, and no capture of it exists. The marker replaces the row's own price token."
+        },
+        "ambiguous": {
+          "recording": "derived",
+          "frame": "in_run_lit",
+          "observation": "damage",
+          "expect_status": "unreadable",
+          "edits": [{"at": [364, 1861, 73, 41], "was": "$10", "set_text": "???"}]
+        }
+      }
+    },
+    "battle.defense": {
+      "adapter": "grid",
+      "context": "battle",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "in_run_defense",
+          "observation": "health",
+          "expect_status": "available"
+        },
+        "unavailable": {
+          "recording": "derived",
+          "frame": "in_run_defense",
+          "observation": "health",
+          "expect_status": "maxed",
+          "edits": [{"at": [365, 1862, 72, 40], "was": "$10", "set_text": "MAXED"}]
+        },
+        "ambiguous": {
+          "recording": "derived",
+          "frame": "in_run_defense",
+          "observation": "health",
+          "expect_status": "unreadable",
+          "edits": [{"at": [365, 1862, 72, 40], "was": "$10", "set_text": "???"}]
+        }
+      }
+    },
+    "battle.utility": {
+      "adapter": "grid",
+      "context": "battle",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "in_run_utility",
+          "observation": "cash_bonus",
+          "expect_status": "available"
+        },
+        "unavailable": {
+          "recording": "derived",
+          "frame": "in_run_utility",
+          "observation": "cash_bonus",
+          "expect_status": "maxed",
+          "edits": [{"at": [364, 1862, 73, 40], "was": "$10", "set_text": "MAXED"}]
+        },
+        "ambiguous": {
+          "recording": "derived",
+          "frame": "in_run_utility",
+          "observation": "cash_bonus",
+          "expect_status": "unreadable",
+          "edits": [{"at": [364, 1862, 73, 40], "was": "$10", "set_text": "???"}]
+        }
+      }
+    },
+    "missions.daily": {
+      "adapter": "missions",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "menu_missions",
+          "observation": "mission:buy_cards",
+          "expect_status": "available",
+          "why": "A mission read with an identity and a progress pair."
+        },
+        "unavailable": {
+          "recording": "recorded",
+          "frame": "menu_missions",
+          "observation": "milestone:5",
+          "expect_status": "locked",
+          "why": "A weekly chest the completed counter has not reached. Present, named, and nothing the bot may do anything with."
+        },
+        "ambiguous": {
+          "recording": "recorded",
+          "frame": "menu_missions_claimable",
+          "observation": "card:0",
+          "expect_status": "unreadable",
+          "why": "A card whose progress bar is replaced by a CLAIM button carries no 'N / M' text, so the reader sees a card it cannot identify and says so instead of skipping it."
+        }
+      }
+    },
+    "cards.inventory": {
+      "adapter": "cards",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "menu_cards",
+          "observation": "cards.slots",
+          "expect_status": "observed",
+          "why": "The equipped/capacity band, the one thing this page states exactly."
+        },
+        "unavailable": {
+          "recording": "recorded",
+          "frame": "menu_cards",
+          "observation": "cards.next_slot",
+          "expect_status": "locked",
+          "why": "The 'Unlock New Slot' tile: a slot the game drew and the account has to buy. Buying it is C02's, so the reader names it and publishes no action."
+        },
+        "ambiguous": {
+          "recording": "derived",
+          "frame": "menu_cards",
+          "observation": "cards.page",
+          "expect_status": "refused",
+          "edits": [{"at": [502, 555, 77, 45], "was": "0/1", "duplicate_at": [505, 555, 77, 45]}],
+          "why": "Two candidates for the one band this page is read from. The reader claims nothing at all rather than picking one, which is the state worth pinning: an ambiguous slot count must not become a loadout."
+        }
+      }
+    },
+    "account.settings": {
+      "adapter": "account",
+      "folder": "account_screens",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "settings_redacted",
+          "observation": "control:stats",
+          "expect_status": "located",
+          "why": "The only Settings control a read-only transaction may reach for."
+        },
+        "unavailable": {
+          "recording": "derived",
+          "frame": "settings_redacted",
+          "observation": "control:stats",
+          "expect_status": "absent",
+          "edits": [{"at": [664, 826, 114, 42], "was": "Stats", "drop": true}],
+          "why": "A panel that does not draw the row. Absence is reported as absence, never as a point to try anyway."
+        },
+        "ambiguous": {
+          "recording": "derived",
+          "frame": "settings_redacted",
+          "observation": "control:stats",
+          "expect_status": "ambiguous",
+          "edits": [{"at": [664, 826, 114, 42], "was": "Stats", "duplicate_at": [666, 828, 114, 42]}],
+          "why": "Two candidates for one control. Two is not one, and neither is a tap."
+        }
+      }
+    },
+    "account.stats.summary": {
+      "adapter": "account",
+      "folder": "account_screens",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "stats_summary",
+          "observation": "field:coins_earned",
+          "expect_status": "observed"
+        },
+        "unavailable": {
+          "recording": "derived",
+          "frame": "stats_summary",
+          "observation": "field:recent_coins_per_hour",
+          "expect_status": "insufficient_data",
+          "edits": [{"at": [831, 711, 63, 37], "was": "723", "set_text": "Need more data"}],
+          "why": "The game's own refusal to give a number, which account_screens already classifies apart from an unreadable one. The recorded account had played long enough to have the rate."
+        },
+        "ambiguous": {
+          "recording": "derived",
+          "frame": "stats_summary",
+          "observation": "field:recent_coins_per_hour",
+          "expect_status": "unreadable",
+          "edits": [{"at": [831, 711, 63, 37], "was": "723", "drop": true}],
+          "why": "A label with no value beside it. The field must stay None, never 0."
+        }
+      }
+    },
+    "account.stats.tiers": {
+      "adapter": "account",
+      "folder": "account_screens",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "stats_tiers",
+          "observation": "tier:1.wave",
+          "expect_status": "observed"
+        },
+        "unavailable": {
+          "kind": "gap",
+          "owner": "B08",
+          "why": "The Tiers table has no state that means present-and-not-usable. The game writes a literal 0 in a tier nobody has reached, and OCR drops the cell entirely when it will not read; account_screens calls both 'unreadable'. Separating 'never reached' from 'could not read' needs a capture of an account with a tier history, which no recorded account has."
+        },
+        "ambiguous": {
+          "recording": "recorded",
+          "frame": "stats_tiers",
+          "observation": "tier:3.wave",
+          "expect_status": "unreadable",
+          "why": "47 of the 72 cells on the recorded table read this way. The reading keeps them as None rather than folding an unread cell into a zero."
+        }
+      }
+    }
+  },
+  "sequences": [
+    {
+      "name": "workshop.attack.purchase_interval",
+      "recording": "recorded",
+      "steps": [
+        {"frame": "menu_workshop_attack", "capability": "workshop.attack"},
+        {"frame": "menu_workshop_attack_escalated", "capability": "workshop.attack"}
+      ],
+      "action": {"kind": "tap_row", "observation": "attack_speed", "point": [950, 633]},
+      "expect": {
+        "kind": "advanced",
+        "observations": {
+          "attack_speed": {"price_before": 30, "price_after": 56},
+          "damage": {"price_before": 30, "price_after": 55}
+        }
+      },
+      "why": "Two live captures of one page across an interval in which purchases landed. Both rows advanced, so this is an interval and not a single verified action - which is exactly what makes it worth keeping: every price has to be re-read off the later frame, and a target bound to the earlier one would now buy at the wrong price."
+    },
+    {
+      "name": "workshop.utility.restocked_after_an_unlock",
+      "recording": "recorded",
+      "steps": [
+        {"frame": "menu_workshop_utility", "capability": "workshop.utility"},
+        {"frame": "menu_workshop_utility_restocked", "capability": "workshop.utility"}
+      ],
+      "action": {"kind": "tap_row", "observation": "unlock_cash_bonuses", "point": [513, 606]},
+      "expect": {
+        "kind": "restocked",
+        "gone": ["unlock_cash_bonuses"],
+        "appeared": ["cash_bonus", "cash_per_wave", "unlock_coin_bonuses"]
+      },
+      "why": "Buying an unlock removes the row and draws the rows it unlocked. A tab is still the same tab afterwards, which is why arrival is judged by the page heading and not by finding a particular row."
+    },
+    {
+      "name": "missions.daily.scrolled",
+      "recording": "recorded",
+      "steps": [
+        {"frame": "menu_missions", "capability": "missions.daily"},
+        {"frame": "menu_missions_scrolled", "capability": "missions.daily"}
+      ],
+      "action": {"kind": "recorded_by_hand", "note": "The page was scrolled while recording. No reader publishes a scroll target, so there is no point to check and none is claimed."},
+      "expect": {"kind": "revealed"},
+      "why": "The band goes 2/8 to 8/8 and three more cards come into view. Same page, same identity, more of it visible - the shape a scrolling list has to survive."
+    },
+    {
+      "name": "account.settings.into_stats",
+      "recording": "recorded",
+      "steps": [
+        {"frame": "settings_redacted", "capability": "account.settings"},
+        {"frame": "stats_summary", "capability": "account.stats.summary"}
+      ],
+      "action": {"kind": "tap_control", "observation": "control:stats", "point": [721, 847]},
+      "expect": {"kind": "navigated"},
+      "why": "The nested account menu, before and after, with the tap point taken from the Settings frame's own OCR of the row it names. This is the one sequence whose action IS a target a reader publishes."
+    },
+    {
+      "name": "workshop.attack.blinded_by_an_info_panel",
+      "recording": "recorded",
+      "steps": [
+        {"frame": "menu_workshop_attack", "capability": "workshop.attack"},
+        {"frame": "menu_workshop_info_panel", "capability": "workshop.attack"}
+      ],
+      "action": {"kind": "recorded_by_hand", "note": "A live visit tapped a row's LABEL, which is not a point any reader publishes - the published target is the price strip - and an info panel opened over the grid."},
+      "expect": {"kind": "blind"},
+      "why": "The after frame is the failure state this pair exists for: the page still looks like the Workshop, and the reader must expose no rows and no targets on it rather than parsing whichever grid it most resembles."
+    }
+  ]
+}
