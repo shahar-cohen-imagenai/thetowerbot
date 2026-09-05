@@ -54,6 +54,15 @@ class AccountRevision:
     inventory: tuple[Fact, ...] | None = None
     unlocks: tuple[Fact, ...] | None = None
     settings: tuple[Fact, ...] | None = None
+    # One Fact per RUNNING research job, identified by the lab occupying the
+    # slot and valued by the absolute second it completes. Kept apart from
+    # `lab_levels` because a level is what the account owns and a job is what
+    # it is spending: a job ends, the level it bought does not.
+    lab_jobs: tuple[Fact, ...] | None = None
+    # How many lab slots the account owns. A plain count, like `game_version`,
+    # because a slot has no catalog identity to hang a Fact on. None means
+    # nobody has counted them, never that the account owns none.
+    lab_slots_owned: int | None = None
 
 
 @dataclass(frozen=True)
@@ -85,8 +94,8 @@ class AccountRepository:
             return None
         value = json.loads(row['detail'])
         value['revision_id'] = row['id']
-        for section in ('workshop_stats', 'workshop_levels', 'lab_levels', 'effective_account_stats',
-                        'inventory', 'unlocks', 'settings'):
+        for section in ('workshop_stats', 'workshop_levels', 'lab_levels', 'lab_jobs',
+                        'effective_account_stats', 'inventory', 'unlocks', 'settings'):
             if value.get(section) is not None:
                 value[section] = tuple(Fact(f['concept_id'], f['value'], f['status'],
                     Evidence(**{**f['evidence'], 'rect': tuple(f['evidence']['rect'])})) for f in value[section])
@@ -230,3 +239,55 @@ class AccountState:
             except sqlite3.Error as exc:
                 self._run_error = str(exc)
                 logger.error('Run persistence failed: %s', exc)
+
+    def record_labs(self, levels: tuple[Fact, ...] = (), jobs: tuple[Fact, ...] | None = None,
+                    slots_owned: int | None = None, *, observed_at: float) -> bool:
+        """Merge confirmed lab facts into a revision; say whether one was written.
+
+        Every argument is already confirmed by its caller, which is why these
+        Facts carry the state the game showed rather than a persistence
+        status: nothing provisional reaches this method.
+
+        Levels MERGE by concept id, because the Labs page shows a scrolled
+        window and a lab that fell off the top has not gone anywhere. Jobs
+        REPLACE wholesale, so a finished slot actually empties - but only
+        when the caller read the whole strip, since a completion nobody
+        overwrote would outlive the research it described. `None` for jobs or
+        for the slot count means no evidence this time, which leaves the
+        stored answer standing rather than erasing it.
+        """
+        with self._lock:
+            if self.repository is None:
+                return False
+            if not self._restored:
+                try:
+                    self._revision, self._restored, self._error = self.repository.latest(), True, None
+                except (sqlite3.Error, ValueError, TypeError) as exc:
+                    self._error = str(exc)
+                    return False
+            current = self._revision or AccountRevision()
+            known = {f.concept_id: f for f in current.lab_levels or ()}
+            # Compared by value, not by Fact: a re-reading of a level we
+            # already hold is the same fact with newer evidence, and writing
+            # a revision for it would fill the history with nothing.
+            fresh = tuple(f for f in levels
+                          if known.get(f.concept_id) is None or known[f.concept_id].value != f.value)
+            known.update({f.concept_id: f for f in fresh})
+            merged = (current.lab_jobs if jobs is None
+                      else tuple(sorted(jobs, key=lambda f: f.concept_id)))
+            same_jobs = jobs is None or ([(f.concept_id, f.value) for f in current.lab_jobs or ()]
+                                         == [(f.concept_id, f.value) for f in merged])
+            if not fresh and same_jobs and slots_owned in (None, current.lab_slots_owned):
+                return False
+            candidate = replace(current, revision_id=None,
+                parent_revision_id=current.revision_id, created_at=observed_at,
+                lab_levels=tuple(known[k] for k in sorted(known)) or None, lab_jobs=merged,
+                lab_slots_owned=current.lab_slots_owned if slots_owned is None else slots_owned)
+            try:
+                self._revision = self.repository.save_account(candidate, fresh + tuple(jobs or ()))
+                self._error = None
+                return True
+            except sqlite3.Error as exc:
+                self._error = str(exc)
+                logger.error('Lab persistence failed: %s', exc)
+                return False

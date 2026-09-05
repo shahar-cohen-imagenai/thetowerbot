@@ -60,6 +60,14 @@ _UNSUPPORTED_OWNERS = {
     'later_unlock_stage_layouts_outside_workshop': 'B08',
     'battle_history_export': 'B08',
     'native_stat_export': 'B08',
+    # No Labs page is recorded at any unlock stage, so there is no geometry to
+    # validate and `discover` never accepts a 'labs' context. labs.py models
+    # the state and takes its evidence from elsewhere; the missing capture is
+    # fixture work, and acting on a lab belongs to the tasks that own starting
+    # research and paying to accelerate it.
+    'labs_screen_layout': 'B08',
+    'labs_research_actions': 'L02',
+    'labs_acceleration_spend': 'L03',
     'missions_claim_actions': 'T01',
     'missions_reward_currency': 'T01',
     'missions_milestone_claim_state': 'T01',
@@ -211,6 +219,7 @@ def capabilities() -> dict[str, Any]:
             # than disappearing: the Workshop tabs have one, nothing else does.
             'later_unlock_stage_layouts_outside_workshop',
             'battle_history_export', 'native_stat_export',
+            'labs_screen_layout', 'labs_research_actions', 'labs_acceleration_spend',
             'other_locales', 'other_resolutions', 'unknown_overlays',
             # A claimable capture and the full 5..35 strip are now recorded
             # (menu_missions_claimable and menu_missions_weekly), so the
