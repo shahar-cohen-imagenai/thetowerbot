@@ -24,4 +24,22 @@ group("RunTable", () => {
 
     expect(screen.getByText(/No stored runs/)).toBeDefined();
   });
+
+  // The list is fed 30 rows and sits beside the unknown-screen gallery in a
+  // two-column grid, so left unbounded it stretches the whole row and pushes
+  // everything below it off the fold.
+  it("scrolls within a bounded height instead of growing the page", () => {
+    const { container } = render(<RunTable runs={runs} onSelect={vi.fn()} />);
+
+    const scroller = container.querySelector(".overflow-y-auto")!;
+    expect(scroller).not.toBeNull();
+    expect(scroller.className).toContain("max-h-80");
+    expect(scroller.contains(screen.getByRole("table"))).toBe(true);
+  });
+
+  it("keeps the column headers visible while the body scrolls", () => {
+    render(<RunTable runs={runs} onSelect={vi.fn()} />);
+
+    expect(screen.getByText("wave").closest("thead")!.className).toContain("sticky");
+  });
 });
