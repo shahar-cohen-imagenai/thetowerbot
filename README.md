@@ -1,8 +1,9 @@
 # The Tower — background ADB bot
 
-Automates the Android game *The Tower* running in the Android Studio emulator.
-All input goes through ADB (`input tap`), so the emulator window never needs
-focus and your mouse is never taken over.
+Automates the Android game *The Tower* running in an Android emulator
+(Android Studio AVD or BlueStacks — see below). All input goes through ADB
+(`input tap`), so the emulator window never needs focus and your mouse is
+never taken over.
 
 One scan is: capture a frame, work out which screen is showing, evaluate every
 configured action against that frame, and tap the ones that pass. Actions only
@@ -42,18 +43,65 @@ your machine. There is nothing to activate — every command below runs through
 ```bash
 export PATH="$PATH:$HOME/Library/Android/sdk/platform-tools"
 adb start-server
-adb devices          # should list emulator-5554
+adb devices          # the emulator should be listed
 ```
 
 `config.py` holds both endpoints: `ADB_HOST`/`ADB_PORT` for the adb *server*
 (default `127.0.0.1:5037`) and `DEVICE_HOST`/`DEVICE_PORT` for the emulator
-itself (default `127.0.0.1:5555` — an AVD listens on its console port + 1).
-`--host` / `--port` override the device endpoint for a single run.
+itself (default `127.0.0.1:5555`). `--host` / `--port` override the device
+endpoint for a single run.
 
-**The emulator must be 1080x2400** (`EXPECTED_RESOLUTION`). Every template and
-every screen region in `config.py` was measured at that size, and
+Both supported emulators land on that same default port, so `config.py` needs
+no edit either way:
+
+- **Android Studio AVD** — listens on its console port + 1, so the first
+  emulator (`emulator-5554`) is reachable at `127.0.0.1:5555`.
+- **BlueStacks** — listens on `127.0.0.1:5555` directly. It also registers a
+  second `emulator-5554` alias for the *same* instance; both serials resolve
+  to one device (`adb shell getprop ro.serialno` matches), so it does not
+  matter which one `connect_device` picks.
+
+**The emulator must be 1080x2400 at 440 DPI.** The resolution
+(`EXPECTED_RESOLUTION`) is the hard requirement: every template and every
+screen region in `config.py` was measured at that size, and
 `cv2.matchTemplate` is not scale invariant — a different resolution invalidates
-all of them at once.
+all of them at once. Density matters because the game lays its UI out against
+it.
+
+### BlueStacks setup
+
+Two settings, and the bot cannot work without either:
+
+1. **Settings → Advanced → Android Debug Bridge: on.** Off, BlueStacks still
+   opens port 5555 and still answers `getprop`, `dumpsys`, `logcat` and
+   `screencap` — so the bot connects and captures frames perfectly well — but
+   every other shell command, `input` included, dies with `error: closed`.
+   The symptom is a bot that sees everything and taps nothing.
+2. **Settings → Display: custom resolution, portrait, 1080 x 2400, DPI 440.**
+
+BlueStacks defaults to 1080x1920 @ 320, which matches nothing in `templates/`.
+`adb shell wm size 1080x2400 && adb shell wm density 440` applies the same
+geometry without an instance restart, but it is an *override*: BlueStacks
+drops it on restart and the bot silently falls back to unmatched templates.
+Use it to test, set it in Display to keep it. `wm size reset` / `wm density
+reset` undo it.
+
+Verify the whole chain — device, geometry, shell, and that taps share the
+capture's coordinate space — before a first run:
+
+```bash
+uv run python -c "
+import device, screens, vision, config
+d = device.connect_device()
+img = device.capture_screen(d)
+print('frame', img.shape[1], 'x', img.shape[0], 'expected', config.EXPECTED_RESOLUTION)
+d.shell('input tap 5 5')          # raises if the ADB shell is restricted
+print(screens.classify(img, vision.TemplateCache(config.TEMPLATE_DIR)))
+"
+```
+
+A confirmed screen at ~1.000 confidence means the templates are valid on this
+emulator; anything under `ANCHOR_THRESHOLD` means they are not.
 
 ## Run
 
@@ -464,7 +512,7 @@ Crop each button out of `screen.png` and save the crop into `templates/`.
 Two rules, and breaking either one produces a template that matches nothing or
 matches everything:
 
-1. **Same emulator resolution as the bot runs at** (1080x2400).
+1. **Same emulator resolution as the bot runs at** (1080x2400 @ 440 DPI).
    `cv2.matchTemplate` is not scale invariant.
 2. **Cut from a lit, in-run frame.** Not from a screenshot where a modal has
    dimmed the screen, not from a greyed-out unaffordable button, not from a

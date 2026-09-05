@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 import config
+import run_hud
 import vision
 from device import Image
 
@@ -34,6 +35,10 @@ class ScreenReading:
     confidence: float
     scores: dict[str, float]
     top_left: tuple[int, int] | None = None
+    # Where the run HUD's cash counter matched, or None when no run is
+    # showing. Carried on the reading so the wallet read uses the counter
+    # found on THIS frame - see tower_bot's note on anchor/region drift.
+    cash_top_left: tuple[int, int] | None = None
 
 
 def classify(
@@ -49,14 +54,41 @@ def classify(
         scores[name] = score
         positions[name] = top_left
 
+    # IN_RUN is scored by the cash counter, not by the upgrade panel's header
+    # bar that SCREEN_ANCHORS points at. The bar is a different crop per tab
+    # - the committed template is the ATTACK one, and DEFENSE and UTILITY
+    # score 0.46 and 0.33 against it - so scoring the screen on it left two
+    # of the three tabs reading UNKNOWN for the whole run.
+    #
+    # The panel match is still taken, and still supplies top_left, because
+    # the speed controls are measured from it. But it is only handed out
+    # when it is strong enough to mean anything: on the other two tabs it
+    # is not, and every consumer of an IN_RUN top_left already handles None.
+    panel = scores[ScreenState.IN_RUN.value]
+    cash = run_hud.find_cash(screen, cache, threshold)
+    scores[ScreenState.IN_RUN.value] = cash.score
+    if panel < threshold:
+        positions[ScreenState.IN_RUN.value] = None
+
     winner = max(scores, key=lambda name: scores[name])
     confidence = scores[winner]
 
+    # GAME_OVER outranks a cash-scored IN_RUN whenever it stands on its own.
+    # The death modal does not cover the HUD, so the counter scores ~1.000 on
+    # exactly the frames where the modal is the answer, and the two would
+    # otherwise be separated by the margin between two near-perfect matches.
+    if winner == ScreenState.IN_RUN.value and scores[ScreenState.GAME_OVER.value] >= threshold:
+        winner = ScreenState.GAME_OVER.value
+        confidence = scores[winner]
+
     if confidence < threshold:
-        return ScreenReading(ScreenState.UNKNOWN, confidence, scores)
+        return ScreenReading(
+            ScreenState.UNKNOWN, confidence, scores, cash_top_left=cash.top_left
+        )
 
     return ScreenReading(
-        ScreenState(winner), confidence, scores, top_left=positions[winner]
+        ScreenState(winner), confidence, scores,
+        top_left=positions[winner], cash_top_left=cash.top_left,
     )
 
 
