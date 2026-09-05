@@ -1,7 +1,7 @@
 """Evidence-bounded readers for recorded English upgrade screens.
 
-The recorded 1080x2400 Workshop grids, battle Attack grid and Daily Missions
-page provide geometry evidence. Existing battle Defense/Utility readers remain
+The recorded 1080x2400 Workshop grids, battle Attack grid, Daily Missions
+page and Cards page provide geometry evidence. Existing battle Defense/Utility readers remain
 supported, but lack recorded coverage. This is not every game screen or unlock
 stage.
 """
@@ -24,6 +24,7 @@ _RECORDED_READERS = (
     ('battle.defense', 'in_run_defense'),
     ('battle.utility', 'in_run_utility'),
     ('missions.daily', 'menu_missions'),
+    ('cards.inventory', 'menu_cards'),
 )
 
 # Screens read at two genuinely different points in an account's life: the
@@ -70,6 +71,20 @@ ULTIMATE_WEAPON_GAPS = {
 # What remains out of scope, and who owns it. An entry with no owner is a
 # standing property of the design rather than work someone will pick up.
 _UNSUPPORTED_OWNERS = {
+    # The one recorded Cards page belongs to an account that owns no card, so
+    # no card row, preset tab or mastery tile is drawn anywhere on it. These
+    # are attributed to the fixture task because a capture is what is missing:
+    # a reader for a row nothing has ever shown would be invented geometry.
+    'card_identity_rows': 'B08',
+    'card_mastery_ownership': 'B08',
+    'card_presets': 'B08',
+    'in_run_card_locks': 'B08',
+    # A different kind of gap: the pixels are not the problem. Registry v1
+    # files all 31 cards under one kind, so passive bonuses and active
+    # abilities are indistinguishable by identity. Splitting them is a catalog
+    # change, like any other uncatalogued label above.
+    'card_passive_or_active_classification': 'B02',
+    'card_slot_purchase_actions': 'C02',
     'later_unlock_stage_layouts_outside_workshop': 'B08',
     'battle_history_export': 'B08',
     'native_stat_export': 'B08',
@@ -94,6 +109,17 @@ _MISSIONS_COUNT_Y = (633, 693)
 # Matched against the raw text, not tiles.normalise: normalising strips the
 # slash, and "2/8 Missions" would become indistinguishable from "28 missions".
 _MISSIONS_COUNT = re.compile(r'(\d+)\s*/\s*(\d+)\s*missions', re.I)
+
+# Three independent anchors measured on the recorded Cards capture: the page
+# title at (30, 246, 174, 45), the ACTIVE heading at (436, 504, 208, 52) and
+# the equipped band beneath it at (502, 555, 77, 45). The capture also shows
+# BUY NEW CARD, INVENTORY and an Unlock New Slot tile; those corroborate the
+# page for the cards reader but are not part of its identity, because a
+# scrolled or later-stage page may not draw all of them.
+_CARDS_TITLE_Y = (226, 266)
+_CARDS_ACTIVE_Y = (484, 524)
+_CARDS_SLOTS_Y = (535, 575)
+_CARDS_SLOTS = re.compile(r'(\d+)\s*/\s*(\d+)')
 
 # These bounds cover the central bordered panels in the two recorded Workshop
 # overlays (740x702 and 890x1132) and two game-over captures (986x1116/1212).
@@ -176,6 +202,45 @@ def missions_count(boxes: tuple[ocr.TextBox, ...]) -> tuple[int, int] | None:
     return (shown, offered) if shown <= offered else None
 
 
+def cards_slot_band(boxes: tuple[ocr.TextBox, ...]) -> ocr.TextBox | None:
+    """The one trusted "N / M" box under the ACTIVE heading, or None.
+
+    Matched against the raw text for the same reason the missions band is:
+    tiles.normalise strips the slash, and "0/1" would become "01".
+    """
+    matches = [b for b in boxes if b.confidence >= .9
+               and _CARDS_SLOTS_Y[0] <= b.rect.y <= _CARDS_SLOTS_Y[1]
+               and _CARDS_SLOTS.fullmatch(b.text.strip())]
+    return matches[0] if len(matches) == 1 else None
+
+
+def cards_slots(boxes: tuple[ocr.TextBox, ...]) -> tuple[int, int] | None:
+    """The ACTIVE band as (equipped, capacity), or None if not certain."""
+    box = cards_slot_band(boxes)
+    if box is None:
+        return None
+    match = _CARDS_SLOTS.fullmatch(box.text.strip())
+    equipped, capacity = int(match[1]), int(match[2])
+    # More cards equipped than slots to hold them is a misread, not a state.
+    return (equipped, capacity) if equipped <= capacity else None
+
+
+def _discover_cards(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
+    """Claim the Cards page only on all three measured anchors."""
+    # The Cards page has no upgrade heading. One appearing here means the
+    # frame is an upgrade screen reached in the wrong context, and reading it
+    # as a card collection would put slot counts on a purchase grid.
+    if any(_is_upgrade_heading(b) for b in boxes):
+        return ScreenDiscovery(None, False, 'unsupported_layout')
+    title = _single(boxes, 'cards', _CARDS_TITLE_Y)
+    active = _single(boxes, 'active', _CARDS_ACTIVE_Y)
+    if title is None or active is None or cards_slots(boxes) is None:
+        return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')
+    if not 0 <= title.rect.x <= 70:
+        return ScreenDiscovery(None, False, 'unsupported_layout')
+    return ScreenDiscovery('cards.inventory', True, 'recorded_layout')
+
+
 def _discover_missions(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
     """Claim the Daily Missions page only on all three measured anchors."""
     # An upgrade page must never be read as missions. Keyed on a heading at
@@ -246,6 +311,13 @@ def capabilities() -> dict[str, Any]:
             # observes; it never claims a reward or names a currency.
             'missions_claim_actions', 'missions_reward_currency',
             'missions_milestone_claim_state', 'missions_beyond_the_recorded_strip',
+            # The recorded Cards page is an account with an empty collection:
+            # its slot band reads exactly, and every tile below it is a
+            # padlock. So the page is supported and the collection is not,
+            # and those two facts have to stay visibly separate.
+            'card_identity_rows', 'card_mastery_ownership', 'card_presets',
+            'in_run_card_locks', 'card_passive_or_active_classification',
+            'card_slot_purchase_actions',
             # Not "no capture exists" for the page - one does - but "no
             # capture exists of an account that owns a UW", which is what
             # every entry below would have to be read from.
@@ -262,6 +334,14 @@ def capabilities() -> dict[str, Any]:
                 'rectangles, which shows the reader does not key off row '
                 'index but is not a second recorded ordering. A multi-mission '
                 'capture of the same set reordered would settle it.',
+            'cards.identity_on_a_stocked_collection':
+                'The one recorded Cards page belongs to an account with an '
+                'empty collection. Its title and ACTIVE band are read where '
+                'they were measured, and nothing shows that those anchors '
+                'stay put once rows, presets and a scrollable inventory are '
+                'drawn under them. A capture of a stocked collection would '
+                'settle it, and would also be the first evidence a card row '
+                'reader could be built on.',
             'missions.identity_across_ocr_jitter':
                 'The one real mission text on the capture reads as '
                 '"Kill zo0basic enemies" at confidence .9208, above the .90 '
@@ -291,7 +371,7 @@ def discover(
         return ScreenDiscovery(None, False, 'unsupported_geometry')
     if locale != 'en':
         return ScreenDiscovery(None, False, 'unsupported_locale')
-    if context not in ('workshop', 'battle', 'missions'):
+    if context not in ('workshop', 'battle', 'missions', 'cards'):
         return ScreenDiscovery(None, False, 'unsupported_context')
     labels = {tiles.normalise(b.text) for b in boxes}
     if {'currentlevel', 'maxlevel'} <= labels:
@@ -302,6 +382,8 @@ def discover(
         return ScreenDiscovery(None, False, 'overlay_geometry')
     if context == 'missions':
         return _discover_missions(boxes)
+    if context == 'cards':
+        return _discover_cards(boxes)
     headings = [b for b in boxes if _upgrade_label(b) is not None]
     if len(headings) != 1 or headings[0].confidence < .9:
         return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')

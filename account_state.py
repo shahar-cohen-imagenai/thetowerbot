@@ -55,6 +55,10 @@ class AccountRevision:
     inventory: tuple[Fact, ...] | None = None
     unlocks: tuple[Fact, ...] | None = None
     settings: tuple[Fact, ...] | None = None
+    # Card slot counts, read off the Cards page. None means that page has
+    # never been read, which is not the same account fact as a card
+    # collection that is empty - see cards.py.
+    cards: tuple[Fact, ...] | None = None
     # Kept out of the Fact sections above on purpose. A UW reading holds raw
     # stone quantities and lab-adjusted ones in separately typed collections,
     # and a flat Fact - one concept_id, one value - has nowhere to carry that
@@ -92,7 +96,7 @@ class AccountRepository:
         value = json.loads(row['detail'])
         value['revision_id'] = row['id']
         for section in ('workshop_stats', 'workshop_levels', 'lab_levels', 'effective_account_stats',
-                        'inventory', 'unlocks', 'settings'):
+                        'inventory', 'unlocks', 'settings', 'cards'):
             if value.get(section) is not None:
                 value[section] = tuple(Fact(f['concept_id'], f['value'], f['status'],
                     Evidence(**{**f['evidence'], 'rect': tuple(f['evidence']['rect'])})) for f in value[section])
