@@ -458,10 +458,13 @@ the event feed as any other run, not one entry that shows up after the fact.
 > **Two things here are still unverified on a live device.**
 >
 > The coin balance is read with OCR, and has never been read that way on a
-> live device. `shopping.header_numbers()` runs `ocr.read()` over the frame
-> and takes the one number whose box centre lands inside the page's coin
-> region — two numbers in one region is ambiguity and refuses. It reads
-> both balances correctly off all three committed workshop fixtures, and
+> live device. `shopping.header_numbers()` reads each balance off its own
+> padded crop of the page's header region (`ocr.read_region`) and takes the
+> one number it finds there — two numbers in one crop is ambiguity and
+> refuses. Cropping rather than filtering a whole-frame read is what makes a
+> short balance readable at all: the detection stage returns no box for an
+> isolated `0` in a full frame, at any confidence floor. It reads both
+> balances correctly off all five committed menu fixtures, and
 > `build_shopping()` gates on `ocr.available()`, so an engine that will not
 > import disables buying loudly at startup instead of silently. What no
 > fixture can prove is that the region keeps to its own number once the
@@ -472,8 +475,8 @@ the event feed as any other run, not one entry that shows up after the fact.
 > incomplete the same way. `templates/atlas/menu/` holds `0 2 3 4 5 7 coin
 > gem`, missing `1 6 8 9`: a glyph can only be harvested once a price
 > actually containing it has appeared on screen, and nothing so far has
-> forced one. Unlike the header atlas this is not gated at
-> `build_shopping()` time - card prices escalate with every purchase, so a
+> forced one. Nothing gates this at `build_shopping()` time - card prices
+> escalate with every purchase, so a
 > session could buy once or twice against today's readable prices and then
 > start refusing every card purchase the moment one crosses 1, 6, 8 or 9.
 > The `menu` atlas gap no longer affects workshop prices: those are read by
@@ -581,23 +584,20 @@ because no reference class contains them.
 
 ### Known gap: no suffix glyphs in the wallet or price atlas
 
-The `header` class carries suffix and punctuation glyphs (`.` and `K`, so
-far) - the menu header renders the coin balance as `1.77K`, and a purchase
-can only be approved against a balance the bot actually read, so that class
-could not ship without them. The `wallet` and `price` classes still have
-**no suffix glyphs at all**: the parser handles suffixes correctly, but the
-glyph matcher never gets that far, so a wallet rendered as `$1.5K` still
-fails to read and that scan falls back to brightness. Harvest those two
-classes' suffix glyphs during a session that reaches large enough numbers,
-and label them by hand off the contact sheet.
+The `wallet` and `price` classes have **no suffix glyphs at all**: the
+parser handles suffixes correctly, but the glyph matcher never gets that
+far, so a wallet rendered as `$1.5K` still fails to read and that scan falls
+back to brightness. Harvest those two classes' suffix glyphs during a
+session that reaches large enough numbers, and label them by hand off the
+contact sheet.
 
-The header atlas is also incomplete - missing `2 3 5 6 9 M B` - but that no
-longer costs anything, and needs no harvesting session to fix. Nothing reads
-a header glyph any more: `shopping.header_numbers()` reads both balances
-with OCR (`ocr.number_in` against `config.HEADER_REGIONS`), and
+There was a `header` class too, for the menu's coin and gem balances, and it
+was incomplete in the same way - it never held `2 3 5 6 9 M B`. It has been
+removed rather than completed. Nothing read a header glyph any more:
+`shopping.header_numbers()` reads both balances with OCR, and
 `build_shopping()`'s startup gate is `ocr.available()` rather than the
-atlas. The class stays built for the threshold and segmentation
-measurements `tests/test_header_digits.py` still makes against it.
+atlas. A built-but-unread atlas is worse than no atlas, because it invites
+exactly the wrong conclusion about why a balance came back empty.
 
 The `menu` atlas - the size class `shopping.py` reads every card price at
 (`_buy_cards` passes `"menu"` to `NumberReader.read`) - has the same kind of

@@ -186,21 +186,18 @@ ATLAS_DIR: Path = TEMPLATE_DIR / "atlas"
 # Grey level above which a pixel counts as glyph rather than background.
 DIGIT_BINARY_THRESHOLD: int = 140
 
-# Per-size-class overrides. The in-run and modal numbers are light glyphs on
-# a dark panel, which is what the 140 default is for. The menu header is the
-# other way round - white text on a light purple bar - and at 140 the bar
-# survives binarisation and bridges adjacent glyphs: "1.77K" segments as
-# 1 . 77 K, and a merged span matches no atlas entry, so the whole read
-# fails. Measured on menu_workshop_attack.png: 170-240 all segment correctly,
-# so 200 sits in the middle of the plateau rather than on its edge.
+# Per-size-class overrides, and empty is the correct state today rather than
+# an oversight. Every class still read through the atlas - the in-run, modal
+# and menu-price numbers - is light glyphs on a dark panel, which is exactly
+# what the 140 default is for, and it segments all of them correctly on every
+# committed fixture.
 #
-# `menu` - the size class every workshop and card price is read at (see
-# shopping.py's _buy_rows and _buy_cards) - has no entry here, and that is a
-# checked fact, not an oversight: prices sit on a dark panel like the in-run
-# and modal classes, and the unmodified 140 default segments them correctly
-# on every committed menu fixture. No override needed unless a future
-# capture shows otherwise.
-DIGIT_BINARY_THRESHOLDS: dict[str, int] = {"header": 200}
+# The one class that ever needed an override was `header`, the menu's coin
+# and gem bar: white text on a light purple ground, where at 140 the bar
+# survived binarisation and bridged adjacent glyphs ("1.77K" segmenting as
+# 1 . 77 K). Those balances are read by OCR now, so the class is gone and its
+# 200 with it. The hook stays for the next class that renders inverted.
+DIGIT_BINARY_THRESHOLDS: dict[str, int] = {}
 
 # A glyph must match an atlas entry at least this well to be accepted.
 GLYPH_MATCH_THRESHOLD: float = 0.7
