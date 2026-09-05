@@ -31,16 +31,16 @@
 
 ## Labs and acceleration
 
-- [ ] [L01 — Read labs, slots and research timers](tasks/L01.md) — not started
+- [ ] [L01 — Read labs, slots and research timers](tasks/L01.md) — partial
 - [ ] [L02 — Run continuous research](tasks/L02.md) — not started
 - [ ] [L03 — Schedule lab acceleration](tasks/L03.md) — not started
 - [ ] [L04 — Balance essential and optimizer research](tasks/L04.md) — not started
 
 ## Cards and modules
 
-- [ ] [C01 — Read cards, slots and mastery](tasks/C01.md) — not started
+- [ ] [C01 — Read cards, slots and mastery](tasks/C01.md) — partial
 - [ ] [C02 — Verify card purchases and equipment](tasks/C02.md) — partial
-- [ ] [C03 — Read primary and assist modules](tasks/C03.md) — not started
+- [ ] [C03 — Read primary and assist modules](tasks/C03.md) — partial
 - [ ] [C04 — Upgrade, merge and recycle modules](tasks/C04.md) — not started
 - [ ] [C05 — Optimize module loadouts and subeffects](tasks/C05.md) — not started
 - [ ] [C06 — Plan card mastery investments](tasks/C06.md) — not started
@@ -57,7 +57,7 @@
 
 ## Ultimate Weapons and event bots
 
-- [ ] [U01 — Read Ultimate Weapons and UW+](tasks/U01.md) — not started
+- [ ] [U01 — Read Ultimate Weapons and UW+](tasks/U01.md) — partial
 - [ ] [U02 — Choose and buy stone upgrades](tasks/U02.md) — not started
 - [ ] [U03 — Maintain UW and bot synchronization](tasks/U03.md) — not started
 - [ ] [U04 — Execute UW+ and advanced combinations](tasks/U04.md) — not started
