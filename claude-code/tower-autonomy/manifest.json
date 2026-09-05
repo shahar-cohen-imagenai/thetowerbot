@@ -437,7 +437,7 @@
       "id": "L01",
       "domain": "labs",
       "title": "Read labs, slots and research timers",
-      "status": "missing",
+      "status": "partial",
       "depends_on": [
         "B03",
         "B04"
