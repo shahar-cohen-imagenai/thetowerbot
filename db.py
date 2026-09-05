@@ -5,7 +5,7 @@ turning an event into a row is `sinks/store.py`'s job. Keeping the two apart
 lets the web layer read the database without importing a sink, and lets the
 sink be tested without a web server.
 
-Concurrency: WAL, one writer (the store sink's consumer thread), many readers
+Concurrency: WAL, short serialized writes (store sink and account repository), many readers
 (the web layer). Readers open their own short-lived connection, because a
 sqlite3 connection belongs to the thread that created it and FastAPI runs sync
 routes on a threadpool.
@@ -24,6 +24,10 @@ from pathlib import Path
 from typing import Any, Iterator
 
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS account_revisions (id INTEGER PRIMARY KEY AUTOINCREMENT, detail TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS account_observations (id INTEGER PRIMARY KEY AUTOINCREMENT, revision_id INTEGER NOT NULL, detail TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS run_observations (id INTEGER PRIMARY KEY AUTOINCREMENT, run_id INTEGER NOT NULL, observed_at REAL NOT NULL, detail TEXT NOT NULL);
+
 CREATE TABLE IF NOT EXISTS runs (
     id         INTEGER PRIMARY KEY,
     started_at REAL    NOT NULL,
@@ -127,7 +131,10 @@ def max_seq(conn: sqlite3.Connection) -> int:
 
 
 def max_run_id(conn: sqlite3.Connection) -> int:
-    return int(conn.execute("SELECT COALESCE(MAX(id), 0) FROM runs").fetchone()[0])
+    return int(conn.execute("""SELECT MAX(
+        (SELECT COALESCE(MAX(id), 0) FROM runs),
+        (SELECT COALESCE(MAX(run_id), 0) FROM run_observations)
+    )""").fetchone()[0])
 
 
 def insert_event(conn: sqlite3.Connection, row: dict[str, Any]) -> None:

@@ -15,6 +15,8 @@ no device actions and identify their hypothetical purchases with dry_run.
 
 from __future__ import annotations
 
+from account_state import AccountState
+
 import logging
 from dataclasses import dataclass, replace
 from enum import Enum, auto
@@ -163,6 +165,7 @@ class ShoppingSession:
         threshold: float = 0.8,
         disabled_reason: str | None = None,
     ) -> None:
+        self.account_state: AccountState | None = None
         self._templates = templates
         self._bus = bus
         self._reader = reader
@@ -289,6 +292,8 @@ class ShoppingSession:
         Cadence memory (_last_run_count) is deliberately NOT cleared here -
         it has to survive across visits to know how long it has been.
         """
+        if self.account_state is not None:
+            self.account_state.reset_confirmation()
         self._step = Step.IDLE
         self._categories = []
         self._pending = None
@@ -612,6 +617,8 @@ class ShoppingSession:
             return
         category = self._categories[0]
         observation = observe_frame(screen, "workshop")
+        if self.account_state is not None:
+            self.account_state.observe_account(observation)
         if self.observations is not None:
             self.observations.observe(observation)
         coins, _gems = header_numbers(screen, reading.page, reading.top_left)
@@ -933,6 +940,8 @@ class ShoppingSession:
             visit=self._visit, bought=self._bought, spent=self._spent,
             aborted=aborted, reason=reason,
         ))
+        if self.account_state is not None:
+            self.account_state.reset_confirmation()
         self._step = Step.IDLE
         self._categories = []
         self._pending = None
