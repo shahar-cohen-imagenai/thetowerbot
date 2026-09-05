@@ -182,6 +182,7 @@ class BotRunner:
             # path to tidy up a scan count.
             self._state.reset()
             self.account_state.reset_confirmation()
+            self.account_state.screen_readings.reset_current()
             self.autopilot_state.clear_battle()
             self.autopilot_state.decision("idle", "Waiting for a fresh battle observation")
 
@@ -244,6 +245,7 @@ class BotRunner:
             # Whether it ended by Stop, by its run cap, or by raising, the
             # next bot must not reissue this one's run ids.
             with self._lock:
+                self.account_state.screen_readings.reset_current()
                 self._harvest_locked(bot)
 
     def _harvest_locked(self, bot: Any) -> None:

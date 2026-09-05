@@ -19,6 +19,7 @@ Usage:
 from __future__ import annotations
 
 from account_state import AccountState, AccountRepository
+from account_screens import ScreenReadings
 
 import argparse
 import dataclasses
@@ -95,6 +96,8 @@ class TowerBot:
         account_state: AccountState | None = None,
     ) -> None:
         self.account_state = account_state
+        self._screen_readings = account_state.screen_readings if account_state is not None else ScreenReadings()
+        self._screen_readings.reset_current()
         self.device = device
         self.templates = templates
         self.bus = bus
@@ -477,6 +480,22 @@ class TowerBot:
                 self.autopilot.suspend("Run boundary", clear_battle=True)
 
         state = self.tracker.state
+
+        # Account overlays can retain a MAIN_MENU anchor underneath them. This
+        # passive reader owns the frame before every possible action path,
+        # including paused scans and an already-active shopping visit.
+        screen_readings = self.account_state.screen_readings if self.account_state is not None else self._screen_readings
+        if screen_readings.scan(self.screen):
+            self.controls.drain()
+            self.wallet = None
+            self.autopilot.suspend('Account screen observation; actions held')
+            if self.frames is not None:
+                self.frames.set_boxes([])
+            self.bus.publish(events.Skipped(action='*', reason='account_screen_guard',
+                                           detail='Account panel or OCR error; actions held'))
+            self.bus.publish(events.ScanCompleted(screen=state.value,
+                duration_ms=(time.monotonic() - started) * 1000, wallet=None))
+            return False
 
         # The wallet region is anchored to the IN_RUN template, so it can only
         # be read on that screen. Clear it elsewhere: a stale wallet would let

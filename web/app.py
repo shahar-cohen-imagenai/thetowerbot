@@ -390,6 +390,7 @@ def create_app(
         running = payload["bot"]["running"]
         paused = control_snapshot.paused if control_snapshot is not None else False
         screen = payload["screen"]
+        account_screen = accounts.screen_readings.snapshot()
         if not running:
             readiness = {"mode": "stopped", "reasons": ["bot is stopped"]}
         elif paused:
@@ -398,6 +399,11 @@ def create_app(
             readiness = {
                 "mode": "observing",
                 "reasons": ["no automation controls are loaded"],
+            }
+        elif account_screen["current_screen_id"] is not None or account_screen["error"]:
+            readiness = {
+                "mode": "observing",
+                "reasons": ["account screen observation or OCR error holds all actions"],
             }
         elif (
             shopping is not None
