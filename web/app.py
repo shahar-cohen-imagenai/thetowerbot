@@ -17,6 +17,8 @@ advisor imports are written through their validating stores.
 
 from __future__ import annotations
 
+from account_state import AccountState
+
 import asyncio
 import json
 import threading
@@ -237,6 +239,7 @@ def create_app(
     store: StrategyStore | None = None,
     shopping: Any | None = None,
     advisor: AdvisorStore | None = None,
+    account_state: AccountState | None = None,
 ) -> FastAPI:
     # See event_stream()'s docstring for why this exists: without it, an
     # open dashboard tab and a shutting-down uvicorn wait on each other
@@ -253,6 +256,12 @@ def create_app(
         shutdown = threading.Event()
 
     app = FastAPI(title="The Tower bot")
+    accounts = account_state or getattr(runner, "account_state", None) or AccountState()
+
+    @app.get("/api/account")
+    def account_snapshot() -> dict[str, Any]:
+        return accounts.snapshot()
+
     autopilot_state = runner.autopilot_state if runner is not None else AutopilotState()
     advisor_store = advisor if advisor is not None else AdvisorStore(
         store.directory.parent / "advisor.json" if store is not None else None

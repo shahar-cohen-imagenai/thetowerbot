@@ -1,7 +1,8 @@
 """Persist state-changing events to SQLite.
 
 The consumer thread this sink inherits from QueueSink is the database's only
-writer, which is what lets the web layer read the same file concurrently. The
+telemetry writer. WAL also permits the acknowledged account repository to write
+short transactions while the web layer reads the same file concurrently. The
 connection is opened on that thread rather than in start(), because a sqlite3
 connection belongs to the thread that created it.
 

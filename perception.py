@@ -1,6 +1,7 @@
 """Read upgrade tiles and the battle HUD from one immutable screenshot."""
 from __future__ import annotations
 
+import hashlib
 import math
 import re
 import time
@@ -51,6 +52,10 @@ class ObservedUpgrade:
     rect: config.Rect
     tap: tuple[int, int] | None
 
+    confidence: float = 0.
+    raw_name: str = ""
+    raw_value: str | None = None
+
     @property
     def concept_id(self) -> str | None:
         entry = upgrades.by_id(self.upgrade_id)
@@ -70,17 +75,24 @@ class Observation:
     cash: int | None
     observed_at: float
     heading_y: int | None = None
+    context: str | None = None
+    frame_digest: str | None = None
+    frame_width: int = 0
+    frame_height: int = 0
 
 
 def parse_frame(
     screen: Image, boxes: tuple[ocr.TextBox, ...], context: str, *, now: float | None = None
 ) -> Observation:
     now = time.time() if now is None else now
+    raw_boxes = boxes
+    evidence = dict(context=context, frame_digest=hashlib.sha256(screen.tobytes()).hexdigest(),
+                    frame_width=screen.shape[1], frame_height=screen.shape[0])
     boxes = tuple(b for b in boxes if b.confidence >= .9)
     headings = [(c, b) for c in ("ATTACK", "DEFENSE", "UTILITY") for b in boxes
                 if tiles.normalise(b.text).replace("defence", "defense") == c.lower() + "upgrades"]
     if len(headings) != 1:
-        return Observation(None, (), {}, None, now)
+        return Observation(None, (), {}, None, now, **evidence)
     category, heading = headings[0]
     found = tuple(r for r in tiles.find_tiles(screen) if r.y > heading.rect.y)
     rows = []
@@ -98,11 +110,11 @@ def parse_frame(
                        and b.rect.y >= rect.y + rect.h * config.TILE_PRICE_TOP_FRACTION]
         price_box = max(price_boxes, key=lambda b: b.rect.y, default=None)
         price = price_number(price_box.text) if price_box else None
-        values = [stat_number(b.text) for b in inside
+        value_boxes = [b for b in inside
                   if b.rect.x > rect.x + rect.w * .5
                   and b.rect.y < rect.y + rect.h * config.TILE_PRICE_TOP_FRACTION
                   and stat_number(b.text) is not None]
-        value = values[0] if len(values) == 1 and not (entry and entry.unlock) else None
+        value = stat_number(value_boxes[0].text) if len(value_boxes) == 1 and not (entry and entry.unlock) else None
         status = "available" if price is not None else "unreadable"
         if markers & {"MAX", "MAXED"}:
             status, price = "maxed", None
@@ -113,6 +125,8 @@ def parse_frame(
             entry.name if entry else raw_name, category, context, value, price, status, now,
             rect, (price_box.rect.x + price_box.rect.w // 2,
                    price_box.rect.y + price_box.rect.h // 2) if price_box and price is not None else None,
+            confidence=min([heading.confidence, *(b.confidence for b in raw_boxes if contains(rect, b.rect))]),
+            raw_name=raw_name, raw_value=value_boxes[0].text if len(value_boxes) == 1 else None,
         ))
     combat: dict[str, float] = {}
     cash = None
@@ -141,7 +155,7 @@ def parse_frame(
                       and b.rect.x < screen.shape[1] * .4 and b.text.strip().startswith("$")]
         if len(cash_boxes) == 1:
             cash = price_number(cash_boxes[0].text)
-    return Observation(category, tuple(rows), combat, cash, now, heading.rect.y)
+    return Observation(category, tuple(rows), combat, cash, now, heading.rect.y, **evidence)
 
 
 def observe_frame(screen: Image, context: str) -> Observation:

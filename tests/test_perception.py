@@ -94,3 +94,23 @@ def test_wallet_ocr_refuses_ambiguous_or_low_confidence_numbers(monkeypatch: pyt
     assert read_cash(frame, (12, 1646)) is None
     monkeypatch.setattr(ocr, "read", lambda image: (ocr.TextBox("8", .99, box), ocr.TextBox("9", .99, box)))
     assert read_cash(frame, (12, 1646)) is None
+
+
+def test_frame_evidence_is_honest_and_low_confidence_tile_blocks_promotion(monkeypatch: pytest.MonkeyPatch) -> None:
+    from perception import parse_frame
+    import tiles
+    import numpy as np
+    screen = np.zeros((250, 250, 3), dtype=np.uint8)
+    tile = config.Rect(10, 60, 220, 130)
+    monkeypatch.setattr(tiles, 'find_tiles', lambda image: (tile,))
+    boxes = (ocr.TextBox('Defense Upgrades', .99, config.Rect(5, 5, 200, 30)),
+             ocr.TextBox('Health', .99, config.Rect(20, 70, 70, 20)),
+             ocr.TextBox('Regen', .4, config.Rect(20, 95, 70, 20)),
+             ocr.TextBox('100', .98, config.Rect(160, 75, 50, 20)),
+             ocr.TextBox('10', .96, config.Rect(160, 165, 50, 20)))
+    result = parse_frame(screen, boxes, 'workshop', now=1.)
+    assert result.context == 'workshop'
+    assert len(result.frame_digest) == 64
+    assert (result.frame_width, result.frame_height) == (250, 250)
+    assert result.rows[0].confidence == .4
+    assert result.rows[0].raw_value == '100'
