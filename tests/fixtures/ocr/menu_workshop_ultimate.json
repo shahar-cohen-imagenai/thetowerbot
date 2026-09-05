@@ -1,0 +1,82 @@
+[
+  {
+    "text": "1.37K",
+    "confidence": 0.9950310111045837,
+    "rect": [
+      90,
+      164,
+      134,
+      47
+    ]
+  },
+  {
+    "text": "60",
+    "confidence": 0.9984284341335297,
+    "rect": [
+      439,
+      162,
+      78,
+      50
+    ]
+  },
+  {
+    "text": "WORKSHOP",
+    "confidence": 0.9934114217758179,
+    "rect": [
+      31,
+      249,
+      298,
+      40
+    ]
+  },
+  {
+    "text": "ULTIMATEUPGRADES",
+    "confidence": 0.9904130883514881,
+    "rect": [
+      51,
+      401,
+      507,
+      40
+    ]
+  },
+  {
+    "text": "New Ultimate Weapon",
+    "confidence": 0.9573905687583121,
+    "rect": [
+      326,
+      522,
+      427,
+      45
+    ]
+  },
+  {
+    "text": "5",
+    "confidence": 0.9997499585151672,
+    "rect": [
+      512,
+      589,
+      35,
+      40
+    ]
+  },
+  {
+    "text": "Power stones are earned in tournaments.",
+    "confidence": 0.9799556915576642,
+    "rect": [
+      53,
+      1002,
+      973,
+      49
+    ]
+  },
+  {
+    "text": "Unlock tournaments by reaching wave 60",
+    "confidence": 0.9989813252499229,
+    "rect": [
+      49,
+      1059,
+      980,
+      53
+    ]
+  }
+]
