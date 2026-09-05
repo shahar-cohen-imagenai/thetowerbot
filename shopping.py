@@ -34,7 +34,7 @@ import upgrades
 import vision
 from device import Image, tap
 from digits import NumberReader
-from perception import Observation, ObservedUpgrade, contains, observe_frame, price_number
+from perception import Observation, ObservedUpgrade, observe_frame, price_number
 from strategy import Shopping, Strategy
 
 if TYPE_CHECKING:
@@ -71,24 +71,37 @@ def header_numbers(
     somebody harvested them by hand. OCR needs no such session, which is
     why build_shopping() now gates on the engine instead of on the atlas.
 
-    One whole-frame read serves both regions: the two balances share a
-    header row, and reading twice would pay for the same pixels twice.
+    Each region is read off its OWN padded crop rather than by filtering one
+    whole-frame read down to the two rects. The whole-frame read loses short
+    isolated numbers outright: a gem balance of "0" produces no box anywhere
+    in the frame, at any confidence floor, so the balance came back None and
+    took the visit with it. Cropped and padded, the same pixels read at 0.92.
+
+    Reading twice is also the cheaper half of the trade, which is the
+    opposite of what it looks like - the detection stage scales with the
+    pixels it is handed, so two small crops measure ~139ms against ~222ms
+    for one whole frame.
     """
     regions = config.HEADER_REGIONS.get(page)
     if regions is None or top_left is None:
         return None, None
     coins_region, gems_region = regions
-    boxes = ocr.read(screen)
     return (
-        _balance_in(boxes, _absolute(coins_region, top_left)),
-        _balance_in(boxes, _absolute(gems_region, top_left)),
+        _balance_at(screen, _absolute(coins_region, top_left)),
+        _balance_at(screen, _absolute(gems_region, top_left)),
     )
 
 
-def _balance_in(boxes: tuple[ocr.TextBox, ...], region: config.Rect) -> int | None:
-    """A single high-confidence balance in its known header region."""
-    values = [value for box in boxes
-              if box.confidence >= .9 and contains(region, box.rect)
+def _balance_at(screen: Image, region: config.Rect) -> int | None:
+    """A single high-confidence balance, read off that region's own crop.
+
+    Still "exactly one number or nothing": the coin and gem balances sit in
+    one header row, and a crop that caught both of them is a crop measured
+    wrong. Refusing is safe; picking the first would spend against the wrong
+    balance.
+    """
+    values = [value for box in ocr.read_region(screen, region)
+              if box.confidence >= .9
               and (value := price_number(box.text)) is not None]
     return values[0] if len(values) == 1 else None
 
