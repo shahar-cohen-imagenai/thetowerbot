@@ -15,11 +15,13 @@ import cv2
 import pytest
 
 import config
+import db
 import digits
 import ocr
 import tiles
 import events
 import shopping as shopping_mod
+import transactions
 import vision
 from perception import Observation, ObservedUpgrade
 from strategy import CardPolicy, Shopping, ShoppingRule
@@ -709,7 +711,13 @@ def test_the_gem_floor_stops_card_buying(session, fake_header) -> None:
 
 
 def test_card_buying_stops_at_the_per_visit_cap(session, fake_header) -> None:
-    """fake_header replaces a direct session._gems poke."""
+    """fake_header replaces a direct session._gems poke.
+
+    The balance now has to actually fall for the first buy to count - a
+    frozen 400 gems used to be enough, back when a tap was its own proof.
+    It is dropped once, by the price, and then held: the cap, not a missing
+    confirmation, is what has to stop the rest.
+    """
     device = FakeDevice()
     policy = a_policy(armed=True, cards=CardPolicy(
         enabled=True, gem_floor=0, max_per_visit=1
@@ -717,10 +725,258 @@ def test_card_buying_stops_at_the_per_visit_cap(session, fake_header) -> None:
     session.begin(policy, run_count=1)
     session._step = shopping_mod.Step.BUY_CARDS
     fake_header["gems"] = 400
-    for _ in range(5):
+    session.advance(frame("menu_cards"), device, policy)  # the tap
+    fake_header["gems"] = 380  # the x1 batch costs 20
+    for _ in range(4):
         session.advance(frame("menu_cards"), device, policy)
     bought = [e for e in session._bus.of_type("Purchased") if e.category == "CARDS"]
     assert len(bought) == 1
+
+
+def test_a_card_tap_is_not_a_purchase_until_the_gems_move(
+    session, fake_header
+) -> None:
+    """A card tap buys nothing on its own.
+
+    The workshop path has always required a second frame before it called a
+    tap a purchase; the card path published `Purchased` on the same frame
+    it tapped, on the strength of "the button was where the template said
+    it would be". A tap a modal swallowed was recorded as a gem debit that
+    never happened.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(
+        enabled=True, gem_floor=0, max_per_visit=1
+    ))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 400
+
+    session.advance(frame("menu_cards"), device, policy)
+
+    assert device.taps, "400 gems against a 20-gem batch: it should have tapped"
+    assert [e for e in session._bus.of_type("Purchased") if e.category == "CARDS"] == [], (
+        "the gems have not been re-read yet, so nothing proves a card was opened"
+    )
+
+
+def test_a_card_purchase_is_recorded_once_the_gems_fall_by_its_price(
+    session, fake_header
+) -> None:
+    """The other half: real evidence does confirm it, exactly once."""
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(
+        enabled=True, gem_floor=0, max_per_visit=1
+    ))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 400
+    session.advance(frame("menu_cards"), device, policy)
+
+    fake_header["gems"] = 380  # the x1 batch costs 20
+    session.advance(frame("menu_cards"), device, policy)
+
+    bought = [e for e in session._bus.of_type("Purchased") if e.category == "CARDS"]
+    assert len(bought) == 1
+    assert bought[0].price == 20
+
+
+def test_a_card_tap_left_unanswered_cannot_be_confirmed_by_a_later_visit(
+    session, fake_header
+) -> None:
+    """A pending tap belongs to the visit that made it.
+
+    Gems move between visits for reasons that have nothing to do with a
+    card - missions, rewards, the player. A stale pending that survived
+    would eventually meet a balance matching its arithmetic and record a
+    purchase for a debit that came from somewhere else entirely.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(
+        enabled=True, gem_floor=0, max_per_visit=1
+    ))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 400
+    session.advance(frame("menu_cards"), device, policy)  # tapped, never answered
+    session.reset()
+
+    assert session.begin(policy, run_count=2) is True
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 380  # exactly what the abandoned pending was waiting for
+    session.advance(frame("menu_cards"), device, policy)
+
+    bought = [e for e in session._bus.of_type("Purchased") if e.category == "CARDS"]
+    assert bought == [], (
+        "a balance read in a new visit cannot answer for the old visit's tap"
+    )
+
+
+def test_a_card_tap_is_journalled_before_it_is_sent(tmp_path, fake_header) -> None:
+    """The durable half. `_pending_card` dies with the process; the journal
+    row is what a restart can still read."""
+    journal = transactions.TransactionJournal(tmp_path / "bot.db")
+    session = shopping_mod.ShoppingSession(
+        templates=vision.TemplateCache(config.TEMPLATE_DIR),
+        bus=Recorder(),
+        reader=digits.NumberReader(),
+        journal=journal,
+    )
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(
+        enabled=True, gem_floor=0, max_per_visit=1
+    ))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 400
+
+    session.advance(frame("menu_cards"), device, policy)
+
+    still_open = journal.open_transactions()
+    assert [t.item for t in still_open] == ["x1"]
+    assert still_open[0].stage == transactions.Stage.ACTED
+    assert still_open[0].price == 20
+
+
+def test_a_tap_a_dead_process_left_open_is_not_sent_again(tmp_path, fake_header) -> None:
+    """The acceptance gate, end to end.
+
+    A previous process tapped and died. The gems may or may not be gone;
+    from here that is unknowable. Tapping again risks paying twice, so this
+    visit does not tap at all.
+    """
+    path = tmp_path / "bot.db"
+    dead = transactions.TransactionJournal(path)
+    txn = dead.open(transactions.Intent(
+        item="x1", category="CARDS", currency="gems", price=20,
+        wallet_before=400, ts=1.0,
+    ))
+    dead.record_action(txn.key, at=1.0)
+
+    session = shopping_mod.ShoppingSession(
+        templates=vision.TemplateCache(config.TEMPLATE_DIR),
+        bus=Recorder(),
+        reader=digits.NumberReader(),
+        journal=transactions.TransactionJournal(path),
+    )
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(
+        enabled=True, gem_floor=0, max_per_visit=1
+    ))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 400
+
+    session.advance(frame("menu_cards"), device, policy)
+
+    assert device.taps == [], (
+        "an unreconciled attempt may already have spent these gems"
+    )
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert any(s.reason == "unreconciled" for s in skips)
+
+
+def test_a_visit_that_ended_cleanly_does_not_block_the_next_one(
+    tmp_path, fake_header
+) -> None:
+    """The counterweight to the refusal above.
+
+    A crash leaves an attempt open because nothing got the chance to close
+    it, and that is what blocks the next process. A visit that ends in an
+    orderly way did get that chance, so it takes it - otherwise one
+    unconfirmed card would stop the bot from ever shopping again.
+    """
+    journal = transactions.TransactionJournal(tmp_path / "bot.db")
+    session = shopping_mod.ShoppingSession(
+        templates=vision.TemplateCache(config.TEMPLATE_DIR),
+        bus=Recorder(),
+        reader=digits.NumberReader(),
+        journal=journal,
+    )
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(
+        enabled=True, gem_floor=0, max_per_visit=1
+    ))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 400
+    session.advance(frame("menu_cards"), device, policy)  # tapped, unanswered
+    session.reset()
+
+    assert journal.open_transactions() == (), (
+        "an orderly end answers what it opened, even if the answer is "
+        "'nobody knows'"
+    )
+
+    assert session.begin(policy, run_count=2) is True
+    session._step = shopping_mod.Step.BUY_CARDS
+    session.advance(frame("menu_cards"), device, policy)
+    assert len(device.taps) == 2
+
+
+def _journalled_workshop_session(path, monkeypatch):
+    """A session over a real journal, with one affordable ATTACK row."""
+    row = ObservedUpgrade("damage", "Damage", "ATTACK", "workshop", 1, 5,
+                          "available", 1, config.Rect(0, 0, 100, 100), (50, 80))
+    monkeypatch.setattr(shopping_mod, "observe_frame", lambda *_:
+                        Observation("ATTACK", (row,), {}, None, 1, 270))
+    return shopping_mod.ShoppingSession(
+        templates=vision.TemplateCache(config.TEMPLATE_DIR),
+        bus=Recorder(),
+        reader=digits.NumberReader(),
+        journal=transactions.TransactionJournal(path),
+    )
+
+
+def _workshop_policy():
+    return a_policy(armed=True, coin_budget=100, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK", target=2),
+    ))
+
+
+def test_a_workshop_tap_is_journalled_before_it_is_sent(tmp_path, monkeypatch,
+                                                        fake_header) -> None:
+    """The workshop row is the bot's main spender; it gets the same durable
+    record the card path does."""
+    path = tmp_path / "bot.db"
+    session = _journalled_workshop_session(path, monkeypatch)
+    device = FakeDevice()
+    policy = _workshop_policy()
+    session.begin(policy, run_count=1)
+
+    session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                      frame("menu_workshop_attack"), device, policy)
+
+    assert len(device.taps) == 1
+    still_open = session.journal.open_transactions()
+    assert [(t.item, t.stage, t.price) for t in still_open] == [
+        ("Damage", transactions.Stage.ACTED, 5)
+    ]
+
+
+def test_a_workshop_tap_a_dead_process_left_open_is_not_sent_again(
+    tmp_path, monkeypatch, fake_header
+) -> None:
+    """The acceptance gate on the path that spends coins."""
+    path = tmp_path / "bot.db"
+    dead = transactions.TransactionJournal(path)
+    txn = dead.open(transactions.Intent(
+        item="Damage", category="ATTACK", currency="coins", price=5,
+        wallet_before=1770, ts=1.0,
+    ))
+    dead.record_action(txn.key, at=1.0)
+
+    session = _journalled_workshop_session(path, monkeypatch)
+    device = FakeDevice()
+    policy = _workshop_policy()
+    session.begin(policy, run_count=1)
+
+    session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                      frame("menu_workshop_attack"), device, policy)
+
+    assert device.taps == [], (
+        "those coins may already be spent by the process that died"
+    )
 
 
 def test_the_bot_never_taps_unlock_new_slot(session) -> None:
