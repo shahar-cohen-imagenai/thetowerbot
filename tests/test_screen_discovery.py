@@ -9,6 +9,7 @@ import pytest
 import config
 import ocr
 import perception
+import tiles
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 
@@ -32,12 +33,46 @@ def test_recorded_supported_screens(name: str, context: str, expected: str) -> N
     assert result.readable
 
 
-@pytest.mark.parametrize('name', ['menu_workshop_info_panel', 'menu_workshop_explainer_modal'])
-def test_recorded_overlays_never_expose_purchase_rows(name: str, monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize('name,screen_id', [
+    ('menu_workshop_info_panel', 'workshop.info_overlay'),
+    ('menu_workshop_explainer_modal', 'workshop.ultimate_explainer'),
+])
+def test_recorded_overlays_keep_identity_and_never_expose_purchase_rows(
+    name: str, screen_id: str, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import screen_discovery
     frame = cv2.imread(str(FIXTURES / f'{name}.png'))
-    monkeypatch.setattr(ocr, 'read', lambda _: recorded(name))
+    boxes = recorded(name)
+    assert screen_discovery.discover(frame, boxes, 'workshop') == (
+        screen_discovery.ScreenDiscovery(screen_id, False, 'overlay'))
+    monkeypatch.setattr(ocr, 'read', lambda _: boxes)
     result = perception.observe_frame(frame, 'workshop')
     assert result.rows == ()
+
+
+@pytest.mark.parametrize('frame_name,boxes_name,context', [
+    ('menu_workshop_info_panel', 'menu_workshop_info_panel', 'workshop'),
+    ('menu_workshop_explainer_modal', 'menu_workshop_explainer_modal', 'workshop'),
+    ('game_over_fade', 'in_run_lit', 'battle'),
+    ('game_over_stats', 'in_run_lit', 'battle'),
+])
+def test_central_bordered_overlay_fails_closed_when_expected_heading_remains(
+    frame_name: str, boxes_name: str, context: str, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import screen_discovery
+    frame = cv2.imread(str(FIXTURES / f'{frame_name}.png'))
+    boxes = tuple(b for b in recorded(boxes_name)
+                  if tiles.normalise(b.text) not in (
+                      'currentlevel', 'maxlevel', 'ultimateweapons', 'ok'))
+    if frame_name == 'menu_workshop_explainer_modal':
+        boxes += tuple(b for b in recorded('menu_workshop_attack')
+                       if tiles.normalise(b.text) in ('workshop', 'attackupgrades'))
+
+    result = screen_discovery.discover(frame, boxes, context)
+
+    assert result == screen_discovery.ScreenDiscovery(None, False, 'overlay_geometry')
+    monkeypatch.setattr(ocr, 'read', lambda _: boxes)
+    assert perception.observe_frame(frame, context).rows == ()
 
 
 def test_runtime_rejects_geometry_mismatch(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -109,6 +144,15 @@ def test_capability_matrix_names_recorded_evidence_and_missing_scope() -> None:
     assert capabilities['locale'] == 'en'
     assert capabilities['complete'] is False
     assert 'battle_history_export' in capabilities['unsupported']
+    assert 'unknown_overlays' in capabilities['unsupported']
+    assert capabilities['guarded_overlay_geometry'] == {
+        'minimum_size': [700, 600],
+        'must_cover_screen_center': True,
+        'recorded_evidence': [
+            'menu_workshop_info_panel', 'menu_workshop_explainer_modal',
+            'game_over_fade', 'game_over_stats',
+        ],
+    }
     for name in capabilities['readers'].values():
         assert (FIXTURES / f'{name}.png').exists()
         assert (FIXTURES / 'ocr' / f'{name}.json').exists()
