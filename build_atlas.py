@@ -118,13 +118,6 @@ SOURCES: dict[str, tuple[Source, ...]] = {
             caption_anchor(config.MODAL_COINS_CAPTION),
         ),
     ),
-    # The header bar. Sampled from MAIN_MENU because that is the only menu
-    # page screens.classify() knows - the workshop and cards pages read as
-    # UNKNOWN to it by design - and the bar is pixel-identical on all three.
-    "header": (
-        Source("MAIN_MENU", config.HEADER_REGIONS["MAIN_MENU"][0]),
-        Source("MAIN_MENU", config.HEADER_REGIONS["MAIN_MENU"][1]),
-    ),
 }
 
 
@@ -140,11 +133,14 @@ def dump_glyphs(
     Numbering continues from whatever is already in `out_dir`, so repeated
     calls across a session accumulate instead of overwriting.
 
-    Binarises at `size_class`'s own threshold via digits.threshold_for,
-    never the bare default - the header bar is light rather than dark, and
-    at the shared default the panel survives binarisation and bridges
-    adjacent glyphs ("1.77K" segments as 1 . 77 K instead of 1 . 7 7 K),
-    which is exactly the bug NumberReader.read avoids the same way.
+    Binarises at `size_class`'s own threshold via digits.threshold_for
+    rather than the bare default, which matters for any class rendered
+    light-on-light: at the shared dark-panel default such a background
+    survives binarisation and bridges adjacent glyphs. No class overrides
+    it today (config.DIGIT_BINARY_THRESHOLDS is empty since the header moved
+    to OCR), so this currently resolves to the default for every class - the
+    indirection is what keeps that a fact about the data rather than one
+    baked into the call.
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     start = len(list(out_dir.glob("glyph_*.png")))

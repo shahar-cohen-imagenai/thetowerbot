@@ -133,6 +133,51 @@ def parse_number(text: str) -> int | None:
     return round(float(digits) * _SUFFIXES.get(suffix or "", 1))
 
 
+# Padding put around a cropped region before reading it. The engine's
+# DETECTION stage, not its recognition, is what needs this: a short isolated
+# number in a full frame can produce no box at all - a lone "0" in the gems
+# header returns nothing at any confidence floor, including 0.0 - while the
+# same pixels cropped and padded read at 0.92. Quiet margin around the
+# glyphs is what buys the detection.
+CROP_PADDING: int = 20
+
+
+def read_region(
+    screen: Image | None,
+    rect: Rect,
+    *,
+    padding: int = CROP_PADDING,
+    min_confidence: float | None = None,
+) -> tuple[TextBox, ...]:
+    """Read one region off its own padded crop, in frame coordinates.
+
+    Preferred over filtering a whole-frame read down to `rect` whenever the
+    region holds one short number. It is not only more accurate but cheaper:
+    measured on a menu frame, two padded header crops cost ~139ms against
+    ~222ms for a single whole-frame read, because the detection stage scales
+    with the pixels it is handed.
+
+    Boxes come back in CROP coordinates, offset for the padding, so a caller
+    that only wants the text can ignore geometry entirely. Returns empty for
+    a rect that lands off-screen rather than raising - same rule as read().
+    """
+    if screen is None:
+        return ()
+    height, width = screen.shape[:2]
+    x0, y0 = max(rect.x, 0), max(rect.y, 0)
+    x1, y1 = min(rect.x + rect.w, width), min(rect.y + rect.h, height)
+    if x1 <= x0 or y1 <= y0:
+        return ()
+
+    crop = screen[y0:y1, x0:x1]
+    import cv2  # local: keeps the import cost off callers that never crop
+
+    padded = cv2.copyMakeBorder(
+        crop, padding, padding, padding, padding, cv2.BORDER_CONSTANT
+    )
+    return read(padded, min_confidence=min_confidence)
+
+
 def available() -> bool:
     """Whether the engine will load - the startup gate of spec §10.
 

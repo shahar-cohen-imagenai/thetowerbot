@@ -142,9 +142,13 @@ SIZE_CLASSES: tuple[str, ...] = ("wallet", "price", "modal")
 # Every class the harvesting tools will offer. Deliberately NOT the same
 # tuple as SIZE_CLASSES: tower_bot.build_affordability treats a missing
 # SIZE_CLASSES atlas as "this machine cannot do digits at all" and downgrades
-# the entire bot to brightness. The header and menu classes only gate menu
-# shopping, so an unbuilt one of those must disable shopping and nothing else.
-ALL_SIZE_CLASSES: tuple[str, ...] = SIZE_CLASSES + ("header", "menu")
+# the entire bot to brightness. The menu class only gates menu shopping, so
+# an unbuilt one of those must disable shopping and nothing else.
+#
+# There was a "header" class here too, for the menu header's coin and gem
+# balances. Those are read by OCR now (shopping.header_numbers), which needs
+# no harvested glyphs, so the class and its atlas are gone.
+ALL_SIZE_CLASSES: tuple[str, ...] = SIZE_CLASSES + ("menu",)
 
 
 def threshold_for(size_class: str) -> int:

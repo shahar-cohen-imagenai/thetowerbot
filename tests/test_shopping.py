@@ -247,13 +247,47 @@ def test_the_header_reads_a_balance_the_glyph_atlas_could_not(monkeypatch) -> No
     visit. Reading the header with OCR is what retires that failure - and
     with it the harvesting session build_shopping() used to demand.
     """
-    def _read(screen):
-        return (ocr.TextBox(text="2.35K", confidence=0.99, rect=config.Rect(90, 164, 130, 46)),)
+    top_left = (32, 244)
+    coins_region, _gems_region = config.HEADER_REGIONS["WORKSHOP"]
+    coins_rect = shopping_mod._absolute(coins_region, top_left)
 
-    monkeypatch.setattr(shopping_mod.ocr, "read", _read)
-    coins, gems = shopping_mod.header_numbers(None, "WORKSHOP", (32, 244))
+    def _read_region(screen, region, **kwargs):
+        if region != coins_rect:
+            return ()
+        return (ocr.TextBox(text="2.35K", confidence=0.99, rect=config.Rect(20, 20, 130, 46)),)
+
+    monkeypatch.setattr(shopping_mod.ocr, "read_region", _read_region)
+    coins, gems = shopping_mod.header_numbers(None, "WORKSHOP", top_left)
     assert coins == 2350
     assert gems is None, "nothing was read in the gem region"
+
+
+def test_a_single_digit_gem_balance_is_read() -> None:
+    """The regression. A whole-frame read returns no box at all for a lone
+    "0" - not a low-confidence one, none - so gems came back None and took
+    the visit with it. Real engine, real fixture, no monkeypatching."""
+    cache = vision.TemplateCache(config.TEMPLATE_DIR)
+    screen = frame("menu_main")
+    _, top_left = vision.best_score(screen, cache.get(config.PAGE_ANCHORS["MAIN_MENU"]))
+
+    coins, gems = shopping_mod.header_numbers(screen, "MAIN_MENU", top_left)
+
+    assert coins == 78
+    assert gems == 0, "a zero balance is a balance, not an unreadable header"
+
+
+def test_a_region_holding_two_numbers_still_refuses(monkeypatch) -> None:
+    """Per-region crops did not relax the one-number rule. A crop that
+    catches both balances is a crop measured wrong, and spending against the
+    wrong one is worse than not shopping."""
+    def _read_region(screen, region, **kwargs):
+        return (
+            ocr.TextBox(text="1770", confidence=0.99, rect=config.Rect(20, 20, 90, 46)),
+            ocr.TextBox(text="40", confidence=0.99, rect=config.Rect(140, 20, 50, 46)),
+        )
+
+    monkeypatch.setattr(shopping_mod.ocr, "read_region", _read_region)
+    assert shopping_mod.header_numbers(None, "WORKSHOP", (32, 244)) == (None, None)
 
 
 def test_the_header_reads_nothing_off_a_page_that_has_no_header() -> None:

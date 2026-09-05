@@ -52,26 +52,6 @@ def test_does_not_overwrite_existing_numbering(tmp_path: Path) -> None:
     assert second[0].name == "glyph_002.png"
 
 
-def test_header_source_binarises_at_the_header_threshold(tmp_path: Path) -> None:
-    """dump_glyphs must resolve ITS OWN threshold from the size class it was
-    given, not fall back to the bare (dark-panel) default. The header bar is
-    light, not dark: at config.DIGIT_BINARY_THRESHOLD the panel survives
-    binarisation and bridges adjacent glyphs, so "1.77K" segments as
-    1 . 77 K (4 files) instead of 1 . 7 7 K (5 files) - a merged span that
-    can never be labelled. This is a behavioural check, not a check of the
-    threshold constant: it fails again if dump_glyphs ever goes back to a
-    bare digits.binarize(patch) call, whatever the constant's value is.
-    """
-    screen = frame("menu_workshop_attack.png")
-    cache = vision.TemplateCache(config.TEMPLATE_DIR)
-    _, top_left = vision.best_score(screen, cache.get(config.PAGE_ANCHORS["WORKSHOP"]))
-    coins_region, _ = config.HEADER_REGIONS["WORKSHOP"]
-
-    written = build_atlas.dump_glyphs(screen, coins_region, top_left, tmp_path, "header")
-
-    assert len(written) == 5, "1.77K must split into 1 . 7 7 K, not merge the two 7s"
-
-
 # --- Where glyphs are harvested from ---------------------------------------
 
 
@@ -94,7 +74,7 @@ def test_every_size_class_can_be_harvested() -> None:
     Compared against ALL_SIZE_CLASSES, not SIZE_CLASSES: this test is about
     the harvesting TOOLS offering every class a source, which is the wider,
     tooling-facing tuple. SIZE_CLASSES is the narrower affordability gate -
-    header is deliberately excluded from it so an unbuilt header atlas only
+    `menu` is deliberately excluded from it so an unbuilt menu atlas only
     disables shopping, not the whole bot - and that exclusion should not
     leak into this assertion.
 
@@ -106,7 +86,7 @@ def test_every_size_class_can_be_harvested() -> None:
     design (see PAGE_ANCHORS's comment). Bending Source's model to fit would
     contort this module for a screen state it deliberately does not know
     about; tools/harvest_menu_glyphs.py reads the committed fixtures directly
-    instead, the same way tools/harvest_header_glyphs.py already does."""
+    instead."""
     assert set(build_atlas.SOURCES) == set(digits.ALL_SIZE_CLASSES) - {"menu"}
 
 

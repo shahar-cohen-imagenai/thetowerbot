@@ -11,6 +11,8 @@ import pytest
 
 import config
 import ocr
+import pages
+import vision
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -149,3 +151,47 @@ def test_refuses_when_two_numbers_share_the_region():
 
 def test_refuses_when_nothing_was_read_at_all():
     assert ocr.number_in((), REGION) is None
+
+# --- read_region ----------------------------------------------------------
+
+
+def test_read_region_finds_a_number_a_whole_frame_read_misses() -> None:
+    """The reason read_region exists.
+
+    The engine's DETECTION stage, not its recognition, is what fails here: a
+    lone "0" in the gems header produces no box anywhere in a full frame, at
+    any confidence floor including 0.0. Cropped and padded it reads cleanly.
+    """
+    screen = cv2.imread(str(FIXTURES / "menu_main.png"), cv2.IMREAD_COLOR)
+    assert screen is not None
+    cache = vision.TemplateCache(config.TEMPLATE_DIR)
+    reading = pages.classify_page(screen, cache)
+    _coins, gems = config.HEADER_REGIONS[reading.page]
+    rect = config.Rect(
+        reading.top_left[0] + gems.dx, reading.top_left[1] + gems.dy, gems.w, gems.h
+    )
+
+    whole_frame = [
+        box for box in ocr.read(screen, min_confidence=0.0)
+        if rect.x <= box.rect.x <= rect.x + rect.w
+        and rect.y <= box.rect.y <= rect.y + rect.h
+    ]
+    assert whole_frame == [], "premise changed: the frame read now finds it"
+
+    assert [box.text for box in ocr.read_region(screen, rect)] == ["0"]
+
+
+def test_read_region_off_screen_is_empty_not_an_error() -> None:
+    """Same rule as read(): degrade the bot, never stop the scan loop."""
+    screen = cv2.imread(str(FIXTURES / "menu_main.png"), cv2.IMREAD_COLOR)
+    assert ocr.read_region(screen, config.Rect(-500, -500, 100, 100)) == ()
+    assert ocr.read_region(screen, config.Rect(9_000, 9_000, 100, 100)) == ()
+    assert ocr.read_region(None, config.Rect(0, 0, 100, 100)) == ()
+
+
+def test_read_region_clamps_a_rect_that_hangs_off_the_edge() -> None:
+    """Partially off-screen is readable, not refused - only wholly off is."""
+    screen = cv2.imread(str(FIXTURES / "menu_main.png"), cv2.IMREAD_COLOR)
+    height, width = screen.shape[:2]
+    hanging = config.Rect(width - 50, height - 50, 400, 400)
+    ocr.read_region(screen, hanging)  # must not raise

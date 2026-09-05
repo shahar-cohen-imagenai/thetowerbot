@@ -219,19 +219,58 @@ def test_workshop_balance_uses_high_confidence_ocr_without_an_atlas(
     monkeypatch: pytest.MonkeyPatch, text: str, confidence: float, expected: int | None,
 ) -> None:
     anchor = (100, 100)
-    region = shopping._absolute(config.HEADER_REGIONS["WORKSHOP"][0], anchor)
-    boxes = (ocr.TextBox(text, confidence, config.Rect(region.x + 2, region.y + 2, 20, 20)),)
-    monkeypatch.setattr(ocr, "read", lambda _: boxes)
+    coins = shopping._absolute(config.HEADER_REGIONS["WORKSHOP"][0], anchor)
+
+    # Each balance is read off its own padded crop, so boxes come back in
+    # CROP coordinates and which region a number belongs to is decided by
+    # which crop was handed to the engine, not by a containment test.
+    def _read_region(_screen, region, **_kwargs):
+        if region != coins:
+            return ()
+        return (ocr.TextBox(text, confidence, config.Rect(20, 20, 20, 20)),)
+
+    monkeypatch.setattr(ocr, "read_region", _read_region)
     assert shopping.header_numbers(None, "WORKSHOP", anchor)[0] == expected
 
 
-def test_ambiguous_or_outside_balance_numbers_are_never_guessed(
+def test_ambiguous_balance_numbers_are_never_guessed(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Two numbers in one crop means the region is measured wrong.
+
+    Refusing is safe; picking the first would spend against whichever
+    balance happened to be leftmost.
+    """
+    def _read_region(_screen, _region, **_kwargs):
+        return (ocr.TextBox("900", .99, config.Rect(20, 20, 20, 20)),
+                ocr.TextBox("100", .99, config.Rect(44, 20, 20, 20)))
+
+    monkeypatch.setattr(ocr, "read_region", _read_region)
+    assert shopping.header_numbers(None, "WORKSHOP", (100, 100)) == (None, None)
+
+
+def test_only_the_two_header_regions_are_ever_read(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """What used to keep an unrelated number out of a balance.
+
+    A whole-frame read needed a containment filter to stop a price
+    elsewhere on the page being counted as a balance. Cropping makes that
+    structural - so the guarantee worth asserting is that the crops handed
+    to the engine are exactly the two header rects and nothing else.
+    """
     anchor = (100, 100)
-    region = shopping._absolute(config.HEADER_REGIONS["WORKSHOP"][0], anchor)
-    boxes = (ocr.TextBox("900", .99, config.Rect(region.x + 2, region.y + 2, 20, 20)),
-             ocr.TextBox("100", .99, config.Rect(region.x + 24, region.y + 2, 20, 20)),
-             ocr.TextBox("40000", .99, config.Rect(500, 500, 50, 20)))
-    monkeypatch.setattr(ocr, "read", lambda _: boxes)
-    assert shopping.header_numbers(None, "WORKSHOP", anchor) == (None, None)
+    coins_region, gems_region = config.HEADER_REGIONS["WORKSHOP"]
+    asked: list[config.Rect] = []
+
+    def _read_region(_screen, region, **_kwargs):
+        asked.append(region)
+        return ()
+
+    monkeypatch.setattr(ocr, "read_region", _read_region)
+    shopping.header_numbers(None, "WORKSHOP", anchor)
+
+    assert asked == [
+        shopping._absolute(coins_region, anchor),
+        shopping._absolute(gems_region, anchor),
+    ]
