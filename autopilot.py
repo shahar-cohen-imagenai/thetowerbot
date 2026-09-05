@@ -141,6 +141,13 @@ class BattleAutopilot:
         self.bus = bus
         self.pending: tuple[ObservedUpgrade, float] | None = None
         self.search: Search | None = None
+        # The last frame's rows as overlay boxes, in the schema
+        # frames.set_boxes() takes. Kept here rather than returned from
+        # step() because the loop needs them on every pass, including the
+        # ones that decide to buy nothing - a blank overlay and a bot that
+        # is not looking at anything are different things, and the device
+        # view is where you tell them apart.
+        self.boxes: list[dict[str, Any]] = []
         self._policy: AutopilotPolicy | None = None
         self._blocked: dict[str, float] = {}
         self._last_action = float("-inf")
@@ -227,11 +234,44 @@ class BattleAutopilot:
         self.state.decision("discovering", f"Scanning {entry.category.title()} for {entry.name}", target)
         return True
 
+    def _draw(self, observation: Observation) -> None:
+        """Record this frame's rows for the device view.
+
+        Every row, not only the one about to be bought: the legacy matcher
+        recorded a box "whether or not the tap happens, because matched but
+        rejected is exactly what you open the device view to see", and that
+        is even truer here, where a row can be passed over for a target
+        already met, an unreadable value or a price above the reserve.
+
+        `tapped` is left False for all of them; `_mark_tapped` sets it on
+        the one row a purchase actually goes to, after the decision.
+        """
+        self.boxes = [
+            {
+                "name": row.name,
+                "x": int(row.rect.x),
+                "y": int(row.rect.y),
+                "w": int(row.rect.w),
+                "h": int(row.rect.h),
+                "tap_x": int(row.tap[0]) if row.tap else int(row.rect.x + row.rect.w // 2),
+                "tap_y": int(row.tap[1]) if row.tap else int(row.rect.y + row.rect.h // 2),
+                "score": float(row.confidence),
+                "tapped": False,
+            }
+            for row in observation.rows
+        ]
+
+    def _mark_tapped(self, row: ObservedUpgrade) -> None:
+        for box in self.boxes:
+            if box["name"] == row.name:
+                box["tapped"] = True
+
     def step(self, screen: Image, device: Any, policy: AutopilotPolicy, *,
              cash: int | None = None, observation: Observation | None = None,
              run_id: int | None = None, cooldown: float = .75,
              identity: RunIdentity = RunIdentity(), elapsed: float | None = None) -> bool:
         observation = observation or observe_frame(screen, "battle")
+        self._draw(observation)
         if self.account_state is not None:
             self.account_state.observe_run(observation, run_id)
         now = observation.observed_at
@@ -353,6 +393,7 @@ class BattleAutopilot:
             self.state.decision("saving", f"Saving cash for {row.name}; reserve protected", target)
             return False
         tap(device, *row.tap)
+        self._mark_tapped(row)
         self.pending = (row, now)
         self._last_action = now
         self.state.decision("verifying", f"Checking {row.name} purchase", target)

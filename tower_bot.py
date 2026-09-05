@@ -720,6 +720,12 @@ class TowerBot:
                                                    run_id=self.runs.current_id,
                                                    identity=self.run_identity(settings),
                                                    elapsed=self.runs.elapsed(time.monotonic()))
+                    # The autopilot reads the panel itself, so its rows are
+                    # the only description of this frame anything has. Left
+                    # out, the set_boxes() below blanks the device view on
+                    # every scan the autopilot owns - which, once it owns
+                    # in-run buying, is every scan of every run.
+                    boxes.extend(self.autopilot.boxes)
             else:
                 self.autopilot.suspend("Autopilot is off; legacy purchases are active")
                 for rule in settings.strategy.actions:

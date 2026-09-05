@@ -41,3 +41,22 @@ def test_the_autopilot_steps_on_every_upgrade_tab(
         f"the scan loop never stepped the autopilot on {frame}; a tab whose "
         "header the ATTACK template does not match is still a live run"
     )
+
+
+def test_the_overlay_shows_what_the_autopilot_read(
+    bot_in_run_on: Callable[[str], TowerBot],
+) -> None:
+    """`boxes` is a local list the legacy matcher fills as it goes, and
+    run_once() hands it to the frame buffer at the end of every pass. The
+    autopilot path never touched it, so taking over in-run buying meant
+    set_boxes([]) blanked the device view on every scan.
+    """
+    from frames import FrameBuffer
+
+    bot = bot_in_run_on("in_run_lit")
+    bot.frames = FrameBuffer()
+    bot.controls.apply({"autopilot": {"enabled": True}})
+
+    bot.run_once()
+
+    assert bot.frames.boxes(), "the device view went blank while the autopilot was deciding"
