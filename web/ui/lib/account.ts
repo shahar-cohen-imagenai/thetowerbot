@@ -19,6 +19,21 @@ export type AccountRevision = Record<AccountSection, AccountFact[] | null> & {
 export interface AccountSnapshot {
   persistence_available: boolean; error: string | null; errors: { account: string | null; run: string | null };
   revision: AccountRevision | null; unknown_state: AccountRevision | null;
+  screen_readings?: AccountScreenReadings;
+}
+export interface ScreenField {
+  key: string; label: string; raw_value: string | null;
+  status: "observed" | "insufficient_data" | "unreadable";
+  confidence: number; rect: [number, number, number, number] | null;
+}
+export interface AccountScreenReading {
+  screen_id: "account.settings" | "account.stats.summary" | "account.stats.tiers";
+  observed_at: number; frame_width: number; frame_height: number; frame_digest: string;
+  fields: ScreenField[];
+  tiers: { tier: number; wave: ScreenField; coins: ScreenField; cells: ScreenField }[];
+}
+export interface AccountScreenReadings {
+  current_screen_id: string | null; readings: AccountScreenReading[]; error: string | null;
 }
 export interface AccountConcept {
   concept_id: string; name: string; domain: string; kind: string; unit: string | null;
