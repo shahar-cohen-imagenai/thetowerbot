@@ -114,23 +114,20 @@ def _letters(text: str) -> str:
 
 def _row_named(name: str, rows: tuple[ObservedUpgrade, ...],
                category: str | None = None) -> ObservedUpgrade | None:
-    """The OCR row addressed by `name`, or None if it is not on screen.
-
-    Matched on the normalised name, so spacing and case in a strategy file
-    do not have to reproduce what the font renders.
-    """
-    wanted = tiles.normalise(name)
+    """Match only an unambiguous legacy identity on the expected Workshop tab."""
     entry = upgrades.resolve(name, category)
-    for row in rows:
-        if tiles.normalise(row.name) == wanted or (entry and row.upgrade_id == entry.id):
-            return row
-    return None
+    if entry is None:
+        return None
+    matches = [row for row in rows if row.upgrade_id == entry.id
+               and row.category == entry.category and row.context == "workshop"
+               and upgrades.resolve(row.name, row.category) == entry]
+    return matches[0] if len(matches) == 1 else None
 
 
 def _target_reached(upgrade_id: str, value: float, target: float) -> bool:
     if upgrades.by_id(upgrade_id) is not None:
         return upgrades.target_reached(upgrade_id, value, target)
-    return value >= target
+    return False
 
 
 @dataclass
@@ -629,7 +626,14 @@ class ShoppingSession:
             return
         rule = rules[0]
         entry = upgrades.resolve(rule.name, category)
-        rule_id = entry.id if entry is not None else "discovered:" + tiles.normalise(rule.name)
+        if entry is None:
+            self._exhausted.add(rule.name)
+            self._bus.publish(events.PurchaseSkipped(
+                item=rule.name, reason="unknown_identity",
+                detail="no executable Workshop identity", coins_before=coins,
+            ))
+            return
+        rule_id = entry.id
         if rule_id in self._completed_unlocks:
             self._exhausted.add(rule.name)
             self._bus.publish(events.PurchaseSkipped(item=rule.name, reason="already_unlocked"))
@@ -655,8 +659,7 @@ class ShoppingSession:
             self._find_row(rule.name, observation, device, shopping, screen, coins)
             return
         self._search = None
-        entry = upgrades.resolve(seen.name, category)
-        is_unlock = (entry is not None and entry.unlock) or tiles.normalise(seen.name).startswith("unlock")
+        is_unlock = entry.unlock
         reason = None
         detail = ""
         if is_unlock and not shopping.allow_unlocks:

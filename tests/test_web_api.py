@@ -49,6 +49,22 @@ def test_status_reports_the_live_state_and_the_dropped_count(harness) -> None:
     assert body["uptime"] >= 0
 
 
+def test_concepts_endpoint_is_read_only_and_preserves_legacy_upgrades(harness) -> None:
+    client, _, _, _, _, _ = harness
+    response = client.get("/api/concepts")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["schema_version"] == 1
+    assert body["registry_version"] == "2026-09-05.1"
+    assert len(body["glossary"]) == 159
+    assert len(body["concepts"]) >= 575
+    assert client.post("/api/concepts", json={}).status_code in (404, 405)
+    legacy = client.get("/api/upgrades").json()
+    assert len(legacy) == 59
+    assert legacy[0]["id"] == "damage"
+    assert legacy[0]["concept_id"] == "stats.damage"
+
+
 def test_runs_come_back_newest_first(harness) -> None:
     client, _, _, _, db_path, _ = harness
     conn = db.connect(db_path)

@@ -26,6 +26,11 @@ class Upgrade:
     unlock: bool = False
     unlocks: tuple[str, ...] = ()
 
+    @property
+    def concept_id(self) -> str:
+        """Canonical identity; the flat ID remains the execution contract."""
+        return f"unlocks.{self.id.removeprefix('unlock_')}" if self.unlock else f"stats.{self.id}"
+
 
 def _upgrade(
     upgrade_id: str,
@@ -309,10 +314,9 @@ def resolve(name: str, category: str | None = None) -> Upgrade | None:
         if wanted_category not in CATEGORIES:
             return None
     candidates = _BY_NAME.get(_normalise(name), ())
-    for upgrade in candidates:
-        if wanted_category is None or upgrade.category == wanted_category:
-            return upgrade
-    return None
+    matches = {upgrade.id: upgrade for upgrade in candidates
+               if wanted_category is None or upgrade.category == wanted_category}
+    return next(iter(matches.values())) if len(matches) == 1 else None
 
 
 def catalog_payload() -> list[dict[str, Any]]:
@@ -321,6 +325,7 @@ def catalog_payload() -> list[dict[str, Any]]:
     return [
         {
             "id": upgrade.id,
+            "concept_id": upgrade.concept_id,
             "name": upgrade.name,
             "category": upgrade.category,
             "aliases": list(upgrade.aliases),
