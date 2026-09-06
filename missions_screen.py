@@ -35,40 +35,30 @@ _MIN_CONFIDENCE = .90
 # any other size is one this reader has not looked at, never one it found clear.
 _EXPECTED_FRAME = (2400, 1080)
 
-# The page title at (32, 249, 433, 40), with margin. Cropping it is what keeps
-# this reader affordable in a loop that scans every two seconds: a full-frame
-# OCR runs only once this band says the missions page is actually up.
-_TITLE = Rect(0, 220, 620, 80)
+# The page title, measured at (32, 249, 433, 40).
 _TITLE_LABEL = 'dailymissions'
 # The title's y on every inset-bearing capture. An offset is the difference
 # between where this device drew the title and this number; it is 0 on the
 # recorded captures and negative on an edge-to-edge device.
 _RECORDED_TITLE_Y = 249
 
-# The status-bar insets this reader has actually MEASURED, smallest first: 0 on
-# every recorded capture, 136 on a device that draws the game edge to edge
-# (title y 249 against 113). The probe crops the frame, and a crop has to know
-# where to look - so unlike screen_discovery, which searches boxes from a
-# full-frame OCR and tolerates the whole 0..MAX_TOP_INSET range for free, this
-# band is checked at each measured inset and nowhere between them.
-#
-# Widening the crop instead was tried and refused: a 280px-tall crop takes in
-# the currency row and the reset line, and RapidOCR then splits "DAILY MISSIONS"
-# into two boxes - reading the recorded capture's title as 'DAILYI' - which
-# breaks the exact-match gate on BOTH layouts. Loosening that gate is worse than
-# it looks: a probe that says yes on a page this is not holds every action, so
-# the gate stays exact and the crop moves instead.
-#
-# What that costs, stated plainly because the mechanism alone understates it:
-# at an inset outside this set, scan() reports `scanned=True, screen_id=None` -
-# the one answer permitted to mean "examined, and no missions page is up" - on
-# a page screen_discovery identifies as missions.daily on the same frame. That
-# is not a fault report a caller can react to; it is an affirmative claim of
-# absence, which is the exact failure this reader was changed to stop making.
-# Measured coverage is insets 0-29 and 125-165, against the 0..MAX_TOP_INSET
-# that screen_discovery declares. A third device's inset must be measured and
-# added here, not assumed to fall in a gap that happens to work.
-_MEASURED_INSETS = (0, 136)
+# scan() used to detect the page by cropping a title-sized band and OCR-ing it
+# at each of two MEASURED status-bar insets (0, 136) before paying for a
+# full-frame read - and paid for the full-frame read anyway once a crop hit,
+# so a page found at the second inset cost three OCR passes, and a page at
+# neither cost two for nothing. Measured against
+# tests/fixtures/in_run_lit.png (median of 5 warm runs): the two-crop probe
+# cost 487.5ms; a single full-frame read costs 252.2ms - about the same as
+# ONE crop, because a RapidOCR call's overhead does not scale with a region
+# this small. So scan() now reads the whole frame once, always, and detects
+# the page from those same boxes via screen_discovery._missions_title, which
+# searches the widened 0..MAX_TOP_INSET band screen_discovery already
+# declares - continuously, rather than at two discrete insets. That also
+# closes a coverage gap the two-inset probe had: an inset outside {0, 136}
+# used to make scan() report `scanned=True, screen_id=None` - the one answer
+# permitted to mean "examined, and no missions page is up" - on a frame
+# screen_discovery itself would call missions.daily. Searching the range
+# continuously removes that hole rather than adding a third fixed point to it.
 
 # "completed 0/35" measured at (796, 326, 261, 36) - the daily counter, and
 # the only evidence this reader has for whether a weekly milestone is reached.
@@ -607,21 +597,14 @@ class MissionsReadings:
         if screen.shape[:2] != _EXPECTED_FRAME:
             return False
         try:
-            found = False
-            for inset in _MEASURED_INSETS:
-                band = _shift(_TITLE, -inset)
-                crop = screen[band.y:band.y + band.h, band.x:band.x + band.w]
-                titles = ocr.read(crop, strict=True, min_confidence=0.)
-                if any(tiles.normalise(b.text) == _TITLE_LABEL for b in titles):
-                    found = True
-                    break
-            if not found:
-                # Examined at every measured inset, and no missions title on
-                # any of them. This is the one branch that may stand for "no
-                # missions page is up".
+            boxes = ocr.read(screen, strict=True)
+            if screen_discovery._missions_title(boxes) is None:
+                # Examined the whole frame, and no missions title anywhere in
+                # the band screen_discovery searches (0..MAX_TOP_INSET, wide
+                # enough for every device this reader has measured). This is
+                # the one branch that may stand for "no missions page is up".
                 self.observe(None, scanned=True)
                 return False
-            boxes = ocr.read(screen, strict=True)
             reading = parse_frame(screen, boxes)
             self.observe(reading, scanned=True,
                          claims=claim_targets(reading, boxes) if reading else (),
