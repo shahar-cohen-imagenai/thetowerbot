@@ -97,6 +97,11 @@ _PROGRESS_TOP_FRACTION = .5
 _PROGRESS = re.compile(r'(\d+)\s*/\s*(\d+)')
 _INTEGER = re.compile(r'\d+')
 
+# The button that replaces the progress bar on a finished card. Measured at
+# (454, 751, 153, 46) on menu_missions_claimable_no_status_bar - centred in the
+# card's lower half, left of the reward column, exactly where a bar would be.
+_CLAIM_LABEL = 'claim'
+
 
 @dataclass(frozen=True)
 class MissionEntry:
@@ -111,9 +116,10 @@ class MissionEntry:
     exactly that reason; `mission_id` alone means "the same recurring
     mission", which is a weaker claim.
 
-    `status` keeps available, complete, ambiguous and unreadable apart. A
-    card whose numbers were not read leaves `progress` and `target` None; a
-    missing observation is never written down as zero.
+    `status` keeps available, complete, claimable, ambiguous and unreadable
+    apart. `claimable` is a card whose bar has been replaced by a CLAIM
+    button: its `progress` and `target` are None because the page no longer
+    states them, which is not the same fact as a bar that could not be read.
     """
 
     mission_id: str | None
@@ -206,6 +212,24 @@ class MissionsReading:
         return 'unseen'
 
 
+@dataclass(frozen=True)
+class ClaimTarget:
+    """One CLAIM button, with the card it belongs to named.
+
+    Its own type rather than a field on MissionEntry, and deliberately so: the
+    reader's entries stay free of anything a tap could be read from, and a
+    caller that means to claim has to ask for targets explicitly. `rect` here
+    IS a tap target - the only one this module produces - and it is only ever
+    valid for the frame it was read from.
+    """
+
+    mission_id: str | None
+    raw_text: str
+    coins: int | None
+    gems: int | None
+    rect: tuple[int, int, int, int]
+
+
 def _trusted(box: ocr.TextBox) -> bool:
     return math.isfinite(box.confidence) and _MIN_CONFIDENCE <= box.confidence <= 1.
 
@@ -235,7 +259,7 @@ def _title_offset(boxes: tuple[ocr.TextBox, ...]) -> int | None:
     return titles[0].rect.y - _RECORDED_TITLE_Y
 
 
-def identity_of(text: str, target: int | None) -> str | None:
+def identity_of(text: str, target: int | None, *, complete: bool = False) -> str | None:
     """The mission's identity: its text with the goal count removed.
 
     The goal is the one digit run the progress bar agrees with, and only
@@ -266,13 +290,21 @@ def identity_of(text: str, target: int | None) -> str | None:
     A text with no letters left is likewise `None`: a bare-number id could
     collide with any other numeric garble and names no mission.
 
+    `complete` says the goal is absent because the mission is FINISHED, not
+    because the bar could not be read - a claimable card replaces its bar with
+    a CLAIM button. That is different evidence, so it gets a different answer:
+    every digit is kept, giving `kill_200_basic_enemies` where the same mission
+    in progress gives `kill_basic_enemies`. The two ids are deliberately not
+    comparable, which is the safe direction - one mission reported as two,
+    each honestly, rather than two collapsed into one that says nothing.
+
     Known and accepted: when the goal digit IS the subject - 'Reach tier 5'
     against a 0/5 bar, where the bar literally counts tiers - stripping it
     gives `reach_tier` for every tier. That is the same recurring objective
     at a different goal, and `target` is what tells them apart. Callers
     comparing OBJECTIVES pass both to MissionsReading.status_for.
     """
-    if target is None and re.search(r'\d', text):
+    if target is None and not complete and re.search(r'\d', text):
         return None
     runs = list(re.finditer(r'\d+', text))
     goals = [run for run in runs if target is not None and int(run[0]) == target]
@@ -355,12 +387,34 @@ def _mission(card: Rect, boxes: tuple[ocr.TextBox, ...]) -> MissionEntry | None:
     if progress is not None and target is not None and (target <= 0 or progress > target):
         progress, target = None, None
 
+    claim_boxes = [b for b in inside
+                   if b.rect.x < reward_edge and b.rect.y >= progress_edge
+                   and _trusted(b) and tiles.normalise(b.text) == _CLAIM_LABEL]
+    # A bar is what the button replaces, so a card appearing to hold both is a
+    # misread of one of them. Nothing here can say which, so neither is
+    # trusted over the other and the card has no reading at all.
+    claimable = len(claim_boxes) == 1 and not bars
+
     text_boxes = [b for b in inside if b.rect.x < reward_edge and b.rect.y < progress_edge]
     raw_text = ' '.join(b.text for b in text_boxes)
-    trusted_text = bool(text_boxes) and all(_trusted(b) for b in text_boxes)
-    mission_id = identity_of(raw_text, target) if trusted_text else None
 
-    if mission_id is None or progress is None or target is None:
+    # A bar is what the button replaces, so a card appearing to hold both is a
+    # misread of one of them. Nothing here can say which, so neither is
+    # trusted over the other and the card has no reading at all.
+    if claim_boxes and bars:
+        return MissionEntry(None, raw_text, None, None, 'unreadable', rewards,
+                            rewards_status, 0., (card.x, card.y, card.w, card.h))
+
+    trusted_text = bool(text_boxes) and all(_trusted(b) for b in text_boxes)
+    mission_id = identity_of(raw_text, target, complete=claimable) if trusted_text else None
+
+    if mission_id is None:
+        status = 'unreadable'
+    elif claimable:
+        # No progress and no target, and that is not a failed read: a finished
+        # card states its completeness by replacing the bar with the button.
+        status = 'claimable'
+    elif progress is None or target is None:
         status = 'unreadable'
     else:
         status = 'available' if progress < target else 'complete'
@@ -368,6 +422,41 @@ def _mission(card: Rect, boxes: tuple[ocr.TextBox, ...]) -> MissionEntry | None:
         mission_id, raw_text, progress, target, status, rewards, rewards_status,
         min((b.confidence for b in text_boxes), default=0.) if trusted_text else 0.,
         (card.x, card.y, card.w, card.h))
+
+
+def claim_targets(reading: MissionsReading,
+                  boxes: tuple[ocr.TextBox, ...]) -> tuple[ClaimTarget, ...]:
+    """The CLAIM buttons for this reading's claimable cards, top to bottom.
+
+    Driven by the status the reader already assigned rather than by a second
+    search of the frame, so a card this module refused to identify can never
+    acquire a tap target by another route.
+
+    One button per card and only where the card holds exactly one: a doubled
+    or missing read yields no target for that card rather than a guessed one.
+    """
+    found: list[ClaimTarget] = []
+    for entry in sorted(reading.missions, key=lambda m: m.rect[1]):
+        if entry.status != 'claimable':
+            continue
+        card = Rect(*entry.rect)
+        reward_edge = card.x + card.w * _REWARD_LEFT_FRACTION
+        progress_edge = card.y + card.h * _PROGRESS_TOP_FRACTION
+        hits = [b for b in boxes if _inside(card, b.rect) and _trusted(b)
+                and b.rect.x < reward_edge and b.rect.y >= progress_edge
+                and tiles.normalise(b.text) == _CLAIM_LABEL]
+        if len(hits) == 1:
+            # The reward column holds two numbers told apart only by their
+            # icons, which this reader does not read - so they are named by
+            # ORDER, coins then gems, and only when the column was read
+            # cleanly and holds exactly the two the card is drawn with.
+            coins, gems = (entry.reward_values
+                           if entry.rewards_status == 'observed'
+                           and len(entry.reward_values) == 2 else (None, None))
+            found.append(ClaimTarget(
+                entry.mission_id, entry.raw_text, coins, gems,
+                (hits[0].rect.x, hits[0].rect.y, hits[0].rect.w, hits[0].rect.h)))
+    return tuple(found)
 
 
 def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
@@ -432,6 +521,11 @@ class MissionsReadings:
         self._latest: MissionsReading | None = None
         self._error: str | None = None
         self._scanned = False
+        # Targets for the frame just scanned, and never for any other. A tap
+        # located on one frame and made on the next is the failure this
+        # module's whole style exists to prevent, so these are cleared by
+        # every observe() that does not supply new ones.
+        self._claims: tuple[ClaimTarget, ...] = ()
 
     def snapshot(self) -> dict[str, Any]:
         """Detached payload. Carries no coordinate: a card's or a chest's
@@ -461,14 +555,36 @@ class MissionsReadings:
             screen_id = None if self._reading is None else self._reading.screen_id
             return {'screen_id': screen_id, 'error': self._error, 'scanned': self._scanned}
 
+    def claim_evidence(self) -> dict[str, Any]:
+        """What a claim transaction needs from the frame just scanned.
+
+        Separate from current_evidence rather than an extension of it:
+        that payload is what every transaction tests home against, and
+        widening it would make an unrelated caller's assertion depend on
+        claiming.
+
+        `completed` is the daily counter and is the success test for a claim -
+        it moves the moment a reward is taken. `claims` are targets on THIS
+        frame; an unscanned or unreadable frame carries none rather than the
+        last frame's.
+        """
+        with self._lock:
+            reading = self._reading
+            return {'screen_id': None if reading is None else reading.screen_id,
+                    'error': self._error, 'scanned': self._scanned,
+                    'completed': None if reading is None else reading.completed,
+                    'claims': self._claims}
+
     def observe(self, reading: MissionsReading | None, *, error: str | None = None,
-                scanned: bool = False) -> None:
+                scanned: bool = False,
+                claims: tuple[ClaimTarget, ...] = ()) -> None:
         with self._lock:
             self._reading = reading
             if reading is not None:
                 self._latest = reading
             self._error = error
             self._scanned = scanned or reading is not None
+            self._claims = claims
 
     def scan(self, screen: Image) -> bool:
         """Update from this frame; return whether all actions must hold.
@@ -495,8 +611,10 @@ class MissionsReadings:
                 # missions page is up".
                 self.observe(None, scanned=True)
                 return False
-            reading = parse_frame(screen, ocr.read(screen, strict=True))
+            boxes = ocr.read(screen, strict=True)
+            reading = parse_frame(screen, boxes)
             self.observe(reading, scanned=True,
+                         claims=claim_targets(reading, boxes) if reading else (),
                          error=None if reading else
                          'The missions page is up but could not be read reliably')
             return True
