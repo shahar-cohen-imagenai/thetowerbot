@@ -601,3 +601,78 @@ def test_the_holder_snapshot_exposes_no_field_a_tap_could_be_read_from() -> None
         assert set(entry) == {'threshold', 'status', 'confidence'}
     assert 'rect' not in json.dumps(snapshot)
     assert 'frame_digest' not in latest
+
+
+# --- devices that reserve no status bar -----------------------------------
+
+def no_status_bar() -> Image:
+    return cv2.imread(str(FIXTURES / 'menu_missions_claimable_no_status_bar.png'))
+
+
+def test_the_reader_reads_a_page_drawn_without_a_status_bar() -> None:
+    """The counter and the milestone strip are found from the title.
+
+    Recorded from a device that draws the game edge to edge, which paints the
+    same page 136px higher than every other missions capture.
+    """
+    name = 'menu_missions_claimable_no_status_bar'
+    reading = missions_screen.parse_frame(no_status_bar(), recorded(name))
+    assert reading is not None
+    assert (reading.completed, reading.completed_target) == (0, 35)
+    assert (reading.shown, reading.offered) == (8, 8)
+    assert [m.threshold for m in reading.milestones] == [5, 10, 15, 20, 25]
+    assert all(m.status == 'locked' for m in reading.milestones)
+
+
+def test_the_holder_no_longer_reports_a_missions_page_as_absent() -> None:
+    """The false negative this fix exists for, pinned.
+
+    `scanned=True` with `screen_id=None` is the reader's ONE branch that may
+    stand for "examined, and no missions page is up". Answering it while the
+    missions page fills the screen is worse than failing: everything built on
+    the reader silently does nothing instead of reporting a fault.
+    """
+    readings = missions_screen.MissionsReadings()
+    assert readings.scan(no_status_bar()) is True
+    assert readings.current_evidence() == {
+        'screen_id': 'missions.daily', 'error': None, 'scanned': True}
+
+
+def test_a_claim_moves_the_counter_on_an_inset_free_device() -> None:
+    """The two captures are one tap apart, and the counter says so.
+
+    Not a claiming test - nothing here taps. It pins that the reader sees the
+    difference a claim makes on this layout, which is what a later claim
+    transaction will use as its success test.
+    """
+    before = missions_screen.parse_frame(
+        no_status_bar(), recorded('menu_missions_claimable_no_status_bar'))
+    after = missions_screen.parse_frame(
+        cv2.imread(str(FIXTURES / 'menu_missions_claimed.png')),
+        recorded('menu_missions_claimed'))
+    assert (before.completed, after.completed) == (0, 1)
+    assert (before.shown, after.shown) == (8, 7)
+
+
+def test_the_recorded_layout_still_reads_unchanged() -> None:
+    """The fix is a widening, not a move."""
+    reading = missions_screen.parse_frame(frame(), recorded())
+    assert reading is not None
+    assert (reading.completed, reading.completed_target) == (0, 35)
+    assert reading.shown == 2
+
+
+def test_a_second_title_leaves_the_page_without_an_origin() -> None:
+    """Two titles are a misread, not an origin.
+
+    screen_discovery accepts the page on one title inside its band. This
+    reader needs the stronger fact of WHERE that title is, because it
+    measures its own bands from it - so a second 'DAILY MISSIONS' box
+    outside that band satisfies the first check and destroys the second.
+    Refusing is the point: bands measured from a guessed origin would read
+    the counter off empty space and report numbers from nowhere.
+    """
+    name = 'menu_missions_claimable_no_status_bar'
+    boxes = recorded(name) + (
+        ocr.TextBox('DAILYMISSIONS', .99, config.Rect(32, 1500, 432, 40)),)
+    assert missions_screen.parse_frame(no_status_bar(), boxes) is None

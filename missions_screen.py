@@ -40,6 +40,25 @@ _EXPECTED_FRAME = (2400, 1080)
 # OCR runs only once this band says the missions page is actually up.
 _TITLE = Rect(0, 220, 620, 80)
 _TITLE_LABEL = 'dailymissions'
+# The title's y on every inset-bearing capture. An offset is the difference
+# between where this device drew the title and this number; it is 0 on the
+# recorded captures and negative on an edge-to-edge device.
+_RECORDED_TITLE_Y = 249
+
+# The status-bar insets this reader has actually MEASURED, smallest first: 0 on
+# every recorded capture, 136 on a device that draws the game edge to edge
+# (title y 249 against 113). The probe crops the frame, and a crop has to know
+# where to look - so unlike screen_discovery, which searches boxes from a
+# full-frame OCR and tolerates the whole 0..MAX_TOP_INSET range for free, this
+# band is checked at each measured inset and nowhere between them.
+#
+# Widening the crop instead was tried and refused: a 280px-tall crop takes in
+# the currency row and the reset line, and RapidOCR then splits "DAILY MISSIONS"
+# into two boxes - reading the recorded capture's title as 'DAILYI' - which
+# breaks the exact-match gate on BOTH layouts. Loosening that gate is worse than
+# it looks: a probe that says yes on a page this is not holds every action, so
+# the gate stays exact and the crop moves instead.
+_MEASURED_INSETS = (0, 136)
 
 # "completed 0/35" measured at (796, 326, 261, 36) - the daily counter, and
 # the only evidence this reader has for whether a weekly milestone is reached.
@@ -186,6 +205,26 @@ def _inside(rect: Rect, box: Rect) -> bool:
     return rect.x <= x < rect.x + rect.w and rect.y <= y < rect.y + rect.h
 
 
+def _shift(rect: Rect, dy: int) -> Rect:
+    """The same band, moved to where this device drew the page."""
+    return Rect(rect.x, rect.y + dy, rect.w, rect.h)
+
+
+def _title_offset(boxes: tuple[ocr.TextBox, ...]) -> int | None:
+    """How far above its recorded place this device drew the page, or None.
+
+    Measured from the page's own title, which is the only anchor here that is
+    identified by its text rather than by its position. Exactly one trusted
+    title or nothing: two are a misread, and none leaves no origin, which is
+    not the same fact as an offset of zero.
+    """
+    titles = [b for b in boxes
+              if _trusted(b) and tiles.normalise(b.text) == _TITLE_LABEL]
+    if len(titles) != 1:
+        return None
+    return titles[0].rect.y - _RECORDED_TITLE_Y
+
+
 def identity_of(text: str, target: int | None) -> str | None:
     """The mission's identity: its text with the goal count removed.
 
@@ -241,18 +280,22 @@ def identity_of(text: str, target: int | None) -> str | None:
     return '_'.join(tokens) if any(t.isalpha() for t in tokens) else None
 
 
-def _counter(boxes: tuple[ocr.TextBox, ...]) -> tuple[int | None, int | None]:
+def _counter(boxes: tuple[ocr.TextBox, ...],
+            offset: int) -> tuple[int | None, int | None]:
     """The 'completed N/M' pair, or (None, None) when it is not certain."""
+    band = _shift(_COMPLETED, offset)
     matches = [m for m in (_COMPLETED_TEXT.fullmatch(b.text.strip())
-                           for b in boxes if _trusted(b) and _inside(_COMPLETED, b.rect)) if m]
+                           for b in boxes if _trusted(b) and _inside(band, b.rect)) if m]
     if len(matches) != 1:
         return None, None
     done, total = int(matches[0][1]), int(matches[0][2])
     return (done, total) if done <= total else (None, None)
 
 
-def _milestones(boxes: tuple[ocr.TextBox, ...], completed: int | None) -> tuple[MilestoneEntry, ...]:
-    found = [b for b in boxes if _inside(_MILESTONES, b.rect)
+def _milestones(boxes: tuple[ocr.TextBox, ...], completed: int | None,
+                offset: int) -> tuple[MilestoneEntry, ...]:
+    band = _shift(_MILESTONES, offset)
+    found = [b for b in boxes if _inside(band, b.rect)
              and _INTEGER.fullmatch(b.text.strip())]
     thresholds = Counter(int(b.text) for b in found if _trusted(b))
     entries = []
@@ -331,7 +374,13 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
     discovery = screen_discovery.discover(screen, boxes, 'missions', locale=locale)
     if not discovery.readable or discovery.screen_id != 'missions.daily':
         return None
-    completed, completed_target = _counter(boxes)
+    # This page's origin. discover already required exactly one title at a
+    # bounded distance above the banner; this reads its y back so every band
+    # below is measured from the page rather than from the frame edge.
+    offset = _title_offset(boxes)
+    if offset is None:
+        return None
+    completed, completed_target = _counter(boxes, offset)
     counted = screen_discovery.missions_count(boxes)
     shown, offered = counted if counted else (None, None)
     cards = _cards(screen)
@@ -347,7 +396,7 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
         hashlib.sha256(screen.tobytes()).hexdigest(),
         completed, completed_target, shown, offered,
         offered - shown if shown is not None and offered is not None else None,
-        len(cards), missions, _milestones(boxes, completed),
+        len(cards), missions, _milestones(boxes, completed, offset),
         # Never complete: the weekly strip is cut off by the right edge of the
         # capture and only `shown` of `offered` missions are on the page.
         complete=False)
@@ -422,11 +471,18 @@ class MissionsReadings:
         if screen.shape[:2] != _EXPECTED_FRAME:
             return False
         try:
-            crop = screen[_TITLE.y:_TITLE.y + _TITLE.h, _TITLE.x:_TITLE.x + _TITLE.w]
-            titles = ocr.read(crop, strict=True, min_confidence=0.)
-            if not any(tiles.normalise(b.text) == _TITLE_LABEL for b in titles):
-                # Examined, and no missions title on it. This is the one
-                # branch that may stand for "no missions page is up".
+            found = False
+            for inset in _MEASURED_INSETS:
+                band = _shift(_TITLE, -inset)
+                crop = screen[band.y:band.y + band.h, band.x:band.x + band.w]
+                titles = ocr.read(crop, strict=True, min_confidence=0.)
+                if any(tiles.normalise(b.text) == _TITLE_LABEL for b in titles):
+                    found = True
+                    break
+            if not found:
+                # Examined at every measured inset, and no missions title on
+                # any of them. This is the one branch that may stand for "no
+                # missions page is up".
                 self.observe(None, scanned=True)
                 return False
             reading = parse_frame(screen, ocr.read(screen, strict=True))
