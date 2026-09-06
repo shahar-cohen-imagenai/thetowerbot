@@ -591,7 +591,16 @@ def test_a_restart_cancels_a_half_walked_claim_and_lets_a_retry_start(
 ) -> None:
     """A claim TAPS things that change the account, so it must not outlive
     the bot that was walking it any more than collect_stats or visit do -
-    the same stop-site cancel (`_run`'s finally block), the same reason."""
+    the same stop-site cancel (`_run`'s finally block), the same reason.
+
+    Named for the restart, but despite the name its assertions are actually
+    satisfied by the STOP-site cancel: `stop()` already ends the claim via
+    `_run`'s finally block before this test's second `start()` ever runs, so
+    that `start()` only ever finds an already-idle object and confirms it
+    stays that way. It is not proof of `start()`'s OWN `bot_restarted`
+    cancel - the sibling `collection`/`visit` restart tests share this same
+    naming weakness. `test_a_restart_cancels_a_claim_left_active_with_no_bot_walking_it`,
+    just below, isolates that other cancel site instead."""
     runner, _ = menu_runner
     runner.start()
     runner.request_missions_claim()
@@ -622,6 +631,44 @@ def test_a_restart_cancels_a_claim_left_active_with_no_bot_walking_it(
     assert runner.claim.active, "the fixture must actually be armed to test anything"
     runner.start()
     try:
+        assert not runner.claim.active
+    finally:
+        runner.stop()
+
+
+def test_a_claim_and_the_other_two_transactions_are_never_armed_at_once_in_either_order(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """The same mutual exclusion as
+    test_two_transactions_are_never_armed_at_once_in_either_order, extended
+    to the third transaction: all three walk out of the same main menu, so a
+    second one armed behind any of the others would read that one's screen
+    as its own arrival evidence."""
+    runner, _ = menu_runner
+    runner.start()
+    try:
+        runner.request_missions_claim()
+        with pytest.raises(RunnerError) as during_claim_collection:
+            runner.request_stats_collection()
+        assert during_claim_collection.value.status_code == 409
+        assert not runner.collection.active
+        with pytest.raises(RunnerError) as during_claim_visit:
+            runner.request_missions_visit()
+        assert during_claim_visit.value.status_code == 409
+        assert not runner.visit.active
+        runner.claim.cancel("test", "cleared for the other direction")
+
+        runner.request_stats_collection()
+        with pytest.raises(RunnerError) as during_collection_claim:
+            runner.request_missions_claim()
+        assert during_collection_claim.value.status_code == 409
+        assert not runner.claim.active
+        runner.collection.cancel("test", "cleared for the other direction")
+
+        runner.request_missions_visit()
+        with pytest.raises(RunnerError) as during_visit_claim:
+            runner.request_missions_claim()
+        assert during_visit_claim.value.status_code == 409
         assert not runner.claim.active
     finally:
         runner.stop()
