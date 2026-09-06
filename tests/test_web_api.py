@@ -110,6 +110,90 @@ def test_one_runs_events_come_back_with_detail_decoded(harness) -> None:
     assert body[0]["detail"] == {"x": 1, "y": 2}
 
 
+def a_battle_purchase(seq: int, **overrides: object) -> dict[str, object]:
+    """A stored BattlePurchased row, as sinks.store.to_row writes one."""
+    detail = {"item": "Damage", "upgrade_id": "damage", "value": 42.0}
+    detail.update(overrides.pop("detail", {}))  # type: ignore[arg-type]
+    row: dict[str, object] = {
+        "seq": seq, "run_id": 1, "ts": 100.0 + seq, "type": "BattlePurchased",
+        "screen": "IN_RUN", "action": None, "reason": None, "score": None,
+        "price": 120, "wallet": None, "detail": json.dumps(detail),
+    }
+    row.update(overrides)
+    return row
+
+
+def test_run_purchases_carry_the_category_the_event_does_not(harness) -> None:
+    """BattlePurchased has no category field; it is joined from the catalog."""
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    db.start_run(conn, 1, started_at=1.0)
+    db.insert_event(conn, a_battle_purchase(1))
+    conn.close()
+
+    body = client.get("/api/runs/1/purchases").json()
+
+    assert [p["item"] for p in body["purchases"]] == ["Damage"]
+    assert body["purchases"][0]["category"] == "ATTACK"
+    assert body["purchases"][0]["price"] == 120
+
+
+def test_a_purchase_of_an_uncatalogued_upgrade_reports_no_category(harness) -> None:
+    """An upgrade_id the catalog does not know gets None, not a guess."""
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    db.insert_event(conn, a_battle_purchase(1, detail={"upgrade_id": "nonesuch"}))
+    conn.close()
+
+    body = client.get("/api/runs/1/purchases").json()
+
+    assert body["purchases"][0]["category"] is None
+
+
+def test_run_purchase_totals_count_every_buy_and_split_by_category(harness) -> None:
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    db.insert_event(conn, a_battle_purchase(1, price=100))
+    db.insert_event(conn, a_battle_purchase(2, price=250))
+    db.insert_event(conn, a_battle_purchase(
+        3, price=900, detail={"item": "Health", "upgrade_id": "health"}))
+    conn.close()
+
+    totals = client.get("/api/runs/1/purchases").json()["totals"]
+
+    assert totals["count"] == 3
+    assert totals["spent"] == 1250
+    assert totals["by_category"] == {"ATTACK": 2, "DEFENSE": 1}
+
+
+def test_an_unreadable_price_is_counted_apart_from_the_total_spent(harness) -> None:
+    """None is "we could not read it", not zero. Summing it as zero would
+    report a total the run did not actually spend."""
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    db.insert_event(conn, a_battle_purchase(1, price=100))
+    db.insert_event(conn, a_battle_purchase(2, price=None))
+    conn.close()
+
+    totals = client.get("/api/runs/1/purchases").json()["totals"]
+
+    assert totals["count"] == 2
+    assert totals["spent"] == 100
+    assert totals["unpriced"] == 1
+
+
+def test_a_run_that_bought_nothing_reports_zeroed_totals(harness) -> None:
+    client, _, _, _, db_path, _ = harness
+    conn = db.connect(db_path)
+    db.start_run(conn, 1, started_at=1.0)
+    conn.close()
+
+    body = client.get("/api/runs/1/purchases").json()
+
+    assert body["purchases"] == []
+    assert body["totals"] == {"count": 0, "spent": 0, "unpriced": 0, "by_category": {}}
+
+
 def test_unknown_lists_snapshots_newest_first(harness) -> None:
     client, _, _, _, _, unknown_dir = harness
     (unknown_dir / "1000.png").write_bytes(b"one")
@@ -354,6 +438,11 @@ def test_run_routes_degrade_to_empty_history_under_no_store() -> None:
     assert client.get("/api/runs").json() == []
     assert client.get("/api/runs/1/events").status_code == 200
     assert client.get("/api/runs/1/events").json() == []
+    assert client.get("/api/runs/1/purchases").status_code == 200
+    assert client.get("/api/runs/1/purchases").json() == {
+        "purchases": [], "totals": {"count": 0, "spent": 0, "unpriced": 0,
+                                    "by_category": {}},
+    }
 
 
 def a_ledger_line(seq: int, **overrides: object) -> dict[str, object]:

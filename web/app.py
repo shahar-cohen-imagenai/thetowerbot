@@ -224,6 +224,20 @@ class CommandRequest(BaseModel):
     command: str
 
 
+_CATEGORY_BY_UPGRADE: dict[str, str] = {u.id: u.category for u in upgrades.CATALOG}
+
+
+def _category_of(upgrade_id: str | None) -> str | None:
+    """ATTACK / DEFENSE / UTILITY for an upgrade id, or None if unknown.
+
+    BattlePurchased carries no category - the autopilot knows it from the
+    panel it was reading, but the event does not record it - so it is joined
+    from the catalog here rather than added to the event and migrated in.
+    An id the catalog has never heard of gets None, not a guess.
+    """
+    return _CATEGORY_BY_UPGRADE.get(upgrade_id) if upgrade_id else None
+
+
 def create_app(
     *,
     state: BotState,
@@ -532,6 +546,40 @@ def create_app(
             return []
         with db.reader(db_path) as conn:
             return db.run_events(conn, run_id)
+
+    @app.get("/api/runs/{run_id}/purchases")
+    def run_purchases(run_id: int) -> dict:
+        """The in-run upgrades one run bought, with its totals.
+
+        Serves a live run and a finished one alike - the store writes a
+        BattlePurchased row as the purchase happens, so the browser polls
+        this for the open run and fetches it once for a stored one.
+        """
+        # Same as the two routes above: --no-store means there is nothing to
+        # read, and empty totals are the honest answer, not a 500.
+        rows = []
+        if db_path is not None:
+            with db.reader(db_path) as conn:
+                rows = db.run_purchases(conn, run_id)
+
+        purchases = [row | {"category": _category_of(row["upgrade_id"])} for row in rows]
+        # `spent` sums only the prices that were actually read, and
+        # `unpriced` counts the rest. A price of None is OCR that could not
+        # read the number, not a free upgrade, and folding it in as zero
+        # would report a total the run never spent.
+        by_category: dict[str, int] = {}
+        for purchase in purchases:
+            if purchase["category"] is not None:
+                by_category[purchase["category"]] = by_category.get(purchase["category"], 0) + 1
+        return {
+            "purchases": purchases,
+            "totals": {
+                "count": len(purchases),
+                "spent": sum(p["price"] for p in purchases if p["price"] is not None),
+                "unpriced": sum(1 for p in purchases if p["price"] is None),
+                "by_category": by_category,
+            },
+        }
 
     @app.get("/api/events/stream")
     async def stream(request: Request) -> StreamingResponse:

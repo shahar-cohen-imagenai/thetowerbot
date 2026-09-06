@@ -5,15 +5,16 @@ import { DeviceView } from "@/components/DeviceView";
 import { AutopilotStatus } from "@/components/AutopilotStatus";
 import { EventFeed } from "@/components/EventFeed";
 import { MiniBarList } from "@/components/MiniBarList";
+import { RunPurchases } from "@/components/RunPurchases";
 import { RunTable } from "@/components/RunTable";
 import { SnapshotStrip } from "@/components/SnapshotStrip";
 import { StatBar } from "@/components/StatBar";
 import { WaveSparkline } from "@/components/WaveSparkline";
 import { Card } from "@/components/ui/card";
 import { SectionCard } from "@/components/ui/section-card";
-import { fetchRunEvents, fetchRuns, fetchStatus, fetchUnknown } from "@/lib/api";
+import { fetchRunEvents, fetchRunPurchases, fetchRuns, fetchStatus, fetchUnknown } from "@/lib/api";
 import { useEventStream } from "@/lib/useEventStream";
-import type { BotEvent, RunRow, Snapshot, StatusPayload } from "@/lib/types";
+import type { BotEvent, RunPurchasePayload, RunRow, Snapshot, StatusPayload } from "@/lib/types";
 
 /** Re-run `load` now and every `ms` thereafter, until unmounted. */
 function usePoll(load: () => Promise<void>, ms: number) {
@@ -38,8 +39,26 @@ export default function LivePage() {
   const [shots, setShots] = useState<Snapshot[]>([]);
   // Non-null means the feed is showing one stored run instead of the live stream.
   const [history, setHistory] = useState<{ id: number; events: BotEvent[] } | null>(null);
+  const [purchases, setPurchases] = useState<RunPurchasePayload | null>(null);
+  const run = status?.run ?? null;
+  // The id alone, not the run object: /api/status hands back a fresh object
+  // every two seconds, and a callback depending on it would restart the
+  // interval below on every status poll - turning a 5s purchase poll into a
+  // 2s one.
+  const runId = run?.id ?? null;
 
   usePoll(useCallback(async () => setStatus(await fetchStatus()), []), 2000);
+  // Keyed on the open run's id so the interval restarts when a run does, and
+  // stops asking between runs - there is no id to ask about then. Slower than
+  // the status poll because a run buys an upgrade every several seconds at
+  // best, not every two.
+  usePoll(
+    useCallback(async () => {
+      if (runId === null) return setPurchases(null);
+      setPurchases(await fetchRunPurchases(runId));
+    }, [runId]),
+    5000,
+  );
   usePoll(useCallback(async () => setRuns(await fetchRuns(30)), []), 15000);
   usePoll(useCallback(async () => setShots(await fetchUnknown()), []), 60000);
 
@@ -73,6 +92,14 @@ export default function LivePage() {
 
         <div className="flex flex-col gap-4">
           <AutopilotStatus />
+          {/* Only while a run is open: between runs there is no "this run" to
+              report on, and a stale card would read as the current one. The
+              same view over a finished run lives on /runs/?id=N. */}
+          {run ? (
+            <SectionCard title="Purchases — this run">
+              <RunPurchases data={purchases} startedAt={run.started_at} />
+            </SectionCard>
+          ) : null}
           {/* Both halves come from /api/status. `skips` is keyed by reason and
               had never been rendered anywhere - it is the field that answers
               "the bot is running but nothing is happening, why?". */}

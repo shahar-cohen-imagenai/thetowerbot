@@ -9,6 +9,7 @@ import type {
   BotStatus,
   ControlPayload,
   LedgerPayload,
+  RunPurchasePayload,
   RunRow,
   Snapshot,
   StatsPayload,
@@ -60,6 +61,8 @@ export const postAutopilotCommand = (command: AutopilotCommand) =>
   send<{ queued: boolean }>("/api/autopilot/command", "POST", command, "autopilot");
 export const fetchRuns = (limit = 30) => getJson<RunRow[]>(`/api/runs?limit=${limit}`);
 export const fetchRunEvents = (id: number) => getJson<StoredEvent[]>(`/api/runs/${id}/events`);
+export const fetchRunPurchases = (id: number) =>
+  getJson<RunPurchasePayload>(`/api/runs/${id}/purchases`, { cache: "no-store" });
 export const fetchUnknown = () => getJson<Snapshot[]>("/api/unknown");
 export const fetchStats = () => getJson<StatsPayload>("/api/stats");
 export const fetchErrors = (limit = 100) => getJson<StoredEvent[]>(`/api/errors?limit=${limit}`);

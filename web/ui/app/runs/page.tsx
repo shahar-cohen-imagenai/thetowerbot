@@ -5,14 +5,15 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EventFeed } from "@/components/EventFeed";
 import { PageHeader } from "@/components/PageHeader";
+import { RunPurchases } from "@/components/RunPurchases";
 import { RunTable } from "@/components/RunTable";
 import { StatTile } from "@/components/StatTile";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/ui/section-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchRunEvents, fetchRuns } from "@/lib/api";
+import { fetchRunEvents, fetchRunPurchases, fetchRuns } from "@/lib/api";
 import { duration } from "@/lib/format";
-import type { BotEvent, RunRow, StoredEvent } from "@/lib/types";
+import type { BotEvent, RunPurchasePayload, RunRow, StoredEvent } from "@/lib/types";
 
 function Runs() {
   const router = useRouter();
@@ -30,6 +31,11 @@ function Runs() {
   // real run with no stored events.
   const [runsLoaded, setRunsLoaded] = useState(false);
   const [events, setEvents] = useState<StoredEvent[]>([]);
+  // null is "no record came back", which is not the same as "bought nothing":
+  // `events` is pruned at 30 days while `runs` never is, so an old run keeps
+  // its row long after its purchases are gone. RunPurchases draws the two
+  // differently on purpose.
+  const [purchases, setPurchases] = useState<RunPurchasePayload | null>(null);
 
   useEffect(() => {
     fetchRuns(200)
@@ -41,6 +47,11 @@ function Runs() {
   useEffect(() => {
     if (!selected) return setEvents([]);
     fetchRunEvents(Number(selected)).then(setEvents).catch(() => setEvents([]));
+  }, [selected]);
+
+  useEffect(() => {
+    if (!selected) return setPurchases(null);
+    fetchRunPurchases(Number(selected)).then(setPurchases).catch(() => setPurchases(null));
   }, [selected]);
 
   const run = runs.find((r) => String(r.id) === selected);
@@ -74,6 +85,11 @@ function Runs() {
           // Otherwise indistinguishable from a real run with no stored
           // events: no tiles and an empty feed either way.
           <p className="text-sm text-muted-foreground">No such run.</p>
+        ) : null}
+        {run || !runsLoaded ? (
+          <SectionCard title="Purchases — in run">
+            <RunPurchases data={purchases} startedAt={run?.started_at ?? 0} />
+          </SectionCard>
         ) : null}
         {run || !runsLoaded ? (
           <SectionCard title="Events">

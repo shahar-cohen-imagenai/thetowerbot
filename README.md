@@ -699,10 +699,22 @@ press **Start** in the browser.
 - **Live** — the current run, the live device screen with its match overlay,
   a wave sparkline, a filterable live event feed, a run-history table, and
   thumbnails of unrecognised screens. Click a history row to replay that
-  run's stored events; **back to live** returns to the stream.
+  run's stored events; **back to live** returns to the stream. While a run is
+  open it also carries **Purchases — this run**: every in-battle upgrade the
+  autopilot has bought so far, timed from the start of the battle, with its
+  price and the value it reached. The card is absent between runs, because
+  there is no "this run" to report on then.
 - **Runs** — every stored run, and a drill-down (`/runs/?id=42`, click a row
   or open the link directly) showing that run's wave, coins, tier, tap count
-  and scan count alongside its own event feed replayed from SQLite.
+  and scan count alongside what it bought in the battle and its own event
+  feed, both replayed from SQLite. The purchases card is the same one the
+  live dashboard shows, served from the same `events` rows — an open run and
+  a finished one are one query, not two. A price OCR could not read stays a
+  dash and is counted apart from the total ("2 prices unread") rather than
+  summed as zero, and a total spend is withheld entirely when not one price
+  was legible. Purchases are subject to the 30-day event retention while the
+  run row itself is kept forever, so an older run reports *no purchase
+  record* rather than claiming it bought nothing.
 - **Stats** — charts aggregated over every stored run: wave and run length
   over time, taps by action, and events by screen.
 - **Errors** — `BotError` tracebacks alongside the unknown-screen snapshots,

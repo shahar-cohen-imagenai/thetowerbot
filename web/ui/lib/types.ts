@@ -147,6 +147,35 @@ export interface RunRow {
   tap_count: number;
 }
 
+/** One in-run upgrade the autopilot bought and verified during a run.
+ *
+ * `price` is null when OCR could not read it - which is not a free upgrade,
+ * and the UI must not render it as one. `category` is joined in by the
+ * server from the upgrade catalog; the BattlePurchased event has none. */
+export interface RunPurchase {
+  seq: number;
+  ts: number;
+  item: string | null;
+  upgrade_id: string | null;
+  price: number | null;
+  value: number | null;
+  category: string | null;
+}
+
+export interface RunPurchaseTotals {
+  count: number;
+  /** Sums only the prices that were read. See `unpriced`. */
+  spent: number;
+  /** How many buys had an unreadable price, and so are missing from `spent`. */
+  unpriced: number;
+  by_category: Record<string, number>;
+}
+
+export interface RunPurchasePayload {
+  purchases: RunPurchase[];
+  totals: RunPurchaseTotals;
+}
+
 export interface Snapshot {
   name: string;
   ts: number;
