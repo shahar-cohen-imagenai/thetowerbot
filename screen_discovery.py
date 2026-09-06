@@ -189,6 +189,27 @@ def _has_guarded_overlay(screen: Image) -> bool:
 # one are the same judgement made in one place.
 _WORKSHOP_HEADING_Y = (380, 420)
 _BATTLE_HEADING_Y = (1640, 1680)
+# How far ABOVE its recorded band a top-anchored menu page can be drawn.
+#
+# The recorded captures come from a device that reserves a status bar, so
+# every menu page in tests/fixtures starts below one. A device that draws the
+# game edge to edge instead has no such strip, and the game paints the very
+# same page that much higher: measured against a live 1080x2400 phone, the
+# Workshop title, its heading and every row tap all sat 135-139px above where
+# the fixtures put them - one translation, not a different layout.
+#
+# So frame y was never the coordinate the evidence is really in. Only the
+# top-anchored menu pages move; the in-run panel is anchored to the bottom of
+# the screen and lands on its recorded band on both devices, which is why
+# battle reading never showed this and _BATTLE_HEADING_Y stays absolute.
+#
+# Public because it is one fact about the device, not one fact about the
+# Workshop: missions_screen measures its own bands against it too, and two
+# copies of this number could drift apart.
+MAX_TOP_INSET = 200
+# The measured gap from the Workshop page title down to its category heading -
+# the part of the recorded geometry that survives the translation above.
+_WORKSHOP_TITLE_TO_HEADING = (131, 171)
 _UPGRADE_HEADINGS = ('attackupgrades', 'defenseupgrades', 'utilityupgrades')
 
 
@@ -210,7 +231,8 @@ def _is_upgrade_heading(box: ocr.TextBox) -> bool:
     """
     return (_upgrade_label(box) is not None and box.confidence >= .9
             and 0 <= box.rect.x <= 70
-            and (_WORKSHOP_HEADING_Y[0] <= box.rect.y <= _WORKSHOP_HEADING_Y[1]
+            and (_WORKSHOP_HEADING_Y[0] - MAX_TOP_INSET
+                 <= box.rect.y <= _WORKSHOP_HEADING_Y[1]
                  or _BATTLE_HEADING_Y[0] <= box.rect.y <= _BATTLE_HEADING_Y[1]))
 
 
@@ -438,10 +460,16 @@ def discover(
     heading = headings[0]
     category = _upgrade_label(heading)
     if context == 'workshop':
+        # Measured against the page's own title rather than against the top
+        # of the frame: the gap between the two is the recorded evidence, and
+        # the distance down from the frame edge is the device's status bar.
+        # See MAX_TOP_INSET.
         titles = [b for b in boxes if tiles.normalise(b.text) == 'workshop']
         valid = (len(titles) == 1 and titles[0].confidence >= .9
-                 and 230 <= titles[0].rect.y <= 270
-                 and _WORKSHOP_HEADING_Y[0] <= heading.rect.y <= _WORKSHOP_HEADING_Y[1])
+                 and 230 - MAX_TOP_INSET <= titles[0].rect.y <= 270
+                 and _WORKSHOP_TITLE_TO_HEADING[0]
+                 <= heading.rect.y - titles[0].rect.y
+                 <= _WORKSHOP_TITLE_TO_HEADING[1])
     else:
         valid = ('workshop' not in labels
                  and _BATTLE_HEADING_Y[0] <= heading.rect.y <= _BATTLE_HEADING_Y[1])
