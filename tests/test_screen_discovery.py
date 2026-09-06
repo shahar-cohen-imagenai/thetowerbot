@@ -503,3 +503,113 @@ def test_replay_coverage_never_claims_a_capability_the_matrix_calls_unsupported(
     capabilities = screen_discovery.capabilities()
     assert not set(capabilities['replay_coverage']['covered']) & set(
         capabilities['unsupported'])
+
+
+def test_a_device_without_a_status_bar_still_reads_the_workshop() -> None:
+    """The same page, drawn edge to edge, is still that page.
+
+    Every recorded menu capture comes from a device that reserves a status
+    bar, and the Workshop's title, heading and rows were measured below one.
+    A device that draws the game to the top of the screen paints the very
+    same page ~137px higher, and keying the gate on frame y refused it as an
+    unsupported layout - so a live visit read no row, skipped its whole list
+    as unreadable and aborted having bought nothing.
+
+    Recorded from such a device, so the fixture is evidence of the page a
+    real phone draws rather than a fixture translated to argue a point.
+    """
+    import screen_discovery
+    name = 'menu_workshop_utility_no_status_bar'
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    boxes = recorded(name)
+
+    assert screen_discovery.discover(frame, boxes, 'workshop') == (
+        screen_discovery.ScreenDiscovery('workshop.utility', True, 'recorded_layout'))
+
+    rows = {row.upgrade_id: row for row
+            in perception.parse_frame(frame, boxes, 'workshop').rows}
+    assert set(rows) == {'cash_bonus', 'cash_per_wave', 'unlock_coin_bonuses'}
+    assert all(row.tap is not None and row.price is not None for row in rows.values())
+    # The rows sit where this device draws them, not where the inset-bearing
+    # captures do: a tap taken from the recorded page would miss them.
+    inset_bearing = _rows_by_id('menu_workshop_utility_early', 'workshop')
+    for key, row in rows.items():
+        assert row.tap[1] < inset_bearing[key].tap[1]
+
+
+def test_the_page_title_still_has_to_be_above_its_own_heading() -> None:
+    """Relative geometry is still geometry: the gap is bounded both ways.
+
+    A 'WORKSHOP' box anywhere above the heading would satisfy "the title is
+    higher up"; only a title the measured distance above it is evidence that
+    this is the Workshop page and not a frame that merely says the word.
+    """
+    import screen_discovery
+    name = 'menu_workshop_utility_no_status_bar'
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    boxes = tuple(b for b in recorded(name) if tiles.normalise(b.text) != 'workshop')
+    strayed = boxes + (ocr.TextBox('WORKSHOP', .99, config.Rect(30, 0, 244, 45)),)
+
+    result = screen_discovery.discover(frame, strayed, 'workshop')
+    assert (result.screen_id, result.readable) == (None, False)
+    assert result.reason == 'unsupported_layout'
+
+
+def test_a_device_without_a_status_bar_still_reads_the_missions_page() -> None:
+    """The same page, drawn edge to edge, is still that page.
+
+    Recorded from such a device. The missions anchors were measured below a
+    status bar, and keying them on frame y made the reader answer
+    `scanned=True, screen_id=None` - its one branch meaning "examined, and no
+    missions page is up" - while the missions page filled the screen.
+    """
+    import screen_discovery
+    name = 'menu_missions_claimable_no_status_bar'
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    boxes = recorded(name)
+
+    assert screen_discovery.discover(frame, boxes, 'missions') == (
+        screen_discovery.ScreenDiscovery('missions.daily', True, 'recorded_layout'))
+    assert screen_discovery.missions_count(boxes) == (8, 8)
+
+
+def test_the_inset_bearing_missions_capture_still_reads() -> None:
+    """The fix is a widening, not a move: the recorded layout still passes."""
+    import screen_discovery
+    for name in ('menu_missions', 'menu_missions_claimable', 'menu_missions_weekly'):
+        frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+        result = screen_discovery.discover(frame, recorded(name), 'missions')
+        assert (result.screen_id, result.readable) == ('missions.daily', True), name
+
+
+def test_the_missions_title_still_has_to_be_above_its_own_banner() -> None:
+    """Relative geometry is still geometry: the gap is bounded both ways.
+
+    A 'DAILY MISSIONS' box anywhere higher up would satisfy "the title is
+    above the banner"; only a title the measured distance above it is evidence
+    that this is the missions page rather than a frame that says the words.
+    """
+    import screen_discovery
+    name = 'menu_missions_claimable_no_status_bar'
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    kept = tuple(b for b in recorded(name)
+                 if tiles.normalise(b.text) != 'dailymissions')
+    # Inside the widened title band, but far too high above the banner.
+    strayed = kept + (ocr.TextBox('DAILYMISSIONS', .99, config.Rect(32, 60, 432, 40)),)
+
+    result = screen_discovery.discover(frame, strayed, 'missions')
+    assert (result.screen_id, result.readable) == (None, False)
+
+
+def test_an_upgrade_page_is_still_refused_on_an_inset_free_device() -> None:
+    """The guard the widening could plausibly have broken, kept.
+
+    Widening the title band upward brings a Workshop capture's own title into
+    range. The missions page is claimed on its banner and count as well, so an
+    upgrade page must still be refused.
+    """
+    import screen_discovery
+    name = 'menu_workshop_utility_no_status_bar'
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    result = screen_discovery.discover(frame, recorded(name), 'missions')
+    assert (result.screen_id, result.readable) == (None, False)

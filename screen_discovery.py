@@ -142,6 +142,13 @@ _UNSUPPORTED_OWNERS = {
 _MISSIONS_TITLE_Y = (230, 270)
 _MISSIONS_BANNER_Y = (358, 418)
 _MISSIONS_COUNT_Y = (633, 693)
+# The measured gaps from the page title down to its banner and to its count
+# band - the part of the recorded geometry that survives a device drawing the
+# page higher. Measured at +129/+405 on the inset-bearing captures and
+# +131/+404 on the edge-to-edge one; the bound is those with 20px of margin.
+# See MAX_TOP_INSET for why frame y was never the coordinate to key on.
+_MISSIONS_TITLE_TO_BANNER = (109, 149)
+_MISSIONS_TITLE_TO_COUNT = (385, 425)
 # Matched against the raw text, not tiles.normalise: normalising strips the
 # slash, and "2/8 Missions" would become indistinguishable from "28 missions".
 _MISSIONS_COUNT = re.compile(r'(\d+)\s*/\s*(\d+)\s*missions', re.I)
@@ -249,11 +256,33 @@ def _single(boxes: tuple[ocr.TextBox, ...], label: str,
     return matches[0] if len(matches) == 1 else None
 
 
+def _missions_title(boxes: tuple[ocr.TextBox, ...]) -> ocr.TextBox | None:
+    """The Daily Missions title, wherever this device's inset put it.
+
+    Searched in a band widened upward by MAX_TOP_INSET rather than at its
+    recorded y: the title is this page's origin, and every other missions
+    anchor is measured from it. Still exactly one or nothing - two titles are
+    not evidence of a page, they are evidence of a misread.
+    """
+    return _single(boxes, 'dailymissions',
+                   (_MISSIONS_TITLE_Y[0] - MAX_TOP_INSET, _MISSIONS_TITLE_Y[1]))
+
+
 def missions_count(boxes: tuple[ocr.TextBox, ...]) -> tuple[int, int] | None:
-    """The "N/M Missions" band as (shown, offered), or None if not certain."""
+    """The "N/M Missions" band as (shown, offered), or None if not certain.
+
+    Located by its measured distance below the page title rather than by
+    frame y: a device that reserves no status bar draws the same page higher,
+    and the gap between title and band is what the captures evidence. No
+    title means no origin to measure from, which is not certainty.
+    """
+    title = _missions_title(boxes)
+    if title is None:
+        return None
+    low, high = _MISSIONS_TITLE_TO_COUNT
     matches = [m for m in (_MISSIONS_COUNT.fullmatch(b.text.strip())
                            for b in boxes if b.confidence >= .9
-                           and _MISSIONS_COUNT_Y[0] <= b.rect.y <= _MISSIONS_COUNT_Y[1]) if m]
+                           and low <= b.rect.y - title.rect.y <= high) if m]
     if len(matches) != 1:
         return None
     shown, offered = int(matches[0][1]), int(matches[0][2])
@@ -307,9 +336,15 @@ def _discover_missions(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
     # matching it here made the reader fail on any day it was drawn.
     if any(_is_upgrade_heading(b) for b in boxes):
         return ScreenDiscovery(None, False, 'unsupported_layout')
-    title = _single(boxes, 'dailymissions', _MISSIONS_TITLE_Y)
-    banner = _single(boxes, 'weeklychallenge', _MISSIONS_BANNER_Y)
-    if title is None or banner is None or missions_count(boxes) is None:
+    title = _missions_title(boxes)
+    if title is None:
+        return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')
+    # Measured against the title rather than the frame edge - see
+    # _MISSIONS_TITLE_TO_BANNER. Three anchors still, and still all three.
+    banner = _single(boxes, 'weeklychallenge',
+                     (title.rect.y + _MISSIONS_TITLE_TO_BANNER[0],
+                      title.rect.y + _MISSIONS_TITLE_TO_BANNER[1]))
+    if banner is None or missions_count(boxes) is None:
         return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')
     if not 0 <= title.rect.x <= 70:
         return ScreenDiscovery(None, False, 'unsupported_layout')
