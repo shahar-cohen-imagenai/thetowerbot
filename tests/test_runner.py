@@ -583,3 +583,45 @@ def test_a_restart_cancels_a_half_walked_visit_and_lets_a_retry_start(
         assert runner.request_missions_visit()["status"] == "running"
     finally:
         runner.stop()
+
+
+# -- Missions claim -----------------------------------------------------------
+def test_a_restart_cancels_a_half_walked_claim_and_lets_a_retry_start(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """A claim TAPS things that change the account, so it must not outlive
+    the bot that was walking it any more than collect_stats or visit do -
+    the same stop-site cancel (`_run`'s finally block), the same reason."""
+    runner, _ = menu_runner
+    runner.start()
+    runner.request_missions_claim()
+    runner.stop()
+    ended = runner.claim.snapshot()
+    assert ended["status"] == "failed" and ended["result"]["reason"] == "bot_stopped"
+    runner.start()
+    try:
+        assert not runner.claim.active
+        assert runner.request_missions_claim()["status"] == "running"
+    finally:
+        runner.stop()
+
+
+def test_a_restart_cancels_a_claim_left_active_with_no_bot_walking_it(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """Isolates the OTHER cancel site: `start()`'s own `bot_restarted` cancel,
+    not the stop-site one the test above already exercises via `_run`'s
+    finally block (which would otherwise have already cleared it before this
+    `start()` ever ran). Arms `self.claim` directly, the way a stale owner
+    from a scenario `stop()` never observed would leave it, so the ONLY thing
+    that can end it here is `start()`'s own restart cancel."""
+    runner, _ = menu_runner
+    runner.start()
+    runner.stop()
+    assert runner.claim.request() is True
+    assert runner.claim.active, "the fixture must actually be armed to test anything"
+    runner.start()
+    try:
+        assert not runner.claim.active
+    finally:
+        runner.stop()

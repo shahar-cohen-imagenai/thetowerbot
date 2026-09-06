@@ -294,6 +294,10 @@ class BotRunner:
                 "bot_restarted",
                 "A new bot replaced the one walking this visit; it was not resumed.",
             )
+            self.claim.cancel(
+                "bot_restarted",
+                "A new bot replaced the one walking this claim; it was not resumed.",
+            )
             self.autopilot_state.clear_battle()
             self.autopilot_state.decision("idle", "Waiting for a fresh battle observation")
 
@@ -368,6 +372,10 @@ class BotRunner:
                 self.visit.cancel(
                     "bot_stopped",
                     "The scan loop ended before the visit finished.",
+                )
+                self.claim.cancel(
+                    "bot_stopped",
+                    "The scan loop ended before the claim finished.",
                 )
                 self._harvest_locked(bot)
 
