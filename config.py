@@ -178,6 +178,13 @@ NAV_BUTTONS: dict[str, tuple[str, str]] = {
     "MAIN_MENU": ("BATTLE", "buttons/battle.png"),
 }
 
+# Tapped instead of NAV_BUTTONS["GAME_OVER"] when a Workshop visit is due.
+# RETRY starts the next run from the death screen, so a bot left to it loops
+# IN_RUN -> GAME_OVER -> IN_RUN and never touches MAIN_MENU - the one screen
+# ShoppingSession.begin() is offered, and so the one way into the Workshop.
+# HOME sits beside RETRY on the same screen and lands there directly.
+GAME_OVER_HOME: tuple[str, str] = ("HOME", "buttons/home.png")
+
 # --- Digit reading --------------------------------------------------------
 # Numbers are light glyphs on a dark panel. Binarise, split by column gaps,
 # match each glyph against a per-size-class atlas.

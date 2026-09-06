@@ -766,12 +766,22 @@ class TowerBot:
         ):
             # Navigator taps BATTLE on MAIN_MENU on a cooldown - left alone
             # it would start a run in the middle of a shopping errand.
+            #
+            # On GAME_OVER it taps RETRY, which starts the next run without
+            # passing through MAIN_MENU - and the begin() above is only ever
+            # offered a MAIN_MENU frame. So a due visit has to be claimed
+            # here, one screen early, or the bot never reaches the menu to
+            # be asked at all. Same gate begin() uses, so a detour is only
+            # taken when the visit it exists for will actually start.
             self.navigator.maybe_navigate(
                 self.screen,
                 state,
                 self.device,
                 now=time.monotonic(),
                 tuning=settings.strategy,
+                go_home=self.shopping.due(
+                    settings.strategy.shopping, self.runs.completed
+                ),
             )
 
         # Checked after navigation, and begin() checked after advance() below:
