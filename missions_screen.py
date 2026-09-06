@@ -21,7 +21,7 @@ import time
 import threading
 from collections import Counter
 from dataclasses import asdict, dataclass, replace
-from typing import Any
+from typing import Any, Iterable
 
 import ocr
 import screen_discovery
@@ -362,6 +362,22 @@ def _cards(screen: Image) -> tuple[Rect, ...]:
         key=lambda rect: rect.y))
 
 
+def _claim_boxes(card: Rect, boxes: Iterable[ocr.TextBox]) -> list[ocr.TextBox]:
+    """The CLAIM button candidates inside one card.
+
+    Measures the same two fractions as the bar and the reward column:
+    below _PROGRESS_TOP_FRACTION down the card and left of
+    _REWARD_LEFT_FRACTION across it - exactly where a bar would sit, since
+    the button is what replaces it. Shared by _mission and claim_targets so
+    the two can never select a different box for the same card.
+    """
+    reward_edge = card.x + card.w * _REWARD_LEFT_FRACTION
+    progress_edge = card.y + card.h * _PROGRESS_TOP_FRACTION
+    return [b for b in boxes if _inside(card, b.rect) and _trusted(b)
+            and b.rect.x < reward_edge and b.rect.y >= progress_edge
+            and tiles.normalise(b.text) == _CLAIM_LABEL]
+
+
 def _mission(card: Rect, boxes: tuple[ocr.TextBox, ...]) -> MissionEntry | None:
     inside = sorted((b for b in boxes if _inside(card, b.rect)),
                     key=lambda b: (b.rect.y, b.rect.x))
@@ -387,9 +403,7 @@ def _mission(card: Rect, boxes: tuple[ocr.TextBox, ...]) -> MissionEntry | None:
     if progress is not None and target is not None and (target <= 0 or progress > target):
         progress, target = None, None
 
-    claim_boxes = [b for b in inside
-                   if b.rect.x < reward_edge and b.rect.y >= progress_edge
-                   and _trusted(b) and tiles.normalise(b.text) == _CLAIM_LABEL]
+    claim_boxes = _claim_boxes(card, inside)
     # A bar is what the button replaces, so a card appearing to hold both is a
     # misread of one of them. Nothing here can say which, so neither is
     # trusted over the other and the card has no reading at all.
@@ -440,11 +454,7 @@ def claim_targets(reading: MissionsReading,
         if entry.status != 'claimable':
             continue
         card = Rect(*entry.rect)
-        reward_edge = card.x + card.w * _REWARD_LEFT_FRACTION
-        progress_edge = card.y + card.h * _PROGRESS_TOP_FRACTION
-        hits = [b for b in boxes if _inside(card, b.rect) and _trusted(b)
-                and b.rect.x < reward_edge and b.rect.y >= progress_edge
-                and tiles.normalise(b.text) == _CLAIM_LABEL]
+        hits = _claim_boxes(card, boxes)
         if len(hits) == 1:
             # The reward column holds two numbers told apart only by their
             # icons, which this reader does not read - so they are named by

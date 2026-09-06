@@ -776,3 +776,24 @@ def test_claim_evidence_is_separate_from_the_home_test_every_walk_uses() -> None
     readings = missions_screen.MissionsReadings()
     readings.scan(claimable_frame())
     assert set(readings.current_evidence()) == {'screen_id', 'error', 'scanned'}
+
+
+def test_a_cards_own_text_saying_claim_does_not_make_it_a_button() -> None:
+    """'ClaimAd Gems3 times' is real card text, not a misread button.
+
+    Two independent guards keep it from being read as one: `tiles.normalise`
+    turns it into 'claimadgems3times', which the button check rejects
+    because it tests for EXACT equality with 'claim' rather than a
+    substring - a substring test would fire on this card's own name. And
+    even if it somehow matched, this box sits in the card's upper half,
+    above progress_edge, where the button predicate never looks. Either
+    guard alone would be enough; both hold here.
+    """
+    name = 'menu_missions_claimed'
+    reading = missions_screen.parse_frame(
+        cv2.imread(str(FIXTURES / 'menu_missions_claimed.png')), recorded(name))
+    entry = [m for m in reading.missions if m.mission_id == 'claimad_gems_times']
+    assert len(entry) == 1
+    assert entry[0].status == 'available'
+    targets = missions_screen.claim_targets(reading, recorded(name))
+    assert not [t for t in targets if t.mission_id == 'claimad_gems_times']
