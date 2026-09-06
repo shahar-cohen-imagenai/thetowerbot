@@ -787,7 +787,9 @@ def test_a_cards_own_text_saying_claim_does_not_make_it_a_button() -> None:
     substring - a substring test would fire on this card's own name. And
     even if it somehow matched, this box sits in the card's upper half,
     above progress_edge, where the button predicate never looks. Either
-    guard alone would be enough; both hold here.
+    guard alone would be enough; both hold here - which also means this
+    fixture cannot tell the two guards apart. See the constructed test
+    below for one that isolates the label guard on its own.
     """
     name = 'menu_missions_claimed'
     reading = missions_screen.parse_frame(
@@ -797,3 +799,28 @@ def test_a_cards_own_text_saying_claim_does_not_make_it_a_button() -> None:
     assert entry[0].status == 'available'
     targets = missions_screen.claim_targets(reading, recorded(name))
     assert not [t for t in targets if t.mission_id == 'claimad_gems_times']
+
+
+def test_the_label_guard_is_exact_equality_not_a_substring_test() -> None:
+    """A constructed case: no recorded fixture isolates the label guard alone.
+
+    Every recorded CLAIM button reads exactly 'CLAIM', and nothing committed
+    here puts a superstring of it inside a card's button zone - so a
+    fixture-only test passes whether the check is exact equality or a
+    substring test, which is exactly how this guard slipped past review once
+    already. The case is not hypothetical: the milestones page, one slice
+    away, has a real button reading 'Claim All'
+    (tests/fixtures/ocr/menu_milestones_claimable.json).
+    `tiles.normalise('Claim All')` is 'claimall' - a substring test would
+    accept it as a CLAIM button, exact equality correctly does not.
+
+    This box is placed ON PURPOSE inside the button zone (below
+    progress_edge, left of reward_edge), so the position guard passes and
+    only the label comparison stands between a false claim and none.
+    """
+    card = config.Rect(17, 738, 1046, 242)
+    reward_edge = card.x + card.w * missions_screen._REWARD_LEFT_FRACTION
+    progress_edge = card.y + card.h * missions_screen._PROGRESS_TOP_FRACTION
+    box = ocr.TextBox('Claim All', .99, config.Rect(100, 900, 150, 46))
+    assert box.rect.x < reward_edge and box.rect.y >= progress_edge
+    assert missions_screen._claim_boxes(card, (box,)) == []
