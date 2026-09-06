@@ -3,8 +3,8 @@
 A sibling of missions_visit, not a change to it: that walk is read-only and
 its guarantee is worth keeping intact. What is shared is the part that touches
 the device - account_collection.ControlTaps, the same one-action-per-step rule,
-the same ambiguity-refusing locator and the same `at_home` test - so a second
-transaction cannot drift from the refusals the first is tested for.
+the same ambiguity-refusing locator and the same `at_missions_home` test - so
+a second transaction cannot drift from the refusals the first is tested for.
 
 Two properties make this walk safe in a way a general "tap the button" loop
 would not be:
@@ -27,7 +27,7 @@ outlives no bot: a restart cancels it, and so does pausing mid-walk.
 
 from __future__ import annotations
 
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from enum import Enum, auto
 import threading
 import time
@@ -37,11 +37,11 @@ import config
 import events
 from account_collection import (
     CollectionAction, CollectionResult, ControlTaps, MATCH_THRESHOLD,
-    STEP_FRAME_BUDGET, at_home,
+    STEP_FRAME_BUDGET, at_missions_home,
 )
 from account_screens import ControlTarget
 from device import Image
-from missions_screen import MissionsReadings
+from missions_screen import ClaimTarget, MissionsReadings
 
 if TYPE_CHECKING:
     from strategy import Strategy
@@ -62,15 +62,23 @@ MAX_CLAIMS_PER_WALK = 8
 TARGET = 'missions'
 
 
-def _at_home(state: str, account: dict[str, Any], missions: dict[str, Any]) -> bool:
-    """Home by the anchor, the panel reader AND the missions reader.
+@dataclass(frozen=True)
+class _PendingClaim:
+    """What a tapped CLAIM button offered, kept only until the counter
+    confirms or refutes it.
 
-    The tracker is debounced, so for a scan or two after the return control is
-    tapped it still says MAIN_MENU while the frame is very much still the
-    missions page. Only the missions reader's examined-and-clear answer counts.
+    Deliberately not the `ClaimTarget` it was tapped from: that type's own
+    docstring says its `rect` "IS a tap target ... only ever valid for the
+    frame it was read from," and `_pending` is carried one frame past that
+    read. Holding only the fields this walk actually reports - never `rect` -
+    means a coordinate cannot leak through here by construction, not by
+    remembering not to read `.rect` off it.
     """
-    return (at_home(state, account) and bool(missions['scanned'])
-            and missions['screen_id'] is None and missions['error'] is None)
+
+    raw_text: str
+    mission_id: str | None
+    coins: int | None
+    gems: int | None
 
 
 class Step(Enum):
@@ -100,10 +108,10 @@ class MissionsClaim(ControlTaps):
         self._claimed = 0
         self._announced = False
         # The claim awaiting proof: what was tapped, what it offered, and
-        # what the counter read before it. Never a coordinate - the tap has
-        # already happened, and a point kept past its frame could only be
-        # used wrongly.
-        self._pending: tuple[Any, int] | None = None
+        # what the counter read before it. Never a coordinate: `_PendingClaim`
+        # has no `rect` field to hold one, so this is true by construction
+        # rather than by remembering not to read one off it.
+        self._pending: tuple[_PendingClaim, int] | None = None
 
     # -- reporting ---------------------------------------------------------
     @property
@@ -166,7 +174,7 @@ class MissionsClaim(ControlTaps):
             evidence = missions.claim_evidence()
 
             if self._step is Step.OPEN_MISSIONS:
-                if not _at_home(state, readings.current_evidence(), evidence):
+                if not at_missions_home(state, readings.current_evidence(), evidence):
                     return self._wait('home_not_confirmed', 'The main menu was not confirmed '
                                       'on this frame, so no control was tapped.', moment)
                 return self._tap(screen, device, templates, MISSIONS_TEMPLATE,
@@ -175,7 +183,7 @@ class MissionsClaim(ControlTaps):
             if self._step is Step.CLAIM:
                 return self._claim_step(screen, device, templates, evidence, moment)
 
-            if not _at_home(state, readings.current_evidence(), evidence):
+            if not at_missions_home(state, readings.current_evidence(), evidence):
                 return self._wait('home_not_restored', 'The missions page was walked, but the '
                                   'main menu was not confirmed again.', moment)
             return self._finish('completed', 'claimed', f'{self._claimed} mission reward(s) '
@@ -219,10 +227,11 @@ class MissionsClaim(ControlTaps):
                              'return_control', Step.CONFIRM_HOME, moment)
 
         target = claims[0]
-        self._pending = (target, completed)
+        self._pending = (_PendingClaim(target.raw_text, target.mission_id,
+                                       target.coins, target.gems), completed)
         return self._tap_point(target, device, moment)
 
-    def _tap_point(self, target: Any, device: Any, moment: float) -> ClaimAction | None:
+    def _tap_point(self, target: ClaimTarget, device: Any, moment: float) -> ClaimAction | None:
         """Tap a CLAIM button located on THIS frame.
 
         Not `_tap`: that locates a control by template match, and a CLAIM

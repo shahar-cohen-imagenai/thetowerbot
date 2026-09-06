@@ -48,7 +48,7 @@ from typing import TYPE_CHECKING, Any
 import config
 from account_collection import (
     CollectionAction, CollectionResult, ControlTaps, MATCH_THRESHOLD,
-    STEP_FRAME_BUDGET, at_home,
+    STEP_FRAME_BUDGET, at_missions_home,
 )
 from device import Image
 from missions_screen import MissionsReadings
@@ -74,21 +74,6 @@ MISSIONS_TEMPLATE = config.NAV_TARGETS['MISSIONS']
 RETURN_TEMPLATE = config.NAV_TARGETS['MISSIONS_RETURN']
 
 MISSIONS_SCREEN = 'missions.daily'
-
-
-def _at_home(state: str, account: dict[str, Any], missions: dict[str, Any]) -> bool:
-    """Home by the anchor, the panel reader AND the missions reader.
-
-    The tracker is debounced, so for a scan or two after the return control
-    is tapped it still says MAIN_MENU while the frame is very much still the
-    missions page. Confirming home off the anchor alone would let this visit
-    report "returned to the main menu" from the page it never left. The
-    missions reader looked at the same frame, so it is asked too, and only
-    its examined-and-clear answer counts - `scanned` False is a reader that
-    reached no conclusion, never a clear menu.
-    """
-    return (at_home(state, account) and bool(missions['scanned'])
-            and missions['screen_id'] is None and missions['error'] is None)
 
 
 class Step(Enum):
@@ -173,7 +158,7 @@ class MissionsVisit(ControlTaps):
             evidence = missions.current_evidence()
 
             if self._step is Step.OPEN_MISSIONS:
-                if not _at_home(state, readings.current_evidence(), evidence):
+                if not at_missions_home(state, readings.current_evidence(), evidence):
                     return self._wait('home_not_confirmed', 'The main menu was not confirmed '
                                       'on this frame, so no control was tapped.', moment)
                 return self._tap(screen, device, templates, MISSIONS_TEMPLATE,
@@ -194,7 +179,7 @@ class MissionsVisit(ControlTaps):
                 return self._tap(screen, device, templates, RETURN_TEMPLATE,
                                  'return_control', Step.CONFIRM_HOME, moment)
 
-            if not _at_home(state, readings.current_evidence(), evidence):
+            if not at_missions_home(state, readings.current_evidence(), evidence):
                 return self._wait('home_not_restored', 'The missions page was read, but the main '
                                   'menu was not confirmed again.', moment)
             return self._finish('completed', 'visited', 'The missions page was read and the game '

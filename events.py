@@ -310,10 +310,17 @@ class MissionClaimed(Event):
     column, and are None rather than 0 when they could not be read - zero is
     a reward of nothing, None is "we did not know".
 
-    `gems_before` is the gem balance before the claim and is exact. There is
-    deliberately no `coins_before`: the page abbreviates coins ("6.08K"), and
-    a field holding a rounded balance would be read as a real one by the
-    reconciler.
+    `gems_before` is meant to be the gem balance before the claim, and exact
+    rather than an abbreviation - unlike `coins`, the missions page never
+    rounds gems. There is deliberately no `coins_before`: the page abbreviates
+    coins ("6.08K"), and a field holding a rounded balance would be read as a
+    real one by the reconciler.
+
+    No producer in this slice sets `gems_before`: `MissionsReading` carries no
+    wallet balance, only `ClaimTarget`'s reward amounts, and `claim_evidence`
+    carries no balance either. Every `MissionClaimed` this slice publishes
+    therefore has `gems_before=None`; reading a real wallet balance here is
+    later work, not something a `None` here should be mistaken for.
     """
 
     mission: str
