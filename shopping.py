@@ -129,6 +129,15 @@ def _letters(text: str) -> str:
     return "".join(ch for ch in text.upper() if ch.isalpha())
 
 
+def _unlimited(shopping: Shopping) -> bool:
+    """Is this visit spending without a per-visit cap?
+
+    `coin_budget` is None for "no limit" and 0 for "spend nothing" - two
+    opposite meanings that a falsy check would collapse into one.
+    """
+    return shopping.armed and shopping.coin_budget is None
+
+
 def _row_named(name: str, rows: tuple[ObservedUpgrade, ...],
                category: str | None = None) -> ObservedUpgrade | None:
     """Match only an unambiguous legacy identity on the expected Workshop tab."""
@@ -760,8 +769,9 @@ class ShoppingSession:
             reason = "unaffordable"
         elif coins - seen.price < shopping.coin_reserve:
             reason, detail = "reserve", "purchase would cross the coin reserve"
-        elif shopping.armed and (shopping.coin_budget == 0
-                                 or self._coin_spent + seen.price > shopping.coin_budget):
+        elif shopping.armed and shopping.coin_budget is not None and (
+                shopping.coin_budget == 0
+                or self._coin_spent + seen.price > shopping.coin_budget):
             reason, detail = "budget", "purchase would exceed the Workshop visit budget"
         if reason is not None:
             self._bus.publish(events.PurchaseSkipped(item=rule.name, reason=reason,
@@ -776,7 +786,18 @@ class ShoppingSession:
             self._abandon_intent(intent, "the tap was never sent")
             return
         self._mark_acted(intent)
-        self._exhausted.add(rule.name)
+        if not _unlimited(shopping):
+            # An unlimited visit re-buys: leaving the row un-exhausted sends
+            # the next frame back through this same decision, now reading the
+            # price the purchase just raised. What ends the rotation is the
+            # wallet, not a counter - "unaffordable", "reserve", "maxed" and
+            # "target_reached" all exhaust the row on their own way through.
+            #
+            # Only when armed. A rehearsal spends nothing, so the price it
+            # re-reads is the price it just "paid": it would buy row one
+            # forever and abort the visit on the tap budget instead of
+            # reporting the list.
+            self._exhausted.add(rule.name)
         if shopping.armed:
             self._pending = PendingPurchase(
                 seen, coins, frozenset(r.upgrade_id for r in visible),

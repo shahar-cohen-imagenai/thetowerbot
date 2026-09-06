@@ -138,7 +138,7 @@ _STRATEGY_TYPES: dict[str, tuple[type, ...]] = {
 }
 
 # Fields whose declared type includes None, so None is not a type error.
-_OPTIONAL = frozenset({"max_runs", "target_speed", "target"})
+_OPTIONAL = frozenset({"max_runs", "target_speed", "target", "coin_budget"})
 
 
 def _has_type(value: Any, types: tuple[type, ...]) -> bool:
@@ -369,7 +369,7 @@ class Shopping:
     visit_every_n_runs: int = 1
     max_taps_per_visit: int = 40
     coin_reserve: int = 0
-    coin_budget: int = 0
+    coin_budget: int | None = 0
     allow_unlocks: bool = False
     workshop: tuple[ShoppingRule, ...] = ()
     cards: CardPolicy = CardPolicy()
@@ -384,7 +384,7 @@ class Shopping:
         _in_range("max_taps_per_visit", self.max_taps_per_visit, 1, MAX_TAPS_PER_VISIT)
         if self.coin_reserve < 0:
             raise ControlError("coin_reserve", "coin_reserve may not be negative")
-        if self.coin_budget < 0:
+        if self.coin_budget is not None and self.coin_budget < 0:
             raise ControlError("coin_budget", "coin_budget may not be negative")
 
     def rows_for(self, category: str) -> tuple[ShoppingRule, ...]:

@@ -250,7 +250,8 @@ export interface Shopping {
   workshop: ShoppingRule[];
   cards: CardPolicy;
   coin_reserve?: number;
-  coin_budget?: number;
+  /** `null` is unlimited; `0` is the opposite - spend nothing. */
+  coin_budget?: number | null;
   allow_unlocks?: boolean;
 }
 

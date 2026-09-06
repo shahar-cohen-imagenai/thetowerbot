@@ -5,6 +5,7 @@ import { type ComponentRef, useEffect, useRef, useState } from "react";
 import { OrderChip, ReorderButtons } from "@/components/StrategyEditor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
 import { SectionCard } from "@/components/ui/section-card";
 import { Switch } from "@/components/ui/switch";
@@ -32,6 +33,11 @@ const HINTS: Record<string, string> = {
 /** The gem floor's warning copy. A test asserts on this exact phrase, so it
  * and the rendered text must stay in step. */
 const GEM_FLOOR_NOTE = "Gems cannot be earned back quickly, unlike coins.";
+
+const COIN_BUDGET_NOTE =
+  "Empty means no limit - it keeps buying, at each row's rising price, until the " +
+  "coins run out or the reserve stops it. Zero means no Workshop spending, even " +
+  "when armed.";
 
 const VISIT_FREQUENCY_NOTE =
   "How many runs pass between shopping visits; 1 means every run.";
@@ -74,6 +80,11 @@ export function ShoppingEditor({
 
   const set = <K extends keyof Shopping>(key: K, v: Shopping[K]) =>
     onChange({ ...shopping, [key]: v });
+
+  // `undefined` is a stored policy from before this field existed and means
+  // the 0 default; `null` is the deliberate "unlimited". Collapsing the two
+  // is exactly what `??` would do, so it is spelled out.
+  const coinBudget = shopping.coin_budget === undefined ? 0 : shopping.coin_budget;
 
   const setRow = (index: number, patch: Partial<ShoppingRule>) =>
     set(
@@ -228,7 +239,29 @@ export function ShoppingEditor({
 
         <div className="flex flex-col gap-2 rounded-md border p-2.5">
           <NumberField label="Coin reserve" value={shopping.coin_reserve ?? 0} disabled={disabled} min={0} step={1} onCommit={(n) => set("coin_reserve", n)} note="Keep this many coins after Workshop purchases." />
-          <NumberField label="Coin budget per visit" value={shopping.coin_budget ?? 0} disabled={disabled} min={0} step={1} onCommit={(n) => set("coin_budget", n)} note="Zero means no Workshop spending, even when armed." />
+          <label className="flex items-center justify-between gap-3 text-sm">
+            <span>
+              Coin budget per visit{" "}
+              <span className="text-xs text-muted-foreground">
+                {coinBudget === null ? "(unlimited)" : ""}
+              </span>
+              <span className="block max-w-xs text-xs text-muted-foreground">{COIN_BUDGET_NOTE}</span>
+            </span>
+            <Input
+              type="number" min={0} step={1} aria-label="Coin budget per visit"
+              // An empty field IS null here, the same trick - and the same
+              // key={} remount - as StrategyEditor's Max runs. It is needed
+              // twice over on this field: a number input cannot spell
+              // "unlimited", and 0 is already taken by its opposite.
+              key={String(coinBudget)}
+              defaultValue={coinBudget ?? ""}
+              disabled={disabled}
+              onBlur={(e) =>
+                set("coin_budget", e.target.value === "" ? null : Number(e.target.value))
+              }
+              className="w-24 text-right font-mono"
+            />
+          </label>
           <label className="flex items-center justify-between text-sm">Allow Workshop unlocks<Switch label="Allow Workshop unlocks" checked={shopping.allow_unlocks ?? false} disabled={disabled} onCheckedChange={(next) => set("allow_unlocks", next)} /></label>
           <NumberField
             label="Visit frequency" ariaLabel="Visit every N runs"
