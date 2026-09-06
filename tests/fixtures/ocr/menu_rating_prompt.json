@@ -1,0 +1,172 @@
+[
+  {
+    "text": "6.11K",
+    "confidence": 0.9920809864997864,
+    "rect": [
+      91,
+      27,
+      127,
+      48
+    ]
+  },
+  {
+    "text": "BATTLE",
+    "confidence": 0.9933120012283325,
+    "rect": [
+      28,
+      108,
+      204,
+      49
+    ]
+  },
+  {
+    "text": "MISSIONS",
+    "confidence": 0.9798560217022896,
+    "rect": [
+      925,
+      204,
+      123,
+      29
+    ]
+  },
+  {
+    "text": "6",
+    "confidence": 0.9924334287643433,
+    "rect": [
+      77,
+      234,
+      48,
+      40
+    ]
+  },
+  {
+    "text": "THETOWER",
+    "confidence": 0.9934603050351143,
+    "rect": [
+      335,
+      234,
+      412,
+      61
+    ]
+  },
+  {
+    "text": "7/8",
+    "confidence": 0.9889457623163859,
+    "rect": [
+      954,
+      233,
+      64,
+      31
+    ]
+  },
+  {
+    "text": "3",
+    "confidence": 0.9946558475494385,
+    "rect": [
+      914,
+      245,
+      28,
+      27
+    ]
+  },
+  {
+    "text": "Love the game?",
+    "confidence": 0.9946307412215641,
+    "rect": [
+      321,
+      826,
+      437,
+      52
+    ]
+  },
+  {
+    "text": "STO",
+    "confidence": 0.9371824860572815,
+    "rect": [
+      73,
+      979,
+      40,
+      28
+    ]
+  },
+  {
+    "text": "REFR",
+    "confidence": 0.9934963285923004,
+    "rect": [
+      50,
+      1007,
+      63,
+      26
+    ]
+  },
+  {
+    "text": "Thank you for playing The Tower! We",
+    "confidence": 0.9890969940594264,
+    "rect": [
+      165,
+      1132,
+      755,
+      47
+    ]
+  },
+  {
+    "text": "want to hear about your experience.",
+    "confidence": 0.9790769951684134,
+    "rect": [
+      169,
+      1187,
+      737,
+      45
+    ]
+  },
+  {
+    "text": "7d",
+    "confidence": 0.9983791708946228,
+    "rect": [
+      77,
+      1245,
+      35,
+      31
+    ]
+  },
+  {
+    "text": "Are you enjoying the game so far?",
+    "confidence": 0.9647659713571722,
+    "rect": [
+      190,
+      1266,
+      699,
+      54
+    ]
+  },
+  {
+    "text": "No",
+    "confidence": 0.9989590644836426,
+    "rect": [
+      313,
+      1462,
+      78,
+      56
+    ]
+  },
+  {
+    "text": "Yes",
+    "confidence": 0.9997798999150594,
+    "rect": [
+      681,
+      1462,
+      95,
+      56
+    ]
+  },
+  {
+    "text": "RESUMEBATTLE",
+    "confidence": 0.9893021235863367,
+    "rect": [
+      345,
+      1917,
+      391,
+      43
+    ]
+  }
+]
