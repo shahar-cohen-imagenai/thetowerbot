@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 import time
 from pathlib import Path
@@ -212,3 +213,67 @@ def test_ledger_rows_survive_the_event_prune(tmp_path: Path) -> None:
 
     assert removed == 1
     assert len(db.ledger_page(conn)) == 1
+
+
+def a_purchase(seq: int, **overrides: object) -> dict[str, object]:
+    """A stored BattlePurchased row, shaped the way store.to_row writes one:
+    `price` in its own column, everything else in the JSON detail blob."""
+    detail = {"item": "Damage", "upgrade_id": "damage", "value": 42.0}
+    detail.update(overrides.pop("detail", {}))  # type: ignore[arg-type]
+    row: dict[str, object] = {
+        "seq": seq,
+        "run_id": 1,
+        "ts": 1000.0 + seq,
+        "type": "BattlePurchased",
+        "screen": "IN_RUN",
+        "action": None,
+        "reason": None,
+        "score": None,
+        "price": 120,
+        "wallet": None,
+        "detail": json.dumps(detail),
+    }
+    row.update(overrides)
+    return row
+
+
+def test_run_purchases_returns_only_this_runs_battle_purchases(tmp_path: Path) -> None:
+    conn = make_db(tmp_path)
+    db.start_run(conn, 1, started_at=999.0)
+    db.insert_event(conn, a_row(1))  # a Tapped, not a purchase
+    db.insert_event(conn, a_purchase(2))
+    db.insert_event(conn, a_purchase(3, run_id=2))  # another run's purchase
+
+    bought = db.run_purchases(conn, 1)
+
+    assert [p["seq"] for p in bought] == [2]
+
+
+def test_run_purchases_flattens_the_detail_blob_onto_the_row(tmp_path: Path) -> None:
+    """item/upgrade_id/value live in the JSON blob; callers want them flat."""
+    conn = make_db(tmp_path)
+    db.insert_event(conn, a_purchase(1, price=980, detail={"item": "Health"}))
+
+    purchase = db.run_purchases(conn, 1)[0]
+
+    assert purchase["item"] == "Health"
+    assert purchase["upgrade_id"] == "damage"
+    assert purchase["price"] == 980
+    assert purchase["value"] == 42.0
+    assert purchase["ts"] == 1001.0
+
+
+def test_run_purchases_keeps_an_unreadable_price_as_none(tmp_path: Path) -> None:
+    """OCR that could not read the price writes NULL, which is not zero."""
+    conn = make_db(tmp_path)
+    db.insert_event(conn, a_purchase(1, price=None))
+
+    assert db.run_purchases(conn, 1)[0]["price"] is None
+
+
+def test_run_purchases_come_back_in_purchase_order(tmp_path: Path) -> None:
+    conn = make_db(tmp_path)
+    for seq in (3, 1, 2):
+        db.insert_event(conn, a_purchase(seq))
+
+    assert [p["seq"] for p in db.run_purchases(conn, 1)] == [1, 2, 3]

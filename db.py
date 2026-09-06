@@ -243,6 +243,40 @@ def run_events(
     return [_decode(row) for row in rows]
 
 
+def run_purchases(conn: sqlite3.Connection, run_id: int) -> list[dict[str, Any]]:
+    """The in-run upgrades bought during one run, in the order they happened.
+
+    Reads the events table rather than a table of its own: `BattlePurchased`
+    is already written there with the run's id, and the row for a live run
+    lands as the purchase happens - so an open run and a finished one are the
+    same query, not two code paths.
+
+    The detail blob is flattened onto the row because `item`, `upgrade_id`
+    and `value` are only in it by accident of the schema (store.to_row keeps
+    columns for the six typed fields and JSON for the rest); a caller wants
+    one flat purchase, not a column half and a blob half. `price` keeps None
+    when OCR could not read it - that is not a free upgrade.
+    """
+    rows = conn.execute(
+        "SELECT seq, ts, price, detail FROM events "
+        "WHERE run_id = ? AND type = 'BattlePurchased' ORDER BY seq",
+        (run_id,),
+    ).fetchall()
+    purchases = []
+    for row in rows:
+        data = _decode(row)
+        detail = data.pop("detail")
+        purchases.append({
+            "seq": data["seq"],
+            "ts": data["ts"],
+            "price": data["price"],
+            "item": detail.get("item"),
+            "upgrade_id": detail.get("upgrade_id"),
+            "value": detail.get("value"),
+        })
+    return purchases
+
+
 def close_abandoned_runs(conn: sqlite3.Connection) -> int:
     """Close out runs a killed process never finished. Returns how many.
 

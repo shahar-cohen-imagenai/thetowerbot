@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe as group, expect, it, vi } from "vitest";
 import RunsPage from "./page";
 
@@ -22,6 +22,12 @@ vi.mock("@/lib/api", () => ({
       reason: null, score: null, price: null, wallet: null, detail: { run_id: 1 },
     },
   ])),
+  fetchRunPurchases: vi.fn(() => Promise.resolve({
+    purchases: [
+      { seq: 2, ts: 12, item: "Damage", upgrade_id: "damage", price: 1200, value: 42, category: "ATTACK" },
+    ],
+    totals: { count: 1, spent: 1200, unpriced: 0, by_category: { ATTACK: 1 } },
+  })),
 }));
 
 group("RunsPage", () => {
@@ -44,6 +50,19 @@ group("RunsPage", () => {
     // A RunStarted is drawn as the feed's run-boundary divider ("RUN #1")
     // rather than as an ordinary row, so it reads as the start of a group.
     await screen.findByText(/RUN\s+#1/);
+
+    searchParams.delete("id");
+  });
+
+  it("shows what the stored run bought inside the battle", async () => {
+    searchParams.set("id", "1");
+    render(<RunsPage />);
+
+    // Scoped to the purchase's own row: the totals line carries the same
+    // figure when a run bought exactly one thing.
+    const row = (await screen.findByText("Damage")).closest("tr")!;
+    expect(within(row).getByText("$1,200")).toBeDefined();
+    expect(within(row).getByText("0:12")).toBeDefined();
 
     searchParams.delete("id");
   });

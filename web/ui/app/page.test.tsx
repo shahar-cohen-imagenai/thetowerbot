@@ -9,7 +9,7 @@ vi.mock("@/lib/api", () => ({
   fetchAutopilot: vi.fn(() => Promise.resolve(null)),
   fetchStatus: vi.fn(() => Promise.resolve({
     screen: "MENU", uptime: 10, scans: 1, taps: {}, skips: {}, runs_completed: 1,
-    run: null, wallet: null, last_error: null, tail: [], dropped: 0,
+    run: { id: 7, started_at: 0, elapsed: 42, taps: {} }, wallet: null, last_error: null, tail: [], dropped: 0,
     boxes: [], frame_size: null,
     // `bot` is required on StatusPayload and the server always sends it.
     // Omitting it here was what let StatBar keep an optional-chain the type
@@ -20,6 +20,12 @@ vi.mock("@/lib/api", () => ({
     { id: 7, started_at: 0, ended_at: 30, wave: 12, coins: 500, tier: 2, abandoned: 0, scan_count: 10, tap_count: 4 },
   ])),
   fetchUnknown: vi.fn(() => Promise.resolve([])),
+  fetchRunPurchases: vi.fn(() => Promise.resolve({
+    purchases: [
+      { seq: 3, ts: 30, item: "Defense Absolute", upgrade_id: "defense_absolute", price: 18000, value: 3, category: "DEFENSE" },
+    ],
+    totals: { count: 1, spent: 18000, unpriced: 0, by_category: { DEFENSE: 1 } },
+  })),
   // Shaped exactly as sinks/store.py's to_row() stores a ScreenChanged event:
   // `curr` moves into the `screen` column, and `prev`/`confidence`/`scores`
   // are left in the `detail` blob. This is the one shape (column plus blob)
@@ -66,5 +72,18 @@ group("LivePage history mode", () => {
 
     expect(screen.queryByText(/Replaying run #7/)).toBeNull();
     expect(screen.queryByTitle(/SCREEN\s+MENU -> GAME/)).toBeNull();
+  });
+});
+
+// The live run's buys are the half of "what is the bot doing right now" that
+// the autopilot panel's running count cannot answer: it says how many, never
+// which ones or what they cost.
+group("LivePage in-run purchases", () => {
+  it("shows what the open run has bought so far", async () => {
+    render(<LivePage />);
+
+    // Scoped to the row: with one buy the totals line shows the same figure.
+    const row = (await screen.findByText("Defense Absolute")).closest("tr")!;
+    expect(within(row).getByText("$18,000")).toBeDefined();
   });
 });
