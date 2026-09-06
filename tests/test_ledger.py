@@ -396,3 +396,76 @@ def test_backfill_over_an_empty_events_table_writes_nothing(tmp_path: Path) -> N
     conn = db.connect(tmp_path / "bot.db")
 
     assert ledger.backfill(conn) == 0
+
+
+# --- mission claims -------------------------------------------------------
+
+def test_a_mission_claim_credits_both_currencies_as_two_lines() -> None:
+    """One claim, two balances. This is why classify returns a tuple."""
+    coins, gems = ledger.classify(
+        events.MissionClaimed(mission="Kill 200 basic enemies",
+                              mission_id="kill_200_basic_enemies",
+                              coins=25, gems=3, completed_before=0,
+                              completed_after=1, gems_before=60,
+                              seq=20, ts=1000.0))
+    assert (coins.kind, coins.currency, coins.delta) == ("MISSION_CLAIM", "coins", 25)
+    assert (gems.kind, gems.currency, gems.delta) == ("MISSION_CLAIM", "gems", 3)
+    assert coins.item == gems.item == "Kill 200 basic enemies"
+
+
+def test_a_claim_never_treats_the_abbreviated_coin_balance_as_a_reading() -> None:
+    """The page shows coins as "6.08K". Handing that to the reconciler as a
+    balance would contradict the running total and manufacture an UNEXPLAINED
+    line on every single claim. Gems read exactly and are safe."""
+    coins, gems = ledger.classify(
+        events.MissionClaimed(mission="Start 1 battles", mission_id="start_1_battles",
+                              coins=25, gems=3, completed_before=1,
+                              completed_after=2, gems_before=63,
+                              seq=21, ts=1000.0))
+    assert coins.observed is None
+    assert gems.observed == 63
+
+
+def test_an_unread_reward_is_an_unknown_delta_not_a_zero_one() -> None:
+    coins, gems = ledger.classify(
+        events.MissionClaimed(mission="Kill 5 bosses", mission_id="kill_5_bosses",
+                              coins=None, gems=None, completed_before=2,
+                              completed_after=3, gems_before=None,
+                              seq=22, ts=1000.0))
+    assert coins.delta is None and gems.delta is None
+
+
+def test_the_two_claim_lines_reconcile_against_separate_balances(tmp_path: Path) -> None:
+    """An unreadable coin amount must not stall the gem chain."""
+    write, _ = writer(tmp_path)
+    lines = write.lines_for(
+        events.MissionClaimed(mission="Buy 20 battle upgrades",
+                              mission_id="buy_20_battle_upgrades",
+                              coins=None, gems=3, completed_before=3,
+                              completed_after=4, gems_before=63,
+                              seq=23, ts=1000.0))
+    gems = [line for line in lines if line.currency == "gems"]
+    assert len(gems) == 1 and gems[0].balance_after == 66
+
+
+def test_a_claim_walk_bookends_reuse_the_visit_lines() -> None:
+    (start,) = ledger.classify(events.ClaimStarted(target="missions", seq=24, ts=1.0))
+    (end,) = ledger.classify(
+        events.ClaimEnded(target="missions", claimed=3, reason="claimed", seq=25, ts=2.0))
+    assert start.kind == "VISIT_START"
+    assert (end.kind, end.detail["claimed"]) == ("VISIT_END", 3)
+
+
+def test_a_refused_claim_is_a_line_that_provably_moved_nothing() -> None:
+    (line,) = ledger.classify(
+        events.ClaimSkipped(target="missions", reason="counter_unreadable",
+                            detail="The completed counter could not be read.",
+                            seq=26, ts=1000.0))
+    assert (line.kind, line.delta, line.reason) == (
+        "CLAIM_SKIPPED", 0, "counter_unreadable")
+
+
+def test_every_claim_event_can_be_replayed_from_the_events_table() -> None:
+    """A ledger that cannot be rebuilt from events is not a ledger."""
+    for name in ("ClaimStarted", "MissionClaimed", "ClaimSkipped", "ClaimEnded"):
+        assert name in ledger._REPLAYABLE

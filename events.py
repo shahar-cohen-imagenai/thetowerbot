@@ -289,3 +289,56 @@ class SpeedAdjusted(Event):
     # from wherever it is now", not "move toward a value".
     reading: float | None = None
     target: float | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ClaimStarted(Event):
+    """One claim walk armed. `target` is which page it walks."""
+
+    target: str
+
+
+@dataclass(frozen=True, kw_only=True)
+class MissionClaimed(Event):
+    """One mission reward taken, with the evidence that it landed.
+
+    `completed_before`/`completed_after` are the daily counter either side of
+    the tap and are what PROVE the claim happened: the counter moves the
+    moment a reward is taken, and the card itself disappears.
+
+    `coins` and `gems` are what the card offered, read from its reward
+    column, and are None rather than 0 when they could not be read - zero is
+    a reward of nothing, None is "we did not know".
+
+    `gems_before` is the gem balance before the claim and is exact. There is
+    deliberately no `coins_before`: the page abbreviates coins ("6.08K"), and
+    a field holding a rounded balance would be read as a real one by the
+    reconciler.
+    """
+
+    mission: str
+    mission_id: str | None = None
+    coins: int | None = None
+    gems: int | None = None
+    completed_before: int | None = None
+    completed_after: int | None = None
+    gems_before: int | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ClaimSkipped(Event):
+    """A claim the walk refused to make, and why it refused."""
+
+    target: str
+    reason: str
+    detail: str = ""
+
+
+@dataclass(frozen=True, kw_only=True)
+class ClaimEnded(Event):
+    """How a claim walk ended. `claimed` is how many rewards it took."""
+
+    target: str
+    claimed: int
+    reason: str = ""
+    aborted: bool = False

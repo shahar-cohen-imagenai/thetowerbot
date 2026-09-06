@@ -27,15 +27,18 @@ import events
 COINS = "coins"
 GEMS = "gems"
 
-# Every kind a line can carry. The last six are RESERVED and nothing emits
-# them today: they are the parts of the economy the bot cannot see (labs and
-# lab slots, card slots, modules, relics, ultimate weapons) plus hand-entered
-# lines. They are named here so adding one later is a branch in classify(),
-# not a schema change.
+# Every kind a line can carry. MILESTONE_CLAIM is RESERVED - the milestones
+# walk that emits it is a later slice - and so are the last six: the parts of
+# the economy the bot cannot see (labs and lab slots, card slots, modules,
+# relics, ultimate weapons) plus hand-entered lines. They are named here so
+# adding one later is a branch in classify(), not a schema change.
 KINDS: tuple[str, ...] = (
     "RUN_PAYOUT",
     "WORKSHOP_BUY",
     "CARD_BUY",
+    "MISSION_CLAIM",
+    "MILESTONE_CLAIM",
+    "CLAIM_SKIPPED",
     "BUY_SKIPPED",
     "VISIT_START",
     "VISIT_END",
@@ -171,6 +174,48 @@ def classify(event: events.Event) -> tuple[LedgerLine, ...]:
                 detail={"detail": event.detail} if event.detail else {},
                 **base,
             ),)
+
+        case events.MissionClaimed():
+            # Two currencies move on one claim and a LedgerLine carries one.
+            # This is the event that made classify return a tuple.
+            #
+            # Coins are never `observed`. The page abbreviates them ("6.08K"),
+            # and an abbreviated balance handed to the reconciler contradicts
+            # the running total and manufactures an UNEXPLAINED line on every
+            # single claim. Gems read exactly (60 -> 63 across one claim) and
+            # are safe to anchor on.
+            return (
+                LedgerLine(kind="MISSION_CLAIM", item=event.mission,
+                           category="MISSIONS", currency=COINS, delta=event.coins,
+                           detail={"mission_id": event.mission_id,
+                                   "completed_after": event.completed_after},
+                           **base),
+                LedgerLine(kind="MISSION_CLAIM", item=event.mission,
+                           category="MISSIONS", currency=GEMS, delta=event.gems,
+                           observed=event.gems_before, **base),
+            )
+
+        case events.ClaimStarted():
+            return (LedgerLine(kind="VISIT_START", reason=event.target, **base),)
+
+        case events.ClaimEnded():
+            return (LedgerLine(
+                kind="VISIT_END",
+                reason=event.reason or ("aborted" if event.aborted else None),
+                detail={"target": event.target, "claimed": event.claimed,
+                        "aborted": event.aborted},
+                **base),)
+
+        case events.ClaimSkipped():
+            return (LedgerLine(
+                kind="CLAIM_SKIPPED",
+                # A refusal provably moved nothing, which is not the same
+                # fact as a reward whose amount could not be read.
+                delta=0,
+                reason=event.reason,
+                detail={"target": event.target, "detail": event.detail}
+                if event.detail else {"target": event.target},
+                **base),)
 
         case events.ShoppingStarted():
             return (LedgerLine(
@@ -322,6 +367,10 @@ _REPLAYABLE: dict[str, type[events.Event]] = {
     "ShoppingEnded": events.ShoppingEnded,
     "ShoppingUnavailable": events.ShoppingUnavailable,
     "ControlChanged": events.ControlChanged,
+    "ClaimStarted": events.ClaimStarted,
+    "MissionClaimed": events.MissionClaimed,
+    "ClaimSkipped": events.ClaimSkipped,
+    "ClaimEnded": events.ClaimEnded,
 }
 
 
