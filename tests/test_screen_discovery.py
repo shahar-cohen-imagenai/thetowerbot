@@ -214,10 +214,13 @@ def test_the_missions_band_counting_drawn_is_no_longer_an_inference() -> None:
     latest = holder.snapshot()['latest']
     assert (latest['shown'], latest['offered'], latest['unseen']) == (8, 8, 0)
     # `shown` cannot be a count of what the reader parsed: the band says 8
-    # while only five cards are on the frame, and four of those are CLAIM
-    # rows that carry no "N / M" text and so parse as unreadable.
+    # while only five cards are on the frame. Three of those are CLAIM rows,
+    # which the reader identifies as 'claimable' rather than as unreadable -
+    # a bar being replaced by a button is not a failed read - but they still
+    # carry no "N / M" progress text, so the band's 8 is not five parsed cards
+    # stretched to fit either.
     assert len(latest['missions']) < latest['shown']
-    assert [m for m in latest['missions'] if m['status'] == 'unreadable']
+    assert [m for m in latest['missions'] if m['status'] == 'claimable']
 
 
 def test_new_heading_cannot_validate_an_existing_target() -> None:

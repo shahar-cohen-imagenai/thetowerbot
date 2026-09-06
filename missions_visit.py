@@ -4,8 +4,8 @@ Nothing here spends, claims or mutates game state. The only two taps it can
 ever issue are the main menu's MISSIONS control and the missions page's own
 return control, each located on the very frame it is tapped from and never
 from a coordinate remembered across scans. Claiming a mission reward or a
-weekly milestone is deliberately absent: missions_screen cannot yet read a
-claimable state, so there is nothing here to verify a claim against.
+weekly milestone is deliberately absent from THIS walk: it is read-only by
+design, and missions_claim.py is where claiming lives.
 
 One known limit: a visit can end `failed` while still ON the missions page,
 and the passive guard then holds every action for as long as that page is

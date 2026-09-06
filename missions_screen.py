@@ -59,6 +59,19 @@ _RECORDED_TITLE_Y = 249
 # permitted to mean "examined, and no missions page is up" - on a frame
 # screen_discovery itself would call missions.daily. Searching the range
 # continuously removes that hole rather than adding a third fixed point to it.
+#
+# One narrowing this trades in: the old crop probe read with
+# min_confidence=0., so any confidence at all counted as "maybe found," and
+# only the downstream parse enforced the >=.90 trust gate. _missions_title
+# enforces that same gate directly, so a title read at, say, 0.87 - between
+# the full read's 0.85 floor and the .90 trust cutoff - now falls out of
+# "found" instead of falling through to "found but unreadable." Every
+# recorded missions title reads at .9908-.9931, none within .09 of that gate,
+# so this is UNEXERCISED by any capture - no evidence of a problem, not
+# evidence of its absence. Accepted because the alternative was this reader
+# quietly keeping a more permissive trust rule than screen_discovery's own,
+# for exactly the kind of low-confidence misread this module refuses to act
+# on everywhere else.
 
 # "completed 0/35" measured at (796, 326, 261, 36) - the daily counter, and
 # the only evidence this reader has for whether a weekly milestone is reached.
@@ -394,11 +407,6 @@ def _mission(card: Rect, boxes: tuple[ocr.TextBox, ...]) -> MissionEntry | None:
         progress, target = None, None
 
     claim_boxes = _claim_boxes(card, inside)
-    # A bar is what the button replaces, so a card appearing to hold both is a
-    # misread of one of them. Nothing here can say which, so neither is
-    # trusted over the other and the card has no reading at all.
-    claimable = len(claim_boxes) == 1 and not bars
-
     text_boxes = [b for b in inside if b.rect.x < reward_edge and b.rect.y < progress_edge]
     raw_text = ' '.join(b.text for b in text_boxes)
 
@@ -408,6 +416,7 @@ def _mission(card: Rect, boxes: tuple[ocr.TextBox, ...]) -> MissionEntry | None:
     if claim_boxes and bars:
         return MissionEntry(None, raw_text, None, None, 'unreadable', rewards,
                             rewards_status, 0., (card.x, card.y, card.w, card.h))
+    claimable = len(claim_boxes) == 1
 
     trusted_text = bool(text_boxes) and all(_trusted(b) for b in text_boxes)
     mission_id = identity_of(raw_text, target, complete=claimable) if trusted_text else None

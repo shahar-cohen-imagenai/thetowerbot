@@ -170,12 +170,23 @@ def test_a_claim_is_only_recorded_once_the_counter_moves() -> None:
 
 
 def test_a_counter_that_never_moves_ends_the_walk_rather_than_retapping() -> None:
-    """A tap that changed nothing is reported, not repeated."""
+    """A tap that changed nothing is reported, not repeated.
+
+    The tap that WAS made may or may not have landed - the reflow or OCR
+    could simply have lagged - so this is the one ambiguous outcome the
+    ledger must still be able to name. ClaimEnded alone only carries a count;
+    the ClaimSkipped this walk publishes on the way out is what names which
+    mission ("Mission 0") was tapped, so a reward taken here is never
+    silently unrecorded.
+    """
     frames = [home()] + [page(0, 2)] * 12
     claim, bus, _ = drive(frames)
     assert claim.snapshot()['result']['status'] == 'failed'
     assert claim.snapshot()['result']['reason'] == 'claim_not_confirmed'
     assert not bus.of(events.MissionClaimed)
+    skipped = bus.of(events.ClaimSkipped)
+    assert skipped and skipped[-1].reason == 'claim_not_confirmed'
+    assert 'Mission 0' in skipped[-1].detail
 
 
 def test_a_walk_with_nothing_claimable_returns_home_without_tapping() -> None:
@@ -314,15 +325,21 @@ def test_the_claim_button_is_tapped_at_the_rects_centre() -> None:
     assert (530, 774) in device.taps
 
 
-def test_the_runner_refuses_a_second_transaction_while_one_walks() -> None:
-    """Two transactions may never be armed at once - they would walk the same
-    menus from different steps, and the second one's evidence would be the
-    first one's screen."""
+def test_a_claim_walk_is_armed_at_most_once() -> None:
+    """`request()` is idempotent per object: a second call while a walk is
+    already active must arm nothing and report False, rather than restarting
+    or stacking a second walk on the same instance.
+
+    This does NOT pin mutual exclusion between a claim and a visit - both
+    `visit.active` and `claim.active` are True below, because nothing here
+    constructs the runner that enforces that rule between the two objects.
+    That property is pinned in test_runner.py, by
+    test_a_claim_and_the_other_two_transactions_are_never_armed_at_once_in_either_order.
+    """
     import missions_visit
     claim = missions_claim.MissionsClaim()
     visit = missions_visit.MissionsVisit()
     assert visit.request() is True
-    # The runner's rule, asserted on the objects it enforces it between.
     assert visit.active and not claim.active
     assert claim.request() is True
     assert claim.active

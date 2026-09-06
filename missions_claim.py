@@ -211,8 +211,7 @@ class MissionsClaim(ControlTaps):
         if self._pending is not None:
             claimed, before = self._pending
             if completed <= before:
-                return self._wait('claim_not_confirmed', f'"{claimed.raw_text}" was tapped '
-                                  'but the completed counter did not move.', moment)
+                return self._wait_for_claim_confirmation(claimed, moment)
             self._pending = None
             self._waited = 0
             self._claimed += 1
@@ -230,6 +229,26 @@ class MissionsClaim(ControlTaps):
         self._pending = (_PendingClaim(target.raw_text, target.mission_id,
                                        target.coins, target.gems), completed)
         return self._tap_point(target, device, moment)
+
+    def _wait_for_claim_confirmation(self, claimed: _PendingClaim,
+                                     moment: float) -> ClaimAction | None:
+        """Wait, budget-bound, for the counter to confirm a tapped claim.
+
+        Every other `_wait` caller in this walk is pre-tap: nothing was taken,
+        so `_wait`'s bare ClaimEnded on exhaustion is the whole story. Here a
+        CLAIM button was already tapped, and `claimed.raw_text` is the only
+        record of which mission that was - if the tap landed and only the
+        reflow or OCR lagged, a reward was taken and ClaimEnded alone names
+        nothing. Route the timeout through `_refuse` instead of `_wait`, so
+        the one genuinely ambiguous outcome publishes a ClaimSkipped that
+        names the mission before the walk ends.
+        """
+        self._waited += 1
+        if self._waited > self._budget:
+            return self._refuse('claim_not_confirmed', f'"{claimed.raw_text}" was tapped '
+                                'but the completed counter did not move before the wait '
+                                'budget ran out; it may or may not have been claimed.', moment)
+        return None
 
     def _tap_point(self, target: ClaimTarget, device: Any, moment: float) -> ClaimAction | None:
         """Tap a CLAIM button located on THIS frame.
