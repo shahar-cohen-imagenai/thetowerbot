@@ -548,7 +548,7 @@ def test_the_page_title_still_has_to_be_above_its_own_heading() -> None:
     name = 'menu_workshop_utility_no_status_bar'
     frame = cv2.imread(str(FIXTURES / f'{name}.png'))
     boxes = tuple(b for b in recorded(name) if tiles.normalise(b.text) != 'workshop')
-    strayed = boxes + (ocr.TextBox('WORKSHOP', .99, config.Rect(30, 0, 244, 45)),)
+    strayed = boxes + (ocr.TextBox('WORKSHOP', .99, config.Rect(30, 30, 244, 45)),)
 
     result = screen_discovery.discover(frame, strayed, 'workshop')
     assert (result.screen_id, result.readable) == (None, False)
@@ -604,12 +604,17 @@ def test_the_missions_title_still_has_to_be_above_its_own_banner() -> None:
 def test_an_upgrade_page_is_still_refused_on_an_inset_free_device() -> None:
     """The guard the widening could plausibly have broken, kept.
 
-    Widening the title band upward brings a Workshop capture's own title into
-    range. The missions page is claimed on its banner and count as well, so an
-    upgrade page must still be refused.
+    Not the title band: a Workshop title normalises to `workshop` and was
+    never a candidate missions title. It is the HEADING band that widened,
+    from 380 down to 380 - MAX_TOP_INSET, and this capture's UTILITY
+    UPGRADES heading sits at y=261 - inside the widened band and outside the
+    original. So the widening is what lets the upgrade guard see this frame
+    at all, and the reason is what proves the guard is what refused it
+    rather than the mere absence of a missions title.
     """
     import screen_discovery
     name = 'menu_workshop_utility_no_status_bar'
     frame = cv2.imread(str(FIXTURES / f'{name}.png'))
     result = screen_discovery.discover(frame, recorded(name), 'missions')
     assert (result.screen_id, result.readable) == (None, False)
+    assert result.reason == 'unsupported_layout'

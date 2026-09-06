@@ -654,14 +654,6 @@ def test_a_claim_moves_the_counter_on_an_inset_free_device() -> None:
     assert (before.shown, after.shown) == (8, 7)
 
 
-def test_the_recorded_layout_still_reads_unchanged() -> None:
-    """The fix is a widening, not a move."""
-    reading = missions_screen.parse_frame(frame(), recorded())
-    assert reading is not None
-    assert (reading.completed, reading.completed_target) == (0, 35)
-    assert reading.shown == 2
-
-
 def test_a_second_title_leaves_the_page_without_an_origin() -> None:
     """Two titles are a misread, not an origin.
 

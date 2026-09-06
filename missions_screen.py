@@ -58,6 +58,16 @@ _RECORDED_TITLE_Y = 249
 # breaks the exact-match gate on BOTH layouts. Loosening that gate is worse than
 # it looks: a probe that says yes on a page this is not holds every action, so
 # the gate stays exact and the crop moves instead.
+#
+# What that costs, stated plainly because the mechanism alone understates it:
+# at an inset outside this set, scan() reports `scanned=True, screen_id=None` -
+# the one answer permitted to mean "examined, and no missions page is up" - on
+# a page screen_discovery identifies as missions.daily on the same frame. That
+# is not a fault report a caller can react to; it is an affirmative claim of
+# absence, which is the exact failure this reader was changed to stop making.
+# Measured coverage is insets 0-29 and 125-165, against the 0..MAX_TOP_INSET
+# that screen_discovery declares. A third device's inset must be measured and
+# added here, not assumed to fall in a gap that happens to work.
 _MEASURED_INSETS = (0, 136)
 
 # "completed 0/35" measured at (796, 326, 261, 36) - the daily counter, and

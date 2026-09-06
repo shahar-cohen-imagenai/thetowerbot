@@ -210,9 +210,10 @@ _BATTLE_HEADING_Y = (1640, 1680)
 # the screen and lands on its recorded band on both devices, which is why
 # battle reading never showed this and _BATTLE_HEADING_Y stays absolute.
 #
-# Public because it is one fact about the device, not one fact about the
-# Workshop: missions_screen measures its own bands against it too, and two
-# copies of this number could drift apart.
+# Public so the bound this module enforces can be NAMED by the readers that
+# live downstream of it - missions_screen documents its own probe against it -
+# even though nothing outside this module reads the value today. It is one
+# fact about the device, and it is stated once.
 MAX_TOP_INSET = 200
 # The measured gap from the Workshop page title down to its category heading -
 # the part of the recorded geometry that survives the translation above.
