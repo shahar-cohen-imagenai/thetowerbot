@@ -219,3 +219,23 @@ def test_the_shipped_order_matches_the_guide_page() -> None:
         "Unlock Cash Bonuses", "Unlock Defense Upgrades", "Unlock Range Upgrades"
     ]
     assert rows.index("Health") < rows.index("Damage"), "defence before attack"
+
+
+# -- an unlimited coin budget ----------------------------------------------
+def test_a_null_coin_budget_means_unlimited() -> None:
+    """`0` already means "spend nothing", so "no limit" needs its own value.
+    `None` is the same word the rest of this config already speaks:
+    Strategy.max_runs and ShoppingRule.target both spell "no cap" that way."""
+    assert Shopping(coin_budget=None).coin_budget is None
+
+
+def test_an_unlimited_coin_budget_round_trips_through_a_stored_profile() -> None:
+    raw = Shopping(coin_budget=None).to_dict()
+    assert raw["coin_budget"] is None
+    assert Shopping.from_dict(raw).coin_budget is None
+
+
+def test_a_coin_budget_of_zero_still_means_spend_nothing() -> None:
+    """The one thing "unlimited" must not do is change what every profile on
+    disk already says."""
+    assert Shopping(coin_budget=0).coin_budget == 0

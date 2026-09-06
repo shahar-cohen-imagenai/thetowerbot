@@ -23,6 +23,19 @@ describe("ShoppingEditor", () => {
     fireEvent.blur(screen.getByLabelText("Coin budget per visit"), { target: { value: "200" } });
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ coin_budget: 200, armed: false }));
   });
+  it("reads an empty coin budget as unlimited", () => {
+    render(<ShoppingEditor shopping={{ ...policy, coin_budget: null }} onChange={vi.fn()} />);
+    expect(screen.getByLabelText("Coin budget per visit")).toHaveValue(null);
+    expect(screen.getByText("(unlimited)")).toBeInTheDocument();
+  });
+
+  it("commits a cleared coin budget as unlimited, not as zero", () => {
+    const onChange = vi.fn();
+    render(<ShoppingEditor shopping={{ ...policy, coin_budget: 200 }} onChange={onChange} />);
+    fireEvent.blur(screen.getByLabelText("Coin budget per visit"), { target: { value: "" } });
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ coin_budget: null }));
+  });
+
   it("shows rows in priority order", () => {
     render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
     const rows = screen.getAllByTestId("shopping-row");

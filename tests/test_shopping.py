@@ -1243,3 +1243,121 @@ def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
     assert unmatched[0].read == (
         "Cash Bonus", "Cash / Wave", "Unlock Coin Bonuses",
     )
+
+
+# -- an unlimited coin budget ----------------------------------------------
+def _escalating_row(session, monkeypatch, prices, *, coins=1770):
+    """One Damage row whose price, level and the wallet all move with each tap.
+
+    Keyed on session._taps rather than device.taps so a rehearsal - which
+    counts its taps but sends none - reads exactly the same board a live
+    visit does. The wallet debits what the taps sent so far cost, which is
+    what makes coin_reserve and affordability real here instead of frozen.
+    """
+    def _index():
+        return min(session._taps, len(prices) - 1)
+
+    def _row():
+        return ObservedUpgrade("damage", "Damage", "ATTACK", "workshop",
+                               1 + _index(), prices[_index()], "available", 1,
+                               config.Rect(0, 0, 100, 100), (50, 80))
+
+    monkeypatch.setattr(shopping_mod, "observe_frame", lambda *_:
+                        Observation("ATTACK", (_row(),), {}, None, 1, 270))
+    monkeypatch.setattr(shopping_mod, "header_numbers", lambda *_:
+                        (coins - sum(prices[:min(session._taps, len(prices))]), 40))
+
+
+def _keep_buying(session, device, policy, ticks=14):
+    for _ in range(ticks):
+        session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                          frame("menu_workshop_attack"), device, policy)
+
+
+def test_an_unlimited_budget_re_buys_one_row_until_it_is_unaffordable(
+    session, monkeypatch
+) -> None:
+    """The point of the setting: a row is not "used up" by one purchase, so
+    the visit keeps buying it at its new, higher price until the wallet -
+    not a configured cap - is what stops it."""
+    device = FakeDevice()
+    _escalating_row(session, monkeypatch, [5, 10, 20, 5_000])
+    policy = a_policy(armed=True, coin_budget=None, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+
+    _keep_buying(session, device, policy)
+
+    assert len(session._bus.of_type("Purchased")) == 3
+    assert [e.reason for e in session._bus.of_type("PurchaseSkipped")] == ["unaffordable"]
+
+
+def test_an_unlimited_budget_still_stops_at_the_coin_reserve(
+    session, monkeypatch
+) -> None:
+    """"As long as you have the coins" means down to the reserve, not past
+    it. The reserve is the floor the unlimited budget spends towards."""
+    device = FakeDevice()
+    _escalating_row(session, monkeypatch, [5, 10, 20, 40])
+    policy = a_policy(armed=True, coin_budget=None, coin_reserve=1_740, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+
+    _keep_buying(session, device, policy)
+
+    assert len(session._bus.of_type("Purchased")) == 2
+    assert [e.reason for e in session._bus.of_type("PurchaseSkipped")] == ["reserve"]
+
+
+def test_an_unlimited_budget_still_stops_a_row_at_its_target(
+    session, monkeypatch
+) -> None:
+    device = FakeDevice()
+    _escalating_row(session, monkeypatch, [5, 10, 20, 40])
+    policy = a_policy(armed=True, coin_budget=None, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK", target=3),
+    ))
+    session.begin(policy, run_count=1)
+
+    _keep_buying(session, device, policy)
+
+    assert len(session._bus.of_type("Purchased")) == 2
+    assert [e.reason for e in session._bus.of_type("PurchaseSkipped")] == ["target_reached"]
+
+
+def test_an_unlimited_rehearsal_still_walks_each_row_once(
+    session, monkeypatch
+) -> None:
+    """Nothing leaves the wallet unarmed, so the price never rises and a
+    repeat-buying rehearsal would spin on row one until the tap budget
+    aborted the visit. A rehearsal reports the whole list instead."""
+    device = FakeDevice()
+    _escalating_row(session, monkeypatch, [5])
+    policy = a_policy(armed=False, coin_budget=None, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+
+    _keep_buying(session, device, policy)
+
+    assert device.taps == []
+    assert len(session._bus.of_type("Purchased")) == 1
+
+
+def test_a_finite_budget_still_buys_each_row_at_most_once_a_visit(
+    session, monkeypatch
+) -> None:
+    """The pin on every profile already on disk: naming a number keeps the
+    behaviour it has always had."""
+    device = FakeDevice()
+    _escalating_row(session, monkeypatch, [5, 10, 20, 40])
+    policy = a_policy(armed=True, coin_budget=10_000, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+
+    _keep_buying(session, device, policy)
+
+    assert len(session._bus.of_type("Purchased")) == 1
