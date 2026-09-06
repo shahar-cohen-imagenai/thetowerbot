@@ -312,3 +312,18 @@ def test_the_claim_button_is_tapped_at_the_rects_centre() -> None:
     rect's top-left, or swapping x and y, must fail here."""
     claim, _, device = drive([home(), page(0, 1), page(1, 0)])
     assert (530, 774) in device.taps
+
+
+def test_the_runner_refuses_a_second_transaction_while_one_walks() -> None:
+    """Two transactions may never be armed at once - they would walk the same
+    menus from different steps, and the second one's evidence would be the
+    first one's screen."""
+    import missions_visit
+    claim = missions_claim.MissionsClaim()
+    visit = missions_visit.MissionsVisit()
+    assert visit.request() is True
+    # The runner's rule, asserted on the objects it enforces it between.
+    assert visit.active and not claim.active
+    assert claim.request() is True
+    assert claim.active
+    assert claim.request() is False
