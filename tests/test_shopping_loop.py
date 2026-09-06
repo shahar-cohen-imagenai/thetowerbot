@@ -11,8 +11,12 @@ from pathlib import Path
 
 import cv2
 
+import config
 import digits
+import events
 import tower_bot
+import vision
+from shopping import ShoppingSession
 from strategy import Shopping, ShoppingRule
 
 _FIXTURES = Path(__file__).parent / "fixtures"
@@ -176,3 +180,53 @@ def test_an_unbuilt_glyph_atlas_no_longer_disables_shopping(monkeypatch) -> None
     monkeypatch.setattr(digits.AtlasCache, "get", lambda self, name: None)
     session = tower_bot.build_shopping(bus=None, templates=None)
     assert session.disabled_reason is None
+
+
+# --- Getting to the Workshop at all ---------------------------------------
+# begin() is only ever called on MAIN_MENU, and the navigator taps RETRY on
+# GAME_OVER - which starts the next run straight from the death screen. Left
+# alone the bot loops IN_RUN -> GAME_OVER -> IN_RUN and never once offers
+# begin() a frame to say yes to, so an enabled, armed policy buys nothing.
+
+
+def test_game_over_goes_home_when_a_visit_is_due(bot_on_game_over) -> None:
+    bot = bot_on_game_over(a_policy())
+    bot.run_once()
+    assert navigated(bot.bus) == ["HOME"], "RETRY skipped the Workshop detour"
+
+
+def test_game_over_retries_when_shopping_is_off(bot_on_game_over) -> None:
+    """The detour costs a trip through the menu; a bot with nothing to buy
+    must not pay it."""
+    bot = bot_on_game_over(a_policy(enabled=False))
+    bot.run_once()
+    assert navigated(bot.bus) == ["RETRY"]
+
+
+def test_game_over_retries_on_a_non_visiting_run(bot_on_game_over) -> None:
+    """visit_every_n_runs=2 means every other run goes straight back in."""
+    bot = bot_on_game_over(a_policy(visit_every_n_runs=2))
+    bot.shopping._last_run_count = bot.runs.completed
+    bot.run_once()
+    assert navigated(bot.bus) == ["RETRY"]
+
+
+def test_due_agrees_with_begin(bot_on_game_over) -> None:
+    """due() is begin()'s gate without the side effects. If they ever drift,
+    the bot detours home and then declines to shop - a wasted trip every run."""
+    policy = a_policy()
+    session = bot_on_game_over(policy).shopping
+
+    assert session.due(policy, run_count=1) is True
+    assert session.begin(policy, run_count=1) is True
+    # The cadence has now been spent for this run count.
+    assert session.due(policy, run_count=1) is False
+    assert session.begin(policy, run_count=1) is False
+
+
+def test_due_is_false_when_the_session_is_disabled() -> None:
+    session = ShoppingSession(
+        vision.TemplateCache(config.TEMPLATE_DIR), events.EventBus(),
+        digits.NumberReader(), disabled_reason="the OCR engine will not load",
+    )
+    assert session.due(a_policy(), run_count=1) is False

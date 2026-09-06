@@ -84,3 +84,41 @@ def test_retry_is_located_not_hardcoded(nav: Navigator) -> None:
 
     assert a is not None and b is not None
     assert a.center[1] != b.center[1]
+
+
+# --- The between-runs detour to MAIN_MENU ---------------------------------
+# RETRY restarts from the death screen without ever passing through
+# MAIN_MENU, and MAIN_MENU is the only screen a Workshop visit can begin
+# from. When a visit is due the caller asks for HOME instead.
+
+
+def test_taps_home_on_game_over_when_a_visit_is_due(nav: Navigator) -> None:
+    dev = MagicMock()
+    target = nav.maybe_navigate(
+        frame("game_over"), ScreenState.GAME_OVER, dev, now=0.0, go_home=True
+    )
+
+    assert target == "HOME"
+    dev.click.assert_called_once()
+
+
+def test_home_and_retry_are_different_buttons(nav: Navigator) -> None:
+    """Both live on the death screen; tapping one must not land on the other."""
+    retry_dev, home_dev = MagicMock(), MagicMock()
+    nav.maybe_navigate(frame("game_over"), ScreenState.GAME_OVER, retry_dev, now=0.0)
+    nav.maybe_navigate(
+        frame("game_over"), ScreenState.GAME_OVER, home_dev, now=0.0, go_home=True
+    )
+
+    assert retry_dev.click.call_args != home_dev.click.call_args
+
+
+def test_go_home_does_not_disturb_the_main_menu(nav: Navigator) -> None:
+    """The detour is a GAME_OVER concern. On MAIN_MENU the bot has already
+    arrived, and BATTLE stays the only nav button there."""
+    dev = MagicMock()
+    target = nav.maybe_navigate(
+        frame("main_menu"), ScreenState.MAIN_MENU, dev, now=0.0, go_home=True
+    )
+
+    assert target == "BATTLE"

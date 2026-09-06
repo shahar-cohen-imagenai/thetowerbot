@@ -43,8 +43,16 @@ class Navigator:
         device: AdbDevice,
         now: float | None = None,
         tuning: Strategy | None = None,
+        go_home: bool = False,
     ) -> str | None:
         """Tap this screen's nav button, if there is one and it is due.
+
+        `go_home` swaps RETRY for HOME on the death screen, so the next run
+        starts from MAIN_MENU instead of from here. The caller decides when
+        that is worth a detour - Navigator is told, not asked, for the same
+        reason it is handed a policy rather than reading Controls itself.
+        Ignored on every other screen: MAIN_MENU is where going home ENDS,
+        and BATTLE stays its only nav button.
 
         `tuning` carries the live jitter policy, taken from the same
         snapshot run_once used for the rest of the pass. Passing it is what
@@ -55,6 +63,8 @@ class Navigator:
         uses none.
         """
         entry = config.NAV_BUTTONS.get(state.value)
+        if go_home and state is ScreenState.GAME_OVER:
+            entry = config.GAME_OVER_HOME
         if entry is None:
             return None
 

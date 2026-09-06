@@ -269,6 +269,31 @@ class ShoppingSession:
 
     # -- starting a visit ---------------------------------------------------
 
+    def due(self, shopping: Shopping, run_count: int) -> bool:
+        """Whether begin() would start a visit for this run, starting none.
+
+        Exists because the decision has to be made one screen EARLIER than
+        begin() can make it. begin() is only ever offered a MAIN_MENU frame,
+        but whether the bot ever reaches MAIN_MENU is settled back on
+        GAME_OVER, where the navigator picks RETRY or HOME - so that pick
+        needs the same answer before there is a menu to ask on.
+
+        Deliberately the same gate as begin(), extracted rather than
+        restated: if the two ever drift, the bot detours home and then
+        declines to shop, paying for the trip every single run. Silent about
+        disabled_reason - the announcement is begin()'s, published once, and
+        a predicate that publishes would fire it from the navigator's path
+        too.
+        """
+        if self.disabled_reason or not shopping.enabled:
+            return False
+        if not shopping.categories_in_priority_order() and not shopping.cards.enabled:
+            return False
+        return not (
+            self._last_run_count is not None
+            and run_count - self._last_run_count < shopping.visit_every_n_runs
+        )
+
     def begin(self, shopping: Shopping, run_count: int) -> bool:
         """Start a visit, or decline with a reason.
 
@@ -294,19 +319,10 @@ class ShoppingSession:
                 self._announced_disabled = True
                 self._bus.publish(events.ShoppingUnavailable(reason=self.disabled_reason))
             return False
-        if not shopping.enabled:
+        if not self.due(shopping, run_count):
             return False
 
         categories = list(shopping.categories_in_priority_order())
-        if not categories and not shopping.cards.enabled:
-            return False
-
-        if (
-            self._last_run_count is not None
-            and run_count - self._last_run_count < shopping.visit_every_n_runs
-        ):
-            return False
-
         self._visit += 1
         self._categories = categories
         self._taps = 0

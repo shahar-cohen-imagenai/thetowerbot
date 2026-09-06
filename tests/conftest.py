@@ -210,6 +210,27 @@ def bot_on_main_menu() -> Callable[[Shopping], TowerBot]:
 
 
 @pytest.fixture
+def bot_on_game_over() -> Callable[[Shopping], TowerBot]:
+    """Factory: a bot confirmed on GAME_OVER, one call per policy.
+
+    The death screen is where the between-runs detour is decided: RETRY
+    starts the next run from here without ever passing through MAIN_MENU,
+    which is the only screen a Workshop visit can begin from. Seeded with
+    one completed run, like bot_on_main_menu, so a cadence of
+    visit_every_n_runs=1 has a run to count.
+    """
+    def build(policy: Shopping) -> TowerBot:
+        bot = _shopping_bot(
+            "game_over", state=screens.ScreenState.GAME_OVER,
+            policy=policy, auto_navigate=True,
+        )
+        bot.runs.completed = 1
+        return bot
+
+    return build
+
+
+@pytest.fixture
 def bot_on_workshop() -> Callable[[Shopping], TowerBot]:
     """Factory: a bot confirmed UNKNOWN (by design - see pages.py) on a
     workshop tab that does not yet show the policy's ATTACK row.
