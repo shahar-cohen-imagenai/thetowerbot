@@ -672,3 +672,79 @@ def test_a_claim_and_the_other_two_transactions_are_never_armed_at_once_in_eithe
         assert not runner.claim.active
     finally:
         runner.stop()
+
+
+# --- the milestones claim walk -------------------------------------------
+
+def test_a_milestones_claim_refuses_while_each_sibling_walks(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """Mutual exclusion IS the safety property here: two transactions walking
+    the same menus from different remembered steps is the hazard the design
+    exists to prevent. Three directions, each isolated."""
+    runner, _ = menu_runner
+    runner.start()
+    try:
+        for arm, cancel in ((runner.request_stats_collection, runner.collection),
+                            (runner.request_missions_visit, runner.visit),
+                            (runner.request_missions_claim, runner.claim)):
+            arm()
+            with pytest.raises(RunnerError) as busy:
+                runner.request_milestones_claim()
+            assert busy.value.status_code == 409
+            assert not runner.milestones_claim.active
+            cancel.cancel("test", "cleared for the next direction")
+    finally:
+        runner.stop()
+
+
+def test_each_sibling_refuses_while_a_milestones_claim_walks(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """The other three directions. A one-directional guard would let two
+    transactions walk the same menus from different steps."""
+    runner, _ = menu_runner
+    runner.start()
+    try:
+        runner.request_milestones_claim()
+        for arm, other in ((runner.request_stats_collection, runner.collection),
+                           (runner.request_missions_visit, runner.visit),
+                           (runner.request_missions_claim, runner.claim)):
+            with pytest.raises(RunnerError) as busy:
+                arm()
+            assert busy.value.status_code == 409
+            assert not other.active
+    finally:
+        runner.stop()
+
+
+def test_a_stop_cancels_a_half_walked_milestones_claim(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """The stop/finally site. Slice 2 shipped a claim walk whose own docstring
+    said a restart cancelled it while only the pause path did."""
+    runner, _ = menu_runner
+    runner.start()
+    runner.request_milestones_claim()
+    runner.stop()
+    ended = runner.milestones_claim.snapshot()
+    assert ended["status"] == "failed"
+    assert ended["result"]["reason"] == "bot_stopped"
+
+
+def test_a_restart_cancels_a_half_walked_milestones_claim(
+    menu_runner: tuple[BotRunner, list],
+) -> None:
+    """The RESTART site specifically, isolated from the stop site: arm the walk
+    after a completed stop(), so the only cancel that can fire is the one in
+    start(). Slice 2's first attempt at this could not tell the two apart."""
+    runner, _ = menu_runner
+    runner.start()
+    runner.stop()
+    assert runner.milestones_claim.request(now=0.) is True
+    runner.start()
+    try:
+        ended = runner.milestones_claim.snapshot()
+        assert ended["result"]["reason"] == "bot_restarted"
+    finally:
+        runner.stop()

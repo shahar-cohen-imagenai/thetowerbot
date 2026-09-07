@@ -449,3 +449,130 @@ def test_a_claim_walk_is_armed_at_most_once() -> None:
     assert claim.request() is True
     assert claim.active
     assert claim.request() is False
+
+
+# --- the passive guard, and the predicate all three walks share -----------
+
+def recorded(name: str) -> tuple[Any, ...]:
+    import json
+
+    import ocr
+    return tuple(ocr.TextBox(b['text'], b['confidence'], config.Rect(*b['rect']))
+                 for b in json.loads(
+                     (FIXTURES / 'ocr' / f'{name}.json').read_text()))
+
+
+def test_the_milestones_screens_hold_actions_with_no_walk_armed(
+        bot_on_main_menu: Any, monkeypatch: Any) -> None:
+    """The reward modal is a full-screen overlay carrying a tappable CLAIM, and
+    config.NAV_DISMISS - which shopping.py's OPEN_CARDS step walks to clear
+    first-visit popups - holds nav/claim_reward.png and nav/skip.png, BOTH
+    measured at 1.0000 on it. Without the guard that walk could claim a
+    milestone reward with no ledger line, or tap SKIP and discard it.
+
+    Asserted with NOTHING armed, because that is the case the guard exists for:
+    a transaction-only guard would leave the modal unprotected exactly when no
+    milestones walk is running.
+    """
+    import ocr
+    from strategy import Shopping
+    bot = bot_on_main_menu(Shopping(enabled=False))
+    boxes = recorded('menu_milestones_reward_modal')
+    bot._screen = image('menu_milestones_reward_modal')
+    monkeypatch.setattr(ocr, 'read', lambda *a, **k: boxes)
+    assert not bot.milestones_claim.active
+    bot.run_once()
+    skipped = [e for e in bot.bus.published if isinstance(e, events.Skipped)]
+    assert any(e.reason == 'milestones_screen_guard' for e in skipped)
+    assert bot.device.taps == []
+
+
+def test_an_ordinary_menu_frame_is_not_held_by_the_milestones_guard(
+        bot_on_main_menu: Any, monkeypatch: Any) -> None:
+    """The guard has to be the milestones screens and not "any menu", or it
+    would quietly stop the bot everywhere - the same check the missions guard
+    carries, for the same reason."""
+    import ocr
+    from strategy import Shopping
+    bot = bot_on_main_menu(Shopping(enabled=False))
+    bot._screen = image('menu_main')
+    monkeypatch.setattr(ocr, 'read', lambda *a, **k: ())
+    bot.run_once()
+    assert not [e for e in bot.bus.published
+                if isinstance(e, events.Skipped)
+                and e.reason == 'milestones_screen_guard']
+
+
+def test_a_pause_cancels_a_half_walked_milestones_claim(
+        bot_on_main_menu: Any, monkeypatch: Any) -> None:
+    """The third cancel site, in tower_bot's guard block - NOT in the runner,
+    which drives a FakeBot with no run_once() and so cannot reach this code at
+    all. Pause is the operator's stop-touching-my-device control, so it has to
+    reach a walk already walking, not merely refuse to arm a new one.
+    """
+    import ocr
+    from strategy import Shopping
+    bot = bot_on_main_menu(Shopping(enabled=False))
+    bot.controls.apply({'tap_jitter_px': 0, 'tap_delay': 0})
+    assert bot.milestones_claim.request(now=0.) is True
+    bot.controls.apply({'paused': True})
+    bot._screen = image('menu_main')
+    monkeypatch.setattr(ocr, 'read', lambda *a, **k: ())
+    bot.run_once()
+    ended = bot.milestones_claim.snapshot()
+    assert ended['status'] == 'failed'
+    assert ended['result']['reason'] == 'paused'
+
+
+def test_the_dismiss_templates_really_do_match_this_modal() -> None:
+    """The measurement the guard's whole justification rests on. If this ever
+    stops being true the guard is still correct but its stated reason is not,
+    and a future author would read the comment as stale rather than as
+    describing a closed hazard."""
+    import account_collection
+    cache = vision.TemplateCache(config.TEMPLATE_DIR)
+    frame = image('menu_milestones_reward_modal')
+    for name in ('nav/claim_reward.png', 'nav/skip.png'):
+        assert name in config.NAV_DISMISS, name
+        found = account_collection.locate_control(frame, cache.get(name), name)
+        assert found.status == 'located', name
+        assert found.score is not None and found.score >= .99, (name, found.score)
+
+
+def test_at_page_home_refuses_home_while_the_milestones_page_is_up() -> None:
+    """`at_page_home` is an AND of two independent facts, and each half has to
+    be load-bearing on its own.
+
+    Without the `at_home` conjunct the predicate would answer "home" from a
+    clear page reader alone - so a walk could tap the main menu while a RUN is
+    live. Without the page half it would answer "home" while a milestones
+    screen is still up. Both directions are asserted here because deleting
+    either one is a silent change every other test on this branch survives.
+    """
+    import account_collection
+    clear = {'scanned': True, 'screen_id': None, 'error': None}
+    up = {'scanned': True, 'screen_id': 'milestones.ladder', 'error': None}
+    unread = {'scanned': True, 'screen_id': None, 'error': 'ocr failed'}
+    unscanned = {'scanned': False, 'screen_id': None, 'error': None}
+    # `at_home`'s own shape: examined-and-clear, per its docstring.
+    account = {'scanned': True, 'screen_id': None, 'error': None}
+
+    assert account_collection.at_page_home('MAIN_MENU', account, clear) is True
+    # The `at_home` half: a clear page reader cannot make a live run into home.
+    assert account_collection.at_page_home('IN_RUN', account, clear) is False
+    # The page half, three ways it can fail to say "nothing is up".
+    assert account_collection.at_page_home('MAIN_MENU', account, up) is False
+    assert account_collection.at_page_home('MAIN_MENU', account, unread) is False
+    assert account_collection.at_page_home('MAIN_MENU', account, unscanned) is False
+
+
+def test_at_missions_home_still_behaves_exactly_as_before() -> None:
+    """The extraction has to be behaviour-preserving for the two walks that
+    already shipped against it, not merely for the new one."""
+    import account_collection
+    clear = {'scanned': True, 'screen_id': None, 'error': None}
+    up = {'scanned': True, 'screen_id': 'missions.daily', 'error': None}
+    account = {'scanned': True, 'screen_id': None, 'error': None}
+    assert account_collection.at_missions_home('MAIN_MENU', account, clear) is True
+    assert account_collection.at_missions_home('IN_RUN', account, clear) is False
+    assert account_collection.at_missions_home('MAIN_MENU', account, up) is False
