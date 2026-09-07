@@ -631,5 +631,5 @@ class MissionsReadings:
         except Exception:
             # Unscanned, not clear, and without the engine's own words: a
             # failed reader has looked at nothing.
-            self.observe(None, error='Missions OCR failed; actions held for this scan')
+            self.observe(None, error='Missions reading failed; actions held for this scan')
             return True

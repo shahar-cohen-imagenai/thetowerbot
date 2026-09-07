@@ -223,5 +223,5 @@ class MilestonesReadings:
             return True
         except Exception:
             # Unscanned, not clear: a failed reader has looked at nothing.
-            self.observe(None, error='Milestones OCR failed; actions held for this scan')
+            self.observe(None, error='Milestones reading failed; actions held for this scan')
             return True

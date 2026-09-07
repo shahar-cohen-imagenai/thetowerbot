@@ -861,3 +861,30 @@ def test_scan_still_reads_the_frame_itself_when_given_no_boxes() -> None:
     readings = missions_screen.MissionsReadings()
     screen = cv2.imread(str(FIXTURES / 'menu_missions.png'), cv2.IMREAD_COLOR)
     assert readings.scan(screen) is True
+
+
+def test_a_malformed_box_holds_without_ever_calling_ocr(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """The except branch is reachable from _missions_title/parse_frame/
+    claim_targets raising on a bad box, not only from ocr.read itself - once
+    a caller can supply boxes, 'OCR failed' is no longer always true. Pin the
+    behaviour (HOLD, with an error recorded) without pinning the wording,
+    which is free to change as long as it never blames a stage that did not
+    run."""
+    class MalformedBox:
+        @property
+        def text(self) -> str:
+            raise AssertionError('boxes must not be read this way')
+
+        @property
+        def confidence(self) -> float:
+            raise AssertionError('boxes must not be read this way')
+
+    def boom(*args, **kwargs):
+        raise AssertionError('ocr.read must not be called when boxes are supplied')
+
+    monkeypatch.setattr(missions_screen.ocr, 'read', boom)
+    readings = missions_screen.MissionsReadings()
+    screen = cv2.imread(str(FIXTURES / 'menu_missions.png'), cv2.IMREAD_COLOR)
+    assert readings.scan(screen, boxes=(MalformedBox(),)) is True
+    assert readings.current_evidence()['error'] is not None
