@@ -80,10 +80,26 @@ def test_unknown_snapshots_are_suppressed_while_a_visit_is_live(bot_on_workshop)
 
 
 def test_unknown_snapshots_still_happen_outside_a_visit(bot_on_workshop) -> None:
-    """The suppression must be scoped to a live visit, not switched off."""
+    """The suppression must be scoped, not switched off.
+
+    The frame is noise rather than the workshop this fixture supplies, and
+    that swap is the point. This test's own assertion message says what it
+    is about - "an unmodelled screen" - and a workshop page never was one:
+    pages.classify_page names it at 1.000. Standing it in for a mystery is
+    what let the real bug hide behind a green test, because suppression
+    scoped to a live visit and suppression scoped to an unnamed frame agree
+    on every frame except this one. Noise is a screen nobody modelled, so
+    the trail is the correct behaviour on it, whatever else changes.
+    """
+    import numpy as np
+
     bot = bot_on_workshop(a_policy(enabled=False))
+    rng = np.random.default_rng(0)
+    bot._screen = rng.integers(0, 256, bot._screen.shape, dtype=np.uint8)
+
     for _ in range(4):
         bot.run_once()
+
     assert bot.snapshots.written, "an unmodelled screen must still leave a trail"
 
 

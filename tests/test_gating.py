@@ -711,3 +711,31 @@ def test_max_runs_falls_back_to_the_strategy(bot_in_run) -> None:
     bot.runs.completed = 3
     assert bot.run_cap_reached(None) is True
     assert bot.run_cap_reached(10) is False
+
+
+def test_a_bot_parked_on_a_menu_page_navigates_back_to_the_menu(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The workshop is UNKNOWN to the tracker, so the action loop skips it
+    (it gates on IN_RUN) and NAV_BUTTONS - keyed by ScreenState - had no
+    entry to get off it. That is a wedge, not an idle: measured live, twenty
+    unbroken minutes of scanning the UTILITY tab and doing nothing. The page
+    name is what gives the navigator a button to aim at.
+    """
+    dev = MagicMock()
+    bus = events.EventBus()
+    rec = Recorder()
+    bus.subscribe(rec)
+    bot = TowerBot(
+        device=dev, templates=vision.TemplateCache(TEMPLATES), bus=bus,
+        navigation_cooldown=0.0,
+    )
+    bot._screen = frame("menu_workshop_utility")
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    bot.controls.apply({"auto_navigate": True, "tap_jitter_px": 0.0, "tap_delay": 0.0})
+
+    bot.run_once()
+    bot.run_once()  # confirms UNKNOWN; navigation needs a confirmed page
+
+    assert bot.screen_state is screens.ScreenState.UNKNOWN
+    assert [e.target for e in rec.of(events.Navigated)] == ["BATTLE_TAB"]

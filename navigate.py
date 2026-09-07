@@ -44,6 +44,7 @@ class Navigator:
         now: float | None = None,
         tuning: Strategy | None = None,
         go_home: bool = False,
+        menu_page: str | None = None,
     ) -> str | None:
         """Tap this screen's nav button, if there is one and it is due.
 
@@ -61,8 +62,17 @@ class Navigator:
         that predate this - working unchanged. Navigator is deliberately
         not given a Controls of its own to read; it is handed a policy or it
         uses none.
+
+        `menu_page` names the menu page on screen, when the caller has one to
+        name. It is consulted only where `state` has no button of its own,
+        which in practice means UNKNOWN: every menu page reads UNKNOWN to the
+        tracker by design (see pages.py), and without this a bot parked on
+        one could neither act nor leave. Absent, the behaviour is exactly
+        what it was before menu pages had an exit - UNKNOWN is left alone.
         """
         entry = config.NAV_BUTTONS.get(state.value)
+        if entry is None and menu_page is not None:
+            entry = config.MENU_NAV_BUTTONS.get(menu_page)
         if go_home and state is ScreenState.GAME_OVER:
             entry = config.GAME_OVER_HOME
         if entry is None:

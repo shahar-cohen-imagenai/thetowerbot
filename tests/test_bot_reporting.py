@@ -462,3 +462,50 @@ def test_a_real_death_modal_is_read_end_to_end(
     ended = rec.of(events.RunEnded)
     assert ended, "the run never closed"
     assert (ended[-1].wave, ended[-1].tier, ended[-1].coins) == (6, 1, 21)
+
+
+# -- A named menu page is not an unknown screen -----------------------------
+@pytest.mark.parametrize(
+    "fixture, page", [("menu_workshop_utility", "WORKSHOP"), ("menu_cards", "CARDS")]
+)
+def test_a_recognised_menu_page_is_never_snapshotted_as_unknown(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fixture: str, page: str,
+) -> None:
+    """`not visiting` was the only thing keeping menu pages out of unknown/,
+    and it keys off a LIVE shopping visit. Parked on the workshop outside one
+    - which is where an idle bot with auto_navigate off sits - every scan
+    filed a picture of a page pages.classify_page names at 1.000. Fifty
+    slots, one page: the genuinely unmodelled screens the directory exists
+    to hold were all evicted.
+    """
+    from snapshots import SnapshotWriter
+
+    bot, rec, _ = make_bot(fixture)
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    bot.snapshots = SnapshotWriter(tmp_path)
+
+    bot.run_once()
+    bot.run_once()  # confirms UNKNOWN; the second scan is the one that files
+
+    assert bot.screen_state is screens.ScreenState.UNKNOWN  # still unmodelled
+    assert list(tmp_path.glob("*.png")) == []
+    assert rec.of(events.UnknownScreen) == []
+
+
+def test_the_screen_gate_names_the_menu_page_it_is_holding_on(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    """"screen is UNKNOWN" is true and useless: three readers can name this
+    frame. The skip that reports the hold says which page it is."""
+    from snapshots import SnapshotWriter
+
+    bot, rec, _ = make_bot("menu_workshop_utility")
+    monkeypatch.setattr(bot, "refresh_screen", lambda: bot._screen)
+    bot.snapshots = SnapshotWriter(tmp_path)
+
+    bot.run_once()
+    bot.run_once()
+
+    gated = [s for s in rec.of(events.Skipped) if s.reason == "screen_gated"]
+    assert gated, "the screen gate should still publish one skip per scan"
+    assert "WORKSHOP" in gated[-1].detail
