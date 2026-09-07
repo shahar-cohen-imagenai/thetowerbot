@@ -351,6 +351,37 @@ def create_app(
         except RunnerError as exc:
             raise HTTPException(exc.status_code, str(exc)) from None
 
+    @app.get("/api/milestones")
+    def milestones_snapshot() -> dict[str, Any]:
+        """The last MILESTONES ladder reading, and whether a claim is walking.
+
+        Absent, not null, on a backend with no runner - the same distinction
+        /api/account and /api/missions make: a browser has to tell "this
+        backend cannot read the ladder" apart from "nothing has been read yet".
+        """
+        milestones = getattr(runner, "milestones", None)
+        claim = getattr(runner, "milestones_claim", None)
+        payload: dict[str, Any] = {} if milestones is None else milestones.snapshot()
+        if claim is not None:
+            payload["claim"] = claim.snapshot()
+        return payload
+
+    @app.post("/api/milestones/claim")
+    def claim_milestones() -> dict[str, Any]:
+        """Arm one Home -> Milestones -> Claim All -> Home walk.
+
+        Arms it only - the scan loop is what walks it, one verified step per
+        frame - and every refusal comes from the runner rather than being
+        re-derived here.
+        """
+        request = getattr(runner, "request_milestones_claim", None)
+        if request is None:
+            raise HTTPException(412, "This backend cannot run device transactions")
+        try:
+            return request()
+        except RunnerError as exc:
+            raise HTTPException(exc.status_code, str(exc)) from None
+
     autopilot_state = runner.autopilot_state if runner is not None else AutopilotState()
     advisor_store = advisor if advisor is not None else AdvisorStore(
         store.directory.parent / "advisor.json" if store is not None else None

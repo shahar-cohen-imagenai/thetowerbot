@@ -459,3 +459,57 @@ def test_a_backend_without_a_runner_cannot_be_asked_to_claim_missions() -> None:
     """412, not 404: no runner means no device transaction was ever possible."""
     with _account_client(None) as client:
         assert client.post("/api/missions/claim").status_code == 412
+
+
+# -- Milestones claim transaction ------------------------------------------
+class _FakeMilestonesRunner:
+    def __init__(self, error: Exception | None = None) -> None:
+        from milestones_claim import MilestonesClaim
+        from milestones_screen import MilestonesReadings
+
+        self.milestones_claim = MilestonesClaim()
+        self.milestones = MilestonesReadings()
+        self.autopilot_state = None
+        self._error = error
+
+    def status(self) -> dict:
+        return {"running": True, "since": 1.0, "error": None}
+
+    def request_milestones_claim(self) -> dict:
+        if self._error is not None:
+            raise self._error
+        self.milestones_claim.request()
+        return self.milestones_claim.snapshot()
+
+
+def test_claiming_milestones_arms_the_walk_and_reports_it_on_the_ladder() -> None:
+    runner = _FakeMilestonesRunner()
+    with _account_client(runner) as client:
+        assert client.get("/api/milestones").json()["claim"]["status"] == "idle"
+        armed = client.post("/api/milestones/claim").json()
+        assert armed["status"] == "running"
+        assert armed["step"] == "open_milestones"
+        assert client.get("/api/milestones").json()["claim"]["status"] == "running"
+
+
+@pytest.mark.parametrize("status_code,message", [
+    (409, "Claiming milestones requires a confirmed main menu"),
+    (409, "A missions claim is already walking the menus"),
+    (503, "Milestone claims are unavailable: the OCR engine could not be built"),
+])
+def test_a_refused_milestones_claim_keeps_the_runner_s_status_code_and_reason(
+    status_code: int, message: str,
+) -> None:
+    from runner import RunnerError
+
+    with _account_client(_FakeMilestonesRunner(RunnerError(message, status_code))) as client:
+        response = client.post("/api/milestones/claim")
+        assert response.status_code == status_code
+        assert response.json()["detail"] == message
+
+
+def test_a_backend_without_a_runner_reports_no_ladder_rather_than_an_empty_one() -> None:
+    """Absent, not null - the same distinction /api/account and /api/missions make."""
+    with _account_client(None) as client:
+        assert client.get("/api/milestones").json() == {}
+        assert client.post("/api/milestones/claim").status_code == 412
