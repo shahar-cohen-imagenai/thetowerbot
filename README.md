@@ -203,6 +203,19 @@ see what it hit. Writes are throttled to one per `UNKNOWN_MIN_INTERVAL`
 directory is gitignored; the dashboard shows the newest twelve as thumbnails.
 These are how you decide which screen to model next.
 
+A screen is only kept once. The throttle caps how *often* the bot writes, not
+how many times it writes the same thing — a bot sitting on one unmodelled
+screen for half an hour would still spend all fifty slots on it and evict
+everything else. So each frame is fingerprinted first: greyscaled, averaged
+down to a 9×8 grid, and reduced to 64 bits recording whether each cell is
+brighter than the one to its right. A frame within `UNKNOWN_HASH_DISTANCE`
+(`8`) bits of a snapshot already kept is dropped. At that size the
+fingerprint tracks layout and ignores what moves inside it, so a ticking
+counter, a fade, a scroll or a claimed button is the same screen, while a
+different screen is 20–39 bits away. The fingerprints are read back off disk
+at startup, so restarting the bot does not re-collect what it collected
+yesterday, and evicting a snapshot frees its screen to be captured again.
+
 Snapshotting is suppressed for the whole time a shopping visit is running.
 The Workshop and Cards pages read `UNKNOWN` to this tracker by design (see
 above), so without the guard every visit would fill `unknown/` with pictures

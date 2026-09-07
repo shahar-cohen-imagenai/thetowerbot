@@ -155,7 +155,10 @@ class TowerBot:
         # "applies on next Start" boundary the dashboard labels.
         self.tracker = screens.ScreenTracker(confirmations=screen_confirmations)
         self.snapshots = SnapshotWriter(
-            config.UNKNOWN_DIR, config.UNKNOWN_MIN_INTERVAL, config.UNKNOWN_KEEP
+            config.UNKNOWN_DIR,
+            config.UNKNOWN_MIN_INTERVAL,
+            config.UNKNOWN_KEEP,
+            config.UNKNOWN_HASH_DISTANCE,
         )
         # One source of truth for every live setting. A Controls built here
         # would need a Strategy to hold, and inventing one would compete with
