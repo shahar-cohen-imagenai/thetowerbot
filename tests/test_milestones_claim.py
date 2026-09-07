@@ -23,6 +23,7 @@ import cv2
 
 import config
 import events
+import account_collection
 import milestones_claim
 import vision
 
@@ -85,7 +86,7 @@ def ladder(tier: int | None, claim_all: tuple[int, int, int, int] | None, *,
           error: str | None = None,
           screen_id: str | None = milestones_claim.LADDER_SCREEN) -> dict[str, Any]:
     """A ladder-page frame. `error`/`screen_id` default to a clean read; a
-    caller exercising `milestones_unreadable` or `ladder_not_reached`
+    caller exercising `ladder_unreadable` or `ladder_not_reached`
     overrides one of them."""
     return {'screen_id': screen_id, 'error': error, 'scanned': True, 'tier': tier,
             'claim_all': claim_all, 'reward_text': None, 'currency': None, 'amount': None}
@@ -194,6 +195,32 @@ def test_the_modal_claim_button_is_tapped_at_its_template_match() -> None:
     claim, _, device = drive([home(), ladder(1, CLAIM_ALL_RECT),
                               modal('25 COINS', 'coins', 25), ladder(2, None), home()])
     assert CLAIM_MODAL_CONTROL in device.taps
+
+
+def test_skip_is_never_tapped() -> None:
+    """SKIP discards the reward the modal is offering, so tapping it would
+    spend a claimable milestone for nothing and leave no ledger line.
+
+    Named here rather than left to the tap-list assertions, because those pin
+    the happy path's four taps by equality and would stop covering this the
+    moment anyone relaxed one to a membership check. `nav/skip.png` matches
+    the reward modal at 1.0000 - as well as CLAIM does - so its real
+    coordinate is located with the real matcher and asserted ABSENT, rather
+    than trusted to be unreachable because no code mentions it.
+    """
+    cache = vision.TemplateCache(config.TEMPLATE_DIR)
+    frame = image('menu_milestones_reward_modal')
+    found = account_collection.locate_control(frame, cache.get('nav/skip.png'), 'nav/skip.png')
+    assert found.status == 'located' and found.score >= .99, (found.status, found.score)
+    assert found.point is not None
+    skip_point = (int(found.point[0]), int(found.point[1]))
+
+    _, _, device = drive([home(), ladder(1, CLAIM_ALL_RECT),
+                          modal('25 COINS', 'coins', 25), ladder(2, None), home()])
+    assert CLAIM_MODAL_CONTROL in device.taps, 'the walk did not reach the modal at all'
+    assert skip_point not in device.taps, skip_point
+    # And the two really are different points, or the assertion above is vacuous.
+    assert skip_point != CLAIM_MODAL_CONTROL
 
 
 def test_a_claim_is_only_recorded_once_the_ladder_reappears() -> None:
@@ -311,18 +338,24 @@ def test_a_ladder_that_never_reappears_after_claim_ends_the_walk_as_uncertain() 
 
 
 def test_an_unreadable_ladder_is_refused_not_claimed() -> None:
-    """`milestones_unreadable`: the ladder was reached but a reader error is
-    reported. No `Claim All` is even considered, so no further tap is made."""
+    """`ladder_unreadable`: the ladder was reached but a reader error is
+    reported. No `Claim All` is even considered, so no further tap is made.
+
+    The reason is the LADDER's own, not one shared with the modal: while
+    both refusals published `milestones_unreadable`, deleting this guard
+    entirely still satisfied the assertion below, because the modal's
+    refusal one step downstream produced the same string. Only the tap-list
+    assertion had teeth. Now the reason names the site too."""
     claim, bus, device = drive([home(), ladder(1, CLAIM_ALL_RECT, error='ocr failed')])
     result = claim.snapshot()['result']
-    assert result['status'] == 'failed' and result['reason'] == 'milestones_unreadable'
+    assert result['status'] == 'failed' and result['reason'] == 'ladder_unreadable'
     assert not bus.of(events.MilestoneClaimed)
     assert bus.of(events.ClaimSkipped)
     assert device.taps == [MILESTONES_CONTROL]
 
 
 def test_an_unreadable_reward_modal_is_refused_not_claimed() -> None:
-    """`milestones_unreadable` on the modal: Claim All was already tapped -
+    """`modal_unreadable`: Claim All was already tapped -
     it opens the ceremony, nothing more - but CLAIM itself is never tapped
     against evidence the reader could not read, so nothing was yet granted.
     This is a refusal, not an uncertain outcome, because the ambiguous step
@@ -330,7 +363,7 @@ def test_an_unreadable_reward_modal_is_refused_not_claimed() -> None:
     claim, bus, device = drive([home(), ladder(1, CLAIM_ALL_RECT),
                                 modal(None, None, None, error='ocr failed')])
     result = claim.snapshot()['result']
-    assert result['status'] == 'failed' and result['reason'] == 'milestones_unreadable'
+    assert result['status'] == 'failed' and result['reason'] == 'modal_unreadable'
     assert not bus.of(events.MilestoneClaimed)
     assert bus.of(events.ClaimSkipped)
     assert not bus.of(events.ClaimUncertain)

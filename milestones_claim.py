@@ -63,7 +63,7 @@ from account_collection import (
 )
 from account_screens import ControlTarget
 from device import Image
-from milestones_screen import MilestonesReadings
+from milestones_screen import LADDER_SCREEN, MODAL_SCREEN, MilestonesReadings
 
 if TYPE_CHECKING:
     from strategy import Strategy
@@ -82,8 +82,11 @@ RETURN_TEMPLATE = config.NAV_TARGETS['MILESTONES_RETURN']
 # well and is deliberately never used here - see this module's docstring.
 CLAIM_TEMPLATE = 'nav/claim_reward.png'
 
-LADDER_SCREEN = 'milestones.ladder'
-MODAL_SCREEN = 'milestones.reward_modal'
+# Imported, never re-declared: the reader that PRODUCES these ids owns them.
+# Two copies would let the reader be renamed while this walk went on
+# comparing against the old strings - every ladder frame silently becoming
+# `ladder_not_reached` and every modal `modal_not_reached`, with nothing on
+# the reader's side failing.
 
 # A RUNAWAY BACKSTOP, not a measured capacity - unlike missions'
 # MAX_CLAIMS_PER_WALK, which the page's own "8/8" caps for real. Nothing here
@@ -284,7 +287,7 @@ class MilestonesClaim(ControlTaps):
                 amount=pending.amount, tier=pending.tier))
         else:
             if evidence['error'] is not None:
-                return self._refuse('milestones_unreadable', 'The milestones ladder was reached '
+                return self._refuse('ladder_unreadable', 'The milestones ladder was reached '
                                     'but could not be read; nothing was claimed.', moment)
             if evidence['screen_id'] != LADDER_SCREEN:
                 return self._wait('ladder_not_reached', 'The milestones ladder was not observed '
@@ -326,7 +329,7 @@ class MilestonesClaim(ControlTaps):
         reader error refuses the tap here.
         """
         if evidence['error'] is not None:
-            return self._refuse('milestones_unreadable', 'The reward ceremony was reached but '
+            return self._refuse('modal_unreadable', 'The reward ceremony was reached but '
                                 'could not be read; nothing was tapped.', moment)
         if evidence['screen_id'] != MODAL_SCREEN:
             return self._wait('modal_not_reached', 'The reward ceremony was not observed after '
