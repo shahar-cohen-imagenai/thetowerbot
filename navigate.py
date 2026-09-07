@@ -53,7 +53,8 @@ class Navigator:
         that is worth a detour - Navigator is told, not asked, for the same
         reason it is handed a policy rather than reading Controls itself.
         Ignored on every other screen: MAIN_MENU is where going home ENDS,
-        and BATTLE stays its only nav button.
+        and its own candidates - BATTLE, or RESUME BATTLE when a run was
+        left suspended - are the way onward from there.
 
         `tuning` carries the live jitter policy, taken from the same
         snapshot run_once used for the rest of the pass. Passing it is what
@@ -70,12 +71,17 @@ class Navigator:
         one could neither act nor leave. Absent, the behaviour is exactly
         what it was before menu pages had an exit - UNKNOWN is left alone.
         """
-        entry = config.NAV_BUTTONS.get(state.value)
-        if entry is None and menu_page is not None:
-            entry = config.MENU_NAV_BUTTONS.get(menu_page)
+        # A screen offers a tuple of candidates, not one button, because one
+        # slot can be drawn more than one way - see config.NAV_BUTTONS. The
+        # single-button sources are wrapped rather than special-cased: there
+        # is exactly one way off a menu page, and exactly one HOME.
+        candidates = config.NAV_BUTTONS.get(state.value, ())
+        if not candidates and menu_page is not None:
+            exit_button = config.MENU_NAV_BUTTONS.get(menu_page)
+            candidates = () if exit_button is None else (exit_button,)
         if go_home and state is ScreenState.GAME_OVER:
-            entry = config.GAME_OVER_HOME
-        if entry is None:
+            candidates = (config.GAME_OVER_HOME,)
+        if not candidates:
             return None
 
         moment = time.monotonic() if now is None else now
@@ -91,11 +97,17 @@ class Navigator:
         if moment - self._last < due:
             return None
 
-        target, template_path = entry
-        match = vision.locate_template(
-            screen, self._templates.get(template_path), self._threshold
-        )
-        if match is None:
+        # First candidate that clears the threshold wins, and the order in
+        # config is the priority. Nothing matching still returns None without
+        # touching `self._last`, so a screen mid-animation is retried on the
+        # very next scan rather than waiting out a cooldown it never spent.
+        for target, template_path in candidates:
+            match = vision.locate_template(
+                screen, self._templates.get(template_path), self._threshold
+            )
+            if match is not None:
+                break
+        else:
             return None
 
         x, y = match.center

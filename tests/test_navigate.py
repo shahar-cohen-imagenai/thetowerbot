@@ -41,6 +41,43 @@ def test_taps_battle_on_the_main_menu(nav: Navigator) -> None:
     dev.click.assert_called_once()
 
 
+def test_taps_resume_battle_when_a_run_was_left_suspended(nav: Navigator) -> None:
+    """A run abandoned mid-battle - a kill, a crash, a pause never returned
+    from - leaves the menu offering RESUME BATTLE where BATTLE normally sits.
+    Same slot, same 514x164 box, different glyphs: measured on this fixture
+    buttons/battle.png scores 0.535 there, under the 0.8 threshold, so
+    locate_template returned None and maybe_navigate declined SILENTLY - no
+    tap, no event, nothing on the feed. Measured live: twenty minutes of
+    `screen is MAIN_MENU` skips with no NAV line between them, and no way
+    out, because a second shopping visit is not due until a run completes
+    and no run can start.
+    """
+    dev = MagicMock()
+    target = nav.maybe_navigate(
+        frame("main_menu_resume"), ScreenState.MAIN_MENU, dev, now=0.0
+    )
+
+    assert target == "RESUME_BATTLE"
+    dev.click.assert_called_once()
+
+
+def test_the_resume_button_is_not_matched_on_a_fresh_menu() -> None:
+    """The negative control, and the reason RESUME_BATTLE is its own target
+    rather than a second crop filed under BATTLE. Only one of the two labels
+    is ever on screen; a template loose enough to match both would report a
+    resumed run as a fresh one on every single menu.
+
+    0.8 is Navigator's default threshold - the score this crop has to stay
+    under for the two buttons to remain distinguishable.
+    """
+    cache = vision.TemplateCache(TEMPLATES)
+    score, _ = vision.best_score(
+        frame("main_menu"), cache.get("buttons/resume_battle.png")
+    )
+
+    assert score < 0.8
+
+
 def test_does_nothing_in_run(nav: Navigator) -> None:
     dev = MagicMock()
     assert nav.maybe_navigate(frame("in_run_lit"), ScreenState.IN_RUN, dev, now=0.0) is None
@@ -115,7 +152,7 @@ def test_home_and_retry_are_different_buttons(nav: Navigator) -> None:
 
 def test_go_home_does_not_disturb_the_main_menu(nav: Navigator) -> None:
     """The detour is a GAME_OVER concern. On MAIN_MENU the bot has already
-    arrived, and BATTLE stays the only nav button there."""
+    arrived, so go_home must not displace the menu's own candidates."""
     dev = MagicMock()
     target = nav.maybe_navigate(
         frame("main_menu"), ScreenState.MAIN_MENU, dev, now=0.0, go_home=True
