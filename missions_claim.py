@@ -239,15 +239,16 @@ class MissionsClaim(ControlTaps):
         CLAIM button was already tapped, and `claimed.raw_text` is the only
         record of which mission that was - if the tap landed and only the
         reflow or OCR lagged, a reward was taken and ClaimEnded alone names
-        nothing. Route the timeout through `_refuse` instead of `_wait`, so
-        the one genuinely ambiguous outcome publishes a ClaimSkipped that
-        names the mission before the walk ends.
+        nothing. Route the timeout through `_uncertain` instead of `_wait`, so
+        the one genuinely ambiguous outcome publishes a ClaimUncertain that
+        names the mission before the walk ends, rather than the ClaimSkipped
+        that would assert nothing moved.
         """
         self._waited += 1
         if self._waited > self._budget:
-            return self._refuse('claim_not_confirmed', f'"{claimed.raw_text}" was tapped '
-                                'but the completed counter did not move before the wait '
-                                'budget ran out; it may or may not have been claimed.', moment)
+            return self._uncertain('claim_not_confirmed', f'"{claimed.raw_text}" was tapped '
+                                   'but the completed counter did not move before the wait '
+                                   'budget ran out; it may or may not have been claimed.', moment)
         return None
 
     def _tap_point(self, target: ClaimTarget, device: Any, moment: float) -> ClaimAction | None:
@@ -270,6 +271,17 @@ class MissionsClaim(ControlTaps):
 
     def _refuse(self, reason: str, detail: str, moment: float) -> ClaimAction | None:
         self._publish(events.ClaimSkipped(target=TARGET, reason=reason, detail=detail))
+        return self._finish('failed', reason, detail, moment)
+
+    def _uncertain(self, reason: str, detail: str, moment: float) -> ClaimAction | None:
+        """End a walk that TAPPED a claim it could not confirm.
+
+        Not `_refuse`: ClaimSkipped means the walk declined to act and so
+        provably moved nothing. A CLAIM was tapped here, and the reward may
+        have been taken - a different fact, and one the ledger encodes as
+        delta=None rather than delta=0.
+        """
+        self._publish(events.ClaimUncertain(target=TARGET, reason=reason, detail=detail))
         return self._finish('failed', reason, detail, moment)
 
     def _enter(self, step: Step) -> None:

@@ -342,6 +342,45 @@ class ClaimSkipped(Event):
 
 
 @dataclass(frozen=True, kw_only=True)
+class MilestoneClaimed(Event):
+    """One milestone reward taken, as the reward modal itself named it.
+
+    `reward_text` is the modal's own line ("25 COINS"), which is what makes
+    this exact: the ladder's slots are told apart by icon art nothing here
+    reads, but the ceremony states its reward in words.
+
+    `currency` and `amount` are None together when the reward moved no
+    currency - `Unlock Lab` is a real reward on the recorded ladder - which the
+    ledger encodes as delta=0. There is deliberately no balance field: the
+    header abbreviates coins ("6.08K"), and this reader parses no wallet.
+
+    There is no per-claim counter on this page. The evidence that a claim
+    landed is the modal closing and, for the walk as a whole, `Claim All`
+    disappearing. Weaker than the missions counter, and stated rather than
+    implied.
+    """
+
+    reward_text: str | None = None
+    currency: str | None = None
+    amount: int | None = None
+    tier: int | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ClaimUncertain(Event):
+    """A claim that was TAPPED and never confirmed. It may have landed.
+
+    Distinct from ClaimSkipped, which is a claim the walk refused to make and
+    which therefore provably moved nothing. This one moved an unknown amount,
+    which is the fact LedgerLine reserves delta=None for.
+    """
+
+    target: str
+    reason: str
+    detail: str = ""
+
+
+@dataclass(frozen=True, kw_only=True)
 class ClaimEnded(Event):
     """How a claim walk ended. `claimed` is how many rewards it took."""
 

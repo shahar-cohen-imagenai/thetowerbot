@@ -281,6 +281,13 @@ NAV_TARGETS: dict[str, str] = {
     "CARDS": "nav/tab_cards.png",            # bottom tab bar
     "BATTLE_TAB": "nav/tab_battle.png",      # bottom tab bar - back to the menu
     "MISSIONS_RETURN": "nav/missions_return.png",  # missions has no tab; this exits
+    "MILESTONES": "nav/milestones.png",      # main menu, cut TIGHT on the label - see
+                                              # its own comment in the templates dir
+    # Milestones has no tab either, and shares the exact same "Tap To Return
+    # To Game" bar missions does - measured at 1.0000 on both ladder captures,
+    # same file as MISSIONS_RETURN above, not a coincidence: it is the same
+    # control drawn on a different page.
+    "MILESTONES_RETURN": "nav/missions_return.png",
 }
 
 # First-visit popups sit between a tab and its page. Cards showed a two-step

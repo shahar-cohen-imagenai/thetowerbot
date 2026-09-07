@@ -475,6 +475,10 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
     The page must first identify itself through screen_discovery, so an
     unrecognised frame yields None rather than a partial reading assembled
     from whatever text happened to land in the measured bands.
+
+    `boxes`, when supplied, MUST be a read of THIS `screen`. Nothing here
+    verifies that pairing - only pixel-level checks touch `screen` itself -
+    so a foreign box set is read with full confidence as this frame.
     """
     observed_at = time.time() if now is None else now
     if not math.isfinite(observed_at):
@@ -595,18 +599,32 @@ class MissionsReadings:
             self._scanned = scanned or reading is not None
             self._claims = claims
 
-    def scan(self, screen: Image) -> bool:
+    def scan(self, screen: Image, *,
+             boxes: tuple[ocr.TextBox, ...] | None = None) -> bool:
         """Update from this frame; return whether all actions must hold.
 
         Actions hold whenever the missions page is up or might be: the bot
         has no verified target on that page, so a tap aimed at the menu
         underneath it would land somewhere nobody chose.
+
+        `boxes` lets the caller hand in a frame read it already paid for. A
+        tick runs more than one full-frame reader over the same frame, and
+        RapidOCR's cost here is near-fixed rather than proportional to pixels
+        - measured at 261.9 ms for a full frame - so a second read of the same
+        bytes is a second full price for nothing.
+
+        `boxes`, when supplied, MUST be a read of THIS `screen`. Nothing here
+        verifies that pairing - only pixel-level checks (the shape guard
+        below, screen_discovery's own frame checks, `_cards`) touch `screen`
+        itself - so a foreign box set is accepted as a confident reading of a
+        frame that is not actually on screen.
         """
         self.observe(None)
         if screen.shape[:2] != _EXPECTED_FRAME:
             return False
         try:
-            boxes = ocr.read(screen, strict=True)
+            if boxes is None:
+                boxes = ocr.read(screen, strict=True)
             if screen_discovery._missions_title(boxes) is None:
                 # Examined the whole frame, and no missions title anywhere in
                 # the band screen_discovery searches (0..MAX_TOP_INSET, wide
@@ -623,5 +641,5 @@ class MissionsReadings:
         except Exception:
             # Unscanned, not clear, and without the engine's own words: a
             # failed reader has looked at nothing.
-            self.observe(None, error='Missions OCR failed; actions held for this scan')
+            self.observe(None, error='Missions reading failed; actions held for this scan')
             return True

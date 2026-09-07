@@ -175,18 +175,22 @@ def test_a_counter_that_never_moves_ends_the_walk_rather_than_retapping() -> Non
     The tap that WAS made may or may not have landed - the reflow or OCR
     could simply have lagged - so this is the one ambiguous outcome the
     ledger must still be able to name. ClaimEnded alone only carries a count;
-    the ClaimSkipped this walk publishes on the way out is what names which
-    mission ("Mission 0") was tapped, so a reward taken here is never
-    silently unrecorded.
+    the ClaimUncertain this walk publishes on the way out is what names which
+    mission ("Mission 0") was tapped, and it is deliberately not ClaimSkipped:
+    ClaimSkipped means the walk provably moved nothing, but a CLAIM was
+    tapped here, so the reward may well have been taken.
     """
     frames = [home()] + [page(0, 2)] * 12
     claim, bus, _ = drive(frames)
     assert claim.snapshot()['result']['status'] == 'failed'
     assert claim.snapshot()['result']['reason'] == 'claim_not_confirmed'
     assert not bus.of(events.MissionClaimed)
-    skipped = bus.of(events.ClaimSkipped)
-    assert skipped and skipped[-1].reason == 'claim_not_confirmed'
-    assert 'Mission 0' in skipped[-1].detail
+    uncertain = bus.of(events.ClaimUncertain)
+    assert uncertain and uncertain[-1].reason == 'claim_not_confirmed'
+    assert 'Mission 0' in uncertain[-1].detail
+    # A CLAIM was tapped, so this is not a refusal: ClaimSkipped would assert
+    # the walk moved nothing, and the reward may well have been taken.
+    assert not bus.of(events.ClaimSkipped)
 
 
 def test_a_walk_with_nothing_claimable_returns_home_without_tapping() -> None:

@@ -154,25 +154,41 @@ def at_home(state: str, evidence: dict[str, Any]) -> bool:
             and evidence['screen_id'] is None and evidence['error'] is None)
 
 
+def at_page_home(state: str, account: dict[str, Any], page: dict[str, Any]) -> bool:
+    """Home by the anchor, the panel reader AND a page-specific reader.
+
+    The tracker is debounced, so for a scan or two after a walk's return
+    control is tapped it still says MAIN_MENU while the frame is very much
+    still the page just left. Confirming home off the anchor alone would let
+    a walk report "returned to the main menu" from a page it never left. The
+    page's own reader looked at the same frame, so it is asked too, and only
+    its examined-and-clear answer counts - `scanned` False is a reader that
+    reached no conclusion, never a clear menu.
+
+    Generalised out of `at_missions_home`, which now delegates here, so any
+    walk leaving the main menu through a reader-carrying page - missions or
+    milestones alike - tests home the same way, for the identical reason
+    `at_home` above is shared rather than copied: two predicates that must
+    agree will otherwise drift. Measured concretely for the milestones case:
+    `missions_screen.scan()` answers `scanned=True, screen_id=None` on all
+    three recorded milestones captures, so testing a milestones walk's home
+    against `at_missions_home` (the missions reader) would confirm "returned
+    to the main menu" from a milestones page the walk never actually left -
+    exactly why milestones_claim passes its OWN reader's evidence as `page`
+    here instead.
+    """
+    return (at_home(state, account) and bool(page['scanned'])
+            and page['screen_id'] is None and page['error'] is None)
+
+
 def at_missions_home(state: str, account: dict[str, Any],
                      missions: dict[str, Any]) -> bool:
     """Home by the anchor, the panel reader AND the missions reader.
 
-    The tracker is debounced, so for a scan or two after the return control
-    is tapped it still says MAIN_MENU while the frame is very much still the
-    missions page. Confirming home off the anchor alone would let a walk
-    report "returned to the main menu" from the page it never left. The
-    missions reader looked at the same frame, so it is asked too, and only
-    its examined-and-clear answer counts - `scanned` False is a reader that
-    reached no conclusion, never a clear menu.
-
-    Shared so that missions_visit and missions_claim - and any later walk
-    leaving the main menu through the missions page - test home the same
-    way, for the identical reason `at_home` above is shared rather than
-    copied: two predicates that must agree will otherwise drift.
+    Thin wrapper: `at_page_home` states the shared reasoning once; this name
+    stays so `missions_visit` and `missions_claim` need no change.
     """
-    return (at_home(state, account) and bool(missions['scanned'])
-            and missions['screen_id'] is None and missions['error'] is None)
+    return at_page_home(state, account, missions)
 
 
 class ControlTaps:

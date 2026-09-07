@@ -621,3 +621,128 @@ def test_an_upgrade_page_is_still_refused_on_an_inset_free_device() -> None:
     result = screen_discovery.discover(frame, recorded(name), 'missions')
     assert (result.screen_id, result.readable) == (None, False)
     assert result.reason == 'unsupported_layout'
+
+
+def test_the_milestones_ladder_is_identified_on_both_captures() -> None:
+    import screen_discovery
+    for name in ('menu_milestones_claimable', 'menu_milestones_claimed'):
+        frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+        found = screen_discovery.discover(frame, recorded(name), 'milestones')
+        assert found.screen_id == 'milestones.ladder', name
+        assert found.readable is True, name
+
+
+def test_the_reward_modal_is_identified_and_is_not_the_ladder() -> None:
+    import screen_discovery
+    name = 'menu_milestones_reward_modal'
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    found = screen_discovery.discover(frame, recorded(name), 'milestones')
+    assert found.screen_id == 'milestones.reward_modal'
+    assert found.readable is True
+
+
+def test_the_ladder_and_the_modal_reject_each_other() -> None:
+    """Separation measured, not assumed: the ladder carries no `skip`, and the
+    modal's whole OCR is four boxes with no title. Each page must fail the
+    other's anchors, or one walk step could act on the other's screen."""
+    import screen_discovery
+    ladder = recorded('menu_milestones_claimable')
+    modal = recorded('menu_milestones_reward_modal')
+    assert screen_discovery._milestones_title(modal) is None
+    assert not [b for b in ladder if b.confidence >= .9
+                and tiles.normalise(b.text) == 'skip']
+
+
+def test_the_missions_page_is_not_a_milestones_ladder() -> None:
+    """The missions page carries four CLAIM boxes and a return bar identical to
+    the ladder's. Only the title tells them apart."""
+    import screen_discovery
+    name = 'menu_missions_claimable_no_status_bar'
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    found = screen_discovery.discover(frame, recorded(name), 'milestones')
+    assert found.screen_id is None
+
+
+def test_the_milestones_title_band_widens_downward_not_upward() -> None:
+    """Every milestones capture is edge-to-edge, with the title at y=113, where
+    the missions anchors were recorded on a status-bar device at y=249. A
+    status-bar device draws THIS page LOWER, so the band opens downward. A band
+    widened upward like the missions one would miss the very layout this page
+    has never been captured on."""
+    import screen_discovery
+    boxes = recorded('menu_milestones_claimable')
+    title = screen_discovery._milestones_title(boxes)
+    assert title is not None and title.rect.y == 113
+    shifted = tuple(
+        ocr.TextBox(b.text, b.confidence,
+                    config.Rect(b.rect.x, b.rect.y + 136, b.rect.w, b.rect.h))
+        for b in boxes)
+    moved = screen_discovery._milestones_title(shifted)
+    assert moved is not None and moved.rect.y == 249
+
+
+def test_the_tier_is_read_by_regex_not_by_a_normalised_label() -> None:
+    """`tiles.normalise('Tier 1')` is 'tier1', which bakes the tier number into
+    the label - so 'Tier 2' would need a second constant. Matched against raw
+    text for the same reason the missions count band is."""
+    import screen_discovery
+    assert screen_discovery.milestones_tier(recorded('menu_milestones_claimable')) == 1
+
+
+def test_two_titles_are_not_evidence_of_a_milestones_page() -> None:
+    import screen_discovery
+    boxes = recorded('menu_milestones_claimable')
+    title = screen_discovery._milestones_title(boxes)
+    assert title is not None
+    doubled = boxes + (ocr.TextBox('MILESTONES', .99,
+                                   config.Rect(31, title.rect.y + 60, 331, 40)),)
+    assert screen_discovery._milestones_title(doubled) is None
+
+
+def test_two_tier_labels_make_the_tier_ambiguous_rather_than_the_first_one() -> None:
+    """A doubled anchor is not evidence of a page. Constructed rather than
+    captured: no recorded frame has two Tier labels in band, and this pins the
+    uniqueness rule itself rather than the page."""
+    import screen_discovery
+    boxes = recorded('menu_milestones_claimable')
+    title = screen_discovery._milestones_title(boxes)
+    assert title is not None
+    doubled = boxes + (ocr.TextBox('Tier 2', .99,
+                                   config.Rect(453, title.rect.y + 2000, 174, 63)),)
+    assert screen_discovery.milestones_tier(doubled) is None
+    frame = cv2.imread(str(FIXTURES / 'menu_milestones_claimable.png'))
+    found = screen_discovery.discover(frame, doubled, 'milestones')
+    assert found.screen_id is None
+    assert found.reason == 'ambiguous_or_unreadable_heading'
+
+
+def test_a_lone_claim_in_the_modal_band_is_not_a_reward_ceremony() -> None:
+    """The modal is claimed on SKIP *and* CLAIM together. A lone CLAIM must not
+    be enough: the missions page carries four CLAIM boxes, and reading one as a
+    reward ceremony would have the walk tap a button nobody chose."""
+    import screen_discovery
+    boxes = recorded('menu_milestones_claimable')
+    with_claim = boxes + (ocr.TextBox('CLAIM', .99, config.Rect(432, 1860, 217, 62)),)
+    assert screen_discovery._single(with_claim, 'skip', screen_discovery._MODAL_SKIP_Y) is None
+    assert screen_discovery._single(with_claim, 'claim', screen_discovery._MODAL_CLAIM_Y) is not None
+    frame = cv2.imread(str(FIXTURES / 'menu_milestones_claimable.png'))
+    found = screen_discovery.discover(frame, with_claim, 'milestones')
+    assert found.screen_id == 'milestones.ladder'
+
+
+def test_the_modal_bands_widen_downward_too_on_a_status_bar_device() -> None:
+    """The modal has no title to measure a gap from, unlike the ladder - but it
+    is the same device fact: a status-bar device draws this overlay LOWER than
+    the edge-to-edge capture, not higher, so SKIP and CLAIM's absolute bands
+    must widen downward exactly like the ladder title band does. Shifted by
+    +136, the same measured offset the ladder title-band test uses, because
+    both anchors come from the same one fact about the device."""
+    import screen_discovery
+    boxes = recorded('menu_milestones_reward_modal')
+    shifted = tuple(
+        ocr.TextBox(b.text, b.confidence,
+                    config.Rect(b.rect.x, b.rect.y + 136, b.rect.w, b.rect.h))
+        for b in boxes)
+    frame = cv2.imread(str(FIXTURES / 'menu_milestones_reward_modal.png'))
+    found = screen_discovery.discover(frame, shifted, 'milestones')
+    assert found.screen_id == 'milestones.reward_modal'
