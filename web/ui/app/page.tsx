@@ -133,7 +133,7 @@ export default function LivePage() {
               history ? (
                 <button
                   onClick={() => setHistory(null)}
-                  className="rounded-md border px-2 py-0.5 text-xs normal-case"
+                  className="rounded-md border px-2 py-0.5 text-xs normal-case transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px"
                 >
                   back to live
                 </button>

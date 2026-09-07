@@ -44,7 +44,7 @@ function CollectStats({ collection, onArmed }: { collection?: StatsCollection; o
         <p className="mt-3 text-sm">{describeCollection(collection)}</p>
         <button disabled={busy || running}
           onClick={() => { setBusy(true); setError(null); collectStats().then(onArmed).catch((e: Error) => setError(e.message)).finally(() => setBusy(false)); }}
-          className="mt-3 rounded-md border px-3 py-2 text-sm disabled:opacity-50">
+          className="mt-3 rounded-md border px-3 py-2 text-sm transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-50">
           {running ? "Collecting…" : busy ? "Starting…" : "Collect stats"}
         </button>
       </>}
@@ -86,7 +86,7 @@ export default function AccountPage() {
   const filtered = concepts.filter(c => (domain === "all" || c.domain === domain) && `${c.name} ${c.concept_id}`.toLowerCase().includes(query.toLowerCase()));
   return <div className="mx-auto flex max-w-6xl flex-col gap-4">
     <PageHeader title="Account inspector" meta={account?.revision ? `revision ${account.revision.revision_id}` : unavailable ? "account state unavailable" : awaitingAccount ? "loading account" : "no saved revision"}
-      action={<button disabled={loading} onClick={() => setReload(n => n + 1)} className="rounded-md border px-3 py-2 text-sm disabled:opacity-50">{loading ? "Loading…" : "Refresh"}</button>} />
+      action={<button disabled={loading} onClick={() => setReload(n => n + 1)} className="rounded-md border px-3 py-2 text-sm transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-50">{loading ? "Loading…" : "Refresh"}</button>} />
     <p className="max-w-3xl text-sm text-muted-foreground">Saved account evidence, recent game screen observations, and the inputs still missing. Workshop values and account totals are not individual upgrade levels.</p>
     {error && <p role="alert" className="rounded-md border border-danger p-3 text-danger">Could not load account: {error}. {account ? "Previously loaded evidence remains below; refresh failed." : "Account state is unavailable, not empty."}</p>}
     {account?.error && <p role="alert" className="rounded-md border border-danger p-3 text-danger">Account service warning: {account.error}. Saved evidence may be incomplete.</p>}

@@ -176,7 +176,7 @@ export function EventFeed({
               pinned.current = true;
               setUnread(0);
             }}
-            className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground shadow-sm"
+            className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-[11px] font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/80 active:translate-y-px"
           >
             <ArrowDown className="size-3" aria-hidden="true" />
             {unread} new

@@ -253,6 +253,15 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+  /* Tailwind v4 dropped Preflight's `cursor: pointer` on buttons, which left
+     every control here under the plain arrow - the single biggest reason they
+     did not read as pressable. Disabled controls keep the arrow: the
+     `disabled:opacity-*` on each already says "inert", and `not-allowed` is
+     vocabulary used nowhere else in this app. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
   body {
     @apply bg-background text-foreground;
   }

@@ -233,7 +233,7 @@ export function AutopilotEditor({
             type="button"
             aria-pressed={context === tab}
             onClick={() => setContext(tab)}
-            className={`rounded-md border px-4 py-2 text-sm ${context === tab ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+            className={`rounded-md border px-4 py-2 text-sm transition-colors ${context === tab ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-[color-mix(in_oklch,var(--muted),var(--foreground)_5%)]"}`}
           >
             {label(tab)}
           </button>
@@ -349,7 +349,7 @@ export function AutopilotEditor({
             type="button"
             key={tab}
             aria-pressed={category === tab}
-            className={`rounded-md border px-3 py-1.5 text-sm ${category === tab ? "bg-muted font-semibold" : "text-muted-foreground"}`}
+            className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${category === tab ? "bg-muted font-semibold" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
             onClick={() => setCategory(tab)}
           >
             {label(tab)}
@@ -369,7 +369,7 @@ export function AutopilotEditor({
           <button
             type="button"
             disabled={controlsDisabled}
-            className="rounded-md border px-3 py-2 disabled:opacity-40"
+            className="rounded-md border px-3 py-2 transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-40"
             onClick={() => onCommand({ action: "scan" })}
           >
             Scan upgrades
@@ -377,7 +377,7 @@ export function AutopilotEditor({
           <button
             type="button"
             disabled={controlsDisabled || category === "ALL"}
-            className="rounded-md border px-3 py-2 disabled:opacity-40"
+            className="rounded-md border px-3 py-2 transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-40"
             onClick={() => {
               if (category !== "ALL")
                 onCommand({ action: "category", category });
@@ -518,7 +518,7 @@ export function AutopilotEditor({
                       aria-label={`Move ${upgrade.name} up`}
                       disabled={disabled || index <= 0}
                       onClick={() => move(upgrade, -1)}
-                      className="rounded border px-2 disabled:opacity-30"
+                      className="rounded border px-2 transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
                     >
                       ↑
                     </button>{" "}
@@ -527,7 +527,7 @@ export function AutopilotEditor({
                       aria-label={`Move ${upgrade.name} down`}
                       disabled={disabled || index < 0 || index >= count - 1}
                       onClick={() => move(upgrade, 1)}
-                      className="rounded border px-2 disabled:opacity-30"
+                      className="rounded border px-2 transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-30"
                     >
                       ↓
                     </button>
@@ -546,7 +546,7 @@ export function AutopilotEditor({
                           !observation ||
                           Date.now() / 1000 - observation.observed_at > 15
                         }
-                        className="whitespace-nowrap rounded-md border px-2 py-1 text-xs disabled:opacity-40"
+                        className="whitespace-nowrap rounded-md border px-2 py-1 text-xs transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-40"
                         onClick={() =>
                           onCommand({ action: "buy", upgrade_id: upgrade.id })
                         }

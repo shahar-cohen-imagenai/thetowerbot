@@ -23,7 +23,7 @@ export function SnapshotStrip({ shots }: { shots: Snapshot[] }) {
             aria-label={shot.name}
             title={new Date(shot.ts * 1000).toLocaleString()}
             onClick={() => setSelected(shot)}
-            className="rounded ring-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded ring-offset-2 transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {/* Plain <img>: next/image needs a loader, and these are local PNGs
                 served by the same FastAPI process. */}
