@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
-# Sync deps, rebuild the dashboard if it is stale, then run the bot with the
-# browser dashboard.
+# Sync the code, sync deps, rebuild the dashboard if it is stale, then run the
+# bot with the browser dashboard.
 #
-# The step that matters is the freshness check. `runtime_identity` freezes the
+# The code sync is first because everything below it is downstream of the
+# source: the lockfile, the bundle's backend hash, and the bot itself. It
+# exists because of a real stall - a fix was merged, `./run.sh` was run, and
+# the bot came up on the pre-merge navigate.py, because this script synced
+# DEPENDENCIES and never once mentioned git. The screen it could not get off
+# looked exactly like the bug that had just been fixed, and the half hour that
+# cost is the whole argument for the step.
+#
+# The other step that matters is the freshness check. `runtime_identity` freezes the
 # backend's source hash at import and the built bundle records the backend it
 # was built against, so editing Python invalidates the bundle without touching
 # a single dashboard source file. Starting the bot then serves a dashboard that
@@ -19,19 +27,82 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-step() { printf '\033[1m[%s/4]\033[0m %s\n' "$1" "$2"; }
+step() { printf '\033[1m[%s/5]\033[0m %s\n' "$1" "$2"; }
 fail() { printf '\033[31merror:\033[0m %s\n' "$1" >&2; exit 1; }
+note() { printf '      %s\n' "$1"; }
 
-# --- 1. dependencies ------------------------------------------------------
-step 1 'uv sync'
+# --- 1. the code ----------------------------------------------------------
+# Fast-forward only, and only ever onto the upstream the current branch
+# already tracks. This step must never pick a branch, never merge, never
+# rebase, and never resolve a conflict: it exists to close the gap between
+# "I merged the fix" and "the bot has the fix", not to move work around.
+#
+# Every way it can decline says so on its own line, because a sync step that
+# skips quietly is the failure it was added to prevent.
+step 1 'git sync'
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    note 'not a git checkout - skipping'
+else
+    branch=$(git symbolic-ref --quiet --short HEAD || true)
+    upstream=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || true)
+    if [[ -z "$branch" ]]; then
+        note 'detached HEAD - you are pinned on purpose, skipping'
+    elif [[ -z "$upstream" ]]; then
+        note "$branch tracks nothing - skipping"
+    # GIT_TERMINAL_PROMPT=0 so an expired credential fails instead of blocking
+    # the start script on a password prompt nobody is watching for. Offline is
+    # a warning, not a stop: the bot has to start on a plane.
+    elif ! GIT_TERMINAL_PROMPT=0 git fetch --quiet "${upstream%%/*}" 2>/dev/null; then
+        note "could not reach ${upstream%%/*} - running what is checked out"
+    else
+        behind=$(git rev-list --count "HEAD..$upstream")
+        ahead=$(git rev-list --count "$upstream..HEAD")
+        if (( behind == 0 && ahead == 0 )); then
+            note "already current with $upstream"
+        elif (( behind == 0 )); then
+            note "$branch is $ahead ahead of $upstream - nothing to pull"
+        elif (( ahead > 0 )); then
+            # Diverged. Fast-forward is not available and anything else is a
+            # decision about someone's unpushed work, which is not this
+            # script's to make.
+            note "$branch has diverged from $upstream ($ahead ahead, $behind behind)"
+            note 'leaving it alone - rebase or merge it yourself'
+        elif git merge --ff-only --quiet "$upstream" 2>/dev/null; then
+            note "fast-forwarded $behind commit(s) to $upstream"
+        else
+            # Almost always web/static/: it is generated output, committed only
+            # so `git clone && ./run.sh` works without node, and step 3 below
+            # rewrites it on every backend change - so this script's own last
+            # run is what dirtied it. Discarding a bundle that is about to be
+            # rebuilt anyway is safe; discarding anything else is not, so the
+            # rest of the tree is checked first and a single file outside
+            # web/static/ is enough to stop here instead. strategies/ in
+            # particular is live state the dashboard writes.
+            if [[ -n "$(git status --porcelain --untracked-files=no -- . ':(exclude)web/static')" ]]; then
+                fail "cannot fast-forward to $upstream - you have local changes:
+$(git status --short --untracked-files=no -- . ':(exclude)web/static' | sed 's/^/       /')
+       commit or stash them, then re-run."
+            fi
+            git checkout --quiet -- web/static
+            git merge --ff-only --quiet "$upstream" 2>/dev/null || fail \
+                "cannot fast-forward to $upstream, and the working tree is clean
+       outside web/static/. Resolve it by hand: git merge --ff-only $upstream"
+            note "fast-forwarded $behind commit(s) to $upstream"
+            note 'discarded the locally rebuilt web/static bundle to do it'
+        fi
+    fi
+fi
+
+# --- 2. dependencies ------------------------------------------------------
+step 2 'uv sync'
 command -v uv >/dev/null 2>&1 || fail 'uv is not installed - see https://docs.astral.sh/uv/'
 # --frozen: install exactly uv.lock, never silently re-resolve it. A start
 # script that could rewrite the lockfile would make "it works on my machine"
 # depend on who started the bot last.
 uv sync --frozen --quiet
 
-# --- 2. the dashboard bundle ---------------------------------------------
-step 2 'dashboard freshness'
+# --- 3. the dashboard bundle ---------------------------------------------
+step 3 'dashboard freshness'
 if uv run --quiet python -m tools.freshness >/dev/null 2>&1; then
     printf '      already current - skipping npm\n'
 else
@@ -51,7 +122,7 @@ else
     printf '      rebuilt and verified\n'
 fi
 
-# --- 3. free the port -----------------------------------------------------
+# --- 4. free the port -----------------------------------------------------
 # Read from config.py rather than hardcoded, and overridden by a --port in the
 # passed-through flags, so this never kills the wrong thing on the wrong port.
 port=$(uv run --quiet python -c 'import config; print(config.WEB_PORT)')
@@ -62,7 +133,7 @@ for i in "${!args[@]}"; do
     fi
 done
 
-step 3 "freeing port $port"
+step 4 "freeing port $port"
 holders=$(lsof -ti "tcp:$port" 2>/dev/null || true)
 if [[ -z "$holders" ]]; then
     printf '      nothing listening\n'
@@ -86,8 +157,8 @@ else
     done
 fi
 
-# --- 4. run ---------------------------------------------------------------
-step 4 "uv run tower_bot.py --web ${*:-}"
+# --- 5. run ---------------------------------------------------------------
+step 5 "uv run tower_bot.py --web ${*:-}"
 printf '\n  dashboard -> http://127.0.0.1:%s\n\n' "$port"
 # exec, so Ctrl+C reaches the bot itself rather than this wrapper and the
 # bot's own shutdown path runs.
