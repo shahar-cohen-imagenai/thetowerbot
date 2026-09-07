@@ -35,9 +35,17 @@ class FakeBot:
     test noticing.
     """
 
-    def __init__(self, first_run_id: int = 1, **kwargs: Any) -> None:
-        self.kwargs: dict[str, Any] = {"first_run_id": first_run_id, **kwargs}
+    def __init__(
+        self, first_run_id: int = 1, best_wave: int | None = None, **kwargs: Any
+    ) -> None:
+        self.kwargs: dict[str, Any] = {
+            "first_run_id": first_run_id, "best_wave": best_wave, **kwargs,
+        }
         self.runs = type("R", (), {"next_id": first_run_id, "completed": 0})()
+        # Mirrors runs.next_id: a plain attribute the test can mutate to
+        # simulate what this bot "learned" during its lifetime, then let
+        # _harvest_locked carry forward on stop().
+        self._best_wave = best_wave
         self._stopping = threading.Event()
         self.scans = 0
 
@@ -285,6 +293,72 @@ def test_run_ids_carry_across_a_restart(runner_parts) -> None:
     runner.start()
     try:
         assert made[1].runs.next_id == 12
+    finally:
+        runner.stop()
+
+
+def test_best_wave_reaches_the_bot_it_starts(runner_parts) -> None:
+    """Without this, a bot started through the dashboard would always begin
+    with best_wave=None regardless of what the database holds, and a
+    milestones claim already owed would sit unoffered until that bot's own
+    first RunEnded."""
+    runner, made, _, _, _ = runner_parts
+    runner._best_wave = 137  # what prepare_store() would have seeded
+
+    runner.start()
+    try:
+        assert made[0].kwargs["best_wave"] == 137
+    finally:
+        runner.stop()
+
+
+def test_best_wave_carries_across_a_restart(runner_parts) -> None:
+    """The same carry-forward test_run_ids_carry_across_a_restart proves for
+    run ids, for the account's best wave: a bot that discovers a new best
+    during its lifetime must hand it to the runner, so the NEXT bot this
+    runner starts already knows it rather than starting blind."""
+    runner, made, _, _, _ = runner_parts
+    runner.start()
+    made[0]._best_wave = 250  # the first bot's own RunEnded raised this
+    runner.stop()
+
+    runner.start()
+    try:
+        assert made[1].kwargs["best_wave"] == 250
+    finally:
+        runner.stop()
+
+
+def test_best_wave_harvest_never_lowers_or_clears_what_is_already_known(
+    runner_parts,
+) -> None:
+    """Max-forward only, and a None guard - the same monotonic rule
+    TowerBot itself applies to a RunEnded's wave. A bot that ends with a
+    lower reading, or with nothing read at all (an abandoned run, or a
+    session that never finished one), must not erase what an earlier bot in
+    this same runner already established."""
+    runner, made, _, _, _ = runner_parts
+    runner.start()
+    made[0]._best_wave = 250
+    runner.stop()
+
+    runner.start()
+    made[1]._best_wave = 100  # lower than the runner already knows
+    runner.stop()
+
+    runner.start()
+    try:
+        assert made[2].kwargs["best_wave"] == 250
+    finally:
+        runner.stop()
+
+    runner.start()
+    made[3]._best_wave = None  # nothing read this session
+    runner.stop()
+
+    runner.start()
+    try:
+        assert made[4].kwargs["best_wave"] == 250
     finally:
         runner.stop()
 

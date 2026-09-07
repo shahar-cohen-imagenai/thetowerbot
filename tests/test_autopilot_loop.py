@@ -19,6 +19,7 @@ from typing import Callable
 
 import pytest
 
+from strategy import Claims, Shopping, ShoppingRule
 from tower_bot import TowerBot
 
 
@@ -60,3 +61,50 @@ def test_the_overlay_shows_what_the_autopilot_read(
     bot.run_once()
 
     assert bot.frames.boxes(), "the device view went blank while the autopilot was deciding"
+
+
+# -- Claim cadence in the loop ---------------------------------------------
+def test_a_due_claim_is_armed_from_the_main_menu(bot_on_main_menu: Callable[..., TowerBot]) -> None:
+    """The same frame shopping.begin() reserves, and only when it declined.
+    A never-claimed account with a read best wave owes a milestones claim."""
+    bot = bot_on_main_menu(Shopping(), claims=Claims(enabled=True))  # shopping disabled by default
+    bot._best_wave = 137  # a read best wave, as prepare_store() would seed it
+    bot.run_once()
+    assert bot.milestones_claim.active
+
+
+def test_an_armed_walk_is_not_re_armed_on_the_next_frame(
+    bot_on_main_menu: Callable[..., TowerBot]
+) -> None:
+    """request() returning False is the normal case, not an error: the walk
+    from the previous frame is still holding the menus."""
+    bot = bot_on_main_menu(Shopping(), claims=Claims(enabled=True))
+    bot._best_wave = 137
+    bot.run_once()
+    first = bot.milestones_claim.snapshot()["requested_at"]
+    bot.run_once()
+    assert bot.milestones_claim.snapshot()["requested_at"] == first
+
+
+def test_a_disabled_cadence_arms_nothing(bot_on_main_menu: Callable[..., TowerBot]) -> None:
+    bot = bot_on_main_menu(Shopping())  # claims disabled (the fixture's default)
+    bot._best_wave = 137
+    bot.run_once()
+    assert not bot.claim.active
+    assert not bot.milestones_claim.active
+
+
+def test_a_shopping_visit_keeps_the_frame_from_a_due_claim(
+    bot_on_main_menu: Callable[..., TowerBot]
+) -> None:
+    """One maintenance walk at a time. A visit that took this frame means the
+    claim waits - and it must not be armed only to be refused."""
+    bot = bot_on_main_menu(
+        Shopping(enabled=True, workshop=(ShoppingRule(name="Damage", category="ATTACK"),)),
+        claims=Claims(enabled=True),
+    )  # BOTH claims and a due shopping visit
+    bot._best_wave = 137
+    bot.run_once()
+    assert bot.shopping.active
+    assert not bot.claim.active
+    assert not bot.milestones_claim.active

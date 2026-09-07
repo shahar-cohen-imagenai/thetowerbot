@@ -162,6 +162,17 @@ def max_run_id(conn: sqlite3.Connection) -> int:
     )""").fetchone()[0])
 
 
+def best_wave(conn: sqlite3.Connection) -> int | None:
+    """The best wave ever reached, or None if no run has reported one.
+
+    NULL, never 0, for an empty table or a table with only NULL waves -
+    an unread best wave is not the same as a confirmed wave of zero.
+    """
+    row = conn.execute("SELECT MAX(wave) FROM runs WHERE wave IS NOT NULL").fetchone()
+    value = row[0]
+    return int(value) if value is not None else None
+
+
 def insert_event(conn: sqlite3.Connection, row: dict[str, Any]) -> None:
     conn.execute(
         """INSERT OR REPLACE INTO events
