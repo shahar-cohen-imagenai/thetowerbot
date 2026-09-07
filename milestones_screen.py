@@ -24,7 +24,6 @@ import threading
 import time
 from typing import Any
 
-import config
 import ocr
 import screen_discovery
 import tiles
@@ -110,11 +109,17 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
 
     The page must identify itself through screen_discovery first, so a frame
     this module cannot name yields no reading rather than a partial one.
+
+    `boxes`, when supplied, MUST be a read of THIS `screen`. Nothing here
+    verifies that pairing - only pixel-level checks touch `screen` itself -
+    so a foreign box set is read with full confidence as this frame.
     """
+    moment = time.time() if now is None else now
+    if not math.isfinite(moment):
+        return None
     found = screen_discovery.discover(screen, boxes, 'milestones')
     if found.screen_id is None or not found.readable:
         return None
-    moment = time.time() if now is None else now
     if found.screen_id == MODAL_SCREEN:
         text = _modal_reward(boxes)
         currency, amount = reward_of(text) if text is not None else (None, None)
@@ -194,13 +199,24 @@ class MilestonesReadings:
         that walk silently claim a reward with no ledger line, or tap SKIP
         and discard one.
 
-        Presence is the ladder title OR a trusted SKIP in its widened band -
-        never CLAIM: the missions page carries four CLAIM boxes, so using it
-        here would call a definite missions frame a possible milestones one.
+        Presence is the ladder title OR a trusted SKIP in its widened band OR
+        a trusted Claim All - never bare CLAIM: the missions page carries
+        four CLAIM boxes, so using it here would call a definite missions
+        frame a possible milestones one. Claim All does not share that
+        hazard: measured across all 29 committed OCR fixtures it appears on
+        exactly one, the claimable ladder, so - like SKIP - it is a
+        discriminating anchor on its own, and `_claim_all`'s exact-equality
+        match (never a substring) is what keeps it that way.
 
         `boxes` lets the caller hand in a frame read it already paid for. A
         tick runs two full-frame readers; reading the same bytes twice is a
         cost that only grows as readers are added.
+
+        `boxes`, when supplied, MUST be a read of THIS `screen`. Nothing here
+        verifies that pairing - only pixel-level checks (the shape guard
+        below, screen_discovery's own frame checks) touch `screen` itself -
+        so a foreign box set is accepted as a confident reading of a frame
+        that is not actually on screen.
         """
         self.observe(None)
         if screen.shape[:2] != _EXPECTED_FRAME:
@@ -209,11 +225,13 @@ class MilestonesReadings:
             if boxes is None:
                 boxes = ocr.read(screen, strict=True)
             present = (screen_discovery._milestones_title(boxes) is not None
-                      or screen_discovery._modal_skip(boxes) is not None)
+                      or screen_discovery._modal_skip(boxes) is not None
+                      or _claim_all(boxes) is not None)
             if not present:
-                # Examined the whole frame, and no milestones anchor anywhere
-                # in the bands screen_discovery searches. This is the one
-                # branch that may stand for "no milestones page is up".
+                # Examined the whole frame, and no milestones anchor anywhere:
+                # not in the bands screen_discovery searches, and no Claim
+                # All either. This is the one branch that may stand for "no
+                # milestones page is up".
                 self.observe(None, scanned=True)
                 return False
             reading = parse_frame(screen, boxes)

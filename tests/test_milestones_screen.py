@@ -154,6 +154,21 @@ def test_a_modal_with_an_unreadable_claim_holds_rather_than_releases() -> None:
     assert evidence['error'] is not None
 
 
+def test_a_ladder_missing_its_title_still_holds_via_claim_all() -> None:
+    """`claim_all` is exactly as discriminating as SKIP - present on ONE of 29
+    committed OCR fixtures, this ladder - and closing on it matters because
+    this is the one frame that actually has something to claim: without it,
+    an unreadable heading here would release the guard onto a live Claim All
+    button instead of holding."""
+    name = 'menu_milestones_claimable'
+    without_title = tuple(b for b in boxes(name) if b.text.strip().upper() != 'MILESTONES')
+    readings = milestones_screen.MilestonesReadings()
+    assert readings.scan(frame(name), boxes=without_title) is True
+    evidence = readings.current_evidence()
+    assert evidence['screen_id'] is None
+    assert evidence['error'] is not None
+
+
 def test_the_missions_page_does_not_trip_the_modal_presence_probe() -> None:
     """The missions page's lowest CLAIM box sits at y=2078, which now falls
     INSIDE the widened claim band (1840, 2080) by 2 pixels. Presence requires
@@ -179,3 +194,33 @@ def test_supplied_boxes_are_used_instead_of_reading_the_frame(
     monkeypatch.setattr(milestones_screen.ocr, 'read', boom)
     readings = milestones_screen.MilestonesReadings()
     assert readings.scan(frame(name), boxes=boxes(name)) is True
+
+
+def test_a_malformed_box_holds_without_ever_calling_ocr(monkeypatch) -> None:
+    """The except branch is reachable from _milestones_title/_modal_skip/
+    parse_frame raising on a bad box, not only from ocr.read itself - once a
+    caller can supply boxes, 'OCR failed' is no longer always true. Pin the
+    behaviour (HOLD, with an error recorded) without pinning the wording,
+    which is free to change as long as it never blames a stage that did not
+    run."""
+    class MalformedBox:
+        @property
+        def text(self) -> str:
+            raise AssertionError('boxes must not be read this way')
+
+        @property
+        def confidence(self) -> float:
+            raise AssertionError('boxes must not be read this way')
+
+    calls: list[int] = []
+
+    def boom(*args, **kwargs):
+        calls.append(1)
+        raise AssertionError('ocr.read must not be called when boxes are supplied')
+
+    monkeypatch.setattr(milestones_screen.ocr, 'read', boom)
+    readings = milestones_screen.MilestonesReadings()
+    name = 'menu_milestones_claimable'
+    assert readings.scan(frame(name), boxes=(MalformedBox(),)) is True
+    assert readings.current_evidence()['error'] is not None
+    assert calls == []

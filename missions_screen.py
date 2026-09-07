@@ -475,6 +475,10 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
     The page must first identify itself through screen_discovery, so an
     unrecognised frame yields None rather than a partial reading assembled
     from whatever text happened to land in the measured bands.
+
+    `boxes`, when supplied, MUST be a read of THIS `screen`. Nothing here
+    verifies that pairing - only pixel-level checks touch `screen` itself -
+    so a foreign box set is read with full confidence as this frame.
     """
     observed_at = time.time() if now is None else now
     if not math.isfinite(observed_at):
@@ -608,6 +612,12 @@ class MissionsReadings:
         RapidOCR's cost here is near-fixed rather than proportional to pixels
         - measured at 261.9 ms for a full frame - so a second read of the same
         bytes is a second full price for nothing.
+
+        `boxes`, when supplied, MUST be a read of THIS `screen`. Nothing here
+        verifies that pairing - only pixel-level checks (the shape guard
+        below, screen_discovery's own frame checks, `_cards`) touch `screen`
+        itself - so a foreign box set is accepted as a confident reading of a
+        frame that is not actually on screen.
         """
         self.observe(None)
         if screen.shape[:2] != _EXPECTED_FRAME:
