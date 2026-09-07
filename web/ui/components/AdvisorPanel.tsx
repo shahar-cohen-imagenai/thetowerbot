@@ -221,7 +221,7 @@ function ProfileAdvisor({ profile, value, onChange, disabled = false }: Props) {
           type="button"
           disabled={unavailable}
           onClick={() => void refresh()}
-          className="rounded-md border px-3 py-1.5 text-xs disabled:opacity-40"
+          className="rounded-md border px-3 py-1.5 text-xs transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-40"
         >
           Refresh advisor
         </button>
@@ -326,7 +326,7 @@ function ProfileAdvisor({ profile, value, onChange, disabled = false }: Props) {
             type="button"
             disabled={unavailable || !content.trim()}
             onClick={() => void importData()}
-            className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground disabled:opacity-40"
+            className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground transition-colors hover:bg-primary/80 active:translate-y-px disabled:pointer-events-none disabled:opacity-40"
           >
             Import recommendations
           </button>
@@ -411,7 +411,7 @@ function ProfileAdvisor({ profile, value, onChange, disabled = false }: Props) {
                 key={item}
                 aria-pressed={path === item}
                 onClick={() => setPath(item)}
-                className={`rounded-md border px-3 py-1.5 text-xs ${path === item ? "bg-muted font-semibold" : "text-muted-foreground"}`}
+                className={`rounded-md border px-3 py-1.5 text-xs transition-colors ${path === item ? "bg-muted font-semibold" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
               >
                 {label(item)}
               </button>
@@ -466,7 +466,7 @@ function ProfileAdvisor({ profile, value, onChange, disabled = false }: Props) {
                           !snapshot?.import_id
                         }
                         onClick={() => void stage(row)}
-                        className="whitespace-nowrap rounded-md border px-3 py-1.5 text-xs disabled:opacity-40"
+                        className="whitespace-nowrap rounded-md border px-3 py-1.5 text-xs transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-40"
                       >
                         Add to Workshop draft
                       </button>

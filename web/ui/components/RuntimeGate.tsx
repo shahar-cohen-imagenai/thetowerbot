@@ -97,10 +97,10 @@ export function RuntimeGate({
           </div>
           {locked && (
             <div className="flex flex-wrap gap-2" aria-label="Emergency controls">
-              <button className="rounded-md border border-border-strong px-3 py-2 text-sm" onClick={() => void safetyAction(() => patchControl({ paused: true }))}>
+              <button className="rounded-md border border-border-strong px-3 py-2 text-sm transition-colors hover:bg-muted active:translate-y-px" onClick={() => void safetyAction(() => patchControl({ paused: true }))}>
                 Pause automation
               </button>
-              <button className="rounded-md bg-danger px-3 py-2 text-sm text-danger-foreground" onClick={() => void safetyAction(stopBot)}>
+              <button className="rounded-md bg-danger px-3 py-2 text-sm text-danger-foreground transition-colors hover:bg-danger/90 active:translate-y-px" onClick={() => void safetyAction(stopBot)}>
                 Stop bot
               </button>
             </div>
