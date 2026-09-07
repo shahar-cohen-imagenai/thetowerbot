@@ -188,9 +188,27 @@ EXPECTED_RESOLUTION: tuple[int, int] = (1080, 2400)
 # death modal shifts ~46px vertically depending on whether the
 # "New Highest Wave!" line is present.
 NAVIGATION_COOLDOWN_SECONDS: float = 3.0
-NAV_BUTTONS: dict[str, tuple[str, str]] = {
-    "GAME_OVER": ("RETRY", "buttons/retry.png"),
-    "MAIN_MENU": ("BATTLE", "buttons/battle.png"),
+#
+# A tuple of candidates per screen, tried in order, because one screen can
+# draw one slot two ways. MAIN_MENU is the case that forced it: a run
+# abandoned mid-battle - a kill, a crash, a pause never returned from -
+# leaves the menu offering RESUME BATTLE in the same 514x164 box BATTLE
+# normally occupies. Measured on tests/fixtures/main_menu_resume.png,
+# buttons/battle.png scores 0.535 against those glyphs, so the single-entry
+# version declined silently and parked the bot on a recognised MAIN_MENU
+# with nothing on the feed but `screen is MAIN_MENU`.
+#
+# The two crops are separate targets rather than one loose template on
+# purpose: RESUME continues the run the bot lost, BATTLE starts a fresh one,
+# and the feed and ledger are entitled to know which happened. The 2x2 says
+# they stay apart - each template scores 1.000 on its own fixture and ~0.53
+# on the other, either side of Navigator's 0.8 threshold.
+NAV_BUTTONS: dict[str, tuple[tuple[str, str], ...]] = {
+    "GAME_OVER": (("RETRY", "buttons/retry.png"),),
+    "MAIN_MENU": (
+        ("BATTLE", "buttons/battle.png"),
+        ("RESUME_BATTLE", "buttons/resume_battle.png"),
+    ),
 }
 
 # Tapped instead of NAV_BUTTONS["GAME_OVER"] when a Workshop visit is due.
