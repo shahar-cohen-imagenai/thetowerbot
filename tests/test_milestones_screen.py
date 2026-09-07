@@ -167,3 +167,15 @@ def test_the_missions_page_does_not_trip_the_modal_presence_probe() -> None:
     readings = milestones_screen.MilestonesReadings()
     assert readings.scan(frame(name), boxes=boxes(name)) is False
     assert readings.current_evidence()['error'] is None
+
+
+def test_supplied_boxes_are_used_instead_of_reading_the_frame(
+        monkeypatch) -> None:
+    name = 'menu_milestones_claimable'
+
+    def boom(*args, **kwargs):
+        raise AssertionError('ocr.read must not be called when boxes are supplied')
+
+    monkeypatch.setattr(milestones_screen.ocr, 'read', boom)
+    readings = milestones_screen.MilestonesReadings()
+    assert readings.scan(frame(name), boxes=boxes(name)) is True

@@ -824,3 +824,40 @@ def test_the_label_guard_is_exact_equality_not_a_substring_test() -> None:
     box = ocr.TextBox('Claim All', .99, config.Rect(100, 900, 150, 46))
     assert box.rect.x < reward_edge and box.rect.y >= progress_edge
     assert missions_screen._claim_boxes(card, (box,)) == []
+
+
+def test_scan_accepts_a_frame_read_the_caller_already_paid_for() -> None:
+    """A tick runs two full-frame readers over one frame. Reading the same
+    bytes twice is a cost that only grows as readers are added."""
+    readings = missions_screen.MissionsReadings()
+    name = 'menu_missions_claimable_no_status_bar'
+    screen = cv2.imread(str(FIXTURES / f'{name}.png'), cv2.IMREAD_COLOR)
+    assert readings.scan(screen, boxes=recorded(name)) is True
+    assert readings.claim_evidence()['screen_id'] == 'missions.daily'
+
+
+def test_supplied_boxes_are_used_instead_of_reading_the_frame(
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    """Not merely 'the result is the same': prove the read is SKIPPED. If
+    ocr.read still fires, the sharing saves nothing and this task is a no-op
+    dressed as an optimisation."""
+    name = 'menu_missions_claimable_no_status_bar'
+    screen = cv2.imread(str(FIXTURES / f'{name}.png'), cv2.IMREAD_COLOR)
+    calls: list[int] = []
+
+    def boom(*args, **kwargs):
+        calls.append(1)
+        raise AssertionError('ocr.read must not be called when boxes are supplied')
+
+    monkeypatch.setattr(missions_screen.ocr, 'read', boom)
+    readings = missions_screen.MissionsReadings()
+    assert readings.scan(screen, boxes=recorded(name)) is True
+    assert calls == []
+
+
+def test_scan_still_reads_the_frame_itself_when_given_no_boxes() -> None:
+    """The default path is unchanged: the parameter is keyword-only with a
+    default, so every existing caller keeps working."""
+    readings = missions_screen.MissionsReadings()
+    screen = cv2.imread(str(FIXTURES / 'menu_missions.png'), cv2.IMREAD_COLOR)
+    assert readings.scan(screen) is True
