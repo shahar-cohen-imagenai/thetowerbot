@@ -106,12 +106,22 @@ emulator; anything under `ANCHOR_THRESHOLD` means they are not.
 ## Run
 
 ```bash
+./run.sh                                 # sync, rebuild if stale, then --web
+./run.sh --idle                          # any tower_bot.py flag passes through
 uv run tower_bot.py                      # scan every 2s until Ctrl+C
 uv run tower_bot.py --tui                # live terminal panel
 uv run tower_bot.py --web                # browser dashboard on :8765
 uv run tower_bot.py --web --idle         # dashboard with no bot - press Start
 uv run tower_bot.py --debug-scores       # one-shot diagnostic, taps nothing
 ```
+
+`./run.sh` is the one to use after pulling. Editing Python moves the backend
+hash without touching a single dashboard source, so the committed bundle goes
+stale and the dashboard refuses to drive the bot - "Runtime mismatch, controls
+locked". The script checks both hashes before launching and rebuilds only when
+they disagree, so a current bundle still needs no node. It also stops a
+previous run holding the port, but only after confirming the process really is
+this bot.
 
 | Flag | Default | What it does |
 |---|---|---|
