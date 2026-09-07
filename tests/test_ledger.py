@@ -398,6 +398,26 @@ def test_backfill_over_an_empty_events_table_writes_nothing(tmp_path: Path) -> N
     assert ledger.backfill(conn) == 0
 
 
+def test_backfill_replays_a_milestone_claim(tmp_path: Path) -> None:
+    """The only thing that proves `_rebuild` can reconstruct a MilestoneClaimed
+    from a stored row's detail JSON, rather than just its own class."""
+    conn = db.connect(tmp_path / "bot.db")
+    db.insert_event(conn, {
+        "seq": 1, "run_id": None, "ts": 1.0, "type": "MilestoneClaimed",
+        "screen": None, "action": None, "reason": None, "score": None,
+        "price": None, "wallet": None,
+        "detail": '{"reward_text": "25 COINS", "currency": "coins", '
+                  '"amount": 25, "tier": 1}',
+    })
+
+    written = ledger.backfill(conn)
+
+    assert written == 1
+    line = db.ledger_page(conn)[0]
+    assert (line["kind"], line["item"], line["delta"]) == (
+        "MILESTONE_CLAIM", "25 COINS", 25)
+
+
 # --- mission claims -------------------------------------------------------
 
 def test_a_mission_claim_credits_both_currencies_as_two_lines() -> None:
@@ -465,7 +485,48 @@ def test_a_refused_claim_is_a_line_that_provably_moved_nothing() -> None:
         "CLAIM_SKIPPED", 0, "counter_unreadable")
 
 
+def test_a_coin_milestone_yields_one_line_that_never_anchors_a_balance() -> None:
+    """The header abbreviates coins ('6.08K'). An abbreviated reading handed to
+    the reconciler as a balance contradicts the running total and manufactures
+    an UNEXPLAINED line on every claim."""
+    (line,) = ledger.classify(events.MilestoneClaimed(
+        seq=1, ts=100., reward_text='25 COINS', currency='coins',
+        amount=25, tier=1))
+    assert (line.kind, line.currency, line.delta) == ('MILESTONE_CLAIM', 'coins', 25)
+    assert line.observed is None
+
+
+def test_a_gem_milestone_yields_a_gems_line() -> None:
+    (line,) = ledger.classify(events.MilestoneClaimed(
+        seq=1, ts=100., reward_text='15GEMS', currency='gems', amount=15, tier=1))
+    assert (line.currency, line.delta) == ('gems', 15)
+
+
+def test_unlock_lab_moved_no_currency_which_is_not_an_unreadable_amount() -> None:
+    """delta=0 is 'provably moved nothing'. delta=None is 'moved by an unknown
+    amount'. `Unlock Lab` is the first."""
+    (line,) = ledger.classify(events.MilestoneClaimed(
+        seq=1, ts=100., reward_text='Unlock Lab', currency=None,
+        amount=None, tier=1))
+    assert line.currency is None
+    assert line.delta == 0
+
+
+def test_an_uncertain_claim_moved_an_unknown_amount_not_nothing() -> None:
+    """This is the distinction the parked finding was about. A CLAIM that was
+    TAPPED and never confirmed may well have taken a reward, so it must not
+    share ClaimSkipped's delta=0, which asserts nothing moved."""
+    (line,) = ledger.classify(events.ClaimUncertain(
+        seq=1, ts=100., target='milestones', reason='claim_not_confirmed',
+        detail='"25 COINS" was tapped but the modal did not close.'))
+    assert line.kind == 'CLAIM_UNCERTAIN'
+    assert line.delta is None
+    assert line.currency is None
+    assert line.reason == 'claim_not_confirmed'
+
+
 def test_every_claim_event_can_be_replayed_from_the_events_table() -> None:
     """A ledger that cannot be rebuilt from events is not a ledger."""
-    for name in ("ClaimStarted", "MissionClaimed", "ClaimSkipped", "ClaimEnded"):
+    for name in ("ClaimStarted", "MissionClaimed", "ClaimSkipped", "ClaimEnded",
+                 "MilestoneClaimed", "ClaimUncertain"):
         assert name in ledger._REPLAYABLE

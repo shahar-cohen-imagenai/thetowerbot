@@ -27,9 +27,8 @@ import events
 COINS = "coins"
 GEMS = "gems"
 
-# Every kind a line can carry. MILESTONE_CLAIM is RESERVED - the milestones
-# walk that emits it is a later slice - and so are the last six: the parts of
-# the economy the bot cannot see (labs and lab slots, card slots, modules,
+# Every kind a line can carry. The last six are RESERVED - the parts of the
+# economy the bot cannot see (labs and lab slots, card slots, modules,
 # relics, ultimate weapons) plus hand-entered lines. They are named here so
 # adding one later is a branch in classify(), not a schema change.
 KINDS: tuple[str, ...] = (
@@ -39,6 +38,7 @@ KINDS: tuple[str, ...] = (
     "MISSION_CLAIM",
     "MILESTONE_CLAIM",
     "CLAIM_SKIPPED",
+    "CLAIM_UNCERTAIN",
     "BUY_SKIPPED",
     "VISIT_START",
     "VISIT_END",
@@ -65,10 +65,11 @@ class LedgerLine:
     `delta` itself distinguishes two things a single None would collapse:
 
     * 0    - provably moved nothing. A skip, a rehearsal.
-    * None - moved by an unknown amount. Only ever an unreadable price on a
-             real purchase, or an unreadable RunEnded payout. This is what
-             leaves a hole in the running balance until the next reading
-             closes it, as an explicit UNEXPLAINED line.
+    * None - moved by an unknown amount. An unreadable price on a real
+             purchase, an unreadable RunEnded payout, or a CLAIM that was
+             tapped but never confirmed. This is what leaves a hole in the
+             running balance until the next reading closes it, as an
+             explicit UNEXPLAINED line.
     """
 
     kind: str
@@ -212,6 +213,32 @@ def classify(event: events.Event) -> tuple[LedgerLine, ...]:
                 # A refusal provably moved nothing, which is not the same
                 # fact as a reward whose amount could not be read.
                 delta=0,
+                reason=event.reason,
+                detail={"target": event.target, "detail": event.detail}
+                if event.detail else {"target": event.target},
+                **base),)
+
+        case events.MilestoneClaimed():
+            # One line, not two: a milestone reward is a single currency, or
+            # none at all. Coins are never `observed` for the same reason
+            # MissionClaimed's are not - the header abbreviates them.
+            return (LedgerLine(
+                kind="MILESTONE_CLAIM",
+                item=event.reward_text,
+                category="MILESTONES",
+                currency=event.currency,
+                # delta=0 where no currency moved - `Unlock Lab` provably moved
+                # none - which is not the same fact as an unreadable amount.
+                delta=event.amount if event.currency is not None else 0,
+                detail={"tier": event.tier, "reward_text": event.reward_text},
+                **base),)
+
+        case events.ClaimUncertain():
+            return (LedgerLine(
+                kind="CLAIM_UNCERTAIN",
+                # None, not 0: a tapped CLAIM that never confirmed may well
+                # have taken a reward. delta=0 would assert it did not.
+                delta=None,
                 reason=event.reason,
                 detail={"target": event.target, "detail": event.detail}
                 if event.detail else {"target": event.target},
@@ -371,6 +398,8 @@ _REPLAYABLE: dict[str, type[events.Event]] = {
     "MissionClaimed": events.MissionClaimed,
     "ClaimSkipped": events.ClaimSkipped,
     "ClaimEnded": events.ClaimEnded,
+    "MilestoneClaimed": events.MilestoneClaimed,
+    "ClaimUncertain": events.ClaimUncertain,
 }
 
 
