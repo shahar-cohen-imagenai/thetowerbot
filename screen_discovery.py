@@ -407,9 +407,13 @@ def milestones_tier(boxes: tuple[ocr.TextBox, ...]) -> int | None:
 def _discover_milestones(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
     """The ladder on its title and tier, the modal on its two buttons.
 
-    Checked modal-first: the modal is an overlay drawn OVER the ladder, so a
-    frame carrying both sets of anchors is the modal. In the recorded captures
-    it carries neither of the ladder's, which is what the tests pin.
+    The modal is checked first, and that ordering is an ASSUMPTION rather
+    than an observation. The modal is drawn over the ladder, so a frame
+    carrying both sets of anchors ought to be the modal - but no capture
+    carries both: the recorded modal frame holds four boxes (SKIP, a coin
+    glyph, the reward line and CLAIM) and none of the ladder's. The two
+    anchor sets are disjoint on every frame measured so far, so this order
+    does not currently decide anything.
     """
     skip = _single(boxes, 'skip', _MODAL_SKIP_Y)
     claim = _single(boxes, 'claim', _MODAL_CLAIM_Y)
