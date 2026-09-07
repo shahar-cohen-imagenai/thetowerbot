@@ -418,6 +418,29 @@ def test_backfill_replays_a_milestone_claim(tmp_path: Path) -> None:
         "MILESTONE_CLAIM", "25 COINS", 25)
 
 
+def test_backfill_replays_an_uncertain_claim(tmp_path: Path) -> None:
+    """The only thing that proves `_rebuild` can reconstruct a ClaimUncertain
+    from a stored row, and specifically the branch that matters: unlike
+    MilestoneClaimed, ClaimUncertain has a `reason` field, which `store.to_row`
+    pops into its own `reason` COLUMN rather than the detail JSON blob - so
+    this is the row shape that actually reaches `_rebuild` in production."""
+    conn = db.connect(tmp_path / "bot.db")
+    db.insert_event(conn, {
+        "seq": 1, "run_id": None, "ts": 1.0, "type": "ClaimUncertain",
+        "screen": None, "action": None, "reason": "claim_not_confirmed",
+        "score": None, "price": None, "wallet": None,
+        "detail": '{"target": "missions", '
+                  '"detail": "\\"Mission 0\\" was tapped but not confirmed."}',
+    })
+
+    written = ledger.backfill(conn)
+
+    assert written == 1
+    line = db.ledger_page(conn)[0]
+    assert (line["kind"], line["reason"], line["delta"]) == (
+        "CLAIM_UNCERTAIN", "claim_not_confirmed", None)
+
+
 # --- mission claims -------------------------------------------------------
 
 def test_a_mission_claim_credits_both_currencies_as_two_lines() -> None:

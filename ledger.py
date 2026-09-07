@@ -65,11 +65,11 @@ class LedgerLine:
     `delta` itself distinguishes two things a single None would collapse:
 
     * 0    - provably moved nothing. A skip, a rehearsal.
-    * None - moved by an unknown amount. An unreadable price on a real
-             purchase, an unreadable RunEnded payout, or a CLAIM that was
-             tapped but never confirmed. This is what leaves a hole in the
-             running balance until the next reading closes it, as an
-             explicit UNEXPLAINED line.
+    * None - the amount that moved could not be determined, whatever the
+             source: an unreadable price, an unreadable payout, an unreadable
+             claim reward, a claim tapped but never confirmed. This is what
+             leaves a hole in the running balance until the next reading
+             closes it, as an explicit UNEXPLAINED line.
     """
 
     kind: str
