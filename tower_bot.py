@@ -923,10 +923,23 @@ class TowerBot:
             and not settings.paused
             and not self.run_cap_reached(max_runs, settings.strategy)
             and not visiting and not self.shopping.active
+            and not self.claim.active and not self.milestones_claim.active
         ):
             # Navigator taps BATTLE on MAIN_MENU on a cooldown - left alone
             # it would start a run in the middle of a shopping errand.
             #
+            # A claim walk is the same kind of maintenance visit as shopping,
+            # and needs the same suppression here - but is not folded into
+            # `visiting` above. `visiting` feeds shopping.advance() directly
+            # a few lines below (`elif visiting: self.shopping.advance(...)`),
+            # so widening its meaning to cover claim walks would call
+            # shopping.advance() on a frame only a claim armed. The claim can
+            # only just have gone active THIS frame - _offer_claim() runs
+            # after `visiting` is captured - so the frame this guards is
+            # exactly the one on which request() flips .active from False to
+            # True; every later frame is already caught by the "actions held"
+            # early return above (self.claim.active there), which never
+            # reaches this block at all.
             # On GAME_OVER it taps RETRY, which starts the next run without
             # passing through MAIN_MENU - and the begin() above is only ever
             # offered a MAIN_MENU frame. So a due visit has to be claimed

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from claim_schedule import ClaimState, due
+from claim_schedule import ClaimState, MIN_MILESTONES_HOURS, due
 
 EIGHT_HOURS = 8.0
 HOUR = 3600.0
@@ -118,3 +118,59 @@ def test_milestones_override_unusable_missions_cadence(hours: float) -> None:
     assert due(state(best_wave=30, claimed_best_wave=16),
                now=0.0, missions_every_hours=hours,
                milestones_on_new_best=True) == "milestones"
+
+
+# -- Milestones rate limit ---------------------------------------------------
+# A new best wave is necessary but not sufficient: the ladder pays out at
+# fixed thresholds while the best wave creeps up by a wave or two on nearly
+# every autopiloted run, so an unthrottled trigger would arm a full menu walk
+# after almost every run for nothing. `last_missions` is pinned to a recent,
+# not-yet-due time in every test below so a "milestones owes nothing" result
+# is not masked by an incidental "missions" fallthrough.
+
+def test_a_new_best_inside_the_milestones_window_owes_nothing() -> None:
+    assert due(
+        state(last_missions=1000.0, last_milestones=1000.0, best_wave=30, claimed_best_wave=16),
+        now=1000.0 + (MIN_MILESTONES_HOURS * HOUR) - 1,
+        missions_every_hours=EIGHT_HOURS, milestones_on_new_best=True,
+    ) is None
+
+
+def test_a_new_best_comes_due_exactly_on_the_milestones_window() -> None:
+    """On the boundary, not after it - the same convention missions uses."""
+    assert due(
+        state(last_missions=1000.0, last_milestones=1000.0, best_wave=30, claimed_best_wave=16),
+        now=1000.0 + MIN_MILESTONES_HOURS * HOUR,
+        missions_every_hours=EIGHT_HOURS, milestones_on_new_best=True,
+    ) == "milestones"
+
+
+def test_a_never_claimed_ladder_ignores_the_milestones_window() -> None:
+    """last_milestones=None means never claimed, which is immediately due -
+    not coerced to 0, and not blocked by the window either."""
+    assert due(
+        state(last_missions=1000.0, last_milestones=None, best_wave=30, claimed_best_wave=16),
+        now=1000.0, missions_every_hours=EIGHT_HOURS, milestones_on_new_best=True,
+    ) == "milestones"
+
+
+@pytest.mark.parametrize("last_milestones", [float("inf"), float("nan")])
+def test_a_non_finite_milestones_clock_falls_through_to_missions(last_milestones: float) -> None:
+    """Handled exactly as defensively as a non-finite last_missions is: not a
+    due milestone, so due() falls through to the (here, immediately due)
+    missions check rather than raising or arming milestones on garbage data.
+    """
+    assert due(
+        state(last_missions=None, last_milestones=last_milestones,
+              best_wave=30, claimed_best_wave=16),
+        now=1000.0, missions_every_hours=EIGHT_HOURS, milestones_on_new_best=True,
+    ) == "missions"
+
+
+def test_a_milestones_clock_that_went_backwards_does_not_fire() -> None:
+    """A last-claim dated in the future is a corrupt or restored state, not a
+    due claim - the same reading applied to last_missions."""
+    assert due(
+        state(last_missions=1000.0, last_milestones=10_000.0, best_wave=30, claimed_best_wave=16),
+        now=1000.0, missions_every_hours=EIGHT_HOURS, milestones_on_new_best=True,
+    ) is None
