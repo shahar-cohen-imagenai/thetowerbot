@@ -242,6 +242,53 @@ def test_a_claim_walk_taps_through_multiple_rounds_when_more_than_one_tier_is_co
     assert RETURN_CONTROL in device.taps
 
 
+def test_a_claim_walk_stops_at_its_bound_even_if_claim_all_keeps_offering() -> None:
+    """`MAX_CLAIMS_PER_WALK` is a runaway backstop, not a measured capacity -
+    see its own comment. Proved with the constructor override rather than by
+    scripting twenty round trips: a ladder that ALWAYS offers `Claim All`
+    (never runs out on its own) must still stop at exactly `max_claims`
+    claims, and stop by tapping the return control and completing - not by
+    failing, and not merely by giving up early or overshooting.
+
+    The ladder frame is read off `claim.snapshot()['step']` rather than off a
+    fixed frame list: a truly page-driven `Claim All` would offer forever, so
+    only a walk that reads its OWN step can ever show `home()` again once the
+    return control has actually been tapped.
+    """
+    max_claims = 3
+    claim = milestones_claim.MilestonesClaim(max_claims=max_claims)
+    claim.request(now=0.)
+    bus = FakeBus()
+    templates, device = FakeTemplates(), FakeDevice()
+
+    class AlwaysClaimable:
+        def claim_evidence(self) -> dict[str, Any]:
+            step = claim.snapshot()['step']
+            if step == 'modal':
+                return modal('25 COINS', 'coins', 25)
+            if step in ('open_milestones', 'confirm_home'):
+                return home()
+            return ladder(1, CLAIM_ALL_RECT)  # 'ladder', every single time
+
+    readings = AlwaysClaimable()
+    for _ in range(40):
+        if not claim.active:
+            break
+        claim.advance(screen=screen(claim.snapshot()['step']), device=device,
+                      templates=templates, readings=FakePanel(), milestones=readings,
+                      bus=bus, state='MAIN_MENU', now=0.)
+
+    claimed = bus.of(events.MilestoneClaimed)
+    assert len(claimed) == max_claims
+    result = claim.snapshot()['result']
+    assert result['status'] == 'completed' and result['reason'] == 'claim_bound_reached'
+    ended = bus.of(events.ClaimEnded)
+    assert ended and ended[-1].claimed == max_claims and ended[-1].aborted is False
+    assert RETURN_CONTROL in device.taps
+    assert device.taps.count(CLAIM_ALL_TAP) == max_claims
+    assert device.taps.count(CLAIM_MODAL_CONTROL) == max_claims
+
+
 def test_a_ladder_that_never_reappears_after_claim_ends_the_walk_as_uncertain() -> None:
     """A tap that changed nothing observable is reported, not repeated.
 

@@ -30,6 +30,13 @@ shaped by the page itself, not by choice:
   visible reward would never end; a loop keyed on `Claim All` ends the
   instant the page has nothing left this account can actually take.
 
+`Claim All` disappearing is the terminal condition, not the only stop: a
+misread ladder that keeps re-offering it would otherwise cycle
+ladder -> modal -> ladder forever, since a confirmed claim resets the wait
+budget rather than exhausting it. `MAX_CLAIMS_PER_WALK` exists as a backstop
+against exactly that failure mode - see its own comment for why it is a
+safety number, not a measured one.
+
 `nav/skip.png` also matches the reward modal at 1.0000, and this walk never
 taps it: only CLAIM was ever exercised on a real device, and whether SKIP
 claims the remaining rewards or discards them is unknown. Tapping an
@@ -78,6 +85,18 @@ CLAIM_TEMPLATE = 'nav/claim_reward.png'
 LADDER_SCREEN = 'milestones.ladder'
 MODAL_SCREEN = 'milestones.reward_modal'
 
+# A RUNAWAY BACKSTOP, not a measured capacity - unlike missions'
+# MAX_CLAIMS_PER_WALK, which the page's own "8/8" caps for real. Nothing here
+# measures a ceiling on how many tiers this ladder can offer at once: the
+# recorded captures show TEN visible reward slots (five rows across two
+# tracks) on menu_milestones_claimable.png, and this walk neither scrolls the
+# ladder nor changes tier, so nothing it ever actually reads comes anywhere
+# close to twenty. Twenty exists solely so a ladder that keeps re-offering
+# `Claim All` - a misread of the reflow, confirming a claim resets the wait
+# budget rather than exhausting it - cannot cycle this walk forever; it is
+# not a claim that twenty rewards were ever seen on one ladder.
+MAX_CLAIMS_PER_WALK = 20
+
 TARGET = 'milestones'
 
 
@@ -115,10 +134,12 @@ class MilestonesClaim(ControlTaps):
     """At most one MILESTONES claim walk, driven one frame at a time."""
 
     def __init__(self, *, threshold: float = MATCH_THRESHOLD,
-                 frame_budget: int = STEP_FRAME_BUDGET) -> None:
+                 frame_budget: int = STEP_FRAME_BUDGET,
+                 max_claims: int = MAX_CLAIMS_PER_WALK) -> None:
         self._lock = threading.RLock()
         self._threshold = threshold
         self._budget = frame_budget
+        self._max_claims = max_claims
         self._step = Step.IDLE
         self._waited = 0
         self._requested_at: float | None = None
@@ -128,6 +149,11 @@ class MilestonesClaim(ControlTaps):
         self._bus: Any = None
         self._claimed = 0
         self._announced = False
+        # Set only when the RETURN tap fires because the bound was reached
+        # rather than because `Claim All` genuinely ran out - so the final
+        # reason can tell the two apart. Reaching the bound is the walk doing
+        # its job, not a failure: this never affects `status` or `aborted`.
+        self._bound_reached = False
         # The tier read from the LADDER right before `Claim All` was tapped -
         # a plain int, held only until the modal names the reward it belongs
         # with. Not part of `_pending`: nothing is "pending" confirmation
@@ -170,6 +196,7 @@ class MilestonesClaim(ControlTaps):
             self._waited = 0
             self._claimed = 0
             self._announced = False
+            self._bound_reached = False
             self._tier_at_claim = None
             self._pending = None
             self._trail = []
@@ -216,6 +243,17 @@ class MilestonesClaim(ControlTaps):
             if not at_page_home(state, readings.current_evidence(), evidence):
                 return self._wait('home_not_restored', 'The milestones ladder was walked, but '
                                   'the main menu was not confirmed again.', moment)
+            if self._bound_reached:
+                # A backstop ending, not a failure: `status` is still
+                # 'completed' and ClaimEnded still publishes `aborted=False`
+                # below, the same as an ordinary end. Only `reason` differs,
+                # so a caller can tell "the bound stopped a walk that would
+                # otherwise still be claiming" apart from "Claim All ran out".
+                return self._finish('completed', 'claim_bound_reached',
+                                    f'{self._claimed} milestone reward(s) were claimed - the walk '
+                                    f'stopped at its {self._max_claims}-claim safety backstop with '
+                                    'Claim All still offering more - and the game returned to the '
+                                    'main menu.', moment)
             return self._finish('completed', 'claimed', f'{self._claimed} milestone reward(s) '
                                 'were claimed and the game returned to the main menu.', moment)
 
@@ -257,10 +295,18 @@ class MilestonesClaim(ControlTaps):
         # confirmed a claim, in which case THIS frame - not a stale one - is
         # what `claim_all` below is read from.
         claim_all = evidence['claim_all']
-        if claim_all is None:
-            # The terminal condition. Never "no reward still glows" - see
-            # this module's docstring for the premium reward that always
-            # does.
+        if claim_all is None or self._claimed >= self._max_claims:
+            # `claim_all is None` is the terminal condition proper - never
+            # "no reward still glows", see this module's docstring for the
+            # premium reward that always does. The claimed-count check is the
+            # OTHER way home: a safety backstop, not a second terminal
+            # condition this walk expects to hit for real - see
+            # MAX_CLAIMS_PER_WALK's own comment. Recorded so the walk still
+            # reports which one fired, since ending at the backstop is not a
+            # failure but is a fact worth telling apart from a ladder that
+            # genuinely ran out.
+            if claim_all is not None:
+                self._bound_reached = True
             return self._tap(screen, device, templates, RETURN_TEMPLATE,
                              'return_control', Step.CONFIRM_HOME, moment)
 
@@ -369,4 +415,5 @@ class MilestonesClaim(ControlTaps):
         self._waited = 0
         self._pending = None
         self._tier_at_claim = None
+        self._bound_reached = False
         return None
