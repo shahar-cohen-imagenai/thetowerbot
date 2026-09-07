@@ -163,6 +163,21 @@ UNKNOWN_DIR: Path = Path(__file__).parent / "unknown"
 UNKNOWN_MIN_INTERVAL: float = 30.0
 UNKNOWN_KEEP: int = 50
 
+# How far two 64-bit difference hashes may sit apart and still be called the
+# same screen. The rate limit alone does not stop a bot parked on one
+# unmodelled screen from spending all fifty slots on it, so frames are also
+# compared against what is already kept.
+#
+# Measured over every committed fixture (820 pairs, median 26 bits apart):
+# the same screen redrawn stays within 8 - a fade scores 3, the death modal
+# shifted 46px by its "New Highest Wave!" line scores 7, a scrolled missions
+# list scores 8. The nearest pair that is genuinely two different screens is
+# the main menu against the milestones page, at 11. There is no empty gap
+# between the two bands, so this is a chosen tradeoff and not a natural
+# boundary: 8 keeps a 3-bit margin under the first wrong answer, and errs
+# towards saving a duplicate rather than dropping a screen nobody has seen.
+UNKNOWN_HASH_DISTANCE: int = 8
+
 # --- Resolution guard ------------------------------------------------------
 # Templates are not scale-invariant. A different emulator resolution
 # invalidates every one of them.
