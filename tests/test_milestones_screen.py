@@ -134,3 +134,36 @@ def test_claim_evidence_carries_this_frames_target_and_nothing_older() -> None:
     readings.scan(frame('menu_milestones_claimed'),
                   boxes=boxes('menu_milestones_claimed'))
     assert readings.claim_evidence()['claim_all'] is None
+
+
+def test_a_modal_with_an_unreadable_claim_holds_rather_than_releases() -> None:
+    """The hazard Ruling 7 exists for: a milestones screen that IS up but
+    cannot be fully read must HOLD, never be read as 'nothing up' - releasing
+    here would open the modal's own SKIP/CLAIM to shopping.py's OPEN_CARDS
+    dismiss walk. Built by dropping CLAIM off the recorded modal boxes: SKIP
+    alone is still presence (that is the whole point of keying the probe on
+    SKIP), but discover() then cannot confirm which milestones screen this
+    is, so parse_frame returns None and the frame must carry an explicit
+    error rather than the all-clear 'error: None' that means nothing is up."""
+    name = 'menu_milestones_reward_modal'
+    without_claim = tuple(b for b in boxes(name) if b.text.strip().upper() != 'CLAIM')
+    readings = milestones_screen.MilestonesReadings()
+    assert readings.scan(frame(name), boxes=without_claim) is True
+    evidence = readings.current_evidence()
+    assert evidence['screen_id'] is None
+    assert evidence['error'] is not None
+
+
+def test_the_missions_page_does_not_trip_the_modal_presence_probe() -> None:
+    """The missions page's lowest CLAIM box sits at y=2078, which now falls
+    INSIDE the widened claim band (1840, 2080) by 2 pixels. Presence requires
+    a trusted SKIP too, and the missions page has none, so this pins that the
+    skip-AND-claim conjunction - not the band's upper edge - is what keeps
+    this page from being read as a possible reward ceremony."""
+    import screen_discovery
+    name = 'menu_missions_claimable_no_status_bar'
+    found = screen_discovery.discover(frame(name), boxes(name), 'milestones')
+    assert found.screen_id is None
+    readings = milestones_screen.MilestonesReadings()
+    assert readings.scan(frame(name), boxes=boxes(name)) is False
+    assert readings.current_evidence()['error'] is None

@@ -728,3 +728,21 @@ def test_a_lone_claim_in_the_modal_band_is_not_a_reward_ceremony() -> None:
     frame = cv2.imread(str(FIXTURES / 'menu_milestones_claimable.png'))
     found = screen_discovery.discover(frame, with_claim, 'milestones')
     assert found.screen_id == 'milestones.ladder'
+
+
+def test_the_modal_bands_widen_downward_too_on_a_status_bar_device() -> None:
+    """The modal has no title to measure a gap from, unlike the ladder - but it
+    is the same device fact: a status-bar device draws this overlay LOWER than
+    the edge-to-edge capture, not higher, so SKIP and CLAIM's absolute bands
+    must widen downward exactly like the ladder title band does. Shifted by
+    +136, the same measured offset the ladder title-band test uses, because
+    both anchors come from the same one fact about the device."""
+    import screen_discovery
+    boxes = recorded('menu_milestones_reward_modal')
+    shifted = tuple(
+        ocr.TextBox(b.text, b.confidence,
+                    config.Rect(b.rect.x, b.rect.y + 136, b.rect.w, b.rect.h))
+        for b in boxes)
+    frame = cv2.imread(str(FIXTURES / 'menu_milestones_reward_modal.png'))
+    found = screen_discovery.discover(frame, shifted, 'milestones')
+    assert found.screen_id == 'milestones.reward_modal'

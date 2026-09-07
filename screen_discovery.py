@@ -183,9 +183,15 @@ _MILESTONES_TITLE_TO_TIER = (1985, 2025)
 # reason _MISSIONS_COUNT and _CARDS_SLOTS match raw text.
 _MILESTONES_TIER = re.compile(r'tier\s*(\d+)', re.I)
 
-# The reward ceremony `Claim All` opens. It is a centred overlay with no title,
-# so its anchors are absolute rather than measured from a title - and it has
-# been captured on ONE layout only. See the spec's Limits.
+# The reward ceremony `Claim All` opens. It is a centred overlay with no title
+# to measure from, so unlike every other page's anchors these stay absolute -
+# and it has been captured on ONE layout only, the edge-to-edge device. See
+# the spec's Limits.
+#
+# Both bands widen DOWNWARD by MAX_TOP_INSET at the point of use, same
+# direction and same reasoning as _milestones_title: the capture is inset-0,
+# and a device that reserves a status bar draws this overlay LOWER, not
+# higher - there is no title on this screen to measure the gap from instead.
 _MODAL_SKIP_Y = (252, 292)
 _MODAL_CLAIM_Y = (1840, 1880)
 
@@ -404,6 +410,25 @@ def milestones_tier(boxes: tuple[ocr.TextBox, ...]) -> int | None:
     return int(matches[0][1]) if len(matches) == 1 else None
 
 
+def _modal_skip(boxes: tuple[ocr.TextBox, ...]) -> ocr.TextBox | None:
+    """The reward modal's SKIP button, wherever this device's inset put it.
+
+    Public-enough for milestones_screen to probe with directly, the way
+    missions_screen already probes _missions_title: SKIP is the one anchor
+    that appears on exactly one committed capture, the reward modal, so it is
+    a discriminating presence signal on its own - unlike `claim`, which also
+    appears on the missions page and would false-positive there.
+    """
+    return _single(boxes, 'skip',
+                   (_MODAL_SKIP_Y[0], _MODAL_SKIP_Y[1] + MAX_TOP_INSET))
+
+
+def _modal_claim(boxes: tuple[ocr.TextBox, ...]) -> ocr.TextBox | None:
+    """The reward modal's CLAIM button, wherever this device's inset put it."""
+    return _single(boxes, 'claim',
+                   (_MODAL_CLAIM_Y[0], _MODAL_CLAIM_Y[1] + MAX_TOP_INSET))
+
+
 def _discover_milestones(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
     """The ladder on its title and tier, the modal on its two buttons.
 
@@ -415,8 +440,8 @@ def _discover_milestones(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
     anchor sets are disjoint on every frame measured so far, so this order
     does not currently decide anything.
     """
-    skip = _single(boxes, 'skip', _MODAL_SKIP_Y)
-    claim = _single(boxes, 'claim', _MODAL_CLAIM_Y)
+    skip = _modal_skip(boxes)
+    claim = _modal_claim(boxes)
     if skip is not None and claim is not None:
         return ScreenDiscovery('milestones.reward_modal', True, 'recorded_layout')
     title = _milestones_title(boxes)

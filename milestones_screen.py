@@ -179,12 +179,24 @@ class MilestonesReadings:
     def scan(self, screen: Image, *, boxes: tuple[ocr.TextBox, ...] | None = None) -> bool:
         """Update from this frame; return whether all actions must hold.
 
-        Actions hold whenever a milestones screen is up. This matters most for
-        the reward modal: it is a full-screen overlay carrying a tappable CLAIM,
-        and config.NAV_DISMISS - which shopping.py walks to clear first-visit
-        popups - contains nav/claim_reward.png and nav/skip.png, BOTH of which
-        score 1.0000 on it. Without this guard that walk could silently claim a
-        milestone reward with no ledger line, or tap SKIP and discard it.
+        Actions hold whenever a milestones screen is up OR MIGHT BE - the
+        distinction below is why this probes presence before parsing, the way
+        missions_screen.scan probes screen_discovery._missions_title before
+        parse_frame. `parse_frame` returning None conflates two different
+        facts: "no milestones page is up" and "one is up but unreadable", and
+        collapsing them to a release would be wrong for the second. That
+        matters most for the reward modal: it is a full-screen overlay
+        carrying a tappable CLAIM, and config.NAV_DISMISS - which shopping.py
+        walks to clear first-visit popups - contains nav/claim_reward.png and
+        nav/skip.png, BOTH of which score ~0.99999 on it. A HOLD-vs-RELEASE
+        decision that trusted `parse_frame is None` alone would release on an
+        unreadable modal precisely when the guard is needed most, letting
+        that walk silently claim a reward with no ledger line, or tap SKIP
+        and discard one.
+
+        Presence is the ladder title OR a trusted SKIP in its widened band -
+        never CLAIM: the missions page carries four CLAIM boxes, so using it
+        here would call a definite missions frame a possible milestones one.
 
         `boxes` lets the caller hand in a frame read it already paid for. A
         tick runs two full-frame readers; reading the same bytes twice is a
@@ -196,13 +208,18 @@ class MilestonesReadings:
         try:
             if boxes is None:
                 boxes = ocr.read(screen, strict=True)
-            reading = parse_frame(screen, boxes)
-            if reading is None:
-                # Examined the whole frame, and no milestones screen is up.
-                # The one branch that may stand for "clear".
+            present = (screen_discovery._milestones_title(boxes) is not None
+                      or screen_discovery._modal_skip(boxes) is not None)
+            if not present:
+                # Examined the whole frame, and no milestones anchor anywhere
+                # in the bands screen_discovery searches. This is the one
+                # branch that may stand for "no milestones page is up".
                 self.observe(None, scanned=True)
                 return False
-            self.observe(reading, scanned=True)
+            reading = parse_frame(screen, boxes)
+            self.observe(reading, scanned=True,
+                        error=None if reading is not None else
+                        'A milestones screen is up but could not be read reliably')
             return True
         except Exception:
             # Unscanned, not clear: a failed reader has looked at nothing.
