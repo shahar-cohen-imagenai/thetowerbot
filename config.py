@@ -185,6 +185,24 @@ NAV_BUTTONS: dict[str, tuple[str, str]] = {
 # HOME sits beside RETRY on the same screen and lands there directly.
 GAME_OVER_HOME: tuple[str, str] = ("HOME", "buttons/home.png")
 
+# The way off a menu page, keyed by PAGE_ANCHORS name rather than by
+# ScreenState. NAV_BUTTONS cannot carry these: ScreenState models the run
+# lifecycle only, so every menu page reads UNKNOWN to it (see pages.py), and
+# UNKNOWN is the one key that must NOT tap - a screen nobody modelled has no
+# known exit to aim at. The page name is the evidence that this frame does.
+#
+# Both land on the bottom tab bar's Battle tab, which is the same control
+# shopping.py's RETURN step taps to end a visit.
+#
+# MISSIONS and the MILESTONES screens are deliberately absent. Their passive
+# readers own the frame and return from the scan before the navigation block
+# is reached, and their transactions tap MISSIONS_RETURN themselves - an
+# entry here would be a second hand on the same wheel.
+MENU_NAV_BUTTONS: dict[str, tuple[str, str]] = {
+    "WORKSHOP": ("BATTLE_TAB", "nav/tab_battle.png"),
+    "CARDS": ("BATTLE_TAB", "nav/tab_battle.png"),
+}
+
 # --- Digit reading --------------------------------------------------------
 # Numbers are light glyphs on a dark panel. Binarise, split by column gaps,
 # match each glyph against a per-size-class atlas.

@@ -52,6 +52,7 @@ import events
 import jitter
 import ledger
 import ocr
+import pages
 import screens
 import speed
 import transactions
@@ -724,6 +725,22 @@ class TowerBot:
         # walks are UNKNOWN to the tracker by design - see pages.py.
         visiting = self.shopping.active
 
+        # Which menu page this is, when the tracker cannot say. ScreenState
+        # models the run lifecycle only, so WORKSHOP and CARDS both read
+        # UNKNOWN to it by design (see pages.py) - but "unknown" and
+        # "unmodelled" are not the same thing, and everything below this line
+        # that used to conflate them got it wrong: the frame was filed as a
+        # mystery, reported as one, and left un-navigated.
+        #
+        # Computed only on the UNKNOWN path, which is the only path that asks.
+        # Four templates at ~130ms is real, and this buys it on precisely the
+        # scans where the bot has nothing else to do with the frame - the
+        # action loop below gates on IN_RUN. `not visiting` because a live
+        # visit owns the frame and already classifies it for itself.
+        menu_page = pages.UNKNOWN
+        if self.tracker.confirmed and state is screens.ScreenState.UNKNOWN and not visiting:
+            menu_page = pages.classify_page(self.screen, self.templates).page
+
         # A CONFIRMED unknown, not the tracker's initial placeholder value.
         # Snapshotting on the placeholder means scan 1 of every launch saves
         # a perfectly recognisable screen; at 50 kept files, 50 launches
@@ -733,7 +750,15 @@ class TowerBot:
         # unknown/ with pictures of the very pages it is deliberately
         # visiting, evicting the genuine unmodelled screens the directory
         # exists to hold.
-        if self.tracker.confirmed and state is screens.ScreenState.UNKNOWN and not visiting:
+        #
+        # And `menu_page` for the case `visiting` always missed: parked on a
+        # menu page with no visit running - an idle bot, a visit that just
+        # ended, a device a human left on the workshop - the guard above was
+        # simply off. Measured live: fifty consecutive snapshots of the
+        # UTILITY tab, every one of them a page classify_page names at 1.000,
+        # filling the whole directory and evicting every genuine find.
+        if (self.tracker.confirmed and state is screens.ScreenState.UNKNOWN
+                and not visiting and menu_page == pages.UNKNOWN):
             path = self.snapshots.maybe_write(self.screen)
             if path is not None:
                 best = max(reading.scores, key=lambda name: reading.scores[name])
@@ -801,12 +826,15 @@ class TowerBot:
                         clicked = True
         else:
             self.autopilot.suspend(f"Waiting for battle ({state.value})")
+            # Names the menu page when there is one to name. "screen is
+            # UNKNOWN" is true of the workshop and useless on it: the feed's
+            # job here is to say what the bot is waiting on, and "the
+            # WORKSHOP page" is the answer a reader can act on.
+            detail = f"screen is {state.value}"
+            if menu_page != pages.UNKNOWN:
+                detail = f"{detail} (the {menu_page} page)"
             self.bus.publish(
-                events.Skipped(
-                    action="*",
-                    reason="screen_gated",
-                    detail=f"screen is {state.value}",
-                )
+                events.Skipped(action="*", reason="screen_gated", detail=detail)
             )
 
         if self.frames is not None:
@@ -846,6 +874,13 @@ class TowerBot:
                 go_home=self.shopping.due(
                     settings.strategy.shopping, self.runs.completed
                 ),
+                # The way off a menu page. NAV_BUTTONS is keyed by
+                # ScreenState, which has no member for one, so the bot could
+                # neither act on the workshop (the loop above gates on
+                # IN_RUN) nor leave it: measured live, twenty unbroken
+                # minutes on the UTILITY tab. UNKNOWN with nothing named
+                # still taps nothing - see config.MENU_NAV_BUTTONS.
+                menu_page=None if menu_page == pages.UNKNOWN else menu_page,
             )
 
         # Checked after navigation, and begin() checked after advance() below:

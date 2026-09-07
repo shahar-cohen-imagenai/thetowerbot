@@ -122,3 +122,35 @@ def test_go_home_does_not_disturb_the_main_menu(nav: Navigator) -> None:
     )
 
     assert target == "BATTLE"
+
+
+@pytest.mark.parametrize("fixture, page", [
+    ("menu_workshop_utility", "WORKSHOP"),
+    ("menu_cards", "CARDS"),
+])
+def test_a_named_menu_page_gets_a_route_back_to_the_menu(
+    nav: Navigator, fixture: str, page: str,
+) -> None:
+    """NAV_BUTTONS is keyed by ScreenState, and a menu page is UNKNOWN to it -
+    so a bot parked on the workshop could neither act (the action loop gates
+    on IN_RUN) nor leave. Measured live: twenty unbroken minutes of doing
+    nothing on the UTILITY tab.
+    """
+    dev = MagicMock()
+    target = nav.maybe_navigate(
+        frame(fixture), ScreenState.UNKNOWN, dev, now=0.0, menu_page=page
+    )
+
+    assert target == "BATTLE_TAB"
+    dev.click.assert_called_once()
+
+
+def test_an_unnamed_unknown_screen_is_still_left_alone(nav: Navigator) -> None:
+    """The positive control: UNKNOWN with no page named is a screen nobody
+    modelled, and tapping a guess at where its exit might be is exactly the
+    blind tap this module refuses to make elsewhere."""
+    dev = MagicMock()
+    assert nav.maybe_navigate(
+        frame("menu_workshop_utility"), ScreenState.UNKNOWN, dev, now=0.0
+    ) is None
+    dev.click.assert_not_called()
