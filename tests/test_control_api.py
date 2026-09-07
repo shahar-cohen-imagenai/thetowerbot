@@ -404,3 +404,58 @@ def test_a_backend_without_a_runner_cannot_be_asked_to_visit_missions() -> None:
     with _account_client(None) as client:
         assert client.get("/api/missions").json() == {}
         assert client.post("/api/missions/visit").status_code == 412
+
+
+# -- Missions claim transaction --------------------------------------------
+class _FakeClaimRunner:
+    """Only what the claim routes touch: the transaction and one request gate."""
+
+    def __init__(self, error: Exception | None = None) -> None:
+        from missions_claim import MissionsClaim
+        from missions_screen import MissionsReadings
+
+        self.claim = MissionsClaim()
+        self.missions = MissionsReadings()
+        self.autopilot_state = None
+        self._error = error
+
+    def status(self) -> dict:
+        return {"running": True, "since": 1.0, "error": None}
+
+    def request_missions_claim(self) -> dict:
+        if self._error is not None:
+            raise self._error
+        self.claim.request()
+        return self.claim.snapshot()
+
+
+def test_claiming_missions_arms_the_walk_and_reports_it_on_the_missions_page() -> None:
+    runner = _FakeClaimRunner()
+    with _account_client(runner) as client:
+        assert client.get("/api/missions").json()["claim"]["status"] == "idle"
+        armed = client.post("/api/missions/claim").json()
+        assert armed["status"] == "running"
+        assert armed["step"] == "open_missions"
+        assert client.get("/api/missions").json()["claim"]["status"] == "running"
+
+
+@pytest.mark.parametrize("status_code,message", [
+    (409, "Claiming missions requires a confirmed main menu"),
+    (409, "A milestones claim is already walking the menus"),
+    (503, "Mission claims are unavailable: the OCR engine could not be built"),
+])
+def test_a_refused_missions_claim_keeps_the_runner_s_status_code_and_reason(
+    status_code: int, message: str,
+) -> None:
+    from runner import RunnerError
+
+    with _account_client(_FakeClaimRunner(RunnerError(message, status_code))) as client:
+        response = client.post("/api/missions/claim")
+        assert response.status_code == status_code
+        assert response.json()["detail"] == message
+
+
+def test_a_backend_without_a_runner_cannot_be_asked_to_claim_missions() -> None:
+    """412, not 404: no runner means no device transaction was ever possible."""
+    with _account_client(None) as client:
+        assert client.post("/api/missions/claim").status_code == 412

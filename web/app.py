@@ -309,9 +309,12 @@ def create_app(
         """
         missions = getattr(runner, "missions", None)
         visit = getattr(runner, "visit", None)
+        claim = getattr(runner, "claim", None)
         payload: dict[str, Any] = {} if missions is None else missions.snapshot()
         if visit is not None:
             payload["visit"] = visit.snapshot()
+        if claim is not None:
+            payload["claim"] = claim.snapshot()
         return payload
 
     @app.post("/api/missions/visit")
@@ -323,6 +326,24 @@ def create_app(
         re-derived here.
         """
         request = getattr(runner, "request_missions_visit", None)
+        if request is None:
+            raise HTTPException(412, "This backend cannot run device transactions")
+        try:
+            return request()
+        except RunnerError as exc:
+            raise HTTPException(exc.status_code, str(exc)) from None
+
+    @app.post("/api/missions/claim")
+    def claim_missions() -> dict[str, Any]:
+        """Arm one Home -> Missions -> claim -> Home walk.
+
+        Arms it only - the scan loop is what walks it, one verified step per
+        frame - and every refusal comes from the runner rather than being
+        re-derived here. getattr rather than an `if runner is not None`
+        block, so a backend without a runner answers 412 ("this backend
+        cannot") instead of 404 ("no such thing").
+        """
+        request = getattr(runner, "request_missions_claim", None)
         if request is None:
             raise HTTPException(412, "This backend cannot run device transactions")
         try:
