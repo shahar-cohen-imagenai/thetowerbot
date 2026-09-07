@@ -164,6 +164,31 @@ _CARDS_ACTIVE_Y = (484, 524)
 _CARDS_SLOTS_Y = (535, 575)
 _CARDS_SLOTS = re.compile(r'(\d+)\s*/\s*(\d+)')
 
+# The MILESTONES ladder. Measured on menu_milestones_claimable, which - like
+# every milestones capture - comes from the edge-to-edge device, so the title
+# sits at y=113 where the MISSIONS anchors were recorded at y=249 on a device
+# that reserves a status bar.
+#
+# The band therefore widens DOWNWARD by MAX_TOP_INSET, where the missions band
+# widens upward. Same one fact about the device, opposite direction, because
+# the recording is the other layout: a device WITH a status bar draws this page
+# LOWER than the capture, not higher.
+_MILESTONES_TITLE_Y = (93, 133)
+# Title at y=113, `Tier 1` at y=2118: a gap of 2005, measured from the page's
+# own title rather than from the frame edge, for the same reason every other
+# anchor here is.
+_MILESTONES_TITLE_TO_TIER = (1985, 2025)
+# Matched against RAW text, not a normalised label: tiles.normalise('Tier 1')
+# is 'tier1', which bakes the tier number into the thing being compared. Same
+# reason _MISSIONS_COUNT and _CARDS_SLOTS match raw text.
+_MILESTONES_TIER = re.compile(r'tier\s*(\d+)', re.I)
+
+# The reward ceremony `Claim All` opens. It is a centred overlay with no title,
+# so its anchors are absolute rather than measured from a title - and it has
+# been captured on ONE layout only. See the spec's Limits.
+_MODAL_SKIP_Y = (252, 292)
+_MODAL_CLAIM_Y = (1840, 1880)
+
 # These bounds cover the central bordered panels in the two recorded Workshop
 # overlays (740x702 and 890x1132) and two game-over captures (986x1116/1212).
 # Recorded upgrade tiles are only 196px high. This is a fail-closed guard for
@@ -352,6 +377,52 @@ def _discover_missions(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
     return ScreenDiscovery('missions.daily', True, 'recorded_layout')
 
 
+def _milestones_title(boxes: tuple[ocr.TextBox, ...]) -> ocr.TextBox | None:
+    """The MILESTONES title, wherever this device's inset put it.
+
+    Exactly one or nothing, like every other page title here: two are not
+    evidence of a page, they are evidence of a misread.
+    """
+    return _single(boxes, 'milestones',
+                   (_MILESTONES_TITLE_Y[0], _MILESTONES_TITLE_Y[1] + MAX_TOP_INSET))
+
+
+def milestones_tier(boxes: tuple[ocr.TextBox, ...]) -> int | None:
+    """Which tier's ladder this is, or None if not certain.
+
+    Located by its measured distance below the page title rather than by
+    frame y, for the reason MAX_TOP_INSET exists. No title means no origin to
+    measure from, which is not certainty.
+    """
+    title = _milestones_title(boxes)
+    if title is None:
+        return None
+    low, high = _MILESTONES_TITLE_TO_TIER
+    matches = [m for m in (_MILESTONES_TIER.fullmatch(b.text.strip())
+                           for b in boxes if b.confidence >= .9
+                           and low <= b.rect.y - title.rect.y <= high) if m]
+    return int(matches[0][1]) if len(matches) == 1 else None
+
+
+def _discover_milestones(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
+    """The ladder on its title and tier, the modal on its two buttons.
+
+    Checked modal-first: the modal is an overlay drawn OVER the ladder, so a
+    frame carrying both sets of anchors is the modal. In the recorded captures
+    it carries neither of the ladder's, which is what the tests pin.
+    """
+    skip = _single(boxes, 'skip', _MODAL_SKIP_Y)
+    claim = _single(boxes, 'claim', _MODAL_CLAIM_Y)
+    if skip is not None and claim is not None:
+        return ScreenDiscovery('milestones.reward_modal', True, 'recorded_layout')
+    title = _milestones_title(boxes)
+    if title is None or milestones_tier(boxes) is None:
+        return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')
+    if not 0 <= title.rect.x <= 70:
+        return ScreenDiscovery(None, False, 'unsupported_layout')
+    return ScreenDiscovery('milestones.ladder', True, 'recorded_layout')
+
+
 def capabilities() -> dict[str, Any]:
     """Return a detached support matrix; catalog existence is not coverage."""
     return {
@@ -477,7 +548,7 @@ def discover(
         return ScreenDiscovery(None, False, 'unsupported_geometry')
     if locale != 'en':
         return ScreenDiscovery(None, False, 'unsupported_locale')
-    if context not in ('workshop', 'battle', 'missions', 'cards'):
+    if context not in ('workshop', 'battle', 'missions', 'cards', 'milestones'):
         return ScreenDiscovery(None, False, 'unsupported_context')
     labels = {tiles.normalise(b.text) for b in boxes}
     if {'currentlevel', 'maxlevel'} <= labels:
@@ -490,6 +561,8 @@ def discover(
         return _discover_missions(boxes)
     if context == 'cards':
         return _discover_cards(boxes)
+    if context == 'milestones':
+        return _discover_milestones(boxes)
     headings = [b for b in boxes if _upgrade_label(b) is not None]
     if len(headings) != 1 or headings[0].confidence < .9:
         return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')
