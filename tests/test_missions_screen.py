@@ -880,7 +880,10 @@ def test_a_malformed_box_holds_without_ever_calling_ocr(
         def confidence(self) -> float:
             raise AssertionError('boxes must not be read this way')
 
+    calls: list[int] = []
+
     def boom(*args, **kwargs):
+        calls.append(1)
         raise AssertionError('ocr.read must not be called when boxes are supplied')
 
     monkeypatch.setattr(missions_screen.ocr, 'read', boom)
@@ -888,3 +891,4 @@ def test_a_malformed_box_holds_without_ever_calling_ocr(
     screen = cv2.imread(str(FIXTURES / 'menu_missions.png'), cv2.IMREAD_COLOR)
     assert readings.scan(screen, boxes=(MalformedBox(),)) is True
     assert readings.current_evidence()['error'] is not None
+    assert calls == []
