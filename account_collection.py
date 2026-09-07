@@ -147,10 +147,32 @@ def at_home(state: str, evidence: dict[str, Any]) -> bool:
     positive panel identity to check against.
 
     Module-level so that every transaction walking out of the main menu
-    tests home the same way; missions_visit is the second caller.
+    tests home the same way; missions_visit and missions_claim are the
+    second and third callers.
     """
     return (state == HOME_STATE and bool(evidence['scanned'])
             and evidence['screen_id'] is None and evidence['error'] is None)
+
+
+def at_missions_home(state: str, account: dict[str, Any],
+                     missions: dict[str, Any]) -> bool:
+    """Home by the anchor, the panel reader AND the missions reader.
+
+    The tracker is debounced, so for a scan or two after the return control
+    is tapped it still says MAIN_MENU while the frame is very much still the
+    missions page. Confirming home off the anchor alone would let a walk
+    report "returned to the main menu" from the page it never left. The
+    missions reader looked at the same frame, so it is asked too, and only
+    its examined-and-clear answer counts - `scanned` False is a reader that
+    reached no conclusion, never a clear menu.
+
+    Shared so that missions_visit and missions_claim - and any later walk
+    leaving the main menu through the missions page - test home the same
+    way, for the identical reason `at_home` above is shared rather than
+    copied: two predicates that must agree will otherwise drift.
+    """
+    return (at_home(state, account) and bool(missions['scanned'])
+            and missions['screen_id'] is None and missions['error'] is None)
 
 
 class ControlTaps:

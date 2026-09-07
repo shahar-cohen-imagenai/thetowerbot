@@ -601,3 +601,226 @@ def test_the_holder_snapshot_exposes_no_field_a_tap_could_be_read_from() -> None
         assert set(entry) == {'threshold', 'status', 'confidence'}
     assert 'rect' not in json.dumps(snapshot)
     assert 'frame_digest' not in latest
+
+
+# --- devices that reserve no status bar -----------------------------------
+
+def no_status_bar() -> Image:
+    return cv2.imread(str(FIXTURES / 'menu_missions_claimable_no_status_bar.png'))
+
+
+def test_the_reader_reads_a_page_drawn_without_a_status_bar() -> None:
+    """The counter and the milestone strip are found from the title.
+
+    Recorded from a device that draws the game edge to edge, which paints the
+    same page 136px higher than every other missions capture.
+    """
+    name = 'menu_missions_claimable_no_status_bar'
+    reading = missions_screen.parse_frame(no_status_bar(), recorded(name))
+    assert reading is not None
+    assert (reading.completed, reading.completed_target) == (0, 35)
+    assert (reading.shown, reading.offered) == (8, 8)
+    assert [m.threshold for m in reading.milestones] == [5, 10, 15, 20, 25]
+    assert all(m.status == 'locked' for m in reading.milestones)
+
+
+def test_the_holder_no_longer_reports_a_missions_page_as_absent() -> None:
+    """The false negative this fix exists for, pinned.
+
+    `scanned=True` with `screen_id=None` is the reader's ONE branch that may
+    stand for "examined, and no missions page is up". Answering it while the
+    missions page fills the screen is worse than failing: everything built on
+    the reader silently does nothing instead of reporting a fault.
+    """
+    readings = missions_screen.MissionsReadings()
+    assert readings.scan(no_status_bar()) is True
+    assert readings.current_evidence() == {
+        'screen_id': 'missions.daily', 'error': None, 'scanned': True}
+
+
+def test_a_claim_moves_the_counter_on_an_inset_free_device() -> None:
+    """The two captures are one tap apart, and the counter says so.
+
+    Not a claiming test - nothing here taps. It pins that the reader sees the
+    difference a claim makes on this layout, which is what a later claim
+    transaction will use as its success test.
+    """
+    before = missions_screen.parse_frame(
+        no_status_bar(), recorded('menu_missions_claimable_no_status_bar'))
+    after = missions_screen.parse_frame(
+        cv2.imread(str(FIXTURES / 'menu_missions_claimed.png')),
+        recorded('menu_missions_claimed'))
+    assert (before.completed, after.completed) == (0, 1)
+    assert (before.shown, after.shown) == (8, 7)
+
+
+def test_a_second_title_leaves_the_page_without_an_origin() -> None:
+    """Two titles are a misread, not an origin.
+
+    screen_discovery accepts the page on one title inside its band. This
+    reader needs the stronger fact of WHERE that title is, because it
+    measures its own bands from it - so a second 'DAILY MISSIONS' box
+    outside that band satisfies the first check and destroys the second.
+    Refusing is the point: bands measured from a guessed origin would read
+    the counter off empty space and report numbers from nowhere.
+    """
+    name = 'menu_missions_claimable_no_status_bar'
+    boxes = recorded(name) + (
+        ocr.TextBox('DAILYMISSIONS', .99, config.Rect(32, 1500, 432, 40)),)
+    assert missions_screen.parse_frame(no_status_bar(), boxes) is None
+
+
+# --- claimable cards ------------------------------------------------------
+
+def claimable_frame() -> Image:
+    return cv2.imread(str(FIXTURES / 'menu_missions_claimable_no_status_bar.png'))
+
+
+def test_a_card_showing_claim_is_claimable_and_keeps_its_goal_in_its_id() -> None:
+    """A finished card has no bar, so its goal digit cannot be singled out.
+
+    Keeping every digit is the deliberate direction: an id that is too
+    specific splits one mission into two and each half is honestly reported,
+    while a loose id merges two and says nothing about it. The cost, accepted
+    and documented on identity_of, is that this same mission is
+    `kill_basic_enemies` while it still shows a bar.
+
+    `zo_0` and `z_0` are not a slug bug: this device's OCR misread '200' as
+    'zo0' and '20' as 'Z0' on this capture, and the id honestly carries that
+    garbled read rather than guessing the clean digits underneath - the same
+    "too specific is the safe direction" rule this test's docstring already
+    names. A re-record with a cleaner OCR pass is expected to change these
+    two ids; that is not a regression.
+    """
+    name = 'menu_missions_claimable_no_status_bar'
+    reading = missions_screen.parse_frame(claimable_frame(), recorded(name))
+    claimable = [m for m in reading.missions if m.status == 'claimable']
+    assert [m.mission_id for m in claimable] == [
+        'kill_zo_0_basic_enemies', 'start_1_battles',
+        'advance_through_a_total_of_70_waves', 'buy_z_0_battle_upgrades']
+    for entry in claimable:
+        assert entry.progress is None and entry.target is None
+
+
+def test_a_claimable_card_is_not_reported_as_unreadable() -> None:
+    """The bug this replaces: a CLAIM card parsed as `unreadable` with no id,
+    which also poisoned status_for by making the page look incompletely read."""
+    name = 'menu_missions_claimable_no_status_bar'
+    reading = missions_screen.parse_frame(claimable_frame(), recorded(name))
+    assert reading.status_for('start_1_battles') == 'claimable'
+
+
+def test_an_in_progress_card_on_the_same_page_is_still_available() -> None:
+    """The new status must not swallow the old ones."""
+    name = 'menu_missions_claimable_no_status_bar'
+    reading = missions_screen.parse_frame(claimable_frame(), recorded(name))
+    bars = [m for m in reading.missions if m.progress is not None]
+    assert bars and all(m.status in ('available', 'complete') for m in bars)
+
+
+def test_a_card_holding_both_a_bar_and_a_claim_button_is_unreadable() -> None:
+    """A bar is what the button replaces, so a card showing both is a misread
+    of one of them - and neither reading may be trusted over the other."""
+    name = 'menu_missions_claimable_no_status_bar'
+    boxes = recorded(name)
+    # 'Buy 1 cards' draws a 0/1 bar at (499,1024). Put a CLAIM in its card too.
+    strayed = boxes + (ocr.TextBox('CLAIM', .99, config.Rect(454, 1060, 153, 46)),)
+    reading = missions_screen.parse_frame(claimable_frame(), strayed)
+    entry = [m for m in reading.missions if 'cards' in m.raw_text.lower()]
+    assert len(entry) == 1 and entry[0].status == 'unreadable'
+
+
+def test_claim_targets_name_the_card_they_came_from_and_run_top_to_bottom() -> None:
+    name = 'menu_missions_claimable_no_status_bar'
+    boxes = recorded(name)
+    reading = missions_screen.parse_frame(claimable_frame(), boxes)
+    targets = missions_screen.claim_targets(reading, boxes)
+    assert [t.rect[1] for t in targets] == sorted(t.rect[1] for t in targets)
+    assert targets[0].rect == (454, 751, 153, 46)
+    assert 'basic enemies' in targets[0].raw_text
+    assert len(targets) == len([m for m in reading.missions if m.status == 'claimable'])
+    # Named by order, coins then gems - the order one live claim proved, by
+    # moving coins 6.06K -> 6.08K and gems 60 -> 63 against a 25/3 card.
+    assert (targets[0].coins, targets[0].gems) == (25, 3)
+
+
+def test_the_claimed_page_offers_one_fewer_target_and_a_moved_counter() -> None:
+    """The two captures are one tap apart. This is the transaction's success
+    test, pinned on the reader that will supply it."""
+    before_boxes = recorded('menu_missions_claimable_no_status_bar')
+    before = missions_screen.parse_frame(claimable_frame(), before_boxes)
+    after_boxes = recorded('menu_missions_claimed')
+    after = missions_screen.parse_frame(
+        cv2.imread(str(FIXTURES / 'menu_missions_claimed.png')), after_boxes)
+    assert (before.completed, after.completed) == (0, 1)
+    assert (len(missions_screen.claim_targets(before, before_boxes))
+            > len(missions_screen.claim_targets(after, after_boxes)))
+    assert not [m for m in after.missions if 'basic enemies' in m.raw_text.lower()]
+
+
+def test_claim_evidence_carries_the_counter_and_this_frames_targets() -> None:
+    readings = missions_screen.MissionsReadings()
+    assert readings.scan(claimable_frame()) is True
+    evidence = readings.claim_evidence()
+    assert evidence['screen_id'] == 'missions.daily'
+    assert evidence['completed'] == 0
+    assert len(evidence['claims']) == 4
+    # A frame with no missions page carries no targets - they are never stale.
+    readings.scan(workshop())
+    assert readings.claim_evidence()['claims'] == ()
+
+
+def test_claim_evidence_is_separate_from_the_home_test_every_walk_uses() -> None:
+    """current_evidence is what every transaction tests home against. Widening
+    it would make an unrelated caller's assertion depend on claiming."""
+    readings = missions_screen.MissionsReadings()
+    readings.scan(claimable_frame())
+    assert set(readings.current_evidence()) == {'screen_id', 'error', 'scanned'}
+
+
+def test_a_cards_own_text_saying_claim_does_not_make_it_a_button() -> None:
+    """'ClaimAd Gems3 times' is real card text, not a misread button.
+
+    Two independent guards keep it from being read as one: `tiles.normalise`
+    turns it into 'claimadgems3times', which the button check rejects
+    because it tests for EXACT equality with 'claim' rather than a
+    substring - a substring test would fire on this card's own name. And
+    even if it somehow matched, this box sits in the card's upper half,
+    above progress_edge, where the button predicate never looks. Either
+    guard alone would be enough; both hold here - which also means this
+    fixture cannot tell the two guards apart. See the constructed test
+    below for one that isolates the label guard on its own.
+    """
+    name = 'menu_missions_claimed'
+    reading = missions_screen.parse_frame(
+        cv2.imread(str(FIXTURES / 'menu_missions_claimed.png')), recorded(name))
+    entry = [m for m in reading.missions if m.mission_id == 'claimad_gems_times']
+    assert len(entry) == 1
+    assert entry[0].status == 'available'
+    targets = missions_screen.claim_targets(reading, recorded(name))
+    assert not [t for t in targets if t.mission_id == 'claimad_gems_times']
+
+
+def test_the_label_guard_is_exact_equality_not_a_substring_test() -> None:
+    """A constructed case: no recorded fixture isolates the label guard alone.
+
+    Every recorded CLAIM button reads exactly 'CLAIM', and nothing committed
+    here puts a superstring of it inside a card's button zone - so a
+    fixture-only test passes whether the check is exact equality or a
+    substring test, which is exactly how this guard slipped past review once
+    already. The case is not hypothetical: the milestones page, one slice
+    away, has a real button reading 'Claim All'
+    (tests/fixtures/ocr/menu_milestones_claimable.json).
+    `tiles.normalise('Claim All')` is 'claimall' - a substring test would
+    accept it as a CLAIM button, exact equality correctly does not.
+
+    This box is placed ON PURPOSE inside the button zone (below
+    progress_edge, left of reward_edge), so the position guard passes and
+    only the label comparison stands between a false claim and none.
+    """
+    card = config.Rect(17, 738, 1046, 242)
+    reward_edge = card.x + card.w * missions_screen._REWARD_LEFT_FRACTION
+    progress_edge = card.y + card.h * missions_screen._PROGRESS_TOP_FRACTION
+    box = ocr.TextBox('Claim All', .99, config.Rect(100, 900, 150, 46))
+    assert box.rect.x < reward_edge and box.rect.y >= progress_edge
+    assert missions_screen._claim_boxes(card, (box,)) == []

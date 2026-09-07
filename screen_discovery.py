@@ -142,6 +142,13 @@ _UNSUPPORTED_OWNERS = {
 _MISSIONS_TITLE_Y = (230, 270)
 _MISSIONS_BANNER_Y = (358, 418)
 _MISSIONS_COUNT_Y = (633, 693)
+# The measured gaps from the page title down to its banner and to its count
+# band - the part of the recorded geometry that survives a device drawing the
+# page higher. Measured at +129/+405 on the inset-bearing captures and
+# +131/+404 on the edge-to-edge one; the bound is those with 20px of margin.
+# See MAX_TOP_INSET for why frame y was never the coordinate to key on.
+_MISSIONS_TITLE_TO_BANNER = (109, 149)
+_MISSIONS_TITLE_TO_COUNT = (385, 425)
 # Matched against the raw text, not tiles.normalise: normalising strips the
 # slash, and "2/8 Missions" would become indistinguishable from "28 missions".
 _MISSIONS_COUNT = re.compile(r'(\d+)\s*/\s*(\d+)\s*missions', re.I)
@@ -189,6 +196,28 @@ def _has_guarded_overlay(screen: Image) -> bool:
 # one are the same judgement made in one place.
 _WORKSHOP_HEADING_Y = (380, 420)
 _BATTLE_HEADING_Y = (1640, 1680)
+# How far ABOVE its recorded band a top-anchored menu page can be drawn.
+#
+# The recorded captures come from a device that reserves a status bar, so
+# every menu page in tests/fixtures starts below one. A device that draws the
+# game edge to edge instead has no such strip, and the game paints the very
+# same page that much higher: measured against a live 1080x2400 phone, the
+# Workshop title, its heading and every row tap all sat 135-139px above where
+# the fixtures put them - one translation, not a different layout.
+#
+# So frame y was never the coordinate the evidence is really in. Only the
+# top-anchored menu pages move; the in-run panel is anchored to the bottom of
+# the screen and lands on its recorded band on both devices, which is why
+# battle reading never showed this and _BATTLE_HEADING_Y stays absolute.
+#
+# Public so the bound this module enforces can be NAMED by the readers that
+# live downstream of it - missions_screen documents its own probe against it -
+# even though nothing outside this module reads the value today. It is one
+# fact about the device, and it is stated once.
+MAX_TOP_INSET = 200
+# The measured gap from the Workshop page title down to its category heading -
+# the part of the recorded geometry that survives the translation above.
+_WORKSHOP_TITLE_TO_HEADING = (131, 171)
 _UPGRADE_HEADINGS = ('attackupgrades', 'defenseupgrades', 'utilityupgrades')
 
 
@@ -210,7 +239,8 @@ def _is_upgrade_heading(box: ocr.TextBox) -> bool:
     """
     return (_upgrade_label(box) is not None and box.confidence >= .9
             and 0 <= box.rect.x <= 70
-            and (_WORKSHOP_HEADING_Y[0] <= box.rect.y <= _WORKSHOP_HEADING_Y[1]
+            and (_WORKSHOP_HEADING_Y[0] - MAX_TOP_INSET
+                 <= box.rect.y <= _WORKSHOP_HEADING_Y[1]
                  or _BATTLE_HEADING_Y[0] <= box.rect.y <= _BATTLE_HEADING_Y[1]))
 
 
@@ -227,11 +257,33 @@ def _single(boxes: tuple[ocr.TextBox, ...], label: str,
     return matches[0] if len(matches) == 1 else None
 
 
+def _missions_title(boxes: tuple[ocr.TextBox, ...]) -> ocr.TextBox | None:
+    """The Daily Missions title, wherever this device's inset put it.
+
+    Searched in a band widened upward by MAX_TOP_INSET rather than at its
+    recorded y: the title is this page's origin, and every other missions
+    anchor is measured from it. Still exactly one or nothing - two titles are
+    not evidence of a page, they are evidence of a misread.
+    """
+    return _single(boxes, 'dailymissions',
+                   (_MISSIONS_TITLE_Y[0] - MAX_TOP_INSET, _MISSIONS_TITLE_Y[1]))
+
+
 def missions_count(boxes: tuple[ocr.TextBox, ...]) -> tuple[int, int] | None:
-    """The "N/M Missions" band as (shown, offered), or None if not certain."""
+    """The "N/M Missions" band as (shown, offered), or None if not certain.
+
+    Located by its measured distance below the page title rather than by
+    frame y: a device that reserves no status bar draws the same page higher,
+    and the gap between title and band is what the captures evidence. No
+    title means no origin to measure from, which is not certainty.
+    """
+    title = _missions_title(boxes)
+    if title is None:
+        return None
+    low, high = _MISSIONS_TITLE_TO_COUNT
     matches = [m for m in (_MISSIONS_COUNT.fullmatch(b.text.strip())
                            for b in boxes if b.confidence >= .9
-                           and _MISSIONS_COUNT_Y[0] <= b.rect.y <= _MISSIONS_COUNT_Y[1]) if m]
+                           and low <= b.rect.y - title.rect.y <= high) if m]
     if len(matches) != 1:
         return None
     shown, offered = int(matches[0][1]), int(matches[0][2])
@@ -285,9 +337,15 @@ def _discover_missions(boxes: tuple[ocr.TextBox, ...]) -> ScreenDiscovery:
     # matching it here made the reader fail on any day it was drawn.
     if any(_is_upgrade_heading(b) for b in boxes):
         return ScreenDiscovery(None, False, 'unsupported_layout')
-    title = _single(boxes, 'dailymissions', _MISSIONS_TITLE_Y)
-    banner = _single(boxes, 'weeklychallenge', _MISSIONS_BANNER_Y)
-    if title is None or banner is None or missions_count(boxes) is None:
+    title = _missions_title(boxes)
+    if title is None:
+        return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')
+    # Measured against the title rather than the frame edge - see
+    # _MISSIONS_TITLE_TO_BANNER. Three anchors still, and still all three.
+    banner = _single(boxes, 'weeklychallenge',
+                     (title.rect.y + _MISSIONS_TITLE_TO_BANNER[0],
+                      title.rect.y + _MISSIONS_TITLE_TO_BANNER[1]))
+    if banner is None or missions_count(boxes) is None:
         return ScreenDiscovery(None, False, 'ambiguous_or_unreadable_heading')
     if not 0 <= title.rect.x <= 70:
         return ScreenDiscovery(None, False, 'unsupported_layout')
@@ -438,10 +496,16 @@ def discover(
     heading = headings[0]
     category = _upgrade_label(heading)
     if context == 'workshop':
+        # Measured against the page's own title rather than against the top
+        # of the frame: the gap between the two is the recorded evidence, and
+        # the distance down from the frame edge is the device's status bar.
+        # See MAX_TOP_INSET.
         titles = [b for b in boxes if tiles.normalise(b.text) == 'workshop']
         valid = (len(titles) == 1 and titles[0].confidence >= .9
-                 and 230 <= titles[0].rect.y <= 270
-                 and _WORKSHOP_HEADING_Y[0] <= heading.rect.y <= _WORKSHOP_HEADING_Y[1])
+                 and 230 - MAX_TOP_INSET <= titles[0].rect.y <= 270
+                 and _WORKSHOP_TITLE_TO_HEADING[0]
+                 <= heading.rect.y - titles[0].rect.y
+                 <= _WORKSHOP_TITLE_TO_HEADING[1])
     else:
         valid = ('workshop' not in labels
                  and _BATTLE_HEADING_Y[0] <= heading.rect.y <= _BATTLE_HEADING_Y[1])

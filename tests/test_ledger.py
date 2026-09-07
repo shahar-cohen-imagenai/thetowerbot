@@ -11,23 +11,21 @@ import ledger
 
 
 def test_a_workshop_purchase_debits_coins() -> None:
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.Purchased(item="Health", category="DEFENSE", price=75,
                          coins_before=1770, dry_run=False, seq=7, ts=1000.0)
     )
 
-    assert line is not None
     assert (line.kind, line.currency, line.delta) == ("WORKSHOP_BUY", "coins", -75)
     assert (line.price, line.observed, line.seq) == (75, 1770, 7)
 
 
 def test_a_card_purchase_debits_gems() -> None:
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.Purchased(item="x1", category="CARDS", price=20,
                          gems_before=40, dry_run=False, seq=8, ts=1000.0)
     )
 
-    assert line is not None
     assert (line.kind, line.currency, line.delta) == ("CARD_BUY", "gems", -20)
     assert line.observed == 40
 
@@ -35,45 +33,41 @@ def test_a_card_purchase_debits_gems() -> None:
 def test_a_rehearsal_records_the_price_but_moves_nothing() -> None:
     """delta 0, not -price: a dry run never reached device.tap, so no coins
     left the account. price still records what it would have cost."""
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.Purchased(item="Health", category="DEFENSE", price=75,
                          coins_before=1770, dry_run=True, seq=9, ts=1000.0)
     )
 
-    assert line is not None
     assert (line.delta, line.price, line.dry_run) == (0, 75, True)
 
 
 def test_an_unreadable_price_leaves_the_movement_unknown() -> None:
     """None, not 0. Zero means "provably moved nothing"; this purchase did
     move coins, by an amount nobody read."""
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.Purchased(item="Health", category="DEFENSE", price=None,
                          coins_before=1770, dry_run=False, seq=10, ts=1000.0)
     )
 
-    assert line is not None
     assert line.delta is None and line.price is None
 
 
 def test_a_skip_moves_nothing_and_names_the_currency_it_would_have_spent() -> None:
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.PurchaseSkipped(item="Damage", reason="unaffordable",
                                coins_before=1770, seq=11, ts=1000.0)
     )
 
-    assert line is not None
     assert (line.kind, line.currency, line.delta) == ("BUY_SKIPPED", "coins", 0)
     assert (line.observed, line.reason) == (1770, "unaffordable")
 
 
 def test_a_card_skip_reconciles_against_gems() -> None:
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.PurchaseSkipped(item="x10", reason="capped", detail="gem floor",
                                gems_before=40, seq=12, ts=1000.0)
     )
 
-    assert line is not None
     assert (line.currency, line.observed) == ("gems", 40)
 
 
@@ -81,32 +75,30 @@ def test_a_skip_with_no_readable_balance_still_moved_nothing() -> None:
     """A row backfilled from before PurchaseSkipped carried balances. It
     reconciles nothing, but "provably moved nothing" is still the truth -
     None would claim it moved by an unknown amount."""
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.PurchaseSkipped(item="Damage", reason="no_match", seq=1, ts=1.0)
     )
 
-    assert line is not None
     assert (line.currency, line.delta) == (None, 0)
 
 
 def test_a_run_payout_credits_the_coins_it_earned() -> None:
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.RunEnded(run_id=4, duration=300.0, wave=10, coins=350, tier=1,
                         seq=13, ts=1000.0)
     )
 
-    assert line is not None
     assert (line.kind, line.currency, line.delta) == ("RUN_PAYOUT", "coins", 350)
     assert line.run_id == 4
 
 
 def test_an_unreadable_payout_credits_nothing_known() -> None:
-    line = ledger.classify(
+    (line,) = ledger.classify(
         events.RunEnded(run_id=4, duration=300.0, wave=10, coins=None, tier=1,
                         seq=14, ts=1000.0)
     )
 
-    assert line is not None and line.delta is None
+    assert line.delta is None
 
 
 @pytest.mark.parametrize(
@@ -121,9 +113,8 @@ def test_an_unreadable_payout_credits_nothing_known() -> None:
 def test_the_non_financial_lines_take_no_part_in_the_arithmetic(
     event: events.Event,
 ) -> None:
-    line = ledger.classify(event)
+    (line,) = ledger.classify(event)
 
-    assert line is not None
     assert line.currency is None
 
 
@@ -146,7 +137,7 @@ def test_in_run_and_diagnostic_events_are_not_ledger_lines(
 ) -> None:
     """The ledger is the non-battle history. In-run upgrades are bought with
     per-run cash that resets, so they are not account history at all."""
-    assert ledger.classify(event) is None
+    assert ledger.classify(event) == ()
 
 
 def writer(tmp_path: Path) -> tuple[ledger.LedgerWriter, sqlite3.Connection]:
@@ -405,3 +396,76 @@ def test_backfill_over_an_empty_events_table_writes_nothing(tmp_path: Path) -> N
     conn = db.connect(tmp_path / "bot.db")
 
     assert ledger.backfill(conn) == 0
+
+
+# --- mission claims -------------------------------------------------------
+
+def test_a_mission_claim_credits_both_currencies_as_two_lines() -> None:
+    """One claim, two balances. This is why classify returns a tuple."""
+    coins, gems = ledger.classify(
+        events.MissionClaimed(mission="Kill 200 basic enemies",
+                              mission_id="kill_200_basic_enemies",
+                              coins=25, gems=3, completed_before=0,
+                              completed_after=1, gems_before=60,
+                              seq=20, ts=1000.0))
+    assert (coins.kind, coins.currency, coins.delta) == ("MISSION_CLAIM", "coins", 25)
+    assert (gems.kind, gems.currency, gems.delta) == ("MISSION_CLAIM", "gems", 3)
+    assert coins.item == gems.item == "Kill 200 basic enemies"
+
+
+def test_a_claim_never_treats_the_abbreviated_coin_balance_as_a_reading() -> None:
+    """The page shows coins as "6.08K". Handing that to the reconciler as a
+    balance would contradict the running total and manufacture an UNEXPLAINED
+    line on every single claim. Gems read exactly and are safe."""
+    coins, gems = ledger.classify(
+        events.MissionClaimed(mission="Start 1 battles", mission_id="start_1_battles",
+                              coins=25, gems=3, completed_before=1,
+                              completed_after=2, gems_before=63,
+                              seq=21, ts=1000.0))
+    assert coins.observed is None
+    assert gems.observed == 63
+
+
+def test_an_unread_reward_is_an_unknown_delta_not_a_zero_one() -> None:
+    coins, gems = ledger.classify(
+        events.MissionClaimed(mission="Kill 5 bosses", mission_id="kill_5_bosses",
+                              coins=None, gems=None, completed_before=2,
+                              completed_after=3, gems_before=None,
+                              seq=22, ts=1000.0))
+    assert coins.delta is None and gems.delta is None
+
+
+def test_the_two_claim_lines_reconcile_against_separate_balances(tmp_path: Path) -> None:
+    """An unreadable coin amount must not stall the gem chain."""
+    write, _ = writer(tmp_path)
+    lines = write.lines_for(
+        events.MissionClaimed(mission="Buy 20 battle upgrades",
+                              mission_id="buy_20_battle_upgrades",
+                              coins=None, gems=3, completed_before=3,
+                              completed_after=4, gems_before=63,
+                              seq=23, ts=1000.0))
+    gems = [line for line in lines if line.currency == "gems"]
+    assert len(gems) == 1 and gems[0].balance_after == 66
+
+
+def test_a_claim_walk_bookends_reuse_the_visit_lines() -> None:
+    (start,) = ledger.classify(events.ClaimStarted(target="missions", seq=24, ts=1.0))
+    (end,) = ledger.classify(
+        events.ClaimEnded(target="missions", claimed=3, reason="claimed", seq=25, ts=2.0))
+    assert start.kind == "VISIT_START"
+    assert (end.kind, end.detail["claimed"]) == ("VISIT_END", 3)
+
+
+def test_a_refused_claim_is_a_line_that_provably_moved_nothing() -> None:
+    (line,) = ledger.classify(
+        events.ClaimSkipped(target="missions", reason="counter_unreadable",
+                            detail="The completed counter could not be read.",
+                            seq=26, ts=1000.0))
+    assert (line.kind, line.delta, line.reason) == (
+        "CLAIM_SKIPPED", 0, "counter_unreadable")
+
+
+def test_every_claim_event_can_be_replayed_from_the_events_table() -> None:
+    """A ledger that cannot be rebuilt from events is not a ledger."""
+    for name in ("ClaimStarted", "MissionClaimed", "ClaimSkipped", "ClaimEnded"):
+        assert name in ledger._REPLAYABLE

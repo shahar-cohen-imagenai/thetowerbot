@@ -289,3 +289,63 @@ class SpeedAdjusted(Event):
     # from wherever it is now", not "move toward a value".
     reading: float | None = None
     target: float | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ClaimStarted(Event):
+    """One claim walk armed. `target` is which page it walks."""
+
+    target: str
+
+
+@dataclass(frozen=True, kw_only=True)
+class MissionClaimed(Event):
+    """One mission reward taken, with the evidence that it landed.
+
+    `completed_before`/`completed_after` are the daily counter either side of
+    the tap and are what PROVE the claim happened: the counter moves the
+    moment a reward is taken, and the card itself disappears.
+
+    `coins` and `gems` are what the card offered, read from its reward
+    column, and are None rather than 0 when they could not be read - zero is
+    a reward of nothing, None is "we did not know".
+
+    `gems_before` is meant to be the gem balance before the claim, and exact
+    rather than an abbreviation - unlike `coins`, the missions page never
+    rounds gems. There is deliberately no `coins_before`: the page abbreviates
+    coins ("6.08K"), and a field holding a rounded balance would be read as a
+    real one by the reconciler.
+
+    No producer in this slice sets `gems_before`: `MissionsReading` carries no
+    wallet balance, only `ClaimTarget`'s reward amounts, and `claim_evidence`
+    carries no balance either. Every `MissionClaimed` this slice publishes
+    therefore has `gems_before=None`; reading a real wallet balance here is
+    later work, not something a `None` here should be mistaken for.
+    """
+
+    mission: str
+    mission_id: str | None = None
+    coins: int | None = None
+    gems: int | None = None
+    completed_before: int | None = None
+    completed_after: int | None = None
+    gems_before: int | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
+class ClaimSkipped(Event):
+    """A claim the walk refused to make, and why it refused."""
+
+    target: str
+    reason: str
+    detail: str = ""
+
+
+@dataclass(frozen=True, kw_only=True)
+class ClaimEnded(Event):
+    """How a claim walk ended. `claimed` is how many rewards it took."""
+
+    target: str
+    claimed: int
+    reason: str = ""
+    aborted: bool = False

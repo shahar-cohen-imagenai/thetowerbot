@@ -19,6 +19,7 @@ Usage:
 from __future__ import annotations
 
 from account_collection import StatsCollection
+from missions_claim import MissionsClaim
 from missions_screen import MissionsReadings
 from missions_visit import MissionsVisit
 from account_state import AccountState, AccountRepository
@@ -101,6 +102,7 @@ class TowerBot:
         account_state: AccountState | None = None,
         collection: StatsCollection | None = None,
         visit: MissionsVisit | None = None,
+        claim: MissionsClaim | None = None,
         missions: MissionsReadings | None = None,
     ) -> None:
         self.account_state = account_state
@@ -113,6 +115,7 @@ class TowerBot:
         # The same arrangement for the Missions page: the runner owns them
         # when there is one, and a bot built without either gets its own.
         self.visit = visit if visit is not None else MissionsVisit()
+        self.claim = claim if claim is not None else MissionsClaim()
         self.missions = missions if missions is not None else MissionsReadings()
         self.device = device
         self.templates = templates
@@ -534,13 +537,17 @@ class TowerBot:
         if self.visit.active and settings.paused:
             self.visit.cancel(
                 'paused', 'The bot was paused mid-visit; it was not resumed.')
+        if self.claim.active and settings.paused:
+            self.claim.cancel(
+                'paused', 'The bot was paused mid-claim; it was not resumed.')
         # An armed transaction owns the frame the same way a panel does, on
         # the menu as well as on the page itself: these are the only
         # sanctioned exceptions to the guard above, and nothing else may tap
         # while one walks. Their steps refuse to act on any frame this same
         # scan did not identify - see account_collection and missions_visit.
         # At most one is ever armed; the runner refuses to arm the second.
-        if panel or missions_page or self.collection.active or self.visit.active:
+        if (panel or missions_page or self.collection.active
+                or self.visit.active or self.claim.active):
             self.controls.drain()
             self.wallet = None
             if panel:
@@ -552,6 +559,9 @@ class TowerBot:
             elif self.collection.active:
                 reason, detail = ('collect_stats_transaction',
                                   'A read-only Collect stats transaction holds actions')
+            elif self.claim.active:
+                reason, detail = ('missions_claim_transaction',
+                                  'A Missions claim walk holds actions')
             else:
                 reason, detail = ('missions_visit_transaction',
                                   'A read-only Missions visit holds actions')
@@ -567,6 +577,13 @@ class TowerBot:
                 action = self.visit.advance(
                     screen=self.screen, device=self.device, templates=self.templates,
                     readings=screen_readings, missions=self.missions,
+                    state=state.value, tuning=settings.strategy,
+                )
+            elif self.claim.active:
+                walking = 'missions_claim'
+                action = self.claim.advance(
+                    screen=self.screen, device=self.device, templates=self.templates,
+                    readings=screen_readings, missions=self.missions, bus=self.bus,
                     state=state.value, tuning=settings.strategy,
                 )
             else:

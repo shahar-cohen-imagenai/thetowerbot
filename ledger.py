@@ -27,15 +27,18 @@ import events
 COINS = "coins"
 GEMS = "gems"
 
-# Every kind a line can carry. The last six are RESERVED and nothing emits
-# them today: they are the parts of the economy the bot cannot see (labs and
-# lab slots, card slots, modules, relics, ultimate weapons) plus hand-entered
-# lines. They are named here so adding one later is a branch in classify(),
-# not a schema change.
+# Every kind a line can carry. MILESTONE_CLAIM is RESERVED - the milestones
+# walk that emits it is a later slice - and so are the last six: the parts of
+# the economy the bot cannot see (labs and lab slots, card slots, modules,
+# relics, ultimate weapons) plus hand-entered lines. They are named here so
+# adding one later is a branch in classify(), not a schema change.
 KINDS: tuple[str, ...] = (
     "RUN_PAYOUT",
     "WORKSHOP_BUY",
     "CARD_BUY",
+    "MISSION_CLAIM",
+    "MILESTONE_CLAIM",
+    "CLAIM_SKIPPED",
     "BUY_SKIPPED",
     "VISIT_START",
     "VISIT_END",
@@ -98,12 +101,16 @@ class LedgerLine:
         return row
 
 
-def classify(event: events.Event) -> LedgerLine | None:
-    """The catalog. Returns None for every event that is not account history.
+def classify(event: events.Event) -> tuple[LedgerLine, ...]:
+    """The catalog. Returns () for every event that is not account history.
 
-    None is the honest answer for an unrecognised event, not a guess: a new
-    event type gets a branch here when someone decides what it means, and
-    until then it simply is not in the ledger.
+    An empty tuple is the honest answer for an unrecognised event, not a
+    guess: a new event type gets a branch here when someone decides what it
+    means, and until then it simply is not in the ledger.
+
+    A tuple rather than one line because a single event can move two
+    balances - a mission claim pays coins AND gems - and LedgerLine carries
+    one currency, because that is what the reconciler works in.
     """
     base: dict[str, Any] = {"ts": event.ts, "seq": event.seq}
 
@@ -112,14 +119,14 @@ def classify(event: events.Event) -> LedgerLine | None:
             # The only thing a battle contributes. RunEnded.coins is read off
             # the game-over modal's Coins caption - coins EARNED that run, not
             # a running total - so it is a credit, not a balance reading.
-            return LedgerLine(
+            return (LedgerLine(
                 kind="RUN_PAYOUT",
                 currency=COINS,
                 delta=event.coins,
                 run_id=event.run_id,
                 reason="abandoned" if event.abandoned else None,
                 **base,
-            )
+            ),)
 
         case events.Purchased():
             cards = event.category == "CARDS"
@@ -130,7 +137,7 @@ def classify(event: events.Event) -> LedgerLine | None:
                 delta = None
             else:
                 delta = -price
-            return LedgerLine(
+            return (LedgerLine(
                 kind="CARD_BUY" if cards else "WORKSHOP_BUY",
                 item=event.item,
                 category=event.category,
@@ -140,7 +147,7 @@ def classify(event: events.Event) -> LedgerLine | None:
                 observed=event.gems_before if cards else event.coins_before,
                 dry_run=event.dry_run,
                 **base,
-            )
+            ),)
 
         case events.PurchaseSkipped():
             # The currency comes from WHICH balance the event reported.
@@ -155,7 +162,7 @@ def classify(event: events.Event) -> LedgerLine | None:
                 # A row backfilled from before those fields existed. Still a
                 # real line; it just reconciles nothing.
                 currency, observed = None, None
-            return LedgerLine(
+            return (LedgerLine(
                 kind="BUY_SKIPPED",
                 item=event.item,
                 currency=currency,
@@ -166,37 +173,79 @@ def classify(event: events.Event) -> LedgerLine | None:
                 reason=event.reason,
                 detail={"detail": event.detail} if event.detail else {},
                 **base,
+            ),)
+
+        case events.MissionClaimed():
+            # Two currencies move on one claim and a LedgerLine carries one.
+            # This is the event that made classify return a tuple.
+            #
+            # Coins are never `observed`. The page abbreviates them ("6.08K"),
+            # and an abbreviated balance handed to the reconciler contradicts
+            # the running total and manufactures an UNEXPLAINED line on every
+            # single claim. Gems read exactly (60 -> 63 across one claim) and
+            # are safe to anchor on.
+            return (
+                LedgerLine(kind="MISSION_CLAIM", item=event.mission,
+                           category="MISSIONS", currency=COINS, delta=event.coins,
+                           detail={"mission_id": event.mission_id,
+                                   "completed_after": event.completed_after},
+                           **base),
+                LedgerLine(kind="MISSION_CLAIM", item=event.mission,
+                           category="MISSIONS", currency=GEMS, delta=event.gems,
+                           observed=event.gems_before, **base),
             )
+
+        case events.ClaimStarted():
+            return (LedgerLine(kind="VISIT_START", reason=event.target, **base),)
+
+        case events.ClaimEnded():
+            return (LedgerLine(
+                kind="VISIT_END",
+                reason=event.reason or ("aborted" if event.aborted else None),
+                detail={"target": event.target, "claimed": event.claimed,
+                        "aborted": event.aborted},
+                **base),)
+
+        case events.ClaimSkipped():
+            return (LedgerLine(
+                kind="CLAIM_SKIPPED",
+                # A refusal provably moved nothing, which is not the same
+                # fact as a reward whose amount could not be read.
+                delta=0,
+                reason=event.reason,
+                detail={"target": event.target, "detail": event.detail}
+                if event.detail else {"target": event.target},
+                **base),)
 
         case events.ShoppingStarted():
-            return LedgerLine(
+            return (LedgerLine(
                 kind="VISIT_START", visit=event.visit, dry_run=event.dry_run, **base
-            )
+            ),)
 
         case events.ShoppingEnded():
-            return LedgerLine(
+            return (LedgerLine(
                 kind="VISIT_END",
                 visit=event.visit,
                 reason=event.reason or ("aborted" if event.aborted else None),
                 detail={"bought": event.bought, "spent": event.spent,
                         "aborted": event.aborted},
                 **base,
-            )
+            ),)
 
         case events.ShoppingUnavailable():
-            return LedgerLine(kind="SHOP_UNAVAILABLE", reason=event.reason, **base)
+            return (LedgerLine(kind="SHOP_UNAVAILABLE", reason=event.reason, **base),)
 
         case events.ControlChanged():
             # Why the spending policy changed, which is often the answer to
             # "why did it stop buying that".
-            return LedgerLine(
+            return (LedgerLine(
                 kind="POLICY_CHANGED",
                 reason=event.source,
                 detail={"changed": event.changed},
                 **base,
-            )
+            ),)
 
-    return None
+    return ()
 
 
 class LedgerWriter:
@@ -239,14 +288,22 @@ class LedgerWriter:
     def lines_for(self, event: events.Event) -> list[LedgerLine]:
         """Every line this event produces, in the order they must be written.
 
-        Usually one. Two when the balance it reports contradicts the running
-        total, in which case the UNEXPLAINED line comes FIRST: the gap
-        happened before the event that revealed it.
+        One event can carry more than one currency, and each is reconciled
+        against its own running balance - so an unreadable coin price cannot
+        stall the gem chain, and vice versa.
         """
-        line = classify(event)
-        if line is None:
-            return []
+        out: list[LedgerLine] = []
+        for line in classify(event):
+            out.extend(self._reconcile(line))
+        return out
 
+    def _reconcile(self, line: LedgerLine) -> list[LedgerLine]:
+        """One line against its currency's running balance.
+
+        Usually one line back. Two when the balance it reports contradicts
+        the running total, in which case the UNEXPLAINED line comes FIRST:
+        the gap happened before the event that revealed it.
+        """
         currency = line.currency
         if currency is None:
             return [line]
@@ -310,6 +367,10 @@ _REPLAYABLE: dict[str, type[events.Event]] = {
     "ShoppingEnded": events.ShoppingEnded,
     "ShoppingUnavailable": events.ShoppingUnavailable,
     "ControlChanged": events.ControlChanged,
+    "ClaimStarted": events.ClaimStarted,
+    "MissionClaimed": events.MissionClaimed,
+    "ClaimSkipped": events.ClaimSkipped,
+    "ClaimEnded": events.ClaimEnded,
 }
 
 

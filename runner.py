@@ -21,6 +21,7 @@ pay (device.py pulls cv2 in regardless).
 from __future__ import annotations
 
 from account_collection import StatsCollection
+from missions_claim import MissionsClaim
 from missions_screen import MissionsReadings
 from missions_visit import MissionsVisit
 from account_state import AccountState
@@ -104,6 +105,9 @@ class BotRunner:
         # The Missions visit and the reader it takes its arrival evidence
         # from, owned here for the same reason and on the same terms.
         self.visit = MissionsVisit()
+        # The claim walk, owned on the same terms as the read-only visit: one
+        # instance, cancelled by a restart or a pause, never queued.
+        self.claim = MissionsClaim()
         self.missions = MissionsReadings()
 
         self._lock = threading.Lock()
@@ -167,6 +171,8 @@ class BotRunner:
                 raise RunnerError("Collecting stats requires a confirmed main menu", 409)
             if self.visit.active:
                 raise RunnerError("A missions visit is already walking the menus", 409)
+            if self.claim.active:
+                raise RunnerError("A missions claim is already walking the menus", 409)
             if not self.collection.request():
                 raise RunnerError("A stats collection is already running", 409)
             return self.collection.snapshot()
@@ -192,9 +198,40 @@ class BotRunner:
                 raise RunnerError("Visiting missions requires a confirmed main menu", 409)
             if self.collection.active:
                 raise RunnerError("A stats collection is already walking the menus", 409)
+            if self.claim.active:
+                raise RunnerError("A missions claim is already walking the menus", 409)
             if not self.visit.request():
                 raise RunnerError("A missions visit is already running", 409)
             return self.visit.snapshot()
+
+    def request_missions_claim(self) -> dict[str, Any]:
+        """Arm one Home -> Missions -> claim -> Home walk.
+
+        The same refusals as request_missions_visit, and one more object to
+        refuse against: three transactions now walk the same menus, and any
+        two of them armed at once would each read the other's screen as its
+        own evidence.
+
+        Unlike its two siblings this walk TAPS things that change the
+        account, so the refusals are load-bearing rather than tidy.
+        """
+        with self._lock:
+            if not self._running_locked() or self._bot is None:
+                raise RunnerError("Start the bot before claiming missions", 409)
+            unavailable = getattr(self._shopping, "disabled_reason", None)
+            if unavailable:
+                raise RunnerError(f"Mission claims are unavailable: {unavailable}", 503)
+            if self._controls.snapshot().paused:
+                raise RunnerError("Claiming missions requires an unpaused bot", 409)
+            if self._bot.screen_state.value != "MAIN_MENU":
+                raise RunnerError("Claiming missions requires a confirmed main menu", 409)
+            if self.collection.active:
+                raise RunnerError("A stats collection is already walking the menus", 409)
+            if self.visit.active:
+                raise RunnerError("A missions visit is already walking the menus", 409)
+            if not self.claim.request():
+                raise RunnerError("A missions claim is already running", 409)
+            return self.claim.snapshot()
 
     # -- lifecycle ---------------------------------------------------------
     def start(self) -> dict[str, Any]:
@@ -257,6 +294,10 @@ class BotRunner:
                 "bot_restarted",
                 "A new bot replaced the one walking this visit; it was not resumed.",
             )
+            self.claim.cancel(
+                "bot_restarted",
+                "A new bot replaced the one walking this claim; it was not resumed.",
+            )
             self.autopilot_state.clear_battle()
             self.autopilot_state.decision("idle", "Waiting for a fresh battle observation")
 
@@ -292,6 +333,7 @@ class BotRunner:
                 account_state=self.account_state,
                 collection=self.collection,
                 visit=self.visit,
+                claim=self.claim,
                 missions=self.missions,
             )
 
@@ -330,6 +372,10 @@ class BotRunner:
                 self.visit.cancel(
                     "bot_stopped",
                     "The scan loop ended before the visit finished.",
+                )
+                self.claim.cancel(
+                    "bot_stopped",
+                    "The scan loop ended before the claim finished.",
                 )
                 self._harvest_locked(bot)
 
