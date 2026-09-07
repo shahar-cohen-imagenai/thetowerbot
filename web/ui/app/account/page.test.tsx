@@ -1,8 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AccountPage from "./page";
-const { fetchAccount, fetchConcepts, collectStats } = vi.hoisted(() => ({ fetchAccount: vi.fn(), fetchConcepts: vi.fn(), collectStats: vi.fn() }));
-vi.mock("@/lib/api", () => ({ fetchAccount, fetchConcepts, collectStats }));
+const { fetchAccount, fetchConcepts, collectStats, claimMissions, claimMilestones } = vi.hoisted(() => ({
+  fetchAccount: vi.fn(), fetchConcepts: vi.fn(), collectStats: vi.fn(), claimMissions: vi.fn(), claimMilestones: vi.fn(),
+}));
+vi.mock("@/lib/api", () => ({ fetchAccount, fetchConcepts, collectStats, claimMissions, claimMilestones }));
 const concept = { concept_id: "stats.damage", name: "Damage", domain: "stats", kind: "stat", unit: null, execution_scopes: ["workshop"], prerequisites: null, unlocks: [], rule_verified: false };
 const unknown = { revision_id: null, registry_version: "1", account_id: null, game_version: null, workshop_stats: [], workshop_levels: null, lab_levels: null, inventory: null, effective_account_stats: null, unlocks: null, settings: null };
 const snapshot = { persistence_available: true, error: null, errors: { account: null, run: null }, revision: null, unknown_state: unknown };
@@ -10,6 +12,8 @@ const fact = { concept_id: "stats.damage", value: 0, status: "verified", evidenc
 beforeEach(() => {
   fetchAccount.mockReset().mockResolvedValue(snapshot);
   collectStats.mockReset().mockResolvedValue({ status: "running", step: "open_settings", requested_at: 1, trail: ["open_settings"], result: null });
+  claimMissions.mockReset().mockResolvedValue({ status: "running", step: "open_missions", requested_at: 1, claimed: 0, trail: ["open_missions"], result: null });
+  claimMilestones.mockReset().mockResolvedValue({ status: "running", step: "open_milestones", requested_at: 1, claimed: 0, trail: ["open_milestones"], result: null });
   fetchConcepts.mockReset().mockResolvedValue({ registry_version: "1", concepts: [concept, { ...concept, concept_id: "cards.damage", name: "Damage card", domain: "cards", kind: "card", execution_scopes: [] }] });
 });
 describe("Account inspector", () => {
@@ -108,6 +112,23 @@ describe("Account inspector", () => {
     await screen.findByText("No collection has run this session.");
     fireEvent.click(screen.getByRole("button", { name: "Collect stats" }));
     await screen.findByText(/Could not start a collection: Collecting stats requires a confirmed main menu\. Nothing was tapped\./);
+  });
+  it("arms a missions claim walk and disables the button while it is in flight", async () => {
+    render(<AccountPage />);
+    await screen.findByText("Unknown account");
+    fireEvent.click(screen.getByRole("button", { name: "Claim missions" }));
+    expect(claimMissions).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Claiming…" })).toHaveProperty("disabled", true);
+    await screen.findByRole("button", { name: "Claim missions" });
+    expect(screen.getByRole("button", { name: "Claim missions" })).toHaveProperty("disabled", false);
+  });
+  it("surfaces a milestones claim refusal without claiming the game was touched", async () => {
+    claimMilestones.mockRejectedValue(new Error("Milestones claim requires a confirmed main menu"));
+    render(<AccountPage />);
+    await screen.findByText("Unknown account");
+    fireEvent.click(screen.getByRole("button", { name: "Claim milestones" }));
+    await screen.findByText(/Could not start a claim: Milestones claim requires a confirmed main menu\. Nothing was tapped\./);
+    expect(screen.getByRole("button", { name: "Claim milestones" })).toHaveProperty("disabled", false);
   });
   it("distinguishes a backend that cannot walk the game from an idle transaction", async () => {
     render(<AccountPage />);
