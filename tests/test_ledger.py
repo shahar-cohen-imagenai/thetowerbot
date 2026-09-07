@@ -535,6 +535,17 @@ def test_unlock_lab_moved_no_currency_which_is_not_an_unreadable_amount() -> Non
     assert line.delta == 0
 
 
+def test_an_unread_milestone_reward_moved_an_unknown_amount_not_nothing() -> None:
+    """reward_text=None is the modal's reward line never being read - a third
+    state parse_frame explicitly produces (_modal_reward returns None on 0 or
+    2+ boxes in the band). It is not the same fact as `Unlock Lab`, which DID
+    read and just names no currency."""
+    (line,) = ledger.classify(events.MilestoneClaimed(
+        seq=1, ts=100., reward_text=None, currency=None, amount=None, tier=1))
+    assert line.currency is None
+    assert line.delta is None
+
+
 def test_an_uncertain_claim_moved_an_unknown_amount_not_nothing() -> None:
     """This is the distinction the parked finding was about. A CLAIM that was
     TAPPED and never confirmed may well have taken a reward, so it must not
