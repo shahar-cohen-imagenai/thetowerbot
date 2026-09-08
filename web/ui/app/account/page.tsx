@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { SectionCard } from "@/components/ui/section-card";
-import { collectStats, fetchAccount, fetchConcepts } from "@/lib/api";
+import { claimMilestones, claimMissions, collectStats, fetchAccount, fetchConcepts } from "@/lib/api";
 import { ACCOUNT_SECTIONS, describeCollection, evidenceAge, readerSupported } from "@/lib/account";
-import type { AccountConcept, AccountFact, AccountSection, AccountSnapshot, ConceptCatalog, StatsCollection } from "@/lib/account";
+import type { AccountConcept, AccountFact, AccountSection, AccountSnapshot, ClaimSnapshot, ConceptCatalog, StatsCollection } from "@/lib/account";
 import { ScreenReadings } from "./ScreenReadings";
 
 const date = (seconds: number) => new Date(seconds * 1000).toLocaleString();
@@ -50,6 +50,25 @@ function CollectStats({ collection, onArmed }: { collection?: StatsCollection; o
       </>}
     {error && <p role="alert" className="mt-3 text-sm text-danger">Could not start a collection: {error}. Nothing was tapped.</p>}
   </SectionCard>;
+}
+
+/** Arms one Home -> Missions -> claim -> Home walk, or the Milestones
+ *  equivalent, depending on which `action` it is given. Shares
+ *  CollectStats's busy/error handling above: neither button here knows a
+ *  running/idle state ahead of a click, so all it tracks is whether this
+ *  request is in flight and, if it failed, why - the same ApiError message
+ *  `send()` already built via describeDetail. */
+function ClaimButton({ label, busyLabel, action }: { label: string; busyLabel: string; action: () => Promise<ClaimSnapshot> }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return <div>
+    <button disabled={busy}
+      onClick={() => { setBusy(true); setError(null); action().catch((e: Error) => setError(e.message)).finally(() => setBusy(false)); }}
+      className="rounded-md border px-3 py-2 text-sm transition-colors hover:border-border-strong hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-50">
+      {busy ? busyLabel : label}
+    </button>
+    {error && <p role="alert" className="mt-3 text-sm text-danger">Could not start a claim: {error}. Nothing was tapped.</p>}
+  </div>;
 }
 
 export default function AccountPage() {
@@ -97,6 +116,13 @@ export default function AccountPage() {
         <SectionCard title="Reader capability"><p>Saved Workshop values</p><p className="text-xs text-muted-foreground">{account.persistence_available ? "Persistence available" : "Persistence unavailable"}. {account.screen_readings ? "Settings and Stats screen observations are available separately for this session." : "Other permanent readers have no supported ingestion in this account API."}</p></SectionCard>
       </div>
       <CollectStats collection={account.collection} onArmed={() => setReload(n => n + 1)} />
+      <SectionCard title="Claim rewards">
+        <p className="text-sm text-muted-foreground">Two separate device walks: Home → Missions → claim → Home, and Home → Milestones → Claim All → Home. Each holds all other automation while it walks.</p>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <ClaimButton label="Claim missions" busyLabel="Claiming…" action={claimMissions} />
+          <ClaimButton label="Claim milestones" busyLabel="Claiming…" action={claimMilestones} />
+        </div>
+      </SectionCard>
       <ScreenReadings data={account.screen_readings} />
       <SectionCard title="Missing optimizer inputs" tone="warn">
         <p className="text-sm text-muted-foreground">Unknown does not mean locked, unavailable in the game, or zero. Catalog membership does not prove ownership or execution support.</p>

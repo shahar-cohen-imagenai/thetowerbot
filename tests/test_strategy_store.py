@@ -237,6 +237,12 @@ def test_the_committed_default_matches_config() -> None:
     assert Strategy.from_dict(raw) == Strategy.from_config("default")
 
 
+def test_the_committed_default_leaves_claims_off() -> None:
+    """Turning claims on is task 7's decision, made once, in the open."""
+    raw = json.loads((REAL_STRATEGY_DIR / "default.json").read_text())
+    assert Strategy.from_dict(raw).claims.enabled is False
+
+
 def test_ensure_seeded_writes_the_shipped_defaults(store) -> None:
     seeded = store.ensure_seeded()
     assert seeded == Strategy.from_config("default")

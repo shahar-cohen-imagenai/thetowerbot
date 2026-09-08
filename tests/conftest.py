@@ -22,7 +22,7 @@ import vision  # noqa: E402 - after the sys.path fix-up above
 from control import Controls  # noqa: E402 - after the sys.path fix-up above
 from device import Image  # noqa: E402 - after the sys.path fix-up above
 from shopping import ShoppingSession  # noqa: E402 - after the sys.path fix-up above
-from strategy import ActionRule, Shopping, Strategy  # noqa: E402 - after the fix-up above
+from strategy import ActionRule, Claims, Shopping, Strategy  # noqa: E402 - after the fix-up above
 from tower_bot import TowerBot  # noqa: E402 - after the sys.path fix-up above
 
 # Captured at import time, before the autouse fixture below (or anything
@@ -140,6 +140,7 @@ class _RecordingSnapshotWriter:
 
 def _shopping_bot(
     frame_name: str, *, state: screens.ScreenState, policy: Shopping, auto_navigate: bool,
+    claims: Claims = Claims(),
 ) -> TowerBot:
     """One TowerBot, frozen on one frame, with its tracker pre-confirmed.
 
@@ -169,7 +170,7 @@ def _shopping_bot(
             # IN_RUN fixture never tries to tap it.
             name="t",
             actions=(ActionRule(name="Damage", template="upgrade_damage.png", enabled=False),),
-            shopping=policy, auto_navigate=auto_navigate,
+            shopping=policy, auto_navigate=auto_navigate, claims=claims,
         )),
         shopping=session,
         navigation_cooldown=0.0,
@@ -184,7 +185,7 @@ def _shopping_bot(
 
 
 @pytest.fixture
-def bot_on_main_menu() -> Callable[[Shopping], TowerBot]:
+def bot_on_main_menu() -> Callable[..., TowerBot]:
     """Factory: a bot already confirmed on MAIN_MENU, one call per policy.
 
     auto_navigate is on and the navigation cooldown zeroed (see
@@ -197,11 +198,18 @@ def bot_on_main_menu() -> Callable[[Shopping], TowerBot]:
     test_reaching_the_run_cap_does_not_start_a_visit needs that to be true
     for a `max_runs=1` cap to mean something already reached, rather than a
     limit nothing here would otherwise trip.
+
+    `claims` is an optional keyword defaulting to a disabled Claims(), so
+    every caller that predates the claim cadence still gets a bot on which
+    _offer_claim() never fires. Tests of the claim cadence itself pass
+    their own Claims(enabled=True, ...) - see test_autopilot_loop.py's
+    "Claim cadence in the loop" section.
     """
-    def build(policy: Shopping) -> TowerBot:
+    def build(policy: Shopping, claims: Claims | None = None) -> TowerBot:
         bot = _shopping_bot(
             "main_menu", state=screens.ScreenState.MAIN_MENU,
             policy=policy, auto_navigate=True,
+            claims=claims if claims is not None else Claims(),
         )
         bot.runs.completed = 1
         return bot

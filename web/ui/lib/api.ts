@@ -1,4 +1,4 @@
-import type { AccountSnapshot, ConceptCatalog, StatsCollection } from "./account";
+import type { AccountSnapshot, ClaimSnapshot, ConceptCatalog, StatsCollection } from "./account";
 import type {
   AdvisorSnapshot,
   AdvisorDraftResult,
@@ -222,3 +222,17 @@ export const fetchConcepts = () => getJson<ConceptCatalog>("/api/concepts");
  *  the reader it needs could not load - neither is queued for later. */
 export const collectStats = () =>
   send<StatsCollection>("/api/account/collect", "POST", undefined, "lifecycle");
+
+/** Arms one Home -> Missions -> claim -> Home walk. Same "arm now, scan loop
+ *  walks it" contract as collectStats above: a 409 means another maintenance
+ *  walk holds the menus (or the bot is not on a confirmed main menu), a 503
+ *  means the OCR engine could not be built, and this backend advertises the
+ *  route under the same `lifecycle` capability collectStats uses - there is
+ *  no separate capability tag for claim walks. */
+export const claimMissions = () =>
+  send<ClaimSnapshot>("/api/missions/claim", "POST", undefined, "lifecycle");
+
+/** Arms one Home -> Milestones -> Claim All -> Home walk. See claimMissions
+ *  above for the shared contract. */
+export const claimMilestones = () =>
+  send<ClaimSnapshot>("/api/milestones/claim", "POST", undefined, "lifecycle");

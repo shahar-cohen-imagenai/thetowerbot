@@ -40,6 +40,16 @@ export function describeCollection(collection: StatsCollection): string {
   if (result.status === "completed") return `Last run read ${result.screen_id ?? "a Stats panel"} and returned to the main menu.`;
   return `Last run stopped (${result.reason.replace(/_/g, " ")}). ${result.detail}`;
 }
+/** One claim walk's progress. Mirrors MissionsClaim.snapshot() and
+ *  MilestonesClaim.snapshot() - they are structurally identical. */
+export interface ClaimSnapshot {
+  status: string;
+  step: string;
+  requested_at: number | null;
+  claimed: number;
+  trail: string[];
+  result: Record<string, unknown> | null;
+}
 export interface ScreenField {
   key: string; label: string; raw_value: string | null;
   status: "observed" | "insufficient_data" | "unreadable";
