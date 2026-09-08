@@ -93,4 +93,21 @@ group("DirectorPage", () => {
 
     await screen.findByText("PLAN_REASON_TOKEN");
   });
+
+  it("shows the plan's reason (the census and income state) even when there is a top pick", async () => {
+    // Regression: this page used to render `data.reason` only in the
+    // `top === null` branch, so the ready/blocked/held census and
+    // CurrencyRates.reason - the only place a reader can tell whether
+    // income has ever been measured, since the real graph has no
+    // coins-priced candidate to quote it in `why` - were silently
+    // discarded on every day a top pick existed, which is most days.
+    fetchDirector.mockResolvedValue(payload({
+      top: candidate({ objective_id: "labs.unlocked", why: "labs.unlocked is ready to attempt." }),
+      reason: "Top pick: labs.unlocked is ready to attempt. CENSUS_AND_INCOME_TOKEN",
+    }));
+    render(<DirectorPage />);
+
+    await screen.findByText("labs.unlocked is ready to attempt.");
+    expect(screen.getByText(/CENSUS_AND_INCOME_TOKEN/)).toBeDefined();
+  });
 });

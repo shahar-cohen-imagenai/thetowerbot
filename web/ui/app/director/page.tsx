@@ -157,18 +157,27 @@ export default function DirectorPage() {
             </p>
           </div>
         ) : data ? (
-          data.top ? (
-            <div className="rounded-md border border-live p-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="font-mono text-sm font-medium">{data.top.objective_id}</span>
-                <StatusChip status={data.top.status} />
-                <HorizonChip horizon={data.top.hours_to_afford} />
+          <div className="flex flex-col gap-2">
+            {data.top ? (
+              <div className="rounded-md border border-live p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-sm font-medium">{data.top.objective_id}</span>
+                  <StatusChip status={data.top.status} />
+                  <HorizonChip horizon={data.top.hours_to_afford} />
+                </div>
+                <p className="mt-1.5 text-sm">{data.top.why}</p>
               </div>
-              <p className="mt-1.5 text-sm">{data.top.why}</p>
-            </div>
-          ) : (
+            ) : null}
+            {/* The census (ready/blocked/held) and the income state
+                (CurrencyRates.reason) live in `reason` whether or not a
+                `top` pick exists - see director.py's `_plan_reason` and
+                `_census`. Rendering it only in the no-top branch, as this
+                page used to, threw both away on every day there WAS a top
+                pick - which is most days - leaving a reader with no way to
+                tell "income has never been measured" from "measured and
+                healthy" purely from the recommendation card. */}
             <p className="text-sm text-muted-foreground">{data.reason}</p>
-          )
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">Loading…</p>
         )}

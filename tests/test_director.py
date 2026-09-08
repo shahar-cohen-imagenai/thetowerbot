@@ -105,6 +105,54 @@ def test_an_already_affordable_objective_does_not_divide_by_zero() -> None:
     assert director.score(1.0, 0.) is not None
 
 
+def test_an_unscoreable_candidates_value_breaks_the_tie_before_its_id() -> None:
+    """33 of the real graph's 42 objectives carry no price at all (see
+    `_price_and_currency`), so `score` is `None` for all of them and the
+    `-(c.score or 0.)` key term is a tie (`-0.`) across every one. Before
+    `Objective.value` was added to the sort key, the NEXT key was
+    `c.objective_id` - so two unpriced, ready, unheld candidates sorted
+    alphabetically regardless of how much either was worth. Chosen so id
+    order and value order actively disagree ("a.low" < "z.high"
+    alphabetically, but "z.high" is worth more): a naive id-only tiebreak
+    would pick the wrong one, exactly as it did for the real graph's
+    `labs.unlocked` (value 0.5) beating `tier.unlock.2` (value 1.8) purely
+    because "l" sorts before "t" - see
+    test_the_real_graph_ranks_an_unpriced_root_by_value_not_alphabetically
+    below for that end-to-end regression."""
+    low_value_early_id = director.Candidate(
+        "a.low", "ready", None, None, None, None, (), (), "w", ("x",), value=0.5)
+    high_value_late_id = director.Candidate(
+        "z.high", "ready", None, None, None, None, (), (), "w", ("x",), value=1.8)
+    ranked = director.rank((low_value_early_id, high_value_late_id))
+    assert ranked[0].objective_id == "z.high"
+
+
+def test_the_real_graph_ranks_an_unpriced_root_by_value_not_alphabetically() -> None:
+    """Pinned against the REAL `objectives.GRAPH`, not a synthetic one: the
+    two ranking tests above only ever used synthetic, hand-built
+    candidates and never exercised the None-score fallthrough that most of
+    the real graph actually takes. On an empty revision, exactly two
+    objectives are ready and unheld: `labs.unlocked` (value 0.5) and
+    `tier.unlock.2` (value 1.8, the wave-100 tier gate itself - see
+    `_TIER_UNLOCKS` in objectives.py, "the multiplier every downstream
+    objective is funded by"). Before this fix, `top` was `labs.unlocked`
+    purely because "l" < "t" - an objective almost certainly already
+    satisfied on the live account, and exactly the wrong headline for a
+    human deciding whether the wave-100 wall is a planner or a build
+    problem. FAILING-FIRST: against the pre-fix `rank()` (id-only
+    tiebreak, no `-c.value` term) this asserts `top.objective_id ==
+    "labs.unlocked"` and passes; against the fix it asserts
+    `"tier.unlock.2"` and passes only with `-c.value` in the sort key."""
+    result = plan_for(revision())
+    ready_unheld = [c.objective_id for c in result.candidates
+                    if c.status == "ready" and not c.held_by]
+    assert set(ready_unheld) == {"labs.unlocked", "tier.unlock.2"}  # sanity: still exactly these two
+
+    assert result.top is not None
+    assert result.top.objective_id == "tier.unlock.2"
+    assert [c.objective_id for c in result.candidates[:2]] == ["tier.unlock.2", "labs.unlocked"]
+
+
 # -- holds ---------------------------------------------------------------
 def test_an_objective_resting_on_an_unverified_fact_is_held() -> None:
     """rule_verified is false across the whole committed pack today, so this
@@ -324,6 +372,45 @@ def test_the_plan_reason_cites_the_rates_reason_when_nothing_is_top() -> None:
     assert "RATES_REASON_TOKEN" in result.reason
 
 
+def _unpriced_objective() -> objectives.Objective:
+    """A minimal synthetic objective with NO price - the realistic shape of
+    almost every candidate that ever becomes `top` in the real graph (33 of
+    42 objectives carry no price at all, and any objective that DOES carry
+    one is held by the unverified-spend gate, since every citation in the
+    committed pack has `rule_verified=False` - see `_held_reasons`). Ready,
+    unheld, becomes `top` on an empty revision."""
+    return objectives.Objective(
+        id="test.unpriced", requires=(), grants=(), satisfied_by=lambda r: False,
+        actions=(), value=1.0, risk="reversible", knowledge_refs=("tier.2.unlock_wave",),
+    )
+
+
+def test_the_plan_reason_still_carries_the_census_and_rates_reason_when_there_is_a_top_pick() -> None:
+    """Regression: `_plan_reason` used to return only `f"Top pick: {top.why}"`
+    when `top` is not None, discarding the ready/blocked/held census AND
+    `CurrencyRates.reason` exactly on the days a human most needs them - the
+    days there IS a recommendation. `_why` only quotes `rates.reason` for a
+    coins-priced candidate's own sentence, and no priced objective can ever
+    BE `top` in this graph (any price is held by the unverified-spend gate,
+    since every committed fact has `rule_verified=False`) - so `reason` was
+    the only place left for the income state to reach a reader on a
+    top-pick day, and it was being thrown away. Uses an unpriced objective
+    as `top`, the realistic shape (`tier.unlock.2`, the real graph's own
+    top pick after the ranking fix, is unpriced too). FAILING-FIRST against
+    pre-fix `_plan_reason`: `result.reason` is exactly
+    `f"Top pick: {result.top.why}"`, so `"RATES_REASON_TOKEN"` is absent."""
+    obj = _unpriced_objective()
+    result = director.plan(
+        revision(), knowledge=knowledge.KNOWLEDGE, graph=(obj,),
+        rates=CurrencyRates(None, 1, 0, "RATES_REASON_TOKEN"), strategy=strategy())
+    assert result.top is not None
+    assert result.top.objective_id == "test.unpriced"
+    assert result.reason.startswith(f"Top pick: {result.top.why}")
+    assert "RATES_REASON_TOKEN" in result.reason
+    assert "RATES_REASON_TOKEN" not in result.top.why  # the top's own why never mentions it (unpriced)
+    assert "ready" in result.reason.lower()  # the census, not just the top pick's own why
+
+
 # -- (4) unknown must block: never satisfy, never rank as ready -------------
 def test_an_unread_balance_never_produces_a_score() -> None:
     """revision.inventory is None on the live account today (Phase 0b has
@@ -339,6 +426,55 @@ def test_an_unread_balance_never_produces_a_score() -> None:
     candidate = result.candidates[0]
     assert candidate.hours_to_afford is None
     assert candidate.score is None
+
+
+# -- (5) the tri-state must not collapse in `why` ----------------------------
+def test_a_ready_objectives_never_observed_predicate_reads_distinctly_from_a_known_unmet_one() -> None:
+    """A root objective's predicate returning None ("never observed") and
+    one returning False ("known: not done yet") both classify() as "ready"
+    - correctly, by classify()'s own design (a root's readiness only claims
+    "nothing outstanding blocks attempting this"). Verified live before this
+    fix: `AccountRevision()` and `AccountRevision(unlocks=())` produced
+    BYTE-IDENTICAL `why` sentences for `tier.unlock.2` - "tier.unlock.2 is
+    ready to attempt. ..." - because `Candidate` carried only `status`, not
+    the predicate's own tri-state. On the live account every section but
+    `workshop_stats` is null, so every "ready" candidate there is actually
+    an unknown wearing known-and-unmet's clothes. `tier.unlock.2` is a root
+    objective (`requires=()`) whose predicate reads `unlocks.tier.2`: unread
+    (`unlocks=None`, the default) it is `None`; read but the fact absent
+    (`unlocks=()`, a real empty reading) it is `False` - see `_has_unlock`
+    and `_facts`'s own None-vs-empty distinction in objectives.py."""
+    never_observed = plan_for(revision())  # unlocks=None: never read at all
+    known_unmet = plan_for(revision(unlocks=()))  # unlocks read; tier.2 absent from it
+
+    unobserved_candidate = {c.objective_id: c for c in never_observed.candidates}["tier.unlock.2"]
+    known_candidate = {c.objective_id: c for c in known_unmet.candidates}["tier.unlock.2"]
+
+    assert unobserved_candidate.status == known_candidate.status == "ready"
+    assert unobserved_candidate.observed is None
+    assert known_candidate.observed is False
+
+    assert "never observed" in unobserved_candidate.why.lower()
+    assert "never observed" not in known_candidate.why.lower()
+    assert unobserved_candidate.why != known_candidate.why  # the collapse this test exists to catch
+
+
+def test_a_done_objectives_observed_is_true_and_a_blocked_ones_predicate_is_never_true() -> None:
+    """The other two corners of the tri-state, pinned directly: `observed`
+    is `True` only when `status == "done"` (the predicate itself returned
+    `True`), and a `"blocked"` candidate's own predicate is never `True`
+    either - reaching "blocked" already means it did not make `done`."""
+    reached = revision(unlocks=(fact("unlocks.tier.2", True),))
+    result = plan_for(reached)
+    by_id = {c.objective_id: c for c in result.candidates}
+
+    done_candidate = by_id["tier.unlock.2"]
+    assert done_candidate.status == "done"
+    assert done_candidate.observed is True
+
+    blocked_candidate = by_id["tier.unlock.4"]  # requires tier.unlock.3, not yet met
+    assert blocked_candidate.status == "blocked"
+    assert blocked_candidate.observed is not True
 
 
 def test_director_module_imports_nothing_that_touches_a_device() -> None:

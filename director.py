@@ -31,6 +31,17 @@ its own module docstring and ``test_objectives.py``'s coverage) and
 ``classify()`` already implements. Re-deciding it here would be a second
 place for that rule to drift from the first.
 
+``status`` alone, though, cannot tell a reader whether a "ready" objective's
+OWN predicate came back known-False ("we checked - not done yet") or
+unresolved-None ("we have never actually looked") - ``classify()``
+deliberately renders both the same status, and that collapse is the
+correct one for graph readiness (see its own docstring). It is not the
+correct one for a human reading this dashboard, so ``Candidate.observed``
+carries the raw ``satisfied_by(revision)`` tri-state alongside ``status``,
+and ``_why`` renders it distinctly ("ready to attempt - never observed")
+rather than folding it back into "ready to attempt" - see
+``Candidate``'s own docstring.
+
 ``held_by``: the plan's own gate, separate from readiness
 -----------------------------------------------------------
 A candidate can be "ready" per the graph and still be HELD - flagged so it
@@ -82,12 +93,22 @@ can never become ``top`` - for reasons the graph itself does not encode:
 
 Purity
 ------
-No I/O, no clock, no device, no database. ``Plan.observed_at`` is
-``revision.created_at`` - the revision's own timestamp - never
-``time.time()``: "now" is not a concept this module is allowed to have on
-its own. ``tests/test_director.py``'s
-``test_director_module_imports_nothing_that_touches_a_device`` enforces the
-import list below as an allowlist, the same way ``objectives.py`` and
+No I/O, no clock, no device, no database RUNS when ``plan()`` is called -
+``Plan.observed_at`` is ``revision.created_at`` - the revision's own
+timestamp - never ``time.time()``: "now" is not a concept this module is
+allowed to have on its own. ``tests/test_director.py``'s
+``test_director_module_imports_nothing_that_touches_a_device`` enforces
+THIS module's own, direct import statements as an allowlist - not the
+transitive closure reachable through them. It cannot be the transitive
+closure: this module imports ``objectives``, which imports
+``account_state``, which imports ``ultimate_weapons``, which imports
+``ocr`` and ``device``, which import ``cv2``/``numpy``/``adbutils`` - so
+``import director`` genuinely needs those packages installed (outside this
+repo's own venv, it raises ``ModuleNotFoundError: No module named 'cv2'``,
+not a clean import). No I/O runs at import time anywhere in that chain
+(``device.py`` only constructs a logger), and no emulator connection is
+ever made - that is the real, narrower guarantee this allowlist and
+``objectives.py``'s own enforce, the same way ``objectives.py`` and
 ``affordability_horizon.py`` enforce their own; ``test_the_plan_is_pure``
 and ``test_the_plan_arms_nothing`` pin determinism and the forbidden-import
 substring check directly on ``plan()``.
@@ -142,6 +163,29 @@ class Candidate:
     never merely because the objective is blocked or held; a blocked or
     held objective still reports what its score WOULD be, so a human can
     see what unblocking or clearing the hold would buy.
+
+    `value` mirrors `Objective.value` and exists on the candidate (not just
+    reachable through the graph) so `rank` can use it directly as a
+    tiebreak for the common case where `score` is `None` for both
+    candidates being compared - see `rank`'s own docstring for why that
+    case is the common one, not the rare one. Defaults to `0.0` for the
+    synthetic candidates this module's own test suite constructs directly
+    (bypassing `plan()`, which always supplies the real objective's value).
+
+    `observed` is the tri-state `objective.satisfied_by(revision)` result
+    that decided `status` - not re-derived from `status`, which collapses
+    it. `status == "done"` implies `observed is True`; `status in
+    ("ready", "blocked")` never has `observed is True` (that would have
+    made it "done"), but does NOT by itself tell you whether the predicate
+    returned `False` (known: not satisfied) or `None` (unknown: never
+    observed) - exactly the distinction `classify()` deliberately does not
+    carry past itself (see `objectives.classify`'s own docstring: a root
+    objective's unresolved own-state still reads "ready", by design, and
+    that design is correct for graph readiness). A human reading the
+    dashboard needs the distinction anyway - "ready, and we know it isn't
+    done yet" reads very differently from "ready, but we have never
+    actually looked" - so it is carried here, alongside `status`, rather
+    than folded into it.
     """
 
     objective_id: str
@@ -154,6 +198,8 @@ class Candidate:
     held_by: tuple[str, ...]
     why: str
     knowledge_refs: tuple[str, ...]
+    value: float = 0.0
+    observed: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -186,18 +232,36 @@ def score(value: float, hours: float | None) -> float | None:
 
 def rank(candidates: tuple[Candidate, ...]) -> tuple[Candidate, ...]:
     """Ready before blocked, unheld before held, scored before unscoreable,
-    then by score descending, then by id so the order is total.
+    then by score descending, then by declared value descending, then by id
+    so the order is total.
 
     The sort key is explicit about None rather than relying on a default:
     Python cannot compare None to a float, and a naive `key=lambda c: c.score`
     would either crash or - with a `or 0` - rank an unmeasurable objective
     above a poor but measurable one.
+
+    The value tiebreak matters because most of the graph is unscoreable: 33
+    of 42 objectives carry no price at all (see `_price_and_currency` -
+    only the nine `uw.slot.*` objectives have one, in stones), so `score`
+    and `hours_to_afford` are `None` for the rest and the `-(c.score or
+    0.)` term above is `-0.` for every one of them - a tie. Without this
+    line the next key was `c.objective_id`, and Python's `sorted` is
+    stable but the KEY itself has no more information left to break the
+    tie with except the id string - so every unpriced candidate, including
+    the ones a human most needs ranked correctly (`tier.unlock.2`, value
+    1.8 - the wave-100 gate itself), sorted alphabetically instead of by
+    how much they are worth. `Objective.value` is exactly the number this
+    module has for "how much is this worth" when a price/horizon cannot be
+    computed at all; using it here, before the id, means the id is only
+    ever consulted as the LAST, purely-cosmetic tiebreak among candidates
+    that are equal in every way that matters - never a proxy for priority.
     """
     return tuple(sorted(candidates, key=lambda c: (
         c.status != "ready",
         bool(c.held_by),
         c.score is None,
         -(c.score or 0.),
+        -c.value,
         c.objective_id,
     )))
 
@@ -356,14 +420,36 @@ def _held_reasons(objective: objectives.Objective, pack: knowledge.Pack,
 
 def _why(objective_id: str, status: objectives.Status, blocked_by: tuple[str, ...],
          held_by: tuple[str, ...], price: int | float | None, currency: str | None,
-         hours: float | None, scored: float | None, rates: CurrencyRates) -> str:
-    """A sentence a human reads - never just a score."""
+         hours: float | None, scored: float | None, rates: CurrencyRates,
+         observed: bool | None) -> str:
+    """A sentence a human reads - never just a score.
+
+    `observed is None` on a "ready" objective means `satisfied_by(revision)`
+    itself returned `None` - not "known, and not yet done" but "we have
+    never actually looked" (every `AccountRevision` section but
+    `workshop_stats` is null on the live account today, so this is the
+    ordinary case there, not an edge case). `classify()` deliberately
+    renders both the same `Status` - see its own docstring - because that
+    collapse is safe for graph readiness; it is NOT safe for a human
+    reading this sentence, who would otherwise read "ready" as "confirmed
+    not done yet" every time, even when nothing has actually confirmed
+    that. Said only for "ready": "blocked" already has its own sentence
+    (the prerequisite, not this objective's own predicate, is what is
+    unresolved), and "done" means the predicate returned `True`, never
+    `None`.
+    """
     parts: list[str] = []
 
     if status == "blocked":
         parts.append(f"Blocked on: {', '.join(blocked_by)}.")
     elif status == "done":
         parts.append(f"{objective_id} is already satisfied on this revision.")
+    elif observed is None:
+        parts.append(
+            f"{objective_id} is ready to attempt - never observed: no account "
+            "data has ever confirmed or denied this on its own, only its "
+            "prerequisites are known to be met."
+        )
     else:
         parts.append(f"{objective_id} is ready to attempt.")
 
@@ -398,30 +484,64 @@ def _why(objective_id: str, status: objectives.Status, blocked_by: tuple[str, ..
     return " ".join(parts)
 
 
-def _plan_reason(top: Candidate | None, ranked: tuple[Candidate, ...], rates: CurrencyRates) -> str:
-    if top is not None:
-        return f"Top pick: {top.why}"
+def _census(ranked: tuple[Candidate, ...], rates: CurrencyRates) -> str:
+    """The counted state of the whole graph, in one sentence - the census
+    and income state a human needs on the page every day, not only on the
+    days there is no `top` pick.
 
+    Counted, never summed or averaged: an infinite horizon mixed into an
+    arithmetic mean would make the mean infinite too, silently erasing
+    every finite horizon sitting next to it. Kept as separate, comparable
+    counts instead - the same "never collapse" discipline `hours_to_afford`
+    and `CurrencyRates` apply to the value itself.
+
+    `rates.reason` is quoted here unconditionally - not only when a
+    coins-priced candidate happens to exist. `_why` above quotes it too,
+    but only for a coins-priced objective's own sentence, and the
+    committed graph has none (every price in it is `stone_cost` - see
+    `_price_and_currency`'s own comment); without this line a reader of
+    the real graph's plan could never tell "income has never been
+    measured" from "measured and irrelevant to what's priced today".
+    """
     done = sum(1 for c in ranked if c.status == "done")
+    ready = sum(1 for c in ranked if c.status == "ready")
     blocked = sum(1 for c in ranked if c.status == "blocked")
     held = sum(1 for c in ranked if c.held_by)
-    # Counted, never summed or averaged: an infinite horizon mixed into an
-    # arithmetic mean would make the mean infinite too, silently erasing
-    # every finite horizon sitting next to it. Kept as two separate,
-    # comparable counts instead - the same "never collapse" discipline
-    # `hours_to_afford` and `CurrencyRates` apply to the value itself.
     unknown_horizon = sum(1 for c in ranked if c.price is not None and c.hours_to_afford is None)
     infinite_horizon = sum(
         1 for c in ranked
         if c.hours_to_afford is not None and math.isinf(c.hours_to_afford)
     )
     return (
-        "No objective is both ready and unheld right now: "
-        f"{done} already done, {blocked} blocked on a prerequisite, {held} "
-        "held pending independent knowledge verification or a one-way "
-        f"pre-approval. Of the priced objectives, {unknown_horizon} have an "
-        f"unknown horizon and {infinite_horizon} have a measured-infinite "
-        f"one. {rates.reason}"
+        f"{done} done, {ready} ready, {blocked} blocked, {held} held. Of "
+        f"the priced objectives, {unknown_horizon} have an unknown horizon "
+        f"and {infinite_horizon} have a measured-infinite one. {rates.reason}"
+    )
+
+
+def _plan_reason(top: Candidate | None, ranked: tuple[Candidate, ...], rates: CurrencyRates) -> str:
+    """The plan's own one-paragraph summary - never just the top pick's
+    `why`.
+
+    Two things earlier reviews found this function was discarding exactly
+    when a reader needed them most: the ready/blocked/held census, and
+    `CurrencyRates.reason` (see `_census`'s own docstring on why quoting it
+    only inside a coins-priced candidate's `why` is not enough against the
+    real graph). Both used to live ONLY in the `top is None` branch below -
+    so on any day a `top` pick exists, which is most days, the census and
+    income state were computed and then thrown away. `_census` is now
+    appended to the top-pick sentence too, rather than only replacing it,
+    so the dashboard's income state is legible every day, not only on days
+    with no recommendation.
+    """
+    census = _census(ranked, rates)
+    if top is not None:
+        return f"Top pick: {top.why} {census}"
+
+    return (
+        "No objective is both ready and unheld right now: held pending "
+        "independent knowledge verification or a one-way pre-approval, or "
+        f"blocked on a prerequisite. {census}"
     )
 
 
@@ -444,6 +564,16 @@ def plan(revision: AccountRevision, *, knowledge: knowledge.Pack,
         blocked_by = (
             tuple(sorted(set(objective.requires) - done)) if status == "blocked" else ()
         )
+        # The same predicate call classify() already made internally (via
+        # `done`), re-run here rather than threaded out of classify()'s own
+        # return value: classify()'s contract stays exactly {"done", "ready",
+        # "blocked"} per id (see objectives.classify's own docstring and
+        # test coverage), and this module gets the tri-state it additionally
+        # needs - see Candidate.observed's docstring - without asking that
+        # contract to carry a second, director-only concern. satisfied_by is
+        # PURE (objectives.py's own governing rule), so calling it twice is
+        # cheap and never risks disagreeing with classify()'s own call.
+        observed = objective.satisfied_by(revision)
 
         price, currency = _price_and_currency(objective)
         balance = _balance(revision, currency)
@@ -452,7 +582,8 @@ def plan(revision: AccountRevision, *, knowledge: knowledge.Pack,
         scored = score(objective.value, hours)
 
         held_by = _held_reasons(objective, knowledge, strategy, price)
-        why = _why(objective.id, status, blocked_by, held_by, price, currency, hours, scored, rates)
+        why = _why(objective.id, status, blocked_by, held_by, price, currency,
+                   hours, scored, rates, observed)
 
         candidates.append(Candidate(
             objective_id=objective.id,
@@ -465,6 +596,8 @@ def plan(revision: AccountRevision, *, knowledge: knowledge.Pack,
             held_by=held_by,
             why=why,
             knowledge_refs=objective.knowledge_refs,
+            value=objective.value,
+            observed=observed,
         ))
 
     ranked = rank(tuple(candidates))

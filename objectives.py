@@ -147,8 +147,21 @@ class Action:
     """One executor call, with what must hold before and after.
 
     `executor` names an existing module-level entry point by string rather
-    than holding a reference, so this module imports nothing that touches a
-    device and the graph stays importable in a test with no emulator.
+    than holding a reference, so this module's OWN import statements never
+    need to name a device/ocr module directly -
+    `test_objectives_module_imports_nothing_that_touches_a_device` enforces
+    that as an allowlist over this module's direct imports, not its
+    transitive closure. It cannot be the transitive closure: this module
+    imports `account_state`, which imports `ultimate_weapons`, which
+    imports `ocr` and `device`, which import `cv2`/`numpy`/`adbutils` - so
+    `import objectives` still needs those packages installed (outside this
+    repo's own venv it raises `ModuleNotFoundError: No module named
+    'cv2'`, not a clean import). What IS true, and what this buys: no I/O
+    runs at import time anywhere in that chain (`device.py` only
+    constructs a logger) and no emulator connection is ever made, so this
+    graph is exercised in `test_objectives.py` against synthetic
+    `AccountRevision`s with no emulator attached - not with no device
+    packages installed.
     """
 
     executor: str
