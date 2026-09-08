@@ -1,13 +1,27 @@
 "use client";
 
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NumberField } from "@/components/ui/number-field";
 import { SectionCard } from "@/components/ui/section-card";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import type { ActionRule, Strategy } from "@/lib/types";
+import type { ActionRule, Claims, Strategy } from "@/lib/types";
+
+/** What the server assumes when a profile carries no `claims` block, from
+ *  strategy.py's Claims(). Written out rather than left as an empty card:
+ *  the moment the reader touches one switch the whole block is PUT, so the
+ *  two fields they did not touch have to be the server's own answers. */
+const CLAIM_DEFAULTS: Claims = {
+  enabled: false,
+  missions_every_hours: 8,
+  milestones_on_new_best: true,
+};
+
+/** strategy.py's MIN_CLAIM_HOURS/MAX_CLAIM_HOURS. */
+const MIN_CLAIM_HOURS = 0.1;
+const MAX_CLAIM_HOURS = 168;
 
 /** Fields whose value is read when the bot is BUILT, not per scan.
  *
@@ -79,6 +93,7 @@ export function StrategyEditor({
   disabled = false,
   hidePurchases = false,
   legacyPurchases = false,
+  claimsDisabledReason = null,
 }: {
   value: Strategy;
   onChange: (next: Strategy) => void;
@@ -91,9 +106,21 @@ export function StrategyEditor({
   disabled?: boolean;
   hidePurchases?: boolean;
   legacyPurchases?: boolean;
+  /** Non-null when the OCR reader will not load on this machine. The claim
+   * walks read the missions and milestones ladders through it, and
+   * runner.py refuses a manual claim outright while it is set - so the
+   * cadence below arms walks that cannot see what they came for. Surfaced
+   * for the same reason ShoppingEditor surfaces its own: a switch that
+   * silently does nothing is worse than one that says why. */
+  claimsDisabledReason?: string | null;
 }) {
   const set = <K extends keyof Strategy>(key: K, v: Strategy[K]) =>
     onChange({ ...value, [key]: v });
+
+  const claims = value.claims ?? CLAIM_DEFAULTS;
+  // Always the whole block, never a lone field: the page saves with PUT, so
+  // a partial claims object would reset whatever it left out.
+  const setClaims = (patch: Partial<Claims>) => set("claims", { ...claims, ...patch });
 
   const setRow = (index: number, patch: Partial<ActionRule>) =>
     set(
@@ -324,6 +351,55 @@ export function StrategyEditor({
             ))}
           </select>
         </label>
+      </SectionCard>
+
+      <SectionCard id="claims" title="Claims" contentClassName="flex flex-col gap-3">
+        {claimsDisabledReason ? (
+          <div className="flex gap-2 rounded-md border border-warn bg-warn-surface p-2.5">
+            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden="true" />
+            <p className="text-xs text-warn">
+              Claims cannot run on this machine yet: {claimsDisabledReason}. The walks below
+              read the ladders through that reader, so switching them on will not do anything
+              until this is fixed.
+            </p>
+          </div>
+        ) : null}
+        <p className="text-xs text-muted-foreground">
+          Between runs, from a confirmed main menu, the bot can walk Home → Missions or
+          Home → Milestones and back to collect what is owed. One walk at a time, and never
+          while another menu transaction holds the screen.
+        </p>
+        <div className="flex items-center justify-between text-sm">
+          Automatic claims
+          <Switch
+            label="Automatic claims"
+            checked={claims.enabled}
+            disabled={disabled}
+            onCheckedChange={(next) => setClaims({ enabled: next })}
+          />
+        </div>
+        <NumberField
+          label="Claim missions every (h)" value={claims.missions_every_hours}
+          disabled={disabled}
+          min={MIN_CLAIM_HOURS} max={MAX_CLAIM_HOURS} step={0.5}
+          note="The game's own reset is 8 hours."
+          onCommit={(n) => setClaims({ missions_every_hours: n })}
+        />
+        <div className="flex items-center justify-between text-sm">
+          <span>
+            Claim milestones on a new best wave
+            <span className="block max-w-xs text-xs text-muted-foreground">
+              Milestones only move when a run beats the best wave, so a clock would walk the
+              menus for nothing.
+            </span>
+          </span>
+          <Switch
+            label="Claim milestones on a new best wave"
+            checked={claims.milestones_on_new_best}
+            disabled={disabled}
+            onCheckedChange={(next) => setClaims({ milestones_on_new_best: next })}
+          />
+        </div>
       </SectionCard>
     </div>
   );
