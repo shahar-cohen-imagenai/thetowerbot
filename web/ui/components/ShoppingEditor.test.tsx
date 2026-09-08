@@ -36,6 +36,25 @@ describe("ShoppingEditor", () => {
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ coin_budget: null }));
   });
 
+  it("commits a wallet share as a fraction of the balance", () => {
+    const onChange = vi.fn();
+    render(<ShoppingEditor shopping={policy} onChange={onChange} />);
+    fireEvent.blur(screen.getByLabelText("Coin budget share per visit"), { target: { value: "25" } });
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ coin_budget_pct: 0.25 }));
+  });
+
+  it("shows a stored wallet share as a percentage", () => {
+    render(<ShoppingEditor shopping={{ ...policy, coin_budget_pct: 0.25 }} onChange={vi.fn()} />);
+    expect(screen.getByLabelText("Coin budget share per visit")).toHaveValue(25);
+  });
+
+  it("commits a cleared wallet share as none, not as zero", () => {
+    const onChange = vi.fn();
+    render(<ShoppingEditor shopping={{ ...policy, coin_budget_pct: 0.25 }} onChange={onChange} />);
+    fireEvent.blur(screen.getByLabelText("Coin budget share per visit"), { target: { value: "" } });
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ coin_budget_pct: null }));
+  });
+
   it("shows rows in priority order", () => {
     render(<ShoppingEditor shopping={policy} onChange={vi.fn()} />);
     const rows = screen.getAllByTestId("shopping-row");

@@ -239,3 +239,29 @@ def test_a_coin_budget_of_zero_still_means_spend_nothing() -> None:
     """The one thing "unlimited" must not do is change what every profile on
     disk already says."""
     assert Shopping(coin_budget=0).coin_budget == 0
+
+
+# -- a budget expressed as a share of the wallet ---------------------------
+@pytest.mark.parametrize("value", [0, -0.1, 1.01, 2])
+def test_a_wallet_share_outside_a_share_is_refused(value) -> None:
+    """0 would refuse every purchase forever without saying so, and anything
+    above 1 is not a share of anything."""
+    with pytest.raises(ControlError):
+        Shopping(coin_budget_pct=value)
+
+
+@pytest.mark.parametrize("value", [None, 0.01, 0.25, 1])
+def test_a_wallet_share_within_a_share_is_accepted(value) -> None:
+    assert Shopping(coin_budget_pct=value).coin_budget_pct == value
+
+
+def test_a_wallet_share_survives_the_round_trip_the_browser_posts() -> None:
+    """The editor POSTs the whole shopping object, so a field that does not
+    survive to_dict is a field the next save silently deletes."""
+    original = Shopping(coin_budget_pct=.25)
+    assert Shopping.from_dict(original.to_dict()).coin_budget_pct == .25
+
+
+def test_a_wallet_share_that_is_not_a_number_is_refused() -> None:
+    with pytest.raises(ControlError):
+        Shopping(coin_budget_pct="a quarter")

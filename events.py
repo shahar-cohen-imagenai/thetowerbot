@@ -177,9 +177,19 @@ class PurchaseSkipped(Event):
     """
 
     item: str
-    # unaffordable | unreadable | no_match | capped - "disabled" is not in
-    # this list on purpose: a disabled row is filtered out of rows_for()
-    # before BUY_ROWS ever sees it, so that value is never emitted.
+    # What refused the row, in the vocabulary shopping.py actually emits:
+    #   unaffordable | reserve | budget - the wallet, the floor under it,
+    #     or this visit's allowance said no.
+    #   already_unlocked - the tab is showing the rows this unlock grants,
+    #     so it was bought before and is never coming back.
+    #   no_match | unreadable | unknown_identity - the row, its price or
+    #     its identity could not be read.
+    #   target_reached | capped - the row is finished with.
+    #   disabled - an unlock row with unlock permission off. Note that a
+    #     row disabled in the STRATEGY never reaches here: rows_for()
+    #     filters it out before BUY_ROWS sees it.
+    #   unconfirmed | unreconciled - a tap whose effect nothing could
+    #     confirm, this visit or a dead process's.
     reason: str
     detail: str = ""
     coins_before: int | None = None
