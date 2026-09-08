@@ -478,3 +478,97 @@ def plan(revision: AccountRevision, *, knowledge: knowledge.Pack,
         top=top,
         reason=reason,
     )
+
+
+def _horizon_payload(hours: float | None) -> dict[str, object]:
+    """A JSON-safe projection of an hours-to-afford horizon.
+
+    `math.inf` is not valid JSON: `json.dumps` (and therefore every
+    ``JSONResponse`` this repo returns) happily emits the bare token
+    ``Infinity`` for it, which is not legal per RFC 8259 and which a strict
+    parser - a browser's own `JSON.parse`, notably - rejects outright. That
+    makes a naive `{"hours_to_afford": candidate.hours_to_afford}` a ticking
+    bomb: it round-trips through Python's own `json` module (which is why a
+    test using `json.loads(json.dumps(...))` would not catch it) but breaks
+    the moment a real browser fetches the route.
+
+    So this is the one place that gets corrected for the JSON boundary,
+    with an explicit `kind` discriminator rather than a sentinel number a
+    client would have to know to special-case:
+      - `hours is None` ("we cannot say - go gather data") -> `{"kind":
+        "unknown"}`.
+      - `math.isinf(hours)` ("measured: not at this rate, ever") -> `{"kind":
+        "infinite"}`.
+      - otherwise, a real, finite wait -> `{"kind": "hours", "hours": ...}`.
+    A client that only reads `.hours` when `kind == "hours"` can never
+    mistake "unknown" for "infinite" for "12.3", which is exactly the
+    collapse this whole phase exists to prevent - see this module's
+    docstring and `affordability_horizon.py`.
+    """
+    if hours is None:
+        return {"kind": "unknown"}
+    if math.isinf(hours):
+        return {"kind": "infinite"}
+    return {"kind": "hours", "hours": hours}
+
+
+def _knowledge_ref_payload(ref: str, knowledge: knowledge.Pack) -> dict[str, object]:
+    """One citation, with the source link a human needs to go check it.
+
+    `by_id` returning `None` is unreachable against the committed pack
+    today (both `test_objectives.py` and `test_knowledge.py` validate every
+    citation resolves - see `_held_reasons` above for the same note) but is
+    handled explicitly rather than trusted blindly, per this phase's own
+    governing rule.
+    """
+    fact = knowledge.by_id(ref)
+    return {"id": ref, "source_url": fact.source_url if fact is not None else None}
+
+
+def _candidate_payload(candidate: Candidate, knowledge: knowledge.Pack) -> dict[str, object]:
+    """One candidate, JSON-safe, with nothing collapsed.
+
+    `blocked_by`, `held_by` and `knowledge_refs` stay separate lists rather
+    than folding into one "why" string a UI would have to re-parse: a human
+    reading the dashboard needs "blocked" (a prerequisite), "held" (a
+    deliberate gate) and "cited" (why it exists at all) to stay visibly
+    distinct, exactly as `objectives.classify` and this module's own
+    docstring keep them distinct upstream.
+    """
+    return {
+        "objective_id": candidate.objective_id,
+        "status": candidate.status,
+        "score": candidate.score,
+        "hours_to_afford": _horizon_payload(candidate.hours_to_afford),
+        "price": candidate.price,
+        "currency": candidate.currency,
+        "blocked_by": list(candidate.blocked_by),
+        "held_by": list(candidate.held_by),
+        "why": candidate.why,
+        "knowledge_refs": [_knowledge_ref_payload(ref, knowledge) for ref in candidate.knowledge_refs],
+    }
+
+
+def as_payload(result: Plan, *, knowledge: knowledge.Pack, top_n: int = 5) -> dict[str, object]:
+    """A JSON-safe projection of `result`, for the one route that serves it.
+
+    Kept here, not in `web/app.py` - `web/app.py` knows HTTP, not what a
+    `Plan` means; the same reasoning `ledger.LedgerLine.as_row` follows
+    ("db.py knows rows, not events").
+
+    `candidates` is the ranked list's first `top_n` entries plus every
+    remaining candidate whose `held_by` is non-empty, in their original
+    rank order: a hold is the most actionable thing on the page - a
+    decision waiting on a human - so it is never truncated away, however
+    far down the ranking it sits. The two slices are index-disjoint
+    (`result.candidates[:top_n]` and `result.candidates[top_n:]`), so no
+    candidate can appear twice.
+    """
+    kept = list(result.candidates[:top_n]) + [c for c in result.candidates[top_n:] if c.held_by]
+    return {
+        "observed_at": result.observed_at,
+        "revision_id": result.revision_id,
+        "reason": result.reason,
+        "top": _candidate_payload(result.top, knowledge) if result.top is not None else None,
+        "candidates": [_candidate_payload(c, knowledge) for c in kept],
+    }
