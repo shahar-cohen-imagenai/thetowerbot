@@ -564,3 +564,49 @@ def test_every_claim_event_can_be_replayed_from_the_events_table() -> None:
     for name in ("ClaimStarted", "MissionClaimed", "ClaimSkipped", "ClaimEnded",
                  "MilestoneClaimed", "ClaimUncertain"):
         assert name in ledger._REPLAYABLE
+
+
+# -- the floating gem -------------------------------------------------------
+
+
+def test_a_floating_gem_claim_credits_gems() -> None:
+    (line,) = ledger.classify(
+        events.FloatingGemClaimed(point=(560, 700), gems_before=60, gems_after=62,
+                                  delta=2, run_id=7, seq=11, ts=1000.0)
+    )
+
+    assert (line.kind, line.currency, line.delta) == ("GEM_CLAIM", "gems", 2)
+    assert (line.observed, line.balance_after) == (60, 62)
+    assert line.run_id == 7
+
+
+def test_a_floating_gem_claim_is_a_credit_not_a_purchase() -> None:
+    """It costs nothing, so `price` must stay None rather than become 0.
+
+    price=0 would read as "bought for free", which is a different claim
+    about the world than "was given".
+    """
+    (line,) = ledger.classify(
+        events.FloatingGemClaimed(point=(560, 700), gems_before=60, gems_after=62,
+                                  delta=2, seq=11, ts=1000.0)
+    )
+
+    assert line.price is None
+    assert line.delta > 0
+
+
+def test_an_unconfirmed_floating_gem_reuses_the_uncertain_kind() -> None:
+    """No new ledger kind for the failure path.
+
+    A floating gem tapped and never confirmed is exactly what
+    ClaimUncertain and CLAIM_UNCERTAIN already describe, so the claim
+    publishes that event rather than a bespoke one - which is also why
+    delta lands as None and not 0.
+    """
+    (line,) = ledger.classify(
+        events.ClaimUncertain(target="floating_gem", reason="counter_unchanged",
+                              detail="tapped 3x at (560, 700)", seq=12, ts=1000.0)
+    )
+
+    assert (line.kind, line.delta) == ("CLAIM_UNCERTAIN", None)
+    assert line.detail["target"] == "floating_gem"

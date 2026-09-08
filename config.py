@@ -195,6 +195,28 @@ FLOATING_GEM_HSV_HIGH: tuple[int, int, int] = (158, 255, 255)
 # visibly larger in a battle frame. A harvested capture should confirm it.
 FLOATING_GEM_MIN_AREA: int = 250
 
+# How many scans a tap gets to show up in the gem counter before the claim
+# is written off as unconfirmed. Three, at a ~2s interval, is about six
+# seconds - generous for a counter that updates on the next frame, and the
+# generosity is deliberate: giving up early publishes ClaimUncertain for a
+# gem that was in fact collected.
+FLOATING_GEM_CONFIRM_SCANS: int = 3
+
+# Taps per sighting. More than one because the gem ORBITS: the tap lands
+# where the sprite was a moment ago, so a miss is ordinary. Bounded because
+# a false positive would otherwise be tapped forever.
+FLOATING_GEM_MAX_TAPS: int = 3
+
+# How long to leave the field alone after a claim that never confirmed.
+# Without it the budget above buys nothing: the machine goes back to idle,
+# sees the same unmoving blob on the very next scan, and starts over -
+# tapping a false positive forever, three taps at a time.
+#
+# Only after a FAILURE. A confirmed claim resets immediately, because the
+# counter rising is proof the thing was real and the next spawn deserves
+# the same treatment.
+FLOATING_GEM_COOLDOWN_SECONDS: float = 30.0
+
 # --- Unknown-screen snapshots ---------------------------------------------
 UNKNOWN_DIR: Path = Path(__file__).parent / "unknown"
 UNKNOWN_MIN_INTERVAL: float = 30.0

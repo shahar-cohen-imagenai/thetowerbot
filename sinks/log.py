@@ -52,6 +52,12 @@ def render(event: events.Event) -> str:
                 f"{ts} RUN    #{event.run_id} {how} "
                 f"after {event.duration:.0f}s{wave}{tier}{coins}"
             )
+        case events.FloatingGemClaimed():
+            x, y = event.point
+            return (
+                f"{ts} GEM    +{event.delta} at ({x},{y}) "
+                f"{event.gems_before} -> {event.gems_after}"
+            )
         case events.Navigated():
             return f"{ts} NAV    {event.target}"
         case events.UnknownScreen():

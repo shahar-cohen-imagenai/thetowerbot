@@ -377,6 +377,27 @@ class MilestoneClaimed(Event):
 
 
 @dataclass(frozen=True, kw_only=True)
+class FloatingGemClaimed(Event):
+    """The free gem that orbits the tower mid-battle, taken and PROVEN taken.
+
+    Published only when the HUD gem counter actually rose across the tap.
+    The gem orbits, so a tap can land where the sprite was rather than where
+    it is, and a tap alone is not evidence - an unconfirmed one publishes
+    ClaimUncertain instead, exactly as a menu claim does.
+
+    `delta` is therefore always a real subtraction of two readings, never
+    the two gems the wiki says a pickup pays. That number is what the game
+    is documented to give, not what this bot watched it give.
+    """
+
+    point: tuple[int, int]
+    gems_before: int
+    gems_after: int
+    delta: int
+    run_id: int | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
 class ClaimUncertain(Event):
     """A claim that was TAPPED and never confirmed. It may have landed.
 
