@@ -50,6 +50,7 @@ import config
 import db
 import digits
 import events
+import gem_claim
 import jitter
 import ledger
 import ocr
@@ -178,6 +179,11 @@ class TowerBot:
         }
         self.navigator = Navigator(templates, bus, cooldown=navigation_cooldown)
         self.speed = speed.SpeedController(bus=bus)
+        # Always on, with no strategy field of its own: the gem is free, it
+        # is rare, and there is no configuration anyone would want other
+        # than "take it". It still only ever acts inside a confirmed,
+        # unpaused battle - that is the branch it lives in, not a setting.
+        self.gem = gem_claim.FloatingGemClaim(bus=bus, reader=self.reader)
         self.runs = RunTracker(first_run_id)
         # When each claim last landed, and the best wave the ladder was
         # claimed at. In-memory for this slice: a restart re-offers a claim,
@@ -848,6 +854,22 @@ class TowerBot:
                 events.Skipped(action="*", reason="paused", detail="paused from the dashboard")
             )
         elif state is screens.ScreenState.IN_RUN:
+            # The free gem orbiting the tower, before any buying. It costs
+            # nothing, it pays account gems rather than the per-run cash
+            # everything below spends, and it is gone in seconds - so it
+            # does not queue behind an autopilot pass.
+            #
+            # Gated on cash_anchor, which the wallet read has already found
+            # this scan: without the anchor there is no HUD to measure the
+            # search region or the gem counter from, and a fixed-pixel
+            # fallback would be wrong on any emulator with a display cutout.
+            if cash_anchor is not None and self.gem.observe(
+                screen=self.screen, anchor=cash_anchor, device=self.device,
+                policy=settings.strategy, now=time.time(),
+                run_id=self.runs.current_id,
+            ):
+                clicked = True
+
             # The strategy's rows, in the strategy's order - order IS
             # priority. Before, this walked config.ACTIONS and used the
             # settings only as an on/off filter, so neither reordering nor

@@ -225,6 +225,10 @@ export default function StrategyPage() {
       <StrategyEditor
         value={draft} onChange={setDraft} available={available}
         speedValues={speedValues} disabled={busy} hidePurchases={draft.autopilot?.enabled} legacyPurchases
+        // The same reason, deliberately: runner.py refuses a claim on the
+        // shopping session's `disabled_reason`, because both features read
+        // the screen through the one OCR engine that failed to load.
+        claimsDisabledReason={shoppingDisabledReason}
       />
 
       <ShoppingEditor

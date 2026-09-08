@@ -35,7 +35,12 @@ export type BotEvent =
   | (EventBase & { type: "ShoppingUnavailable"; reason: string })
   | (EventBase & { type: "Purchased"; item: string; category: string; price: number | null; coins_before: number | null; gems_before: number | null; dry_run: boolean })
   | (EventBase & { type: "PurchaseSkipped"; item: string; reason: string; detail: string; coins_before: number | null; gems_before: number | null })
-  | (EventBase & { type: "ShoppingEnded"; visit: number; bought: number; spent: number; aborted: boolean; reason: string });
+  | (EventBase & { type: "ShoppingEnded"; visit: number; bought: number; spent: number; aborted: boolean; reason: string })
+  /** The free gem that orbits the tower mid-battle. Published only when the
+   * HUD gem counter actually rose across the tap - an unconfirmed one
+   * arrives as ClaimUncertain instead. */
+  | (EventBase & { type: "FloatingGemClaimed"; point: [number, number]; gems_before: number; gems_after: number; delta: number; run_id: number | null })
+  | (EventBase & { type: "ClaimUncertain"; target: string; reason: string; detail: string });
 
 /** A row from the `events` table, which carries columns plus a JSON blob. */
 export interface StoredEvent {
@@ -252,6 +257,9 @@ export interface Shopping {
   coin_reserve?: number;
   /** `null` is unlimited; `0` is the opposite - spend nothing. */
   coin_budget?: number | null;
+  /** A share of the balance the visit opened with, 0 to 1. `null` is none.
+   *  Applied alongside coin_budget; whichever is tighter decides. */
+  coin_budget_pct?: number | null;
   allow_unlocks?: boolean;
 }
 
@@ -285,6 +293,14 @@ export interface AutopilotSnapshot {
 }
 export interface AutopilotCommand { action: "category" | "buy" | "scan"; category?: UpgradeCategory; upgrade_id?: string }
 
+/** Mirrors strategy.py's Claims. */
+export interface Claims {
+  enabled: boolean;
+  /** Bounded by strategy.py's MIN_CLAIM_HOURS/MAX_CLAIM_HOURS (0.1 - 168). */
+  missions_every_hours: number;
+  milestones_on_new_best: boolean;
+}
+
 /** Mirrors strategy.py's Strategy.to_dict(). */
 export interface Strategy {
   name: string;
@@ -303,6 +319,9 @@ export interface Strategy {
   /** null means "leave the in-battle speed alone". */
   target_speed: number | null;
   shopping: Shopping;
+  /** Optional for the same reason `autopilot` is: a profile served by a
+   * backend older than the claim scheduler carries no such key. */
+  claims?: Claims;
 }
 
 export interface ControlPayload {

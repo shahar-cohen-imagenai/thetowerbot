@@ -107,6 +107,16 @@ export function splitEvent(event: BotEvent): EventLine {
         : "";
       return { kind: "SPEED", body: `${event.direction}${journey} (${event.source})` };
     }
+    case "FloatingGemClaimed":
+      return {
+        kind: "GEM",
+        body: `+${event.delta} at (${event.point[0]},${event.point[1]}) ${event.gems_before} -> ${event.gems_after}`,
+      };
+    case "ClaimUncertain":
+      return {
+        kind: "CLAIM?",
+        body: `${event.target} reason=${event.reason}${event.detail ? " " + event.detail : ""}`,
+      };
     case "PageChanged":
       return {
         kind: "PAGE",

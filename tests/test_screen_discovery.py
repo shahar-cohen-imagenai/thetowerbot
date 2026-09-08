@@ -292,6 +292,17 @@ def test_a_second_unlock_stage_resolves_the_same_screen_ids(
     assert (result.screen_id, result.readable) == (expected, True)
 
 
+# Every recorded upgrade capture, in both stages. Shared by the two tests
+# that have to answer for rows the catalog cannot name: neither may pin
+# itself to a single frame, because a frame stops showing such a row the
+# moment the catalog learns its name.
+_WORKSHOP_CAPTURES = (
+    ('menu_workshop_attack', 'workshop'), ('menu_workshop_attack_early', 'workshop'),
+    ('menu_workshop_defense', 'workshop'), ('menu_workshop_defense_early', 'workshop'),
+    ('menu_workshop_utility', 'workshop'), ('menu_workshop_utility_early', 'workshop'),
+)
+
+
 def _rows_by_id(name: str, context: str) -> dict[str, object]:
     frame = cv2.imread(str(FIXTURES / f'{name}.png'))
     return {row.upgrade_id: row for row in
@@ -356,18 +367,20 @@ def test_an_upgrade_keeps_its_identity_and_its_own_target_across_stages(
                 assert row.rect.y <= y < row.rect.y + row.rect.h
 
 
-def test_an_uncatalogued_row_on_a_younger_account_is_named_but_never_tappable() -> None:
+def test_a_row_the_catalog_cannot_name_is_never_tappable() -> None:
     """A real upgrade the catalog has never heard of.
 
-    The second-stage Attack page carries Attack Range and an Unlock Multishot
-    row, neither of which resolves. The reader must say it saw something it
-    cannot name rather than skip the row silently, and must not offer a target
-    for it.
+    The second-stage Attack page used to carry Attack Range and an Unlock
+    Multishot row, neither of which resolved; the catalog names both now, and
+    no recorded capture is left with an unnameable row. The guard still has to
+    hold for the next one the game adds, so it is asserted across the whole
+    corpus rather than against one capture that has since been catalogued: a
+    row the reader cannot name must never be offered a tap.
     """
-    rows = _rows_by_id('menu_workshop_attack_early', 'workshop')
-    discovered = {key: row for key, row in rows.items() if key.startswith('discovered:')}
-    assert discovered, 'the capture no longer carries an uncatalogued row'
-    for row in discovered.values():
+    discovered = [row for name, context in _WORKSHOP_CAPTURES
+                  for row in _rows_by_id(name, context).values()
+                  if row.upgrade_id.startswith('discovered:')]
+    for row in discovered:
         assert row.tap is None
 
 
@@ -458,17 +471,24 @@ def test_a_capture_that_is_not_stage_evidence_is_not_claimed_as_stage_evidence()
     assert set(_rows_by_id('in_run_lit', 'battle')) == set(_rows_by_id('in_run_early', 'battle'))
 
 
-def test_uncatalogued_labels_seen_on_recorded_evidence_are_listed() -> None:
-    """Naming the gap is the point.
+def test_uncatalogued_labels_match_what_the_captures_actually_show() -> None:
+    """Naming the gap is the point - and so is not naming a closed one.
 
     These rows exist in the game and not in the catalog. The reader already
     refuses to tap them; recording them here is what turns a silent refusal
-    into a piece of work someone can pick up.
+    into a piece of work someone can pick up. Checked against the corpus
+    rather than against a hardcoded label, so the table cannot claim work
+    that a catalog entry has since finished - which is exactly what it did
+    claim for attackrange, unlockmultishotupgrades and unlockthornupgrades.
     """
     import screen_discovery
     pending = screen_discovery.capabilities()['uncatalogued_labels']
-    assert 'attackrange' in pending
     assert all(isinstance(where, str) and where for where in pending.values())
+    seen = {row.upgrade_id.removeprefix('discovered:'): name
+            for name, context in _WORKSHOP_CAPTURES
+            for row in _rows_by_id(name, context).values()
+            if row.upgrade_id.startswith('discovered:')}
+    assert pending == seen
 
 
 def test_every_enabled_capability_declares_replay_coverage_or_an_owned_gap() -> None:

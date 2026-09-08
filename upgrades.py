@@ -58,7 +58,7 @@ CATALOG: tuple[Upgrade, ...] = (
         unlock=True,
         unlocks=("range", "damage_per_meter"),
     ),
-    _upgrade("range", "Range", "ATTACK", "Tower Range"),
+    _upgrade("range", "Range", "ATTACK", "Tower Range", "Attack Range"),
     _upgrade(
         "damage_per_meter",
         "Damage / Meter",
@@ -72,6 +72,8 @@ CATALOG: tuple[Upgrade, ...] = (
         "Unlock Multishot",
         "ATTACK",
         "Unlock Multi Shot",
+        "Unlock Multishot Upgrades",
+        "Unlock Multi Shot Upgrades",
         unlock=True,
         unlocks=("multishot_chance", "multishot_targets"),
     ),
@@ -139,6 +141,7 @@ CATALOG: tuple[Upgrade, ...] = (
         "DEFENSE",
         "Unlock Thorn Damage",
         "Unlock Thorns Damage",
+        "Unlock Thorn Upgrades",
         unlock=True,
         unlocks=("thorns",),
     ),
@@ -220,6 +223,9 @@ CATALOG: tuple[Upgrade, ...] = (
         "Unlock Free Upgrades",
         "UTILITY",
         "Unlock Free Upgrade",
+        # What the tab actually prints: the three rows this unlock grants are
+        # chances of a free upgrade, and the row is named for them.
+        "Unlock Upgrade Chances",
         unlock=True,
         unlocks=(
             "free_attack_upgrade",

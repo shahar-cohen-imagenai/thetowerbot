@@ -34,11 +34,12 @@
           "why": "No capture of a maxed Workshop row exists on either recorded account. The price strip is where the game writes MAXED, so the edit puts the marker exactly where the reader looks for a price."
         },
         "ambiguous": {
-          "recording": "recorded",
-          "frame": "menu_workshop_attack_early",
-          "observation": "discovered:attackrange",
-          "expect_status": "uncatalogued",
-          "why": "A real upgrade the catalog cannot name. Recorded, not derived: the second-stage Attack page carries it."
+          "recording": "derived",
+          "frame": "menu_workshop_attack",
+          "observation": "damage",
+          "expect_status": "unreadable",
+          "edits": [{"at": [407, 615, 55, 37], "was": "30", "set_text": "???"}],
+          "why": "The catalog names every row in both recorded Attack captures now, so the garbled-price form stands in - as it already does for Utility. A price nobody could read must cost the row its target, not its identity."
         }
       }
     },
@@ -61,11 +62,12 @@
           "why": "As workshop.attack: no maxed Workshop row has been captured."
         },
         "ambiguous": {
-          "recording": "recorded",
-          "frame": "menu_workshop_defense_early",
-          "observation": "discovered:unlockthornupgrades",
-          "expect_status": "uncatalogued",
-          "why": "The second-stage Defense page carries an unlock row the catalog has never heard of."
+          "recording": "derived",
+          "frame": "menu_workshop_defense",
+          "observation": "health",
+          "expect_status": "unreadable",
+          "edits": [{"at": [407, 615, 54, 37], "was": "30", "set_text": "???"}],
+          "why": "The catalog names every row in both recorded Defense captures now, so the garbled-price form stands in - as it already does for Utility. A price nobody could read must cost the row its target, not its identity."
         }
       }
     },

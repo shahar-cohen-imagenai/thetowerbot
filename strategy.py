@@ -138,7 +138,8 @@ _STRATEGY_TYPES: dict[str, tuple[type, ...]] = {
 }
 
 # Fields whose declared type includes None, so None is not a type error.
-_OPTIONAL = frozenset({"max_runs", "target_speed", "target", "coin_budget"})
+_OPTIONAL = frozenset({"max_runs", "target_speed", "target", "coin_budget",
+                       "coin_budget_pct"})
 
 
 def _has_type(value: Any, types: tuple[type, ...]) -> bool:
@@ -286,7 +287,8 @@ _CARD_TYPES: dict[str, tuple[type, ...]] = {
 _SHOPPING_TYPES: dict[str, tuple[type, ...]] = {
     "enabled": (bool,), "armed": (bool,),
     "visit_every_n_runs": (int,), "max_taps_per_visit": (int,),
-    "coin_reserve": (int,), "coin_budget": (int,), "allow_unlocks": (bool,),
+    "coin_reserve": (int,), "coin_budget": (int,), "coin_budget_pct": (float, int),
+    "allow_unlocks": (bool,),
 }
 
 _CLAIMS_TYPES: dict[str, tuple[type, ...]] = {
@@ -377,6 +379,11 @@ class Shopping:
     max_taps_per_visit: int = 40
     coin_reserve: int = 0
     coin_budget: int | None = 0
+    # A share of the coins the visit opened with, applied on top of
+    # coin_budget. The absolute figure alone cannot survive its own
+    # purchases: every level bought raises the next price, so a constant
+    # eventually sits under every row on the page and refuses the lot.
+    coin_budget_pct: float | None = None
     allow_unlocks: bool = False
     workshop: tuple[ShoppingRule, ...] = ()
     cards: CardPolicy = CardPolicy()
@@ -393,6 +400,10 @@ class Shopping:
             raise ControlError("coin_reserve", "coin_reserve may not be negative")
         if self.coin_budget is not None and self.coin_budget < 0:
             raise ControlError("coin_budget", "coin_budget may not be negative")
+        if self.coin_budget_pct is not None and not 0 < self.coin_budget_pct <= 1:
+            raise ControlError(
+                "coin_budget_pct",
+                "coin_budget_pct must be a share above 0 and at most 1")
 
     def rows_for(self, category: str) -> tuple[ShoppingRule, ...]:
         """Enabled rows on one tab, still in priority order."""
@@ -428,6 +439,7 @@ class Shopping:
             "max_taps_per_visit": self.max_taps_per_visit,
             "coin_reserve": self.coin_reserve,
             "coin_budget": self.coin_budget,
+            "coin_budget_pct": self.coin_budget_pct,
             "allow_unlocks": self.allow_unlocks,
             "workshop": [
                 {

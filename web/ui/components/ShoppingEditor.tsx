@@ -39,6 +39,11 @@ const COIN_BUDGET_NOTE =
   "coins run out or the reserve stops it. Zero means no Workshop spending, even " +
   "when armed.";
 
+const COIN_BUDGET_SHARE_NOTE =
+  "A percentage of the coins on hand when the visit starts. Prices climb with " +
+  "every level bought, so a fixed budget eventually sits under every row on the " +
+  "page and quietly buys nothing; a share does not. Empty means none.";
+
 const VISIT_FREQUENCY_NOTE =
   "How many runs pass between shopping visits; 1 means every run.";
 
@@ -85,6 +90,10 @@ export function ShoppingEditor({
   // the 0 default; `null` is the deliberate "unlimited". Collapsing the two
   // is exactly what `??` would do, so it is spelled out.
   const coinBudget = shopping.coin_budget === undefined ? 0 : shopping.coin_budget;
+
+  // Stored as a fraction because that is what the bot multiplies by; shown
+  // as whole percent because nobody budgets in 0.25 of a wallet.
+  const coinBudgetPct = shopping.coin_budget_pct ?? null;
 
   const setRow = (index: number, patch: Partial<ShoppingRule>) =>
     set(
@@ -258,6 +267,26 @@ export function ShoppingEditor({
               disabled={disabled}
               onBlur={(e) =>
                 set("coin_budget", e.target.value === "" ? null : Number(e.target.value))
+              }
+              className="w-24 text-right font-mono"
+            />
+          </label>
+          <label className="flex items-center justify-between gap-3 text-sm">
+            <span>
+              Coin budget share per visit{" "}
+              <span className="text-xs text-muted-foreground">
+                {coinBudgetPct === null ? "(none)" : "%"}
+              </span>
+              <span className="block max-w-xs text-xs text-muted-foreground">{COIN_BUDGET_SHARE_NOTE}</span>
+            </span>
+            <Input
+              type="number" min={1} max={100} step={1} aria-label="Coin budget share per visit"
+              // Same empty-is-null remount as the coin budget above it.
+              key={String(coinBudgetPct)}
+              defaultValue={coinBudgetPct === null ? "" : Math.round(coinBudgetPct * 100)}
+              disabled={disabled}
+              onBlur={(e) =>
+                set("coin_budget_pct", e.target.value === "" ? null : Number(e.target.value) / 100)
               }
               className="w-24 text-right font-mono"
             />

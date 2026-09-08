@@ -12,6 +12,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import cv2
+import dataclasses
 import pytest
 
 import config
@@ -1204,7 +1205,7 @@ def test_arrival_is_judged_by_the_page_heading_not_a_row_template(
         session.advance(frame("menu_workshop_utility_restocked"), device, policy)
 
     skips = session._bus.of_type("PurchaseSkipped")
-    assert any(s.reason == "no_match" for s in skips), (
+    assert skips, (
         "never reached the rows - still waiting to arrive on a tab it is on"
     )
     assert "Unlock Cash Bonuses" in session._exhausted, (
@@ -1224,12 +1225,17 @@ def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
     simply never be bought, forever, for no visible reason.
 
     menu_workshop_utility_restocked.png is the honest version of the same
-    shape: the configured row was bought in an earlier session and is gone,
-    and three other rows are on the page.
+    shape: the configured row is not on the page, and three others are.
+
+    Coins / Wave rather than an unlock row on purpose. An unlock missing
+    from a page that shows what it grants is not unmatched at all - it is
+    spent, and _already_unlocked retires it without this event. What is
+    left for RowUnmatched is the genuine case: a row nothing on the page
+    can account for.
     """
     device = FakeDevice()
     policy = a_policy(armed=True, workshop=(
-        ShoppingRule(name="Unlock Cash Bonuses",
+        ShoppingRule(name="Coins / Wave",
                      category="UTILITY"),
     ))
     session.begin(policy, run_count=1)
@@ -1239,7 +1245,7 @@ def test_a_row_ocr_could_not_match_is_published_with_what_was_read(
 
     unmatched = session._bus.of_type("RowUnmatched")
     assert unmatched, "nothing said why the row was never bought"
-    assert unmatched[0].item == "Unlock Cash Bonuses"
+    assert unmatched[0].item == "Coins / Wave"
     assert unmatched[0].read == (
         "Cash Bonus", "Cash / Wave", "Unlock Coin Bonuses",
     )
@@ -1361,3 +1367,171 @@ def test_a_finite_budget_still_buys_each_row_at_most_once_a_visit(
     _keep_buying(session, device, policy)
 
     assert len(session._bus.of_type("Purchased")) == 1
+
+
+# -- unlocks the account has already bought ---------------------------------
+def _tab_row(upgrade_id: str, name: str, category: str = "ATTACK") -> ObservedUpgrade:
+    return ObservedUpgrade(upgrade_id, name, category, "workshop", 1, 100,
+                           "available", 1, config.Rect(0, 0, 100, 100), (50, 80))
+
+
+def test_an_unlock_is_retired_by_the_rows_it_granted_being_on_the_tab(
+    session, monkeypatch, fake_header,
+) -> None:
+    """Attack Range cannot be on the tab until Unlock Range Upgrades is bought.
+
+    The live bot scanned this exact tab top-to-bottom on every visit for a
+    row that was spent days earlier, and reported its availability unknown.
+    """
+    rows = (_tab_row("damage", "Damage"), _tab_row("range", "Attack Range"),
+            _tab_row("damage_per_meter", "Damage / Meter"))
+    monkeypatch.setattr(shopping_mod, "observe_frame", lambda *_:
+                        Observation("ATTACK", rows, {}, None, 1, 270))
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Unlock Range Upgrades", category="ATTACK"),
+    ))
+    device = FakeDevice()
+    session.begin(policy, run_count=1)
+
+    session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                      frame("menu_workshop_attack"), device, policy)
+
+    assert [s.reason for s in session._bus.of_type("PurchaseSkipped")] == ["already_unlocked"]
+    assert device.swipes == [] and device.taps == []
+    assert session._bus.of_type("RowUnmatched") == []
+
+
+def test_a_spent_unlock_is_retired_off_the_real_page_that_replaced_it(
+    session, fake_header,
+) -> None:
+    """The same live shape, in real pixels rather than a stubbed reading.
+
+    menu_workshop_utility_restocked.png is the UTILITY tab after Unlock Cash
+    Bonuses was bought: Cash Bonus and Cash / Wave - the two rows it grants -
+    are sitting on the page, and the unlock itself is gone. The page is the
+    receipt, so nothing here should be scrolling in search of it.
+    """
+    device = FakeDevice()
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Unlock Cash Bonuses", category="UTILITY"),
+    ))
+    session.begin(policy, run_count=1)
+    session.advance(frame("menu_main"), device, policy)
+    for _ in range(3):
+        session.advance(frame("menu_workshop_utility_restocked"), device, policy)
+
+    skips = session._bus.of_type("PurchaseSkipped")
+    assert [s.reason for s in skips] == ["already_unlocked"]
+    assert session._bus.of_type("RowUnmatched") == []
+    assert device.swipes == []
+
+
+def test_the_search_for_a_spent_unlock_stops_when_its_rows_scroll_into_view(
+    session, monkeypatch, fake_header,
+) -> None:
+    """A tab scrolled past the proof still costs one swipe, not a full scan.
+
+    The evidence test runs on every frame, including the frames the row
+    search itself produces, so the scan ends as soon as a granted row comes
+    into view. That is what makes remembering spent unlocks across restarts
+    unnecessary: the page re-proves it, cheaply, whenever it is read.
+    """
+    device = FakeDevice()
+    scrolled = [
+        Observation("ATTACK", (_tab_row("damage", "Damage"),), {}, None, 1, 270),
+        Observation("ATTACK", (_tab_row("damage_per_meter", "Damage / Meter"),),
+                    {}, None, 1, 270),
+    ]
+    monkeypatch.setattr(shopping_mod, "observe_frame", lambda *_:
+                        scrolled[min(len(device.swipes), 1)])
+    policy = a_policy(armed=True, workshop=(
+        ShoppingRule(name="Unlock Range Upgrades", category="ATTACK"),
+    ))
+    session.begin(policy, run_count=1)
+
+    for _ in range(2):
+        session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                          frame("menu_workshop_attack"), device, policy)
+
+    assert len(device.swipes) == 1
+    assert [s.reason for s in session._bus.of_type("PurchaseSkipped")] == ["already_unlocked"]
+    assert session._bus.of_type("RowUnmatched") == []
+
+
+# -- a budget that keeps pace with the prices --------------------------------
+def _priced_row(session, monkeypatch, price: int) -> None:
+    row = _tab_row("damage", "Damage")
+    monkeypatch.setattr(shopping_mod, "observe_frame", lambda *_:
+                        Observation("ATTACK", (dataclasses.replace(row, price=price),),
+                                    {}, None, 1, 270))
+
+
+@pytest.mark.parametrize("coins,taps", [(1000, 0), (4000, 1)])
+def test_the_visit_budget_keeps_pace_with_the_wallet(
+    session, monkeypatch, fake_header, coins: int, taps: int,
+) -> None:
+    """One policy, two wallets, one 300-coin row: refused, then bought.
+
+    A fixed coin_budget is outgrown by its own purchases. Workshop prices
+    climb with every level bought - the live bot walked Health from 55 to
+    234 in an afternoon - so a constant eventually sits below every price
+    on the page and refuses everything, silently, while the wallet fills
+    up. A share of the wallet cannot go stale that way.
+    """
+    fake_header["coins"] = coins
+    _priced_row(session, monkeypatch, price=300)
+    policy = a_policy(armed=True, coin_budget=None, coin_budget_pct=.25, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK"),
+    ))
+    device = FakeDevice()
+    session.begin(policy, run_count=1)
+
+    session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                      frame("menu_workshop_attack"), device, policy)
+
+    assert len(device.taps) == taps
+    assert [e.reason for e in session._bus.of_type("PurchaseSkipped")] == (
+        [] if taps else ["budget"])
+
+
+def test_a_wallet_share_and_a_coin_ceiling_both_bind(
+    session, monkeypatch, fake_header,
+) -> None:
+    """Set both and the tighter one decides - neither silently outranks the
+    other. Here a quarter of 1770 is 442, and the ceiling is 250."""
+    _priced_row(session, monkeypatch, price=300)
+    policy = a_policy(armed=True, coin_budget=250, coin_budget_pct=.25, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK"),
+    ))
+    device = FakeDevice()
+    session.begin(policy, run_count=1)
+
+    session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                      frame("menu_workshop_attack"), device, policy)
+
+    assert device.taps == []
+    assert [e.reason for e in session._bus.of_type("PurchaseSkipped")] == ["budget"]
+
+
+def test_a_wallet_share_is_a_cap_so_a_bought_row_is_not_re_bought(
+    session, monkeypatch, fake_header,
+) -> None:
+    """A share budget makes a visit capped, not unlimited.
+
+    An uncapped visit deliberately leaves the row un-exhausted and buys it
+    again at its new price, letting the wallet end the rotation. A visit
+    holding a share of that same wallet must not: it has a cap, and reading
+    only coin_budget to decide would call it unlimited and spend past it.
+    """
+    _priced_row(session, monkeypatch, price=300)
+    policy = a_policy(armed=True, coin_budget=None, coin_budget_pct=.25, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK"),
+    ))
+    device = FakeDevice()
+    session.begin(policy, run_count=1)
+
+    session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                      frame("menu_workshop_attack"), device, policy)
+
+    assert len(device.taps) == 1
+    assert "Damage" in session._exhausted
