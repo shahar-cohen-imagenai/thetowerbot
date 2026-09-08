@@ -291,6 +291,13 @@ _SHOPPING_TYPES: dict[str, tuple[type, ...]] = {
     "allow_unlocks": (bool,),
 }
 
+_CLAIMS_TYPES: dict[str, tuple[type, ...]] = {
+    "enabled": (bool,), "missions_every_hours": (int, float),
+    "milestones_on_new_best": (bool,),
+}
+
+MIN_CLAIM_HOURS, MAX_CLAIM_HOURS = 0.1, 168.0
+
 
 @dataclass(frozen=True)
 class ShoppingRule:
@@ -484,6 +491,49 @@ class Shopping:
             raise ControlError("shopping", str(exc)) from None
 
 
+@dataclass(frozen=True)
+class Claims:
+    """When to spend a menu trip on a free reward.
+
+    `enabled` alone, with no separate `armed`: unlike a purchase, a claim
+    cannot spend anything, and the walks already refuse to tap what they
+    cannot read. A rehearsal mode here would rehearse nothing.
+
+    `missions_every_hours` defaults to the game's own 8h reset. Bounded at
+    both ends - under 6 minutes is a menu trip every few scans, over a week
+    is a cadence that never fires on a bot nobody leaves running that long.
+    """
+
+    enabled: bool = False
+    missions_every_hours: float = 8.0
+    milestones_on_new_best: bool = True
+
+    def __post_init__(self) -> None:
+        # Types before values, for the same reason as in Shopping: _in_range
+        # on a str raises a bare TypeError instead of naming the field.
+        _check_types(_own_values(self), _CLAIMS_TYPES)
+        if not MIN_CLAIM_HOURS <= self.missions_every_hours <= MAX_CLAIM_HOURS:
+            raise ControlError(
+                "missions_every_hours",
+                f"must be between {MIN_CLAIM_HOURS} and {MAX_CLAIM_HOURS} hours",
+            )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "enabled": self.enabled,
+            "missions_every_hours": self.missions_every_hours,
+            "milestones_on_new_best": self.milestones_on_new_best,
+        }
+
+    @classmethod
+    def from_dict(cls, raw: Mapping[str, Any]) -> Claims:
+        known = {f.name for f in dataclasses.fields(cls)}
+        for key in raw:
+            if key not in known:
+                raise ControlError(key, f"unknown claims field {key!r}")
+        return cls(**raw)
+
+
 def _parse_shopping_rows(raw: Any) -> tuple[ShoppingRule, ...]:
     if not isinstance(raw, (list, tuple)):
         raise ControlError(
@@ -509,6 +559,7 @@ def _parse_shopping_rows(raw: Any) -> tuple[ShoppingRule, ...]:
 # that does not exist yet.
 _STRATEGY_TYPES["shopping"] = (Shopping,)
 _STRATEGY_TYPES["autopilot"] = (AutopilotPolicy,)
+_STRATEGY_TYPES["claims"] = (Claims,)
 
 
 @dataclass(frozen=True)
@@ -552,6 +603,9 @@ class Strategy:
     # OCR-guided in-run spending is opt-in. An old profile has no key and
     # therefore receives this disabled value without changing legacy scans.
     autopilot: AutopilotPolicy = AutopilotPolicy()
+    # Free-reward claim cadence. Off by default, so a profile written before
+    # this existed loads and behaves identically.
+    claims: Claims = Claims()
 
     def __post_init__(self) -> None:
         # Normalise before validating: from_dict will hand in a list, and the
@@ -655,6 +709,7 @@ class Strategy:
             "target_speed": self.target_speed,
             "shopping": self.shopping.to_dict(),
             "autopilot": self.autopilot.to_dict(),
+            "claims": self.claims.to_dict(),
         }
 
     @classmethod
@@ -685,14 +740,21 @@ class Strategy:
             )
         except PolicyError as exc:
             raise ControlError(exc.field, str(exc)) from None
+        claims = Claims.from_dict(raw["claims"]) if "claims" in raw else Claims()
 
         values = {
             k: raw[k]
             for k in raw
-            if k not in ("actions", "shopping", "autopilot")
+            if k not in ("actions", "shopping", "autopilot", "claims")
         }
         try:
-            return cls(actions=rules, shopping=shopping, autopilot=autopilot, **values)
+            return cls(
+                actions=rules,
+                shopping=shopping,
+                autopilot=autopilot,
+                claims=claims,
+                **values,
+            )
         except ControlError:
             raise
         except (TypeError, ValueError) as exc:

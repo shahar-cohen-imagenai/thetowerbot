@@ -59,5 +59,10 @@
       "max_per_visit": 2,
       "batch": "x1"
     }
+  },
+  "claims": {
+    "enabled": false,
+    "missions_every_hours": 8.0,
+    "milestones_on_new_best": true
   }
 }

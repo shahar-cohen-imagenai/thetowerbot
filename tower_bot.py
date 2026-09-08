@@ -45,6 +45,7 @@ from adbutils import AdbDevice
 if TYPE_CHECKING:
     from fastapi import FastAPI
 
+import claim_schedule
 import config
 import db
 import digits
@@ -98,6 +99,7 @@ class TowerBot:
         reader: digits.NumberReader | None = None,
         shopping: ShoppingSession | None = None,
         first_run_id: int = 1,
+        best_wave: int | None = None,
         frames: FrameBuffer | None = None,
         screen_confirmations: int = config.SCREEN_CONFIRMATIONS,
         navigation_cooldown: float = config.NAVIGATION_COOLDOWN_SECONDS,
@@ -177,6 +179,19 @@ class TowerBot:
         self.navigator = Navigator(templates, bus, cooldown=navigation_cooldown)
         self.speed = speed.SpeedController(bus=bus)
         self.runs = RunTracker(first_run_id)
+        # When each claim last landed, and the best wave the ladder was
+        # claimed at. In-memory for this slice: a restart re-offers a claim,
+        # and the walk itself refuses if there is nothing to take. Persisting
+        # this belongs with the wallet, in B07.
+        self._last_claim: dict[str, float] = {}
+        self._claimed_best_wave: int | None = None
+        # The account's best-ever wave. Seeded here from whatever the caller
+        # read at startup (see prepare_store(), which reads db.best_wave())
+        # and kept fresh in-process from every RunEnded from then on (see
+        # run_once) rather than queried per scan. None means unread, not
+        # zero: claim_schedule.due() deliberately owes nothing on a None
+        # best wave rather than guessing.
+        self._best_wave: int | None = best_wave
         self._screen: Image | None = None
         self._last_click: dict[str, float] = {}
         self._running = True
@@ -482,6 +497,40 @@ class TowerBot:
             tuning=settings.strategy,
         ) is not None
 
+    def _offer_claim(self, settings: Any) -> str | None:
+        """Offer the one claim the cadence says is owed, if any.
+
+        Offers rather than arms: at most one maintenance walk may hold the
+        menus, so request() returning False - or a walk already being active
+        - is the ordinary case and is survived silently. Returns the kind
+        armed, so the caller can log it, or None.
+        """
+        claims = settings.strategy.claims
+        if not claims.enabled:
+            return None
+        if self.claim.active or self.milestones_claim.active:
+            return None
+        kind = claim_schedule.due(
+            claim_schedule.ClaimState(
+                last_missions=self._last_claim.get("missions"),
+                last_milestones=self._last_claim.get("milestones"),
+                best_wave=self._best_wave,
+                claimed_best_wave=self._claimed_best_wave,
+            ),
+            now=time.time(),
+            missions_every_hours=claims.missions_every_hours,
+            milestones_on_new_best=claims.milestones_on_new_best,
+        )
+        if kind is None:
+            return None
+        walk = self.claim if kind == "missions" else self.milestones_claim
+        if not walk.request():
+            return None
+        self._last_claim[kind] = time.time()
+        if kind == "milestones":
+            self._claimed_best_wave = self._best_wave
+        return kind
+
     def run_once(self, max_runs: int | None = None) -> bool:
         """One scan pass over the configured actions. True if anything clicked.
 
@@ -517,12 +566,21 @@ class TowerBot:
             if run_event is not None:
                 if isinstance(run_event, events.RunStarted):
                     run_event = dataclasses.replace(run_event, purpose=settings.strategy.autopilot.purpose)
-                if (
-                    isinstance(run_event, events.RunEnded)
-                    and self.tracker.state is screens.ScreenState.GAME_OVER
-                    and reading.top_left is not None
-                ):
-                    run_event = self._read_modal_stats(run_event, reading.top_left)
+                if isinstance(run_event, events.RunEnded):
+                    if (
+                        self.tracker.state is screens.ScreenState.GAME_OVER
+                        and reading.top_left is not None
+                    ):
+                        run_event = self._read_modal_stats(run_event, reading.top_left)
+                    # Only ever raise the recorded best: a None wave (no
+                    # modal reading, an abandoned run) must not lower or
+                    # clear it. The same value sinks/store.py writes into
+                    # the runs table's `wave` column, kept fresh here so
+                    # _offer_claim never queries the database per scan.
+                    if run_event.wave is not None and (
+                        self._best_wave is None or run_event.wave > self._best_wave
+                    ):
+                        self._best_wave = run_event.wave
                 self.bus.publish(run_event)
                 self.autopilot.suspend("Run boundary", clear_battle=True)
 
@@ -851,17 +909,37 @@ class TowerBot:
             and not settings.paused
             and not self.run_cap_reached(max_runs, settings.strategy)
         ):
-            self.shopping.begin(settings.strategy.shopping, self.runs.completed)
+            # A claim walk is a peer of a shopping visit, not a companion:
+            # only one maintenance walk may hold the menus. So the claim is
+            # only offered on a frame the visit declined - reading begin()'s
+            # existing answer rather than re-deriving the same decision.
+            if not self.shopping.begin(settings.strategy.shopping, self.runs.completed):
+                armed = self._offer_claim(settings)
+                if armed is not None:
+                    logger.info("Armed a %s claim from the main menu.", armed)
 
         if (
             settings.strategy.auto_navigate
             and not settings.paused
             and not self.run_cap_reached(max_runs, settings.strategy)
             and not visiting and not self.shopping.active
+            and not self.claim.active and not self.milestones_claim.active
         ):
             # Navigator taps BATTLE on MAIN_MENU on a cooldown - left alone
             # it would start a run in the middle of a shopping errand.
             #
+            # A claim walk is the same kind of maintenance visit as shopping,
+            # and needs the same suppression here - but is not folded into
+            # `visiting` above. `visiting` feeds shopping.advance() directly
+            # a few lines below (`elif visiting: self.shopping.advance(...)`),
+            # so widening its meaning to cover claim walks would call
+            # shopping.advance() on a frame only a claim armed. The claim can
+            # only just have gone active THIS frame - _offer_claim() runs
+            # after `visiting` is captured - so the frame this guards is
+            # exactly the one on which request() flips .active from False to
+            # True; every later frame is already caught by the "actions held"
+            # early return above (self.claim.active there), which never
+            # reaches this block at all.
             # On GAME_OVER it taps RETRY, which starts the next run without
             # passing through MAIN_MENU - and the begin() above is only ever
             # offered a MAIN_MENU frame. So a due visit has to be claimed
@@ -1349,17 +1427,25 @@ def install_signal_handlers(bot: TowerBot) -> None:
 
 def prepare_store(
     path: Path, retention_days: int = config.EVENT_RETENTION_DAYS
-) -> tuple[int, int]:
+) -> tuple[int, int, int | None]:
     """Create the database, prune it, and report what to seed the counters to.
 
-    Returns `(max_seq, max_run_id)`. Both are in-process counters that would
-    otherwise restart at zero on every launch: seq would collide with stored
-    rows on the events primary key and break SSE resume across a restart, and
-    run ids would overwrite the previous session's runs one at a time.
+    Returns `(max_seq, max_run_id, best_wave)`. All three are in-process
+    values that would otherwise restart from scratch on every launch: seq
+    would collide with stored rows on the events primary key and break SSE
+    resume across a restart, run ids would overwrite the previous session's
+    runs one at a time, and a freshly seeded `best_wave` of None would leave
+    a milestones claim already owed unoffered until the next run ends - see
+    TowerBot._best_wave's docstring for why that startup gap matters.
 
     Read BEFORE pruning, deliberately: a seq that was already handed out must
     never be reissued, even for an event old enough to have just aged out of
     retention. Pruning is disk hygiene, not a reason to rewind the counter.
+    `best_wave` is unaffected by either the prune (it only touches `events`)
+    or by closing abandoned runs (that only backdates `ended_at`, never
+    `wave`), but it is read here alongside the other two seeds anyway, for
+    the same "what should the in-process counters be seeded to" reason they
+    are.
 
     Backfills the ledger BEFORE pruning too, and for a related reason: the
     ledger is the permanent account history and `events` is not, so an event
@@ -1376,6 +1462,7 @@ def prepare_store(
     try:
         seed_seq = db.max_seq(conn)
         last_run = db.max_run_id(conn)
+        seed_best_wave = db.best_wave(conn)
         abandoned = db.close_abandoned_runs(conn)
         if abandoned:
             logger.info("Closed %d run(s) left live by a killed process", abandoned)
@@ -1385,7 +1472,7 @@ def prepare_store(
         removed = db.prune_events(conn, retention_days)
         if removed:
             logger.info("Pruned %d events older than %d days", removed, retention_days)
-        return seed_seq, last_run
+        return seed_seq, last_run, seed_best_wave
     finally:
         conn.close()
 
@@ -1537,7 +1624,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     db_path = Path(args.db)
-    seed_seq, last_run = prepare_store(db_path) if args.store else (0, 0)
+    seed_seq, last_run, seed_best_wave = (
+        prepare_store(db_path) if args.store else (0, 0, None)
+    )
 
     account_state = AccountState(AccountRepository(db_path) if args.store else None)
 
@@ -1641,6 +1730,7 @@ def main(argv: list[str] | None = None) -> int:
                 checks=checks,
                 shopping=shopping_session,
                 first_run_id=last_run + 1,
+                best_wave=seed_best_wave,
                 account_state=account_state,
                 frames=frames,
             )
@@ -1662,6 +1752,7 @@ def main(argv: list[str] | None = None) -> int:
                 shopping=shopping_session,
                 frames=frames,
                 first_run_id=last_run + 1,
+                best_wave=seed_best_wave,
                 account_state=account_state,
             )
 
@@ -1692,6 +1783,7 @@ def main(argv: list[str] | None = None) -> int:
                 checks=checks,
                 shopping=shopping_session,
                 first_run_id=last_run + 1,
+                best_wave=seed_best_wave,
                 account_state=account_state,
                 frames=frames,
             )

@@ -73,6 +73,38 @@ def test_run_ids_seed_from_the_stored_maximum(tmp_path: Path) -> None:
     assert db.max_run_id(conn) == 4
 
 
+def test_best_wave_is_none_on_an_empty_table(tmp_path: Path) -> None:
+    """An unread best wave is None, never 0 - the schedule must not guess."""
+    conn = make_db(tmp_path)
+    assert db.best_wave(conn) is None
+
+
+def test_best_wave_ignores_rows_whose_wave_is_null(tmp_path: Path) -> None:
+    """A started-but-unfinished run has a NULL wave and must not count as 0."""
+    conn = make_db(tmp_path)
+    db.start_run(conn, 1, started_at=1.0)
+
+    assert db.best_wave(conn) is None
+
+
+def test_best_wave_is_the_highest_wave_any_run_reached(tmp_path: Path) -> None:
+    conn = make_db(tmp_path)
+    db.finish_run(
+        conn, 1, started_at=0.0, ended_at=10.0, wave=80, coins=100,
+        tier=1, abandoned=False, scan_count=5, tap_count=5,
+    )
+    db.finish_run(
+        conn, 2, started_at=10.0, ended_at=20.0, wave=137, coins=200,
+        tier=2, abandoned=False, scan_count=5, tap_count=5,
+    )
+    db.finish_run(
+        conn, 3, started_at=20.0, ended_at=30.0, wave=None, coins=None,
+        tier=None, abandoned=True, scan_count=1, tap_count=0,
+    )
+
+    assert db.best_wave(conn) == 137
+
+
 def test_finishing_a_run_keeps_the_start_it_was_opened_with(tmp_path: Path) -> None:
     conn = make_db(tmp_path)
     db.start_run(conn, 1, started_at=100.0)

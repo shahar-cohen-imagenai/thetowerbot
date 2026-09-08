@@ -13,7 +13,7 @@ import dataclasses
 import pytest
 
 import config
-from strategy import ActionRule, ControlError, Strategy
+from strategy import ActionRule, Claims, ControlError, Strategy
 
 
 def a_strategy(**overrides) -> Strategy:
@@ -233,6 +233,9 @@ def test_dict_round_trip_preserves_everything() -> None:
             ActionRule(name="Damage", template="d.png", threshold=0.95),
             ActionRule(name="Speed", template="s.png", enabled=False),
         ),
+        claims=Claims(
+            enabled=True, missions_every_hours=6.0, milestones_on_new_best=False
+        ),
     )
     assert Strategy.from_dict(original.to_dict()) == original
 
@@ -420,3 +423,59 @@ def test_target_speed_can_be_cleared_back_to_none() -> None:
 def test_target_speed_survives_a_round_trip() -> None:
     tuned = Strategy.from_config().merged({"target_speed": 1.0})
     assert Strategy.from_dict(tuned.to_dict()).target_speed == 1.0
+
+
+# -- Claim cadence ---------------------------------------------------------
+def test_a_profile_without_a_claims_block_gets_a_disabled_one() -> None:
+    """An existing strategy file must load and behave exactly as before."""
+    parsed = Strategy.from_dict({"name": "x", "actions": [
+        {"name": "Damage", "template": "upgrade_damage.png"}]})
+    assert parsed.claims.enabled is False
+    assert parsed.claims.missions_every_hours == 8.0
+    assert parsed.claims.milestones_on_new_best is True
+
+
+def test_a_claims_block_round_trips() -> None:
+    parsed = Strategy.from_dict({
+        "name": "x",
+        "actions": [{"name": "Damage", "template": "upgrade_damage.png"}],
+        "claims": {"enabled": True, "missions_every_hours": 6.0,
+                   "milestones_on_new_best": False},
+    })
+    assert parsed.claims.enabled is True
+    assert parsed.claims.missions_every_hours == 6.0
+    assert parsed.claims.milestones_on_new_best is False
+
+
+def test_an_unknown_claims_field_is_named_rather_than_ignored() -> None:
+    with pytest.raises(ControlError) as caught:
+        Strategy.from_dict({
+            "name": "x",
+            "actions": [{"name": "Damage", "template": "upgrade_damage.png"}],
+            "claims": {"enabled": True, "every_hours": 6.0},
+        })
+    assert caught.value.field == "every_hours"
+
+
+@pytest.mark.parametrize("hours", [0.0, -1.0, 0.05, 200.0])
+def test_an_out_of_range_cadence_is_refused(hours: float) -> None:
+    """Bounded at both ends: under 6 minutes is a menu trip every few scans,
+    over a week is a cadence that never fires."""
+    with pytest.raises(ControlError) as caught:
+        Strategy.from_dict({
+            "name": "x",
+            "actions": [{"name": "Damage", "template": "upgrade_damage.png"}],
+            "claims": {"missions_every_hours": hours},
+        })
+    assert caught.value.field == "missions_every_hours"
+
+
+def test_a_string_cadence_is_refused_before_it_is_range_checked() -> None:
+    """`_in_range` on a str raises a bare TypeError - the same reason Shopping
+    and ActionRule check types before values."""
+    with pytest.raises(ControlError):
+        Strategy.from_dict({
+            "name": "x",
+            "actions": [{"name": "Damage", "template": "upgrade_damage.png"}],
+            "claims": {"missions_every_hours": "8"},
+        })

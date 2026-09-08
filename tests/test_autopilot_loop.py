@@ -15,10 +15,12 @@ loop stops stepping it there.
 
 from __future__ import annotations
 
+import time
 from typing import Callable
 
 import pytest
 
+from strategy import Claims, Shopping, ShoppingRule
 from tower_bot import TowerBot
 
 
@@ -60,3 +62,119 @@ def test_the_overlay_shows_what_the_autopilot_read(
     bot.run_once()
 
     assert bot.frames.boxes(), "the device view went blank while the autopilot was deciding"
+
+
+# -- Claim cadence in the loop ---------------------------------------------
+def test_a_due_claim_is_armed_from_the_main_menu(bot_on_main_menu: Callable[..., TowerBot]) -> None:
+    """The same frame shopping.begin() reserves, and only when it declined.
+    A never-claimed account with a read best wave owes a milestones claim."""
+    bot = bot_on_main_menu(Shopping(), claims=Claims(enabled=True))  # shopping disabled by default
+    bot._best_wave = 137  # a read best wave, as prepare_store() would seed it
+    bot.run_once()
+    assert bot.milestones_claim.active
+
+
+def test_a_still_active_walk_is_not_re_armed_on_the_next_frame(
+    bot_on_main_menu: Callable[..., TowerBot]
+) -> None:
+    """request() returning False is the normal case, not an error: the walk
+    from the previous frame is still holding the menus.
+
+    Covers the still-active case specifically: on frame 2 the walk is still
+    `.active`, so run_once()'s frame guard (the "actions held" early return)
+    never even reaches _offer_claim. That structural guard is a different,
+    weaker invariant than the one _claimed_best_wave protects - see
+    test_a_completed_walk_is_not_re_armed_for_the_same_best below, which
+    proves the real thing by letting the walk go idle first.
+    """
+    bot = bot_on_main_menu(Shopping(), claims=Claims(enabled=True))
+    bot._best_wave = 137
+    bot.run_once()
+    first = bot.milestones_claim.snapshot()["requested_at"]
+    bot.run_once()
+    assert bot.milestones_claim.snapshot()["requested_at"] == first
+
+
+def test_a_completed_walk_is_not_re_armed_for_the_same_best(
+    bot_on_main_menu: Callable[..., TowerBot]
+) -> None:
+    """The real invariant: once a milestones claim has actually been armed
+    for a best wave, that same best wave must not re-arm it again after the
+    walk goes idle. Without `_last_claim`/`_claimed_best_wave` being recorded
+    when the walk arms, a milestones claim would re-arm on every idle frame
+    forever - the previous test only proves the walk is not re-armed *while
+    still active*, which is a structural early return in run_once() and
+    would pass even with the recording deleted (see conftest.py's fixture
+    docstring and the reviewer's probe: setting `_claimed_best_wave = None`
+    between two scans still left that test green).
+    """
+    bot = bot_on_main_menu(Shopping(), claims=Claims(enabled=True))
+    bot._best_wave = 137
+    # Keep missions out of the way so the only thing under test is the
+    # milestones cadence: an unset last_missions is immediately due on its
+    # own and would otherwise arm bot.claim on the second scan below,
+    # muddying what this test is checking.
+    bot._last_claim["missions"] = time.time()
+
+    bot.run_once()
+    assert bot.milestones_claim.active
+
+    # Simulate the walk finishing and going idle again, with the best wave
+    # unchanged - exactly the scenario the recording in _offer_claim exists
+    # to guard.
+    bot.milestones_claim.cancel("test", "forced idle for the re-arm probe")
+    assert not bot.milestones_claim.active
+
+    bot.run_once()
+    assert not bot.milestones_claim.active, (
+        "an idle walk was re-armed for a best wave it was already recorded "
+        "as having claimed"
+    )
+
+
+def test_a_disabled_cadence_arms_nothing(bot_on_main_menu: Callable[..., TowerBot]) -> None:
+    bot = bot_on_main_menu(Shopping())  # claims disabled (the fixture's default)
+    bot._best_wave = 137
+    bot.run_once()
+    assert not bot.claim.active
+    assert not bot.milestones_claim.active
+
+
+def test_a_shopping_visit_keeps_the_frame_from_a_due_claim(
+    bot_on_main_menu: Callable[..., TowerBot]
+) -> None:
+    """One maintenance walk at a time. A visit that took this frame means the
+    claim waits - and it must not be armed only to be refused."""
+    bot = bot_on_main_menu(
+        Shopping(enabled=True, workshop=(ShoppingRule(name="Damage", category="ATTACK"),)),
+        claims=Claims(enabled=True),
+    )  # BOTH claims and a due shopping visit
+    bot._best_wave = 137
+    bot.run_once()
+    assert bot.shopping.active
+    assert not bot.claim.active
+    assert not bot.milestones_claim.active
+
+
+def test_battle_is_not_tapped_on_the_frame_a_claim_arms(
+    bot_on_main_menu: Callable[..., TowerBot]
+) -> None:
+    """A claim walk is a maintenance walk exactly like a shopping visit, and
+    the auto-navigate gate already suppresses BATTLE for `self.shopping.active`
+    (`visiting` at run_once()'s top) - but had no equivalent term for
+    `self.claim.active` / `self.milestones_claim.active`. So a claim armed by
+    _offer_claim() this same frame fell straight through into the nav block
+    below it: BATTLE got tapped, a run started, and the walk lost its next
+    frame mid-errand to a live run it can never recognise - burning
+    STEP_FRAME_BUDGET frames with actions held and autopilot suspended before
+    failing outright. Worse, `_last_claim`/`_claimed_best_wave` were already
+    recorded before any of that, so the missed claim reads as a taken one.
+    """
+    bot = bot_on_main_menu(Shopping(), claims=Claims(enabled=True))
+    bot._best_wave = 137  # a read best wave, as prepare_store() would seed it
+
+    bot.run_once()
+
+    assert bot.milestones_claim.active, "the claim should have armed this frame"
+    navigated = [e.target for e in bot.bus.published if e.type == "Navigated"]
+    assert navigated == [], f"BATTLE was tapped on the frame the claim armed: {navigated}"

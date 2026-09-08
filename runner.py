@@ -80,6 +80,7 @@ class BotRunner:
         checks: dict[str, Any],
         frames: FrameBuffer | None = None,
         first_run_id: int = 1,
+        best_wave: int | None = None,
         bot_factory: Callable[..., Any] = _default_bot_factory,
         shopping: Any | None = None,
         account_state: AccountState | None = None,
@@ -126,6 +127,15 @@ class BotRunner:
         # Seeded from the database once, at launch. Carried forward from each
         # bot's own tracker after that - see _harvest_locked().
         self._next_run_id = first_run_id
+        # The same seed-then-carry-forward arrangement as _next_run_id, for
+        # the same reason: without it, a bot started fresh through the
+        # dashboard would begin with best_wave=None regardless of what the
+        # database holds, and a milestones claim already owed would sit
+        # unoffered until that bot's own first RunEnded. Carried forward
+        # (never re-seeded from the DB) so a restart mid-session does not
+        # regress what an earlier bot in this same runner already learned -
+        # see _harvest_locked().
+        self._best_wave: int | None = best_wave
 
     # -- reporting ---------------------------------------------------------
     def _running_locked(self) -> bool:
@@ -376,6 +386,7 @@ class BotRunner:
                 shopping=self._shopping,
                 frames=self._frames,
                 first_run_id=self._next_run_id,
+                best_wave=self._best_wave,
                 screen_confirmations=strategy.screen_confirmations,
                 navigation_cooldown=strategy.navigation_cooldown,
                 autopilot_state=self.autopilot_state,
@@ -439,6 +450,18 @@ class BotRunner:
             self._next_run_id = max(self._next_run_id, bot.runs.next_id)
         except AttributeError:
             pass
+        # Max-forward only, same as _next_run_id, and the same None guard
+        # TowerBot itself applies to a RunEnded's wave (see
+        # tower_bot.py's run_once): a bot that ended with nothing read must
+        # not lower or clear what an earlier bot in this runner already knew.
+        try:
+            harvested = bot._best_wave
+        except AttributeError:
+            harvested = None
+        if harvested is not None and (
+            self._best_wave is None or harvested > self._best_wave
+        ):
+            self._best_wave = harvested
 
     def _reap_locked(self) -> None:
         if self._thread is not None and not self._thread.is_alive():

@@ -408,9 +408,9 @@ def test_prepare_store_seeds_both_counters_and_prunes(tmp_path) -> None:
     })
     conn.close()
 
-    seed_seq, last_run = tower_bot.prepare_store(path)
+    seed_seq, last_run, seed_best_wave = tower_bot.prepare_store(path)
 
-    assert (seed_seq, last_run) == (42, 5)
+    assert (seed_seq, last_run, seed_best_wave) == (42, 5, None)
     with db.reader(path) as conn:
         assert conn.execute("SELECT COUNT(*) FROM events").fetchone()[0] == 1
 
