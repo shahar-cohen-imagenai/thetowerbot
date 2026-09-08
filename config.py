@@ -158,6 +158,43 @@ RUN_CASH_SEARCH: Region = Region(dx=0, dy=0, w=400, h=400)
 # instead of encoding one of them.
 WALLET_FROM_CASH: Region = Region(dx=-7, dy=-9, w=230, h=72)
 
+# The gem counter, two HUD rows below the cash one and anchored to the same
+# match for the same reason. Present only once the account HOLDS gems - the
+# row is absent from in_run_lit.png and in_run_wallet.png, which is why a
+# read from here has to survive finding nothing.
+#
+# Starts AFTER the gem icon, unlike WALLET_FROM_CASH which starts before the
+# "$". That asymmetry is not a slip: "$" is a glyph in the wallet atlas and
+# the diamond is not, and one unrecognised glyph fails the whole read by
+# design - so a region framed like the cash row's reads None, never 60.
+GEMS_FROM_CASH: Region = Region(dx=60, dy=149, w=170, h=72)
+
+# --- The floating gem ------------------------------------------------------
+# The free gem that orbits the tower mid-battle. Tapping it pays two gems;
+# it spawns roughly once per 400-500 waves and at most once per 15 minutes.
+#
+# The battle field, measured from the cash counter so it moves with the HUD
+# on an emulator with a display cutout (see WALLET_FROM_CASH). Bounded rather
+# than full-frame because the two things on screen that share the gem's exact
+# colour are BOTH outside it: the HUD gem counter above (dy=+149) and the
+# ad-gem button below (dy=+1175). A full-frame search would find one of them
+# on every single scan.
+FLOATING_GEM_SEARCH: Region = Region(dx=200, dy=260, w=680, h=720)
+
+# Measured off the HUD gem icon in in_run_early.png, which is the same
+# artwork at a smaller size: hue 151 with a 2nd-98th percentile spread of
+# 149-152, saturation ~198, value ~144. The window is widened to 145-158 for
+# the glow's edges. The red enemy diamonds - same shape, same size, nearly
+# the same brightness - sit at hue 177, so colour is the only thing that
+# separates them and this window is where that separation lives.
+FLOATING_GEM_HSV_LOW: tuple[int, int, int] = (145, 110, 90)
+FLOATING_GEM_HSV_HIGH: tuple[int, int, int] = (158, 255, 255)
+
+# The sprite trails small magenta particles of the same hue. PROVISIONAL:
+# derived from the HUD icon's 387 glow pixels at 52x48 and the sprite being
+# visibly larger in a battle frame. A harvested capture should confirm it.
+FLOATING_GEM_MIN_AREA: int = 250
+
 # --- Unknown-screen snapshots ---------------------------------------------
 UNKNOWN_DIR: Path = Path(__file__).parent / "unknown"
 UNKNOWN_MIN_INTERVAL: float = 30.0

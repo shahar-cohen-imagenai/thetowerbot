@@ -250,3 +250,34 @@ def test_ambiguous_or_unknown_captions_return_none(text: str) -> None:
     """Two numbers, or a glyph that is not a known caption, means we do not
     know what we are looking at - and a wrong number is worse than none."""
     assert digits.parse_number(text) is None
+
+
+# -- the in-battle gem counter ---------------------------------------------
+
+
+def test_reads_the_gem_counter_off_a_battle_frame() -> None:
+    """GEMS_FROM_CASH must exclude the gem ICON, not just frame the row.
+
+    split_glyphs cuts every light shape in the region, and one unrecognised
+    glyph fails the whole read (see above) - so a region generous enough to
+    include the diamond reads None rather than 60. The cash row gets away
+    with starting at dx=-7 because "$" IS in the wallet atlas; there is no
+    gem glyph in it.
+    """
+    screen = cv2.imread(str(FIXTURES / "in_run_early.png"))
+    reader = digits.NumberReader()
+
+    assert reader.read(screen, config.GEMS_FROM_CASH, (32, 171), "wallet") == 60
+
+
+def test_the_gem_counter_is_absent_when_the_account_holds_none() -> None:
+    """The row is not drawn at zero, and that has to read as None.
+
+    in_run_lit.png shows "$" and the coin counter and nothing below them.
+    A confirmation that treats an unread counter as a balance would invent
+    a delta out of an empty patch.
+    """
+    screen = cv2.imread(str(FIXTURES / "in_run_lit.png"))
+    reader = digits.NumberReader()
+
+    assert reader.read(screen, config.GEMS_FROM_CASH, (32, 171), "wallet") is None
