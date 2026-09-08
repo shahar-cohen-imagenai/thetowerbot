@@ -102,3 +102,54 @@ here as caveats for anyone extending the pack:
   enhancement called a lab; "during a run" spending wording) spans several
   concepts' category identity rather than a single fact's value, so it is
   recorded here rather than split speculatively across fact ids.
+
+### Conflicts with a clear tainted claim, but no fact in this pack to taint
+
+The conflicts above either describe general unreliability with no second
+claim to contradict, or a single-page internal ambiguity. The conflicts
+below are different in kind: each names a genuine two-source contradiction
+over a specific value, but that value belongs to a mechanic this pack's
+current fact families (tier unlock gates, milestone rewards, lab/UW/gem/card
+priority ordering, and the footgun-style hazards) do not hold a fact about.
+A conflict with no tainted fact id is not a conflict this pack can act on —
+it is recorded here so that a later pack extending into these mechanics can
+see immediately which conflicts become live the moment the corresponding
+fact is added, rather than re-deriving the register from scratch:
+
+- The enemy overview's Protector spawn cap (given as both 8 and 10) has no
+  enemy-mechanic fact in this pack to taint.
+- The Free Upgrades combined cap (90.75% stated alongside overflow above
+  100%) has no free-upgrade fact in this pack.
+- Fleet spawn scope (Tier-14-exclusive wording versus documented high-wave
+  fleets on every tier) has no fleet/enemy fact in this pack.
+- The Modules overview's substat slot thresholds (only through 161 in one
+  place, 201 and 241 elsewhere) have no module fact in this pack.
+- The currency overview's claimed count of six currencies has no
+  currency-count fact in this pack.
+- Critical Coin's trigger predicate (critical shots only, per the card page,
+  versus all qualifying kills except noncritical bullets, per the newer
+  Workshop article) has no Critical Coin fact in this pack — the `coins`
+  card this pack's `priority.cards.unlock_order` names is a different card
+  entirely (`cards.coins`, not `cards.critical-coin`).
+- The Wave Accelerator/Energy Shield charge-accumulation clock disagreement
+  (boss-spacing versus game-time) has no charge-timing fact in this pack.
+- The Critical/Super Critical enhancement's increments (inconsistent with
+  its own stated level cap and final multiplier) have no enhancement fact in
+  this pack.
+- The Attack Speed page's display-precision caveat (behavior still under
+  analysis; displayed speed is not shots/second) is about the Workshop
+  Attack Speed mechanic, not the `attack_speed` card this pack's
+  `priority.cards.unlock_order` names — no fact about the underlying
+  display formula exists in this pack to taint.
+- The within-page-disagreements bundle (Chips' universal-nearest-then-
+  Attack-targeting wording; Bot Bot's prose bonus increment versus its own
+  table; the Dissonant Runs Guide's starting-tier wording and missing
+  package exception) has no Chips, Bot Bot, or Dissonant-Runs fact in this
+  pack.
+- Six of the seven glossary-vs-dedicated-page mismatches have no fact in
+  this pack: Galaxy Compressor's module type, Fortress's base effect,
+  Plasma Cannon's target, Demon Mode's cost/benefit framing, Death Ray's
+  boss/elite eligibility, and the four-versus-five bot count. The seventh —
+  Enemy Balance's spawn direction — does taint a fact here
+  (`priority.cards.unlock_order`) and is recorded as a live `conflicts[]`
+  entry, not in this list.

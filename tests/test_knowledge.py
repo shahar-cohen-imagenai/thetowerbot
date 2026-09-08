@@ -24,10 +24,36 @@ from __future__ import annotations
 
 import dataclasses
 import json
+from pathlib import Path
 
 import pytest
 
 import knowledge
+
+# research/wiki-supplement.md's "Source conflict register" table has 11 data
+# rows; research/wiki-audit.md's "Important source limitations" prose adds 3
+# more non-duplicate items (the glossary-vs-dedicated-pages paragraph, the
+# UW+ cost bullet, the within-page-disagreements bullet) - 14 conflicts
+# total, per task 1's extraction. Of those 14, 2 (sub-effects rarity
+# ambiguity; system-terminology mixing) were judged un-attachable to any
+# fact id and are recorded as prose in knowledge/SOURCES.md instead of as
+# conflicts[] entries, per task 1's own determination - honoured here rather
+# than re-litigated. That leaves 12 conflicts task 1 judged "attachable" in
+# the abstract, but task 1's attachability calls (protector cap, Free
+# Upgrades cap, fleet spawn scope, module substat thresholds, currency
+# count, Critical Coin trigger, Wave Accelerator/Energy Shield timing, crit
+# enhancement increments, Attack Speed display, and the 6 non-Enemy-Balance
+# names bundled in the glossary conflict, and the within-page-disagreements
+# bundle) all presuppose facts about workshop/enemy/currency/module/card
+# topics this T1-T4 route pack (tiers, milestones, lab/UW/gem/card
+# priorities, hazards) never contains - those conflicts have no fact id to
+# taint here and are not represented. The 3 that DO name a claim this pack's
+# facts actually carry are: the glossary's Enemy Balance spawn-direction
+# dispute (tainting priority.cards.unlock_order), IceTae's list being
+# version-dated to 0.16-0.17 (tainting priority.gems.spend_order and
+# priority.cards.unlock_order), and the UW+ ability cost dispute, escalating
+# vs. a flat 975 stones (tainting priority.uw.plus_ability_cost).
+EXPECTED_CONFLICTS = 3
 
 
 def pack(**overrides: object) -> knowledge.Pack:
@@ -415,3 +441,94 @@ def test_pack_load_validates_an_unannotated_shaped_reference(tmp_path) -> None:
     (tmp_path / "pack.v1.json").write_text(json.dumps(base), encoding="utf-8")
     with pytest.raises(ValueError, match="labs.game_speed"):
         knowledge.Pack.load(tmp_path)
+
+
+# -- the committed pack's content ----------------------------------------
+def test_every_tier_on_the_route_has_an_unlock_wave_and_a_multiplier() -> None:
+    for tier in (2, 3, 4):
+        assert knowledge.KNOWLEDGE.by_id(f"tier.{tier}.unlock_wave") is not None
+        assert knowledge.KNOWLEDGE.by_id(f"tier.{tier}.coin_multiplier") is not None
+
+
+def test_the_tier_two_gate_is_wave_one_hundred() -> None:
+    """The single most load-bearing number in the whole plan: the account's
+    best is wave 16, and everything downstream is funded by this gate."""
+    assert knowledge.KNOWLEDGE.by_id("tier.2.unlock_wave").value == 100
+
+
+def test_the_milestone_ladder_covers_the_five_gates_on_the_route() -> None:
+    for fact_id in ("milestone.t1.w30", "milestone.t1.w100",
+                    "milestone.t2.w150", "milestone.t3.w150",
+                    "milestone.t4.w70"):
+        assert knowledge.KNOWLEDGE.by_id(fact_id) is not None
+
+
+def test_every_priority_list_is_ordered_and_non_empty() -> None:
+    for fact_id in ("priority.labs.t1", "priority.uw.unlock_order",
+                    "priority.gems.spend_order", "priority.cards.unlock_order"):
+        fact = knowledge.KNOWLEDGE.by_id(fact_id)
+        assert fact is not None
+        assert isinstance(fact.value, tuple) and fact.value
+
+
+def test_the_first_ultimate_weapon_is_golden_tower() -> None:
+    """Every source agrees on this one without qualification - which is why
+    it is the plan's single pre-approved one-way decision."""
+    assert knowledge.KNOWLEDGE.by_id("priority.uw.unlock_order").value[0] == "golden_tower"
+
+
+def test_the_black_hole_damage_lab_is_a_recorded_hazard() -> None:
+    """It cannot be unresearched. Four of this pack's five hazards come from
+    the wiki's Footguns page; this one is instead the Tier-Specific Guide's
+    own "Pitfall: Black Hole Damage lab" section - Footguns never mentions
+    this lab at all. This is the hazard that costs months."""
+    hazard = knowledge.KNOWLEDGE.by_id("hazard.lab.black_hole_damage")
+    assert hazard is not None
+    assert hazard.source_url
+
+
+def test_every_hazard_names_an_observable_safety_precondition() -> None:
+    """A pre-approval is necessary but not sufficient. A hazard whose
+    precondition cannot be READ must veto even a pre-approved action - so
+    every hazard has to say what would have to be observed."""
+    hazards = [f for f in knowledge.KNOWLEDGE.facts if f.id.startswith("hazard.")]
+    assert hazards
+    for hazard in hazards:
+        assert isinstance(hazard.value, dict)
+        assert hazard.value.get("requires_observable")
+
+
+def test_the_documented_wiki_conflicts_are_all_recorded() -> None:
+    """Fourteen, per the research branch's own audit. A conflict the pack does
+    not know about is a fact it will wrongly authorise."""
+    assert len(knowledge.KNOWLEDGE.conflicts) == EXPECTED_CONFLICTS
+
+
+def test_no_fact_tainted_by_a_conflict_authorises_anything() -> None:
+    tainted = {t for c in knowledge.KNOWLEDGE.conflicts for t in c.tainted}
+    assert tainted, "the conflict block taints nothing - check task 1 step 4"
+    for fact_id in tainted:
+        assert knowledge.KNOWLEDGE.authorises(fact_id) is False
+
+
+def test_every_source_file_named_by_the_pack_exists_in_the_corpus() -> None:
+    """Skipped when the corpus is absent: it is deliberately untracked, so a
+    fresh clone has the pack but not the 1.2MB of prose behind it."""
+    corpus = Path("research/wiki-source-2026-09-05")
+    if not corpus.is_dir():
+        pytest.skip("wiki corpus not extracted; see knowledge/SOURCES.md")
+    for source in knowledge.KNOWLEDGE.sources:
+        assert (corpus / source.file).is_file(), source.file
+
+
+def test_every_source_digest_matches_the_corpus() -> None:
+    """The reason the digest is in the pack at all: a source page that changed
+    under us must invalidate the facts citing it, loudly."""
+    import hashlib
+
+    corpus = Path("research/wiki-source-2026-09-05")
+    if not corpus.is_dir():
+        pytest.skip("wiki corpus not extracted; see knowledge/SOURCES.md")
+    for source in knowledge.KNOWLEDGE.sources:
+        actual = hashlib.sha256((corpus / source.file).read_bytes()).hexdigest()
+        assert actual == source.sha256, source.file
