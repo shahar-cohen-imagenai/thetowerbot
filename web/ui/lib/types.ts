@@ -35,7 +35,12 @@ export type BotEvent =
   | (EventBase & { type: "ShoppingUnavailable"; reason: string })
   | (EventBase & { type: "Purchased"; item: string; category: string; price: number | null; coins_before: number | null; gems_before: number | null; dry_run: boolean })
   | (EventBase & { type: "PurchaseSkipped"; item: string; reason: string; detail: string; coins_before: number | null; gems_before: number | null })
-  | (EventBase & { type: "ShoppingEnded"; visit: number; bought: number; spent: number; aborted: boolean; reason: string });
+  | (EventBase & { type: "ShoppingEnded"; visit: number; bought: number; spent: number; aborted: boolean; reason: string })
+  /** The free gem that orbits the tower mid-battle. Published only when the
+   * HUD gem counter actually rose across the tap - an unconfirmed one
+   * arrives as ClaimUncertain instead. */
+  | (EventBase & { type: "FloatingGemClaimed"; point: [number, number]; gems_before: number; gems_after: number; delta: number; run_id: number | null })
+  | (EventBase & { type: "ClaimUncertain"; target: string; reason: string; detail: string });
 
 /** A row from the `events` table, which carries columns plus a JSON blob. */
 export interface StoredEvent {

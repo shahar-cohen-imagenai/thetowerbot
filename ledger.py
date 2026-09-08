@@ -6,11 +6,16 @@ nothing else, so every judgment in it is testable with no database.
 LedgerWriter (next task) owns the running balances and the reconciliation
 rule, because remembering the last observed balance is inherently stateful.
 
-The ledger deliberately excludes everything in-run. In-run upgrades are
-bought with per-run cash that resets at the start of the next run - the
-`wallet` on Tapped and ScanCompleted - which is a different currency from
-`coins` and not account history in any sense. A battle contributes exactly
-one line: its payout.
+The ledger excludes in-run SPENDING. In-run upgrades are bought with
+per-run cash that resets at the start of the next run - the `wallet` on
+Tapped and ScanCompleted - which is a different currency from `coins` and
+not account history in any sense.
+
+The test is the currency, not the screen the tap happened on, so a battle
+contributes two kinds of line rather than one. Its payout, and any floating
+gem collected off the ring: those are account gems, identical to the ones a
+mission claim pays, and leaving them out would silently understate the
+balance the reconciler is trying to keep honest.
 """
 
 from __future__ import annotations
@@ -37,6 +42,7 @@ KINDS: tuple[str, ...] = (
     "CARD_BUY",
     "MISSION_CLAIM",
     "MILESTONE_CLAIM",
+    "GEM_CLAIM",
     "CLAIM_SKIPPED",
     "CLAIM_UNCERTAIN",
     "BUY_SKIPPED",
@@ -241,6 +247,31 @@ def classify(event: events.Event) -> tuple[LedgerLine, ...]:
                 detail={"tier": event.tier, "reward_text": event.reward_text},
                 **base),)
 
+        case events.FloatingGemClaimed():
+            # The one thing a battle contributes besides its payout. It is
+            # in-run by position and account history by nature: the gems it
+            # pays are the same gems a mission claim pays, not the per-run
+            # cash the module docstring excludes.
+            #
+            # Both balances are real readings taken either side of the tap -
+            # the event is only published when the counter actually rose -
+            # so this is safe to anchor the running total on, unlike the
+            # abbreviated coin balances elsewhere in this catalog.
+            return (LedgerLine(
+                kind="GEM_CLAIM",
+                item="floating gem",
+                category="BATTLE",
+                currency=GEMS,
+                delta=event.delta,
+                # No price. A gem picked up off the ring cost nothing, and
+                # price=0 would read as "bought for free" - a different
+                # claim about the world than "was given".
+                balance_after=event.gems_after,
+                observed=event.gems_before,
+                run_id=event.run_id,
+                detail={"point": list(event.point)},
+                **base),)
+
         case events.ClaimUncertain():
             return (LedgerLine(
                 kind="CLAIM_UNCERTAIN",
@@ -408,6 +439,7 @@ _REPLAYABLE: dict[str, type[events.Event]] = {
     "ClaimEnded": events.ClaimEnded,
     "MilestoneClaimed": events.MilestoneClaimed,
     "ClaimUncertain": events.ClaimUncertain,
+    "FloatingGemClaimed": events.FloatingGemClaimed,
 }
 
 
