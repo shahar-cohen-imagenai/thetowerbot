@@ -49,11 +49,12 @@ _RECORDED_UNLOCK_STAGES = (
 # them a tap and reports them as `discovered:<label>`; listing them turns that
 # silent refusal into visible, ownable work. Extending the catalog is a
 # purchasing change and belongs to the catalog task, not to screen discovery.
-_UNCATALOGUED_LABELS = (
-    ('attackrange', 'menu_workshop_attack_early'),
-    ('unlockmultishotupgrades', 'menu_workshop_attack_early'),
-    ('unlockthornupgrades', 'menu_workshop_defense_early'),
-)
+#
+# Empty, and checked to be: the catalog now names every row in every recorded
+# capture. It held attackrange, unlockmultishotupgrades and unlockthornupgrades
+# until those three names were added to the catalog as aliases - which is the
+# whole point of the table, so it is kept rather than deleted.
+_UNCATALOGUED_LABELS: tuple[tuple[str, str], ...] = ()
 
 # The Ultimate Upgrades page IS recorded, but only at its locked stage: the
 # capture is an account whose UW system is still shut behind tournaments, so

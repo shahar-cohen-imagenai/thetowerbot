@@ -252,6 +252,9 @@ export interface Shopping {
   coin_reserve?: number;
   /** `null` is unlimited; `0` is the opposite - spend nothing. */
   coin_budget?: number | null;
+  /** A share of the balance the visit opened with, 0 to 1. `null` is none.
+   *  Applied alongside coin_budget; whichever is tighter decides. */
+  coin_budget_pct?: number | null;
   allow_unlocks?: boolean;
 }
 

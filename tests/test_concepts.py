@@ -152,3 +152,21 @@ def test_future_metadata_rejects_inconsistent_bounds_and_references(field: str, 
     raw["concepts"][0][field] = value
     with pytest.raises(ValueError):
         concepts.Registry.from_payload(raw)
+
+
+def test_resolves_the_unlock_spellings_the_workshop_actually_prints() -> None:
+    """The tab names every unlock "Unlock <thing> Upgrades"; the catalog does not.
+
+    These three spellings were read off live Workshop frames while the bot
+    reported no_match against the catalog names, so a rule naming the row on
+    offer could never have been executed.
+    """
+    assert upgrades.resolve("Unlock Thorn Upgrades", "DEFENSE").id == "unlock_thorns"
+    assert upgrades.resolve("Unlock Multishot Upgrades", "ATTACK").id == "unlock_multishot"
+    assert upgrades.resolve("Unlock Upgrade Chances", "UTILITY").id == "unlock_free_upgrades"
+
+
+def test_the_range_row_the_workshop_prints_resolves_to_the_range_identity() -> None:
+    """"Attack Range" was read off the ATTACK tab and matched nothing, so the
+    row Unlock Range Upgrades reveals could not be named by a shopping rule."""
+    assert upgrades.resolve("Attack Range", "ATTACK").id == "range"

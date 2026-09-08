@@ -134,8 +134,14 @@ def _unlimited(shopping: Shopping) -> bool:
 
     `coin_budget` is None for "no limit" and 0 for "spend nothing" - two
     opposite meanings that a falsy check would collapse into one.
+
+    A share of the wallet is a cap too, so a visit holding one is not
+    unlimited even with no absolute figure set. Reading only coin_budget
+    here would send the rotation back to re-buy a row the share had
+    already spent its allowance on.
     """
-    return shopping.armed and shopping.coin_budget is None
+    return (shopping.armed and shopping.coin_budget is None
+            and shopping.coin_budget_pct is None)
 
 
 def _row_named(name: str, rows: tuple[ObservedUpgrade, ...],
@@ -266,6 +272,10 @@ class ShoppingSession:
         self._pending_card: PendingCard | None = None
         self._search: RowSearch | None = None
         self._coin_spent = 0
+        # Coins on the visit's first readable frame - the base a percentage
+        # budget is taken from. Read once rather than per frame so a visit
+        # cannot spend a share of a balance its own purchases shrank.
+        self._visit_coins: int | None = None
         # Permanent unlock evidence outlives an individual shopping visit.
         self._completed_unlocks: set[str] = set()
 
@@ -338,6 +348,7 @@ class ShoppingSession:
         self._bought = 0
         self._spent = 0
         self._coin_spent = 0
+        self._visit_coins = None
         self._pending = None
         self._pending_card = None
         # Deliberately NOT resolving open transactions here, unlike reset()
@@ -736,6 +747,8 @@ class ShoppingSession:
         if coins is None:
             self._abort(device, shopping, screen, "unreadable balance")
             return
+        if self._visit_coins is None:
+            self._visit_coins = coins
         visible = observation.rows
         if not visible:
             self._blind_streak += 1
@@ -750,6 +763,9 @@ class ShoppingSession:
             self._abort(device, shopping, screen, f"{category} heading not confirmed")
             return
         seen = _row_named(rule.name, visible, category)
+        if seen is None and self._already_unlocked(entry, observation):
+            self._retire_unlock(rule.name, rule_id, coins)
+            return
         if seen is None:
             self._find_row(rule.name, observation, device, shopping, screen, coins)
             return
@@ -769,9 +785,8 @@ class ShoppingSession:
             reason = "unaffordable"
         elif coins - seen.price < shopping.coin_reserve:
             reason, detail = "reserve", "purchase would cross the coin reserve"
-        elif shopping.armed and shopping.coin_budget is not None and (
-                shopping.coin_budget == 0
-                or self._coin_spent + seen.price > shopping.coin_budget):
+        elif shopping.armed and (budget := self._visit_budget(shopping)) is not None and (
+                budget == 0 or self._coin_spent + seen.price > budget):
             reason, detail = "budget", "purchase would exceed the Workshop visit budget"
         if reason is not None:
             self._bus.publish(events.PurchaseSkipped(item=rule.name, reason=reason,
@@ -807,6 +822,50 @@ class ShoppingSession:
                 self.observations.decision("verifying", f"Confirming Workshop purchase: {seen.name}", seen.upgrade_id)
         else:
             self._record_purchase(seen, coins, dry_run=True)
+
+    def _visit_budget(self, shopping: Shopping) -> int | None:
+        """Coins this visit may spend in total, or None for no limit.
+
+        Both limits bind when both are set, and the tighter one decides:
+        a share of the wallet and an absolute ceiling answer different
+        questions, so letting either silently outrank the other would make
+        a configured number mean nothing.
+        """
+        limits = [limit for limit in (
+            shopping.coin_budget,
+            None if shopping.coin_budget_pct is None or self._visit_coins is None
+            else int(shopping.coin_budget_pct * self._visit_coins),
+        ) if limit is not None]
+        return min(limits) if limits else None
+
+    def _already_unlocked(self, entry: upgrades.Upgrade, observation: Observation) -> bool:
+        """Is this unlock's row missing because the account already bought it?
+
+        A granted row cannot appear on the tab until its unlock is bought, so
+        seeing one is proof rather than an inference - which is the whole
+        point. The alternative reading of a missing unlock row is "OCR lost
+        it", and that one costs a full top-to-bottom scan of the tab, every
+        visit, forever, for a row that is never coming back.
+
+        Any ONE granted row settles it. They are revealed together, but the
+        panel shows a handful of rows at a time, so requiring all of them
+        would make the proof depend on where the tab happens to be scrolled.
+        """
+        if not entry.unlock or not entry.unlocks:
+            return False
+        return any(row.upgrade_id in entry.unlocks for row in observation.rows)
+
+    def _retire_unlock(self, name: str, upgrade_id: str, coins: int | None) -> None:
+        """Stop asking for an unlock this account has demonstrably bought.
+
+        _completed_unlocks outlives the visit, so the proof is read once and
+        every later visit skips the row before it costs a frame.
+        """
+        self._exhausted.add(name)
+        self._completed_unlocks.add(upgrade_id)
+        self._bus.publish(events.PurchaseSkipped(
+            item=name, reason="already_unlocked",
+            detail="the rows it grants are on the tab", coins_before=coins))
 
     def _record_purchase(self, row: ObservedUpgrade, coins: int, *, dry_run: bool,
                          verified: ObservedUpgrade | None = None) -> None:
