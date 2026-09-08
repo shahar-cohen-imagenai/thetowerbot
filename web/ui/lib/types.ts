@@ -288,6 +288,14 @@ export interface AutopilotSnapshot {
 }
 export interface AutopilotCommand { action: "category" | "buy" | "scan"; category?: UpgradeCategory; upgrade_id?: string }
 
+/** Mirrors strategy.py's Claims. */
+export interface Claims {
+  enabled: boolean;
+  /** Bounded by strategy.py's MIN_CLAIM_HOURS/MAX_CLAIM_HOURS (0.1 - 168). */
+  missions_every_hours: number;
+  milestones_on_new_best: boolean;
+}
+
 /** Mirrors strategy.py's Strategy.to_dict(). */
 export interface Strategy {
   name: string;
@@ -306,6 +314,9 @@ export interface Strategy {
   /** null means "leave the in-battle speed alone". */
   target_speed: number | null;
   shopping: Shopping;
+  /** Optional for the same reason `autopilot` is: a profile served by a
+   * backend older than the claim scheduler carries no such key. */
+  claims?: Claims;
 }
 
 export interface ControlPayload {

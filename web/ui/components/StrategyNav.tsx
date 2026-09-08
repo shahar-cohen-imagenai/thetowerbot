@@ -38,6 +38,14 @@ const SECTIONS: Section[] = [
     slice: (s) => [s.auto_navigate, s.max_runs],
   },
   {
+    id: "claims",
+    label: "Claims",
+    // A profile from a backend older than the scheduler has no claims block,
+    // which is the same thing as the cadence being off.
+    count: (s) => (s.claims?.enabled ? "on" : "off"),
+    slice: (s) => s.claims,
+  },
+  {
     id: "shopping",
     label: "Shopping",
     count: (s) => `${s.shopping.workshop.filter((r) => r.enabled).length}/${s.shopping.workshop.length}`,

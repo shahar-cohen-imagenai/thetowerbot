@@ -240,4 +240,100 @@ describe("StrategyEditor", () => {
 
     expect(onChange.mock.calls[0][0].target_speed).toBeNull();
   });
+
+  // -- claims ---------------------------------------------------------------
+
+  const claiming: Strategy = {
+    ...strategy,
+    claims: { enabled: true, missions_every_hours: 8, milestones_on_new_best: true },
+  };
+
+  it("renders the claim cadence the profile carries", () => {
+    render(<StrategyEditor value={claiming} onChange={vi.fn()} />);
+    expect(screen.getByLabelText("Automatic claims").getAttribute("aria-checked")).toBe("true");
+    expect((screen.getByLabelText("Claim missions every (h)") as HTMLInputElement).value).toBe("8");
+    expect(
+      screen.getByLabelText("Claim milestones on a new best wave").getAttribute("aria-checked"),
+    ).toBe("true");
+  });
+
+  it("falls back to the server's own defaults when a profile carries no claims block", () => {
+    // `claims` is optional for the same reason `autopilot` is: a profile
+    // written by an older backend simply does not have the key, and the card
+    // must still render something truthful rather than crash on undefined.
+    // The values here mirror strategy.py's Claims() - off, 8h, on.
+    render(<StrategyEditor value={strategy} onChange={vi.fn()} />);
+    expect(screen.getByLabelText("Automatic claims").getAttribute("aria-checked")).toBe("false");
+    expect((screen.getByLabelText("Claim missions every (h)") as HTMLInputElement).value).toBe("8");
+    expect(
+      screen.getByLabelText("Claim milestones on a new best wave").getAttribute("aria-checked"),
+    ).toBe("true");
+  });
+
+  it("enabling automatic claims sends a whole claims block, not a lone flag", () => {
+    // The profile is saved with PUT, so a partial block would drop the two
+    // fields it left out back to the server's defaults.
+    const onChange = vi.fn();
+    render(<StrategyEditor value={strategy} onChange={onChange} />);
+
+    fireEvent.click(screen.getByLabelText("Automatic claims"));
+
+    expect(onChange.mock.calls[0][0].claims).toEqual({
+      enabled: true,
+      missions_every_hours: 8,
+      milestones_on_new_best: true,
+    });
+  });
+
+  it("committing the missions cadence reports it as a number", () => {
+    const onChange = vi.fn();
+    render(<StrategyEditor value={claiming} onChange={onChange} />);
+    const input = screen.getByLabelText("Claim missions every (h)");
+
+    fireEvent.change(input, { target: { value: "12" } });
+    fireEvent.blur(input);
+
+    expect(onChange.mock.calls[0][0].claims.missions_every_hours).toBe(12);
+    expect(onChange.mock.calls[0][0].claims.enabled).toBe(true);
+  });
+
+  it("toggling the milestones trigger flips only that flag", () => {
+    const onChange = vi.fn();
+    render(<StrategyEditor value={claiming} onChange={onChange} />);
+
+    fireEvent.click(screen.getByLabelText("Claim milestones on a new best wave"));
+
+    expect(onChange.mock.calls[0][0].claims).toEqual({
+      enabled: true,
+      missions_every_hours: 8,
+      milestones_on_new_best: false,
+    });
+  });
+
+  it("bounds the cadence to the window the server will accept", () => {
+    // strategy.py's MIN_CLAIM_HOURS/MAX_CLAIM_HOURS. Disagreeing here offers
+    // a number the save will bounce as a 422.
+    render(<StrategyEditor value={claiming} onChange={vi.fn()} />);
+    const input = screen.getByLabelText("Claim missions every (h)");
+    expect(input.getAttribute("min")).toBe("0.1");
+    expect(input.getAttribute("max")).toBe("168");
+  });
+
+  it("says why claims will do nothing when the reader cannot run", () => {
+    // Same failure as shopping's: the walks are armed but nothing can read
+    // the ladder, so the whole feature is silent. Saying so is the
+    // difference between a documented boundary and a switch that lies.
+    render(
+      <StrategyEditor
+        value={claiming} onChange={vi.fn()}
+        claimsDisabledReason="the OCR engine will not load"
+      />,
+    );
+    expect(screen.getByText(/the OCR engine will not load/)).toBeTruthy();
+  });
+
+  it("says nothing about availability when the reader is fine", () => {
+    render(<StrategyEditor value={claiming} onChange={vi.fn()} />);
+    expect(screen.queryByText(/cannot run on this machine/i)).toBeNull();
+  });
 });
