@@ -443,3 +443,74 @@ def test_cards_slots_are_really_observable_unlike_cards_unlock() -> None:
     assert slots_3.satisfied_by(revision(cards=())) is False
     assert slots_3.satisfied_by(revision(cards=(fact("cards.slots.capacity", 2),))) is False
     assert slots_3.satisfied_by(revision(cards=(fact("cards.slots.capacity", 3),))) is True
+
+
+# -- never_satisfiable: a declaration a forgotten update cannot silently skip -
+def _maximal_revision() -> AccountRevision:
+    """One revision generous enough to satisfy every legitimately-
+    satisfiable objective in GRAPH at once - not tailored per-objective
+    (a per-objective revision could be gamed into always passing, which
+    would make the probe below vacuous), and low-maintenance: a lab, card,
+    or Ultimate Weapon concept id added to a future objective is picked up
+    automatically through Objective.concept_ids rather than needing a new
+    line here.
+
+    Every account-state channel a `satisfied_by` predicate in this module
+    reads is set to its most permissive value:
+    - `unlocks`: every tier flag true.
+    - `lab_slots_owned`: a large owned count (covers labs.unlocked and
+      every lab.slots.N threshold).
+    - `lab_levels`: every concept id any objective cites, at a level no
+      real threshold in the graph exceeds. Concept ids belonging to other
+      families (cards.unlock.*, uw.*) end up in here too, harmlessly -
+      `_lab_at_least` only ever looks up the one id it was given.
+    - `cards`: a slot capacity/equipped count above every threshold.
+    - `ultimate_weapons`: every one of the nine weapons already `owned` -
+      satisfies both `_uw_slot_available` (anything but 'locked') and
+      `_uw_picked` (exactly 'owned') for every uw.slot.*/uw.pick.* pair at
+      once.
+    """
+    import ultimate_weapons
+
+    all_concept_ids = {c for o in objectives.GRAPH for c in o.concept_ids}
+    return revision(
+        unlocks=(fact("unlocks.tier.2", True), fact("unlocks.tier.3", True),
+                 fact("unlocks.tier.4", True)),
+        lab_slots_owned=99,
+        lab_levels=tuple(fact(cid, 999) for cid in all_concept_ids),
+        cards=(fact("cards.slots.capacity", 999), fact("cards.slots.equipped", 999)),
+        ultimate_weapons=ultimate_weapons.unknown_record(ownership="owned"),
+    )
+
+
+def test_every_objective_is_satisfiable_or_declares_itself_never_satisfiable() -> None:
+    """The fourth appearance of this phase's one recurring shape: a fact
+    someone has to remember (an underscore id, an opt-in validation flag, a
+    domain-seeded prefix set, and now a per-objective declaration) needs a
+    test that turns forgetting it into a red suite, not a silent gap. Every
+    objective must either be provably satisfiable by SOME synthetic
+    revision, or declare `never_satisfiable=True` up front. A third
+    never-satisfiable family added later under a new id prefix - the exact
+    gap an id-prefix list in a *consumer* module would have left open -
+    fails HERE if its author forgets the declaration, because its
+    `satisfied_by` will not return True against `_maximal_revision()`."""
+    maximal = _maximal_revision()
+    for objective in objectives.GRAPH:
+        if objective.never_satisfiable:
+            continue
+        assert objective.satisfied_by(maximal) is True, (
+            objective.id, "does not declare never_satisfiable, but no "
+            "synthetic revision proved it satisfiable - either "
+            "_maximal_revision() needs to be more generous for this "
+            "objective, or it should declare never_satisfiable=True")
+
+
+def test_never_satisfiable_objectives_are_exactly_the_two_known_families() -> None:
+    """Pins WHICH objectives declare it, so a future edit that adds the
+    flag to something satisfiable (silencing the probe above rather than
+    fixing it) is itself caught."""
+    flagged = {o.id for o in objectives.GRAPH if o.never_satisfiable}
+    expected = {o.id for o in objectives.GRAPH
+                if o.id.startswith(("cards.unlock.", "claim."))}
+    assert flagged == expected
+    assert flagged  # sanity: the families actually exist in the graph

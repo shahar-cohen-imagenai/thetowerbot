@@ -172,6 +172,20 @@ class Objective:
     # lookalike, for objectives whose predicate reads a non-catalog account
     # key - see the module docstring's "Non-catalog account keys".
     concept_ids: tuple[str, ...] = ()
+    # True only for cards.unlock.* (satisfied_by returns None forever - no
+    # AccountRevision shape expresses per-card unlock state) and claim.*
+    # (satisfied_by returns False forever - the cadence needs a clock the
+    # one-argument predicate signature cannot take). Declared HERE, on the
+    # objective, rather than left for a consumer (director.py) to recognise
+    # by matching an id prefix: an id-prefix list is a fact a future author
+    # has to remember to update, and this phase's whole pattern - underscore
+    # ids, opt-in concept-ref validation, a domain-seeded prefix set, and
+    # this field - is "the fix that holds is the one that fails the suite
+    # rather than asking someone to remember." See
+    # test_every_objective_is_satisfiable_or_declares_itself_never_satisfiable
+    # in tests/test_objectives.py: it is what turns a forgotten declaration
+    # into a red suite rather than a silently-wrong one.
+    never_satisfiable: bool = False
 
 
 # -- generic account-fact helpers ----------------------------------------
@@ -578,6 +592,7 @@ def _card_unlock_objectives() -> tuple[Objective, ...]:
             risk="refundable",
             knowledge_refs=("priority.cards.unlock_order", "priority.gems.spend_order"),
             concept_ids=(concept_id,),
+            never_satisfiable=True,
         ))
     return tuple(objs)
 
@@ -596,7 +611,9 @@ def _card_unlock_objectives() -> tuple[Objective, ...]:
 # permanently-ready objective like this one will dominate unless it
 # specifically defers to claim_schedule.due for cadence, exactly as
 # cards.unlock.* (family 4) will dominate for the unrelated reason that its
-# own satisfaction can never be observed at all.
+# own satisfaction can never be observed at all. Both declare
+# never_satisfiable=True below so a ranking consumer can act on that fact
+# directly rather than recognising the family by id prefix.
 _CLAIMS: tuple[Objective, ...] = (
     Objective(
         id="claim.missions",
@@ -609,6 +626,7 @@ _CLAIMS: tuple[Objective, ...] = (
         # The closest available wiki fact touching missions: t4w70 unlocks
         # the daily-mission-shards and reroll-shards labs.
         knowledge_refs=("milestone.t4.w70",),
+        never_satisfiable=True,
     ),
     Objective(
         id="claim.milestones",
@@ -619,6 +637,7 @@ _CLAIMS: tuple[Objective, ...] = (
         value=0.3,
         risk="reversible",
         knowledge_refs=("milestone.t1.total_rewards",),
+        never_satisfiable=True,
     ),
 )
 
