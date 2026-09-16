@@ -19,6 +19,7 @@ import digits
 import vision
 from control import Controls
 from events import EventBus
+from events import IdentityIncident
 from runner import BotRunner, RunnerError
 from shopping import ShoppingSession
 from sinks.state import BotState
@@ -116,6 +117,78 @@ def test_runner_identity_uses_the_connected_device_without_an_extra_lookup(runne
     try:
         assert runner.identity() == {"serial": "emulator-5554", "game_version": None}
         assert devices == [device]
+    finally:
+        runner.stop()
+
+
+def test_identity_failure_emits_incident_before_start(runner_parts) -> None:
+    from device import IdentityError
+
+    runner, made, _, seen, _ = runner_parts
+    runner._device_factory = lambda: (_ for _ in ()).throw(IdentityError("missing endpoint"))
+    with pytest.raises(RunnerError):
+        runner.start()
+    assert made == []
+    assert any(isinstance(event, IdentityIncident) for event in seen)
+
+
+@pytest.mark.parametrize("serials", [
+    ["emulator-5556", "127.0.0.1:5557"],
+    ["127.0.0.1:5555", "127.0.0.1:5555"],
+])
+def test_missing_or_duplicate_transport_blocks_runner_and_emits_incident(
+    runner_parts, monkeypatch, serials
+) -> None:
+    import device
+    from unittest.mock import MagicMock
+
+    client = MagicMock()
+    client.device_list.return_value = [type("Attached", (), {"serial": serial})() for serial in serials]
+    monkeypatch.setattr(device, "AdbClient", lambda **_: client)
+    runner, made, _, seen, _ = runner_parts
+    runner._device_factory = lambda: device.connect_device(host="127.0.0.1", port=5555)
+
+    with pytest.raises(RunnerError):
+        runner.start()
+    assert made == []
+    assert any(isinstance(event, IdentityIncident) for event in seen)
+
+
+def test_runner_persists_attempt_only_after_observed_account_evidence(runner_parts, tmp_path) -> None:
+    from fleet.identity import Attempt, IdentityEvidence
+
+    runner, _, _, _, _ = runner_parts
+    binding = tmp_path / "attempt.json"
+    runner._device_factory = lambda: type("Device", (), {"serial": "127.0.0.1:5555"})()
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = binding
+    assert not binding.exists()
+    with pytest.raises(RunnerError):
+        runner.record_identity_evidence(IdentityEvidence("account-a", runner._attempt.created_at + 1, "frame://one"))
+    runner.start()
+    try:
+        assert not binding.exists()
+        runner.record_identity_evidence(IdentityEvidence("account-a", runner._attempt.created_at + 1, "frame://one"))
+        assert binding.exists()
+    finally:
+        runner.stop()
+
+
+def test_restart_rotates_attempt_generation_and_binding_path(runner_parts, tmp_path) -> None:
+    from fleet.identity import Attempt
+
+    runner, _, _, _, _ = runner_parts
+    runner._device_factory = lambda: type("Device", (), {"serial": "127.0.0.1:5555"})()
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = tmp_path / f"{runner._attempt.generation}.json"
+
+    runner.start()
+    first_generation = runner._attempt.generation
+    runner.stop()
+    runner.start()
+    try:
+        assert runner._attempt.generation != first_generation
+        assert runner._binding_path == tmp_path / f"{runner._attempt.generation}.json"
     finally:
         runner.stop()
 

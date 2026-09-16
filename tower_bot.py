@@ -69,6 +69,8 @@ from combat_context import RunIdentity, build_revision
 from perception import read_cash
 from control import Controls, Live
 from device import EmulatorError, Image, capture_screen, connect_device, tap
+from fleet.runtime import RuntimeIsolationError, WorkerRuntime
+from fleet.identity import Attempt
 from frames import FrameBuffer
 from navigate import Navigator
 from runner import BotRunner, RunnerError
@@ -112,6 +114,7 @@ class TowerBot:
         missions: MissionsReadings | None = None,
         milestones_claim: MilestonesClaim | None = None,
         milestones: MilestonesReadings | None = None,
+        unknown_dir: Path | None = None,
     ) -> None:
         self.account_state = account_state
         self._screen_readings = account_state.screen_readings if account_state is not None else ScreenReadings()
@@ -159,7 +162,7 @@ class TowerBot:
         # "applies on next Start" boundary the dashboard labels.
         self.tracker = screens.ScreenTracker(confirmations=screen_confirmations)
         self.snapshots = SnapshotWriter(
-            config.UNKNOWN_DIR,
+            unknown_dir if unknown_dir is not None else config.UNKNOWN_DIR,
             config.UNKNOWN_MIN_INTERVAL,
             config.UNKNOWN_KEEP,
             config.UNKNOWN_HASH_DISTANCE,
@@ -1219,6 +1222,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="dashboard bind address - loopback by default, and there is no auth",
     )
     parser.add_argument("--web-port", type=int, default=config.WEB_PORT)
+    parser.add_argument("--worker-id", default=None, help="fleet worker identity")
+    parser.add_argument("--lease-id", default=None, help="fleet lease identity")
+    parser.add_argument("--attempt-id", default=None, help="fleet attempt identity")
+    parser.add_argument("--runtime-root", type=Path, default=None, help="fleet runtime parent")
     parser.add_argument(
         "--db", default=str(config.DB_PATH), help="SQLite file for the event log"
     )
@@ -1237,7 +1244,25 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
             "press Start in the browser"
         ),
     )
-    return parser.parse_args(argv)
+    args = parser.parse_args(argv)
+    supplied = sys.argv[1:] if argv is None else argv
+    args.web_port_explicit = any(
+        item == "--web-port" or item.startswith("--web-port=") for item in supplied
+    )
+    return args
+
+
+def resolve_worker_runtime(args: argparse.Namespace) -> WorkerRuntime | None:
+    fields = (args.worker_id, args.lease_id, args.attempt_id, args.runtime_root)
+    if not any(value is not None for value in fields):
+        return None
+    if not all(value is not None for value in fields):
+        raise ValueError("worker identity requires worker, lease, attempt, and runtime root")
+    if not args.web_port_explicit:
+        raise ValueError("worker identity requires an explicit web port")
+    if not all(str(value).strip() for value in fields):
+        raise ValueError("worker identity fields cannot be empty")
+    return WorkerRuntime.for_worker(args.runtime_root, args.worker_id, args.web_port)
 
 
 def build_affordability(
@@ -1351,6 +1376,7 @@ def build_shopping(
     templates: vision.TemplateCache | None,
     reader: digits.NumberReader | None = None,
     atlas_root: Path | None = None,
+    db_path: Path | None = None,
 ) -> ShoppingSession:
     """Build the shopping session, disabling it with a reason if this
     machine cannot read the screen at all.
@@ -1394,7 +1420,7 @@ def build_shopping(
         templates, bus, reader, disabled_reason=disabled_reason,
         # The journal owns a path rather than a connection, so a session
         # built here is still usable from the scan-loop thread.
-        journal=transactions.TransactionJournal(config.DB_PATH),
+        journal=transactions.TransactionJournal(db_path if db_path is not None else config.DB_PATH),
     )
 
 
@@ -1657,6 +1683,27 @@ def serve_web(
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     configure_logging(args.tui)
+    try:
+        runtime = resolve_worker_runtime(args)
+    except ValueError as exc:
+        logger.error("identity incident: %s", exc)
+        return 1
+    if runtime is None:
+        return _main(args, None)
+    try:
+        with runtime.reserve(f"{args.host}:{args.port}"):
+            runtime.ensure_directories()
+            return _main(args, runtime)
+    except RuntimeIsolationError as exc:
+        logger.error("%s", exc)
+        return 1
+
+
+def _main(args: argparse.Namespace, runtime: WorkerRuntime | None) -> int:
+    attempt = (
+        Attempt.new(args.worker_id, f"{args.host}:{args.port}", args.lease_id, args.attempt_id)
+        if runtime is not None else None
+    )
 
     # A dashboard (--web without --once, since --once always wins) connects
     # lazily instead: the device becomes the runner's device_factory below,
@@ -1682,7 +1729,7 @@ def main(argv: list[str] | None = None) -> int:
         print_debug_scores(frame, vision.TemplateCache(config.TEMPLATE_DIR))
         return 0
 
-    db_path = Path(args.db)
+    db_path = runtime.db_path if runtime is not None else Path(args.db)
     seed_seq, last_run, seed_best_wave = (
         prepare_store(db_path) if args.store else (0, 0, None)
     )
@@ -1747,7 +1794,7 @@ def main(argv: list[str] | None = None) -> int:
                         width, height, *config.EXPECTED_RESOLUTION,
                     )
 
-        store = StrategyStore()
+        store = StrategyStore(directory=runtime.strategy_root if runtime is not None else None)
         try:
             loaded = store.load(args.strategy) if args.strategy else store.ensure_seeded()
         except ControlError as exc:
@@ -1772,7 +1819,9 @@ def main(argv: list[str] | None = None) -> int:
         # glyph atlas it gates on is exactly as expensive to build as the
         # digit atlas `checks` already amortises across every bot this
         # process ever starts.
-        shopping_session = build_shopping(bus, vision.TemplateCache(config.TEMPLATE_DIR))
+        shopping_session = build_shopping(
+            bus, vision.TemplateCache(config.TEMPLATE_DIR), db_path=db_path,
+        )
 
         if args.once:
             # A single scan never settles the debounced tracker (it needs
@@ -1792,6 +1841,7 @@ def main(argv: list[str] | None = None) -> int:
                 best_wave=seed_best_wave,
                 account_state=account_state,
                 frames=frames,
+                unknown_dir=runtime.evidence_root if runtime is not None else None,
             )
             install_signal_handlers(bot)
             for _ in range(config.SCREEN_CONFIRMATIONS):
@@ -1813,6 +1863,10 @@ def main(argv: list[str] | None = None) -> int:
                 first_run_id=last_run + 1,
                 best_wave=seed_best_wave,
                 account_state=account_state,
+                unknown_dir=runtime.evidence_root if runtime is not None else None,
+                attempt=attempt,
+                binding_path=(runtime.checkpoint_root / f"{attempt.generation}.json")
+                if runtime is not None and attempt is not None else None,
             )
 
             app = create_app(
@@ -1823,6 +1877,7 @@ def main(argv: list[str] | None = None) -> int:
                 checks=checks,
                 frames=frames,
                 runner=runner,
+                unknown_dir=runtime.evidence_root if runtime is not None else config.UNKNOWN_DIR,
                 store=store,
                 shopping=shopping_session,
             )
@@ -1845,6 +1900,7 @@ def main(argv: list[str] | None = None) -> int:
                 best_wave=seed_best_wave,
                 account_state=account_state,
                 frames=frames,
+                unknown_dir=runtime.evidence_root if runtime is not None else None,
             )
             install_signal_handlers(bot)
             # No explicit interval, so run_forever re-reads

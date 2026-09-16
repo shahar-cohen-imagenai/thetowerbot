@@ -32,13 +32,15 @@ import logging
 import threading
 import time
 import traceback
+from pathlib import Path
 from typing import Any, Callable
 
 import events
 import vision
 from autopilot import AutopilotState
 from control import Controls
-from device import EmulatorError
+from device import EmulatorError, IdentityError
+from fleet.identity import Attempt, IdentityEvidence
 from frames import FrameBuffer
 from sinks.state import BotState
 
@@ -84,12 +86,19 @@ class BotRunner:
         bot_factory: Callable[..., Any] = _default_bot_factory,
         shopping: Any | None = None,
         account_state: AccountState | None = None,
+        unknown_dir: Path | None = None,
+        attempt: Attempt | None = None,
+        binding_path: Path | None = None,
     ) -> None:
         self._bus = bus
         self._controls = controls
         self._state = state
         self._templates = templates
         self._device_factory = device_factory
+        self._unknown_dir = unknown_dir
+        self._attempt = attempt
+        self._binding_path = binding_path
+        self._attempt_started = False
         self._checks = checks
         self._frames = frames
         self._bot_factory = bot_factory
@@ -154,6 +163,13 @@ class BotRunner:
         """Identity already learned during start; this never performs ADB I/O."""
         with self._lock:
             return {"serial": self._device_serial, "game_version": None}
+
+    def record_identity_evidence(self, evidence: IdentityEvidence) -> None:
+        """Commit an account binding only after a connected attempt is observed."""
+        with self._lock:
+            if not self._running_locked() or self._attempt is None or self._binding_path is None:
+                raise RunnerError("No running attempt can accept identity evidence", 409)
+            self._attempt.persist(self._binding_path, evidence)
 
     def request_autopilot(self, command: dict[str, Any]) -> None:
         with self._lock:
@@ -303,12 +319,25 @@ class BotRunner:
             # ended on its own does not block the next start.
             self._reap_locked()
 
+            if self._attempt is not None and self._attempt_started:
+                previous = self._attempt
+                self._attempt = Attempt.new(
+                    previous.worker_id, previous.endpoint,
+                    previous.lease_id, previous.attempt_id,
+                )
+                if self._binding_path is not None:
+                    self._binding_path = (
+                        self._binding_path.parent / f"{self._attempt.generation}.json"
+                    )
+
             try:
                 device = self._device_factory()
             except EmulatorError as exc:
                 self._error = str(exc)
                 # Published outside the lock would be tidier, but publish()
                 # never blocks (see events.EventBus) so holding it is safe.
+                if isinstance(exc, IdentityError):
+                    self._bus.publish(events.IdentityIncident(message=str(exc)))
                 self._bus.publish(events.BotError(message=str(exc)))
                 raise RunnerError(str(exc), 503) from None
             except Exception as exc:  # noqa: BLE001 - anything else is still fatal to a start
@@ -319,6 +348,20 @@ class BotRunner:
                 raise RunnerError(str(exc), 503) from None
 
             self._device_serial = getattr(device, "serial", None)
+            if self._attempt is not None:
+                endpoint = self._attempt.endpoint
+                aliases = {endpoint}
+                host, _, port_text = endpoint.rpartition(":")
+                if host in {"127.0.0.1", "localhost", "::1"} and port_text.isdigit():
+                    port = int(port_text)
+                    if port % 2 == 1:
+                        aliases.add(f"emulator-{port - 1}")
+                if self._device_serial not in aliases:
+                    message = f"identity incident: connected transport does not match {endpoint}"
+                    self._bus.publish(events.IdentityIncident(message=message))
+                    self._error = message
+                    self._device_serial = None
+                    raise RunnerError(message, 503)
 
             # A fresh bot's counters start at zero; the state sink's must too,
             # or the status bar mixes this bot's uptime with the last one's
@@ -397,6 +440,7 @@ class BotRunner:
                 missions=self.missions,
                 milestones_claim=self.milestones_claim,
                 milestones=self.milestones,
+                unknown_dir=self._unknown_dir,
             )
 
             self._bot = bot
@@ -406,6 +450,7 @@ class BotRunner:
                 target=self._run, args=(bot,), name="scan-loop", daemon=True
             )
             self._thread.start()
+            self._attempt_started = True
             return {
                 "running": True,
                 "since": self._since,

@@ -9,6 +9,19 @@ from PIL import Image as PILImage
 import device
 
 
+@pytest.mark.parametrize("serials", [
+    ["emulator-5556", "127.0.0.1:5557"],
+    ["127.0.0.1:5555", "127.0.0.1:5555"],
+])
+def test_connect_refuses_missing_or_duplicate_requested_endpoint(monkeypatch, serials) -> None:
+    client = MagicMock()
+    client.device_list.return_value = [type("Attached", (), {"serial": serial})() for serial in serials]
+    monkeypatch.setattr(device, "AdbClient", lambda **_: client)
+
+    with pytest.raises(device.EmulatorError, match="identity incident"):
+        device.connect_device(host="127.0.0.1", port=5555)
+
+
 def test_capture_screen_converts_rgb_to_bgr() -> None:
     """adbutils returns PIL RGB; OpenCV needs BGR. A red pixel proves the swap."""
     fake = MagicMock()
