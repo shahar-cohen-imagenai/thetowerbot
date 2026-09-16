@@ -271,7 +271,8 @@
       "work": "Use a single device lease and durable supervisor for ADB reconnect, game resume/relaunch, transient failures, bounded retry/backoff and crash recovery; preserve the verified account identity.",
       "acceptance": "Inject disconnect, stale frame, online-required action and process restart; recover the correct device and pending action or enter an explicit bounded blocked state without uncontrolled tapping.",
       "ready": true,
-      "task_file": "tasks/B06.md"
+      "task_file": "tasks/B06.md",
+      "current_state": "The B06 implementation is locally verified with a pull request open for review; the graph remains partial until merge. It adds a durable device supervisor and one endpoint lease to the fleet runner; 78 focused tests exercise bounded ADB reconnect/backoff, process restart, stale/online/unknown evidence, wrong-device/account quarantine, and pending-action no-retap. A read-only emulator check verified the configured endpoint, game screen, and account-unverified no-action gate; live disconnect/relaunch and account-bound tap recovery remain unqualified."
     },
     {
       "id": "B07",

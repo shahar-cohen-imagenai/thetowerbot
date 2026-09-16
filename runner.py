@@ -29,6 +29,9 @@ from missions_visit import MissionsVisit
 from account_state import AccountState
 
 import logging
+from dataclasses import asdict
+import math
+import re
 import threading
 import time
 import traceback
@@ -43,6 +46,7 @@ from device import EmulatorError, IdentityError
 from fleet.identity import Attempt, IdentityEvidence
 from frames import FrameBuffer
 from sinks.state import BotState
+from supervisor import DeviceSupervisor, GuardedDevice, RecoveryState
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +93,8 @@ class BotRunner:
         unknown_dir: Path | None = None,
         attempt: Attempt | None = None,
         binding_path: Path | None = None,
+        supervisor_path: Path | None = None,
+        game_package: str | None = None,
     ) -> None:
         self._bus = bus
         self._controls = controls
@@ -98,6 +104,9 @@ class BotRunner:
         self._unknown_dir = unknown_dir
         self._attempt = attempt
         self._binding_path = binding_path
+        self._supervisor_path = supervisor_path
+        self._game_package = game_package
+        self._supervisor: DeviceSupervisor | None = None
         self._attempt_started = False
         self._checks = checks
         self._frames = frames
@@ -153,11 +162,14 @@ class BotRunner:
     def status(self) -> dict[str, Any]:
         with self._lock:
             running = self._running_locked()
-            return {
+            status = {
                 "running": running,
                 "since": self._since if running else None,
                 "error": self._error,
             }
+            if self._supervisor is not None:
+                status["recovery"] = asdict(self._supervisor.status())
+            return status
 
     def identity(self) -> dict[str, str | None]:
         """Identity already learned during start; this never performs ADB I/O."""
@@ -169,7 +181,54 @@ class BotRunner:
         with self._lock:
             if not self._running_locked() or self._attempt is None or self._binding_path is None:
                 raise RunnerError("No running attempt can accept identity evidence", 409)
-            self._attempt.persist(self._binding_path, evidence)
+            if self._supervisor is not None:
+                self._supervisor.verify_account(evidence.account_id,
+                                                observed_at=evidence.observed_at)
+            try:
+                if self._binding_path.exists():
+                    import json
+
+                    saved = json.loads(self._binding_path.read_text(encoding="utf-8"))
+                    if saved.get("account_id") != evidence.account_id:
+                        raise RunnerError("identity incident: binding mismatch", 409)
+                else:
+                    self._attempt.persist(self._binding_path, evidence)
+            except Exception:
+                if self._supervisor is not None:
+                    self._supervisor.invalidate_identity("identity_persist_failed")
+                raise
+
+    def _verified_account(self) -> str | None:
+        """Retain only a consistent account bound to this worker attempt."""
+        if self._binding_path is None or self._attempt is None:
+            return None
+        import json
+
+        accounts: set[str] = set()
+        for path in self._binding_path.parent.glob("*.json"):
+            if re.fullmatch(r"[0-9a-f]{32}", path.stem) is None:
+                continue
+            try:
+                row = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                raise RunnerError("identity incident: unreadable account binding", 503) from None
+            if all(row.get(key) == getattr(self._attempt, key)
+                   for key in ("worker_id", "endpoint", "lease_id", "attempt_id")):
+                account = row.get("account_id")
+                created = row.get("created_at")
+                observed = row.get("observed_at")
+                reference = row.get("evidence_ref")
+                if (not isinstance(account, str) or not account.strip()
+                        or not isinstance(reference, str) or not reference.strip()
+                        or not isinstance(row.get("generation"), str)
+                        or not isinstance(created, (int, float)) or not math.isfinite(created)
+                        or not isinstance(observed, (int, float)) or not math.isfinite(observed)
+                        or created <= 0 or observed < created):
+                    raise RunnerError("identity incident: incomplete account binding", 503)
+                accounts.add(account)
+        if len(accounts) > 1:
+            raise RunnerError("identity incident: conflicting account bindings", 503)
+        return next(iter(accounts), None)
 
     def request_autopilot(self, command: dict[str, Any]) -> None:
         with self._lock:
@@ -331,7 +390,27 @@ class BotRunner:
                     )
 
             try:
-                device = self._device_factory()
+                if self._supervisor_path is not None and self._attempt is not None:
+                    self._supervisor = DeviceSupervisor(
+                        path=self._supervisor_path, endpoint=self._attempt.endpoint,
+                        connect=self._device_factory,
+                        expected_account=self._verified_account(),
+                        game_package=self._game_package,
+                    )
+                    self._supervisor.recover()
+                    if self._supervisor.device is None:
+                        failure = self._supervisor.status()
+                        if failure.state is RecoveryState.QUARANTINED:
+                            raise IdentityError(f"identity incident: {failure.reason}")
+                        raise EmulatorError(failure.reason)
+                    device = GuardedDevice(self._supervisor)
+                else:
+                    device = self._device_factory()
+            except RunnerError as exc:
+                self._error = str(exc)
+                self._bus.publish(events.IdentityIncident(message=str(exc)))
+                self._bus.publish(events.BotError(message=str(exc)))
+                raise
             except EmulatorError as exc:
                 self._error = str(exc)
                 # Published outside the lock would be tidier, but publish()
@@ -441,6 +520,7 @@ class BotRunner:
                 milestones_claim=self.milestones_claim,
                 milestones=self.milestones,
                 unknown_dir=self._unknown_dir,
+                supervisor=self._supervisor,
             )
 
             self._bot = bot

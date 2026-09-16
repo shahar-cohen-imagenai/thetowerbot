@@ -7,6 +7,7 @@ import pytest
 from PIL import Image as PILImage
 
 import device
+from fleet.runtime import WorkerRuntime, reserve_endpoint, RuntimeIsolationError
 
 
 @pytest.mark.parametrize("serials", [
@@ -45,7 +46,31 @@ def test_capture_screen_demands_errors_not_black_frames() -> None:
     fake.screenshot.assert_called_once_with(error_ok=False)
 
 
+def test_transient_screencap_failure_is_recoverable_device_error() -> None:
+    fake = MagicMock()
+    fake.screenshot.side_effect = OSError("transport reset")
+
+    with pytest.raises(device.EmulatorError, match="screencap failed"):
+        device.capture_screen(fake)
+
+
 def test_tap_delegates_to_the_device() -> None:
     fake = MagicMock()
     device.tap(fake, 100, 200)
     fake.click.assert_called_once_with(100, 200)
+
+
+def test_standalone_device_lease_conflicts_with_fleet_lease(tmp_path) -> None:
+    worker = WorkerRuntime.for_worker(tmp_path, "worker-a", 8765)
+    with reserve_endpoint("127.0.0.1:5555"):
+        with pytest.raises(RuntimeIsolationError, match="ADB endpoint"):
+            with worker.reserve("127.0.0.1:5555"):
+                pass
+
+
+def test_standalone_entry_point_refuses_an_already_leased_device(monkeypatch) -> None:
+    import tower_bot
+
+    monkeypatch.setattr(tower_bot, "_main", lambda *_: 0)
+    with reserve_endpoint("127.0.0.1:5555"):
+        assert tower_bot.main(["--host", "127.0.0.1", "--port", "5555", "--once"]) == 1

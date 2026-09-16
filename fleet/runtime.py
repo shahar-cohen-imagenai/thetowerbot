@@ -17,6 +17,28 @@ class RuntimeIsolationError(ValueError):
     """Another live worker owns the requested root or web port."""
 
 
+@contextmanager
+def reserve_endpoint(endpoint: str) -> Iterator[None]:
+    """One process lease for an ADB endpoint, shared by fleet and standalone runs."""
+    host, separator, port = endpoint.rpartition(":")
+    if not separator or not host or not port.isdigit():
+        raise ValueError("ADB endpoint must be host:port")
+    if host in {"localhost", "::1"}:
+        endpoint = f"127.0.0.1:{port}"
+    lock_dir = Path(tempfile.gettempdir()) / f"thetowerbot-fleet-locks-{os.getuid()}"
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    digest = hashlib.sha256(endpoint.encode()).hexdigest()
+    with (lock_dir / f"adb-{digest}.lock").open("a+") as handle:
+        try:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise RuntimeIsolationError("identity incident: ADB endpoint already reserved") from None
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+
+
 @dataclass(frozen=True)
 class WorkerRuntime:
     worker_id: str
@@ -61,12 +83,6 @@ class WorkerRuntime:
                 (self.root / ".worker.lock", "runtime path"),
                 (port_dir / f"{self.web_port}.lock", "web port"),
             ]
-            if endpoint is not None:
-                host, separator, port = endpoint.rpartition(":")
-                if separator and host in {"localhost", "::1"}:
-                    endpoint = f"127.0.0.1:{port}"
-                digest = hashlib.sha256(endpoint.encode()).hexdigest()
-                locks.append((port_dir / f"adb-{digest}.lock", "ADB endpoint"))
             for path, label in locks:
                 handle = stack.enter_context(path.open("a+"))
                 try:
@@ -75,6 +91,8 @@ class WorkerRuntime:
                     raise RuntimeIsolationError(
                         f"identity incident: {label} already reserved"
                     ) from None
+            if endpoint is not None:
+                stack.enter_context(reserve_endpoint(endpoint))
             yield
 
 

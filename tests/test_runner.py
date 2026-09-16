@@ -21,6 +21,7 @@ from control import Controls
 from events import EventBus
 from events import IdentityIncident
 from runner import BotRunner, RunnerError
+from supervisor import GuardedDevice, RecoveryBlocked, RecoveryState
 from shopping import ShoppingSession
 from sinks.state import BotState
 from strategy import ActionRule, Shopping, ShoppingRule, Strategy
@@ -191,6 +192,137 @@ def test_restart_rotates_attempt_generation_and_binding_path(runner_parts, tmp_p
         assert runner._binding_path == tmp_path / f"{runner._attempt.generation}.json"
     finally:
         runner.stop()
+
+
+def test_runner_guards_taps_until_fresh_verified_account_evidence(runner_parts, tmp_path) -> None:
+    from fleet.identity import Attempt, IdentityEvidence
+
+    runner, made, _, _, _ = runner_parts
+    raw = type("Device", (), {"serial": "127.0.0.1:5555", "taps": [],
+                              "click": lambda self, x, y: self.taps.append((x, y))})()
+    runner._device_factory = lambda: raw
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = tmp_path / f"{runner._attempt.generation}.json"
+    runner._supervisor_path = tmp_path / "supervisor.json"
+    runner.start()
+    try:
+        guarded = made[0].kwargs["device"]
+        assert isinstance(guarded, GuardedDevice)
+        assert runner.status()["recovery"]["reason"] == "fresh_evidence_required"
+        with pytest.raises(RecoveryBlocked):
+            guarded.click(1, 2)
+        evidence = IdentityEvidence("account-a", time.time(), "frame://identity")
+        runner.record_identity_evidence(evidence)
+        assert guarded.supervisor.observe(
+            frame_digest="fresh", observed_at=time.time(),
+            screen="MAIN_MENU", account_id="account-a",
+        ) is RecoveryState.READY
+        guarded.click(1, 2)
+        assert raw.taps == [(1, 2)]
+    finally:
+        runner.stop()
+
+
+def test_runner_refuses_ambiguous_saved_identity_before_start(runner_parts, tmp_path) -> None:
+    from fleet.identity import Attempt
+
+    runner, made, _, _, _ = runner_parts
+    runner._device_factory = lambda: type("Device", (), {"serial": "127.0.0.1:5555"})()
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = tmp_path / f"{runner._attempt.generation}.json"
+    runner._supervisor_path = tmp_path / "supervisor.json"
+    (tmp_path / ("f" * 32 + ".json")).write_text("{", encoding="utf-8")
+
+    with pytest.raises(RunnerError, match="identity"):
+        runner.start()
+    assert made == []
+
+
+def test_runner_does_not_trust_a_binding_without_evidence(runner_parts, tmp_path) -> None:
+    import json
+    from fleet.identity import Attempt
+
+    runner, made, _, _, _ = runner_parts
+    runner._device_factory = lambda: type("Device", (), {"serial": "127.0.0.1:5555"})()
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = tmp_path / f"{runner._attempt.generation}.json"
+    runner._supervisor_path = tmp_path / "supervisor.json"
+    payload = {key: getattr(runner._attempt, key)
+               for key in ("worker_id", "endpoint", "lease_id", "attempt_id")}
+    payload["account_id"] = "account-a"
+    (tmp_path / ("e" * 32 + ".json")).write_text(json.dumps(payload), encoding="utf-8")
+
+    with pytest.raises(RunnerError, match="identity"):
+        runner.start()
+    assert made == []
+
+
+def test_failed_binding_write_never_authorizes_a_tap(runner_parts, tmp_path, monkeypatch) -> None:
+    from fleet.identity import Attempt, IdentityEvidence
+
+    runner, made, _, _, _ = runner_parts
+    raw = type("Device", (), {"serial": "127.0.0.1:5555",
+                              "click": lambda self, x, y: pytest.fail("unexpected tap")})()
+    runner._device_factory = lambda: raw
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = tmp_path / f"{runner._attempt.generation}.json"
+    runner._supervisor_path = tmp_path / "supervisor.json"
+    runner.start()
+    try:
+        monkeypatch.setattr(Attempt, "persist", lambda *_: (_ for _ in ()).throw(OSError("disk full")))
+        with pytest.raises(OSError, match="disk full"):
+            runner.record_identity_evidence(
+                IdentityEvidence("account-a", time.time(), "frame://identity"))
+        guarded = made[0].kwargs["device"]
+        assert guarded.supervisor.current_account is None
+        with pytest.raises(RecoveryBlocked):
+            guarded.click(1, 2)
+    finally:
+        runner.stop()
+
+
+def test_runner_relaunches_configured_game_without_tapping(tmp_path, runner_parts) -> None:
+    from fleet.identity import Attempt
+
+    runner, made, _, _, _ = runner_parts
+    launched: list[str] = []
+    device = type("Device", (), {
+        "serial": "127.0.0.1:5555",
+        "app_current": lambda self: type("App", (), {"package": "launcher"})(),
+        "app_start": lambda self, package: launched.append(package),
+        "click": lambda self, x, y: pytest.fail("unexpected tap"),
+    })()
+    runner._device_factory = lambda: device
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = tmp_path / f"{runner._attempt.generation}.json"
+    runner._supervisor_path = tmp_path / "supervisor.json"
+    runner._game_package = "com.example.tower"
+
+    runner.start()
+    try:
+        assert launched == ["com.example.tower"]
+        assert runner.status()["recovery"]["reason"] == "game_relaunched"
+        with pytest.raises(RecoveryBlocked):
+            made[0].kwargs["device"].click(1, 2)
+    finally:
+        runner.stop()
+
+
+def test_supervised_wrong_device_reports_identity_incident(tmp_path, runner_parts) -> None:
+    from fleet.identity import Attempt
+
+    runner, made, _, seen, _ = runner_parts
+    runner._device_factory = lambda: type("Device", (), {"serial": "127.0.0.1:5557"})()
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = tmp_path / f"{runner._attempt.generation}.json"
+    runner._supervisor_path = tmp_path / "supervisor.json"
+
+    with pytest.raises(RunnerError) as caught:
+        runner.start()
+    assert caught.value.status_code == 503
+    assert made == []
+    assert any(isinstance(event, IdentityIncident) for event in seen)
+    assert runner.status()["recovery"]["state"] is RecoveryState.QUARANTINED
 
 
 def test_start_connects_a_device_and_spawns_a_bot(runner_parts) -> None:

@@ -29,6 +29,7 @@ from account_screens import ScreenReadings
 
 import argparse
 import dataclasses
+import hashlib
 import ipaddress
 import logging
 import signal
@@ -69,11 +70,12 @@ from combat_context import RunIdentity, build_revision
 from perception import read_cash
 from control import Controls, Live
 from device import EmulatorError, Image, capture_screen, connect_device, tap
-from fleet.runtime import RuntimeIsolationError, WorkerRuntime
+from fleet.runtime import RuntimeIsolationError, WorkerRuntime, reserve_endpoint
 from fleet.identity import Attempt
 from frames import FrameBuffer
 from navigate import Navigator
 from runner import BotRunner, RunnerError
+from supervisor import DeviceSupervisor, RecoveryState
 from runs import RunTracker
 from shopping import ShoppingSession
 from snapshots import SnapshotWriter
@@ -115,6 +117,7 @@ class TowerBot:
         milestones_claim: MilestonesClaim | None = None,
         milestones: MilestonesReadings | None = None,
         unknown_dir: Path | None = None,
+        supervisor: DeviceSupervisor | None = None,
     ) -> None:
         self.account_state = account_state
         self._screen_readings = account_state.screen_readings if account_state is not None else ScreenReadings()
@@ -133,6 +136,7 @@ class TowerBot:
                                 else MilestonesClaim())
         self.milestones = milestones if milestones is not None else MilestonesReadings()
         self.device = device
+        self.supervisor = supervisor
         self.templates = templates
         self.bus = bus
         # Optional: --tui and --once have nobody to show a frame to, and every
@@ -221,6 +225,7 @@ class TowerBot:
     def refresh_screen(self) -> Image:
         """Capture a fresh frame and keep it as the current screen."""
         self._screen = capture_screen(self.device)
+        self._screen_captured_at = time.time()
         if self.frames is not None:
             self.frames.publish(self._screen)
         return self._screen
@@ -562,6 +567,34 @@ class TowerBot:
         self.refresh_screen()
 
         reading = screens.classify(self.screen, self.templates)
+        if self.supervisor is not None:
+            observed_screen = reading.state.value
+            if observed_screen == "UNKNOWN":
+                try:
+                    observed_screen = pages.classify_page(self.screen, self.templates).page
+                except Exception:  # noqa: BLE001 - unreadable page is no permission to act
+                    observed_screen = "UNKNOWN"
+            try:
+                boxes = ocr.read(self.screen, strict=True)
+                text = " ".join(box.text.lower() for box in boxes)
+                online_required = (
+                    ("online" in text and ("required" in text or "connect" in text))
+                    or ("internet" in text and ("required" in text or "connect" in text))
+                )
+                readable = True
+            except Exception:  # noqa: BLE001 - an unreadable modal may cover an anchor
+                online_required = False
+                readable = False
+            recovery = self.supervisor.observe(
+                frame_digest=hashlib.sha256(self.screen.tobytes()).hexdigest(),
+                observed_at=getattr(self, "_screen_captured_at", time.time()),
+                screen=observed_screen,
+                account_id=self.supervisor.current_account,
+                online_required=online_required, readable=readable,
+            )
+            if recovery is not RecoveryState.READY:
+                self.autopilot.suspend("Device recovery blocked actions")
+                return False
         previous = self.tracker.state
         if self.tracker.observe(reading) is not None:
             if self.account_state is not None:
@@ -1154,6 +1187,8 @@ class TowerBot:
             except EmulatorError as exc:
                 logger.error("Device error: %s - retrying in %.1fs", exc, current_interval)
                 self._report(f"Device error: {exc}")
+                if self.supervisor is not None and self.supervisor.device is None:
+                    self.supervisor.recover()
             except Exception as exc:  # noqa: BLE001 - one bad frame must not kill the loop
                 logger.exception("Unexpected error during scan")
                 self._report(f"Unexpected error during scan: {exc}")
@@ -1184,6 +1219,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Background bot for The Tower.")
     parser.add_argument("--host", default=config.DEVICE_HOST, help="emulator ADB host")
     parser.add_argument("--port", type=int, default=config.DEVICE_PORT, help="emulator ADB port")
+    parser.add_argument(
+        "--game-package", default=None,
+        help="verified Android package to resume after reconnect; omitted means no relaunch",
+    )
     parser.add_argument(
         "--interval", type=float, default=None,
         help=(
@@ -1705,11 +1744,12 @@ def main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         logger.error("identity incident: %s", exc)
         return 1
-    if runtime is None:
-        return _main(args, None)
     try:
-        with runtime.reserve(f"{args.host}:{args.port}"):
-            runtime.ensure_directories()
+        endpoint = f"{args.host}:{args.port}"
+        reservation = runtime.reserve(endpoint) if runtime is not None else reserve_endpoint(endpoint)
+        with reservation:
+            if runtime is not None:
+                runtime.ensure_directories()
             return _main(args, runtime)
     except RuntimeIsolationError as exc:
         logger.error("%s", exc)
@@ -1884,6 +1924,9 @@ def _main(args: argparse.Namespace, runtime: WorkerRuntime | None) -> int:
                 attempt=attempt,
                 binding_path=(runtime.checkpoint_root / f"{attempt.generation}.json")
                 if runtime is not None and attempt is not None else None,
+                supervisor_path=(runtime.checkpoint_root / "supervisor.json")
+                if runtime is not None else None,
+                game_package=args.game_package,
             )
 
             app = create_app(
