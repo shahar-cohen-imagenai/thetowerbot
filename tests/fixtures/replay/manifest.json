@@ -10,6 +10,8 @@
     "the OCR of a named capture; every edit states the exact rect it touches",
     "and the text that rect held, so a derived example cannot drift into",
     "describing a state no capture ever showed.",
+    "Every referenced PNG is pinned by SHA-256 and records native geometry;",
+    "game_version is explicitly unknown unless the capture established it.",
     "Verify with: .venv/bin/python -m pytest -p no:allure_pytest",
     "tests/test_fixtures.py tests/test_screen_discovery.py -q"
   ],
@@ -195,11 +197,12 @@
           "why": "A weekly chest the completed counter has not reached. Present, named, and nothing the bot may do anything with."
         },
         "ambiguous": {
-          "recording": "recorded",
+          "recording": "derived",
           "frame": "menu_missions_claimable",
           "observation": "card:0",
           "expect_status": "unreadable",
-          "why": "A card whose progress bar is replaced by a CLAIM button carries no 'N / M' text, so the reader sees a card it cannot identify and says so instead of skipping it."
+          "edits": [{"at": [454, 887, 153, 46], "was": "CLAIM", "duplicate_at": [456, 887, 153, 46]}],
+          "why": "The current reader recognizes a single CLAIM button as claimable. Two buttons on one card are ambiguous, so a duplicate on the recorded card must remove its identity and any action."
         }
       }
     },
@@ -340,10 +343,27 @@
     }
   },
   "frames": {
+    "in_run_defense": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Battle Defense heading and row OCR", "png_sha256": "080a6affc5eaa355b82581db9efceb2561a63366ceea19a56fefe7e11afa3a26"},
+    "in_run_lit": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Battle Attack heading and row OCR", "png_sha256": "9c9603fb56a0cc40c049aeec668c9b4e37e501335ed3aa98d91d61035ef00080"},
+    "in_run_utility": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Battle Utility heading and row OCR", "png_sha256": "39e7e85eb1b81bbb8386e48c6600723b07ea505aa43b4ec6dcd2f88c8a72d250"},
+    "menu_cards": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Cards page heading and slot-band OCR", "png_sha256": "e803e992660ce51d3df9ff70389cc83e680490f59797db67fa6da3fb4916019c"},
+    "menu_missions": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Missions heading, card, and milestone OCR", "png_sha256": "bc94274aed9e0cf27789c2c9579c6bb350063fe52abc3375b4ea3dac56bd4c0c"},
+    "menu_missions_claimable": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Missions heading and card OCR", "png_sha256": "e6e7aa88e077487043ec467c409c8ad1d75f7baa1900292495e6029aaf4835f4"},
+    "menu_missions_scrolled": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Missions heading and card OCR after scroll", "png_sha256": "aa6afb5b183f814878623fd69bebe73eca1973cbbf72db51b8a27693af3beba4"},
+    "menu_workshop_attack": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop Attack heading and row OCR", "png_sha256": "32bf96f7e660f71177436105e36b307086d3e0ea73a4ea5f0747a2a2cebf58b3"},
+    "menu_workshop_attack_escalated": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop Attack heading and row OCR after purchase interval", "png_sha256": "7cf493ea90ccbb5b7ef7cd3e78ceff2e5f1051a24509d36246edad6c3ceb4994"},
+    "menu_workshop_defense": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop Defense heading and row OCR", "png_sha256": "de0e5aa10c59beafab7fecc3a0668d25503fc222cd20591a9021bdbc5ea0d1fd"},
+    "menu_workshop_info_panel": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop info overlay with blocked grid", "png_sha256": "c29070a82af5de0baa60ec88cb0f3ea49084c1330f4aba8a7e7981e18880a477"},
+    "menu_workshop_utility": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop Utility heading and row OCR", "png_sha256": "7e86a877853693471d7ec687068bdf1c07bbe3a91f86c537a03f7dba5e47e0c5"},
+    "menu_workshop_utility_restocked": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop Utility heading and newly unlocked row OCR", "png_sha256": "abfa4587aa1129d84b59e54da716d6f7d751fec24af719d911cb388e82ef2077"},
+    "settings_redacted": {"game_version": "v29.0.1", "device_geometry": "native_1080x2400", "layout_origin": "Settings heading and Stats control OCR", "png_sha256": "f4c5ff73e75840da3e9c5968bf8c354f33cd2a261e2430546b10df79a360d891"},
+    "stats_summary": {"game_version": "v29.0.1", "device_geometry": "native_1080x2400", "layout_origin": "Stats heading and field-label OCR", "png_sha256": "cdcc34514b3e6a9d42d22049e294883f5667e2f079f5741f6119f7567cb29385"},
+    "stats_tiers": {"game_version": "v29.0.1", "device_geometry": "native_1080x2400", "layout_origin": "Stats headings and Tier-row OCR", "png_sha256": "25ddf0b0f27c5ee2f9e57d8170d3a04a3f5a9d1efad5f272f4fd4523e26ce44e"},
     "game_over": {
       "game_version": "unknown",
       "device_geometry": "status_bar_inset",
       "layout_origin": "own caption (GAMESTATS title + per-field regex), never a frame-relative offset",
+      "png_sha256": "6b1b99ac477eb92d489911fdc7ad8f32fd82bcc0b9211a2e7635da665905e006",
       "why": "Added in 38cb3ae with no build string captured anywhere on the frame or in the commit that recorded it."
     },
     "game_over_fade": {
@@ -356,6 +376,7 @@
       "game_version": "unknown",
       "device_geometry": "status_bar_inset",
       "layout_origin": "own caption (GAMESTATS title + per-field regex), never a frame-relative offset",
+      "png_sha256": "89c97261e8ceb555e289b21ac2a960272f74aeb2384beee9033f3fd7fbcf5e58",
       "why": "Added in 38e9665, which recalibrates the production digit reader against this capture but names no build string."
     },
     "game_over_stats": {
@@ -379,7 +400,7 @@
         {"frame": "menu_workshop_attack", "capability": "workshop.attack"},
         {"frame": "menu_workshop_attack_escalated", "capability": "workshop.attack"}
       ],
-      "action": {"kind": "tap_row", "observation": "attack_speed", "point": [950, 633]},
+      "action": {"kind": "recorded_interval", "note": "Several purchases happened between these captures. No single verified tap or action count is claimed."},
       "expect": {
         "kind": "advanced",
         "observations": {
