@@ -2,9 +2,9 @@
 
 > This file is the human-readable view. `manifest.json` is the machine-readable source for task selection.
 
-- [x] 8 completed
-- [ ] 55 remaining
-- [ ] Next dependency-ready tasks: B07, B08, C01, C03, F01, F08, L01, U01
+- [x] 9 completed
+- [ ] 54 remaining
+- [ ] Next dependency-ready tasks: B07, C01, C03, F01, F08, L01, U01, V01
 
 ## Account truth and execution
 
@@ -15,7 +15,7 @@
 - [x] [B05 — Journal and verify every transaction](tasks/B05.md) — complete; acceptance gate verified and merged
 - [x] [B06 — Recover the device and bot lifecycle](tasks/B06.md) — acceptance evidence verified and merged
 - [ ] [B07 — Allocate currencies and reserves](tasks/B07.md) — partial
-- [ ] [B08 — Build representative replay fixtures](tasks/B08.md) — partial
+- [x] [B08 — Build representative replay fixtures](tasks/B08.md) — complete by user acceptance with the tier unavailable replay gap deferred
 
 ## Reliable farming loop
 
