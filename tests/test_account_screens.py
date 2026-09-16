@@ -1,4 +1,4 @@
-"""Recorded English v29.0.1 account panels, native 1080×2400.
+"""Recorded English v29.0.1 and v29.0.2 account panels, native 1080×2400.
 
 Stats PNG/OCR captured September 5, 2026, 08:46:51 UTC (summary) and
 08:51:55 UTC (tiers), reviewed before inclusion. PNG SHA-256 values:
@@ -10,7 +10,9 @@ unredacted image and its other OCR are excluded because they carry an account
 identifier. settings_redacted is a later capture of the same panel with that
 identifier painted out of the image, so its PNG is kept and read. Aggregate
 history and tier rows establish neither upgrade levels nor unlocks. Runtime frame
-digests hash decoded BGR pixels, distinct from these PNG file digests.
+digests hash decoded BGR pixels, distinct from these PNG file digests. The
+progressed v29.0.2 summary/tiers pair is one live Stats visit before/after a
+scroll; its Settings image is withheld because it contains an account ID.
 """
 
 from dataclasses import replace
@@ -606,6 +608,19 @@ def test_the_tier_table_is_read_without_row_positions() -> None:
     result = parse('stats_tiers_early')
     assert result.tiers
     assert parse('stats_tiers_early', tuple(reversed(recorded('stats_tiers_early')))) == result
+
+
+def test_progressed_tier_history_keeps_large_coins_and_literal_zero_distinct() -> None:
+    summary = parse('stats_summary_progressed')
+    table = parse('stats_tiers_progressed')
+    assert summary.screen_id == 'account.stats.summary' and not summary.tiers
+    assert table.screen_id == 'account.stats.tiers'
+    assert len(table.tiers) == 24
+    assert table.tiers[0].wave.raw_value == '10088'
+    assert table.tiers[0].coins.raw_value == '109.71B'
+    assert table.tiers[14].wave.raw_value == '46'
+    assert table.tiers[15].wave.raw_value == '0'
+    assert table.tiers[15].wave.status == 'observed'
 
 
 def test_the_stats_control_exists_only_on_the_settings_panel() -> None:

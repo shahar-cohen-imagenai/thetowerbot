@@ -92,19 +92,17 @@ _REPLAY_COVERED = (
 # 'readers' because it is not the grid adapter those entries name, not
 # because it is any less enabled or any less proven.
 _GAME_OVER = ('game_over.result',)
-# The Tiers table has no reader state meaning present-and-not-usable: a tier
-# nobody has reached is written as a literal 0 and an unread cell is dropped,
-# and both land on 'unreadable'. Telling them apart needs a capture of an
-# account with a tier history.
+# Even a progressed v29.0.2 history table draws literal zeros for tiers with
+# no recorded wave. Nothing on that screen distinguishes no history, a lock,
+# and a trusted numeric zero, so the unavailable-state example remains owned.
 _REPLAY_GAPS = {'account.stats.tiers.unavailable': 'B08'}
 
 # What remains out of scope, and who owns it. An entry with no owner is a
 # standing property of the design rather than work someone will pick up.
 _UNSUPPORTED_OWNERS = {
-    # The one recorded Cards page belongs to an account that owns no card, so
-    # no card row, preset tab or mastery tile is drawn anywhere on it. These
-    # are attributed to the fixture task because a capture is what is missing:
-    # a reader for a row nothing has ever shown would be invented geometry.
+    # A stocked v29.0.2 Cards page now shows identity rows and presets, but
+    # the current reader refuses its changed heading geometry. The captures
+    # are study material, not evidence that those rows are actionable.
     'card_identity_rows': 'B08',
     'card_mastery_ownership': 'B08',
     'card_presets': 'B08',
@@ -118,11 +116,9 @@ _UNSUPPORTED_OWNERS = {
     'later_unlock_stage_layouts_outside_workshop': 'B08',
     'battle_history_export': 'B08',
     'native_stat_export': 'B08',
-    # No Labs page is recorded at any unlock stage, so there is no geometry to
-    # validate and `discover` never accepts a 'labs' context. labs.py models
-    # the state and takes its evidence from elsewhere; the missing capture is
-    # fixture work, and acting on a lab belongs to the tasks that own starting
-    # research and paying to accelerate it.
+    # An active v29.0.2 Labs page is recorded, but no Labs discovery context
+    # or second layout is validated. Recording a Rush price does not enable a
+    # gem spend; starting and accelerating research have separate owners.
     'labs_screen_layout': 'B08',
     'labs_research_actions': 'L02',
     'labs_acceleration_spend': 'L03',
@@ -130,10 +126,9 @@ _UNSUPPORTED_OWNERS = {
     'missions_reward_currency': 'T01',
     'missions_milestone_claim_state': 'T01',
     'missions_beyond_the_recorded_strip': 'T01',
-    # No Modules capture exists at any resolution, so there is no layout to
-    # key a reader off. modules.py models the inventory and refuses to read
-    # one; recording the screen is fixture work, and acting on modules is not
-    # this reader's to do.
+    # A stocked v29.0.2 Modules page is recorded, but no Modules discovery
+    # context or banner/pity state is validated. Inventory and spend actions
+    # stay disabled until their own readers are proved.
     'modules_screen_layout': 'B08',
     'modules_banner_pity_state': 'B08',
     'module_upgrade_merge_actions': 'C04',
