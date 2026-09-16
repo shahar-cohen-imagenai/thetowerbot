@@ -43,6 +43,7 @@ import vision
 from autopilot import AutopilotState
 from control import Controls
 from device import EmulatorError, IdentityError
+from bluestacks import BlueStacksAdapter, HostBoundConnect
 from fleet.identity import Attempt, IdentityEvidence
 from frames import FrameBuffer
 from sinks.state import BotState
@@ -95,6 +96,8 @@ class BotRunner:
         binding_path: Path | None = None,
         supervisor_path: Path | None = None,
         game_package: str | None = None,
+        host_adapter: BlueStacksAdapter | None = None,
+        host_instance: str | None = None,
     ) -> None:
         self._bus = bus
         self._controls = controls
@@ -106,6 +109,12 @@ class BotRunner:
         self._binding_path = binding_path
         self._supervisor_path = supervisor_path
         self._game_package = game_package
+        if (host_adapter is None) != (host_instance is None) or (
+            host_adapter is not None and (attempt is None or supervisor_path is None)
+        ):
+            raise ValueError("named host requires a supervised worker attempt")
+        self._host_adapter = host_adapter
+        self._host_instance = host_instance
         self._supervisor: DeviceSupervisor | None = None
         self._attempt_started = False
         self._checks = checks
@@ -391,11 +400,18 @@ class BotRunner:
 
             try:
                 if self._supervisor_path is not None and self._attempt is not None:
+                    connect = self._device_factory
+                    if self._host_adapter is not None and self._host_instance is not None:
+                        connect = HostBoundConnect(
+                            self._host_adapter, self._host_instance, self._attempt,
+                            self._device_factory,
+                        )
                     self._supervisor = DeviceSupervisor(
                         path=self._supervisor_path, endpoint=self._attempt.endpoint,
-                        connect=self._device_factory,
+                        connect=connect,
                         expected_account=self._verified_account(),
                         game_package=self._game_package,
+                        quarantine_on_exhaustion=self._host_adapter is not None,
                     )
                     self._supervisor.recover()
                     if self._supervisor.device is None:
