@@ -162,7 +162,8 @@ def classify(event: events.Event) -> tuple[LedgerLine, ...]:
                 price=price,
                 observed=event.gems_before if cards else event.coins_before,
                 dry_run=event.dry_run,
-                detail={"verdict": event.verdict} if event.verdict else {},
+                detail={**({"verdict": event.verdict} if event.verdict else {}),
+                        **({"transaction_key": event.transaction_key} if event.transaction_key else {})},
                 **base,
             ),)
 
@@ -350,6 +351,8 @@ class LedgerWriter:
     """
 
     def __init__(self, conn: sqlite3.Connection) -> None:
+        self._conn = conn
+        self._data_version = conn.execute("PRAGMA data_version").fetchone()[0]
         self._known: dict[str, int | None] = db.last_balances(conn)
         # A seeded writer assumes an intact chain: last_balances only returns
         # a non-NULL balance_after, which is by definition a line that closed
@@ -365,6 +368,23 @@ class LedgerWriter:
         against its own running balance - so an unreadable coin price cannot
         stall the gem chain, and vice versa.
         """
+        version = self._conn.execute("PRAGMA data_version").fetchone()[0]
+        if version != self._data_version:
+            # Recovery writes synchronously, even if its queued event is lost.
+            self._known = db.last_balances(self._conn)
+            for currency in (COINS, GEMS):
+                row = self._conn.execute(
+                    "SELECT balance_after FROM ledger WHERE currency = ? AND dry_run = 0 "
+                    "ORDER BY id DESC LIMIT 1", (currency,),
+                ).fetchone()
+                self._stale[currency] = row is not None and row[0] is None
+            self._data_version = version
+        if isinstance(event, events.Purchased) and event.transaction_key:
+            if self._conn.execute(
+                "SELECT 1 FROM ledger WHERE json_extract(detail, '$.transaction_key') = ? LIMIT 1",
+                (event.transaction_key,),
+            ).fetchone():
+                return []
         out: list[LedgerLine] = []
         for line in classify(event):
             out.extend(self._reconcile(line))

@@ -21,12 +21,14 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from pathlib import Path
 from typing import Any
 
 import db
+import events
+import ledger
 
 
 class Stage(str, Enum):
@@ -92,6 +94,7 @@ class Intent:
     wallet_before: int | None = None
     evidence: frozenset[str] = field(default_factory=frozenset)
     ts: float = 0.0
+    before: dict[str, Any] = field(default_factory=dict)
 
     @property
     def key(self) -> str:
@@ -129,6 +132,17 @@ class Outcome:
 
 
 @dataclass(frozen=True, kw_only=True)
+class RecoveryEvidence:
+    category: str | None
+    currency: str | None
+    wallet_after: int | None
+    effect_changed: bool | None
+    observed_at: float
+    frame_digest: str
+    effect_value: float | None = None
+
+
+@dataclass(frozen=True, kw_only=True)
 class Transaction:
     """One persisted attempt, as it currently stands."""
 
@@ -142,6 +156,7 @@ class Transaction:
     evidence: frozenset[str] = field(default_factory=frozenset)
     ts: float = 0.0
     acted_at: float | None = None
+    before: dict[str, Any] = field(default_factory=dict)
 
 
 class TransactionJournal:
@@ -184,9 +199,9 @@ class TransactionJournal:
                 conn.execute(
                     "INSERT OR IGNORE INTO transactions "
                     "(key, ts, stage, item, category, currency, price, "
-                    "wallet_before, evidence) "
+                    "wallet_before, evidence, detail) "
                     "VALUES (:key, :ts, :stage, :item, :category, :currency, "
-                    ":price, :wallet_before, :evidence)",
+                    ":price, :wallet_before, :evidence, :detail)",
                     {
                         "key": intent.key,
                         "ts": intent.ts,
@@ -197,6 +212,7 @@ class TransactionJournal:
                         "price": intent.price,
                         "wallet_before": intent.wallet_before,
                         "evidence": json.dumps(sorted(intent.evidence)),
+                        "detail": json.dumps({"before": intent.before}),
                     },
                 )
         finally:
@@ -282,6 +298,91 @@ class TransactionJournal:
         finally:
             conn.close()
         return tuple(_transaction(row) for row in rows)
+
+    @staticmethod
+    def recovery_event(txn: Transaction, outcome: Outcome) -> events.Purchased:
+        return events.Purchased(
+            item=txn.item, category=txn.category, price=txn.price,
+            coins_before=txn.wallet_before if txn.currency == "coins" else None,
+            gems_before=txn.wallet_before if txn.currency == "gems" else None,
+            dry_run=False, verdict=outcome.verdict.value, spent=outcome.spent,
+            transaction_key=txn.key,
+        )
+
+    def reconcile(self, key: str, evidence: RecoveryEvidence, *, now: float) -> Outcome:
+        """Persist proof and its ledger debit together; uncertainty keeps the gate shut."""
+        conn = self._connect()
+        try:
+            with conn:
+                conn.execute("BEGIN IMMEDIATE")
+                row = conn.execute("SELECT * FROM transactions WHERE key = ?", (key,)).fetchone()
+                if row is None:
+                    raise KeyError(key)
+                detail = json.loads(row["detail"] or "{}")
+                if row["stage"] == Stage.RESOLVED.value:
+                    return Outcome(key=key, verdict=Verdict(row["outcome"]), spent=row["spent"],
+                                   reason=detail.get("reason"))
+                txn = _transaction(row)
+                relevant = (
+                    txn.stage == Stage.ACTED and txn.acted_at is not None
+                    and txn.acted_at < evidence.observed_at <= now
+                    and now - evidence.observed_at <= 30 and bool(evidence.frame_digest)
+                    and evidence.category == txn.category and evidence.currency == txn.currency
+                    and txn.currency in ("coins", "gems")
+                    and txn.price is not None and txn.price >= 0
+                    and txn.wallet_before is not None and txn.wallet_before >= 0
+                    and evidence.wallet_after is not None and evidence.wallet_after >= 0
+                )
+                outcome = judge(key, price=txn.price, wallet_before=txn.wallet_before,
+                                wallet_after=evidence.wallet_after,
+                                effect_changed=evidence.effect_changed if relevant else None)
+                proven = outcome.verdict in (Verdict.BOUGHT, Verdict.FREE) and outcome.spent is not None
+                if not proven:
+                    outcome = Outcome(key=key, verdict=Verdict.UNPROVEN, spent=None,
+                                      reason="restart evidence is insufficient; further actions blocked")
+                detail.update(reason=outcome.reason, reconciliation=asdict(evidence))
+                conn.execute(
+                    "UPDATE transactions SET stage = ?, outcome = ?, spent = ?, resolved_at = ?, detail = ? "
+                    "WHERE key = ?",
+                    (Stage.RESOLVED.value if proven else txn.stage.value, outcome.verdict.value,
+                     outcome.spent, now if proven else None, json.dumps(detail), key),
+                )
+                if proven:
+                    event = replace(self.recovery_event(txn, outcome), ts=now)
+                    for line in ledger.LedgerWriter(conn).lines_for(event):
+                        db.insert_ledger(conn, replace(line, seq=None).as_row(), commit=False)
+                return outcome
+        finally:
+            conn.close()
+
+    def recovered_visit(self) -> tuple[tuple[Transaction, Outcome], ...]:
+        """Receipts still owned by the interrupted visit, including after another crash."""
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                "SELECT * FROM transactions WHERE stage = ? "
+                "AND json_extract(detail, '$.reconciliation') IS NOT NULL "
+                "AND COALESCE(json_extract(detail, '$.visit_closed'), 0) = 0 ORDER BY ts",
+                (Stage.RESOLVED.value,),
+            ).fetchall()
+            return tuple((_transaction(row), Outcome(
+                key=row["key"], verdict=Verdict(row["outcome"]), spent=row["spent"],
+                reason=json.loads(row["detail"]).get("reason"),
+            )) for row in rows)
+        finally:
+            conn.close()
+
+    def finish_recovered_visit(self, keys: set[str]) -> None:
+        conn = self._connect()
+        try:
+            with conn:
+                conn.executemany(
+                    "UPDATE transactions SET detail = json_set(detail, '$.visit_closed', 1) "
+                    "WHERE key = ? AND stage = ?",
+                    ((key, Stage.RESOLVED.value) for key in keys),
+                )
+        finally:
+            conn.close()
 
     def _row(self, key: str) -> Any:
         conn = self._connect()
@@ -384,4 +485,5 @@ def _transaction(row: Any) -> Transaction:
         evidence=frozenset(json.loads(raw)) if raw else frozenset(),
         ts=data["ts"],
         acted_at=data["acted_at"],
+        before=json.loads(data.get("detail") or "{}").get("before", {}),
     )

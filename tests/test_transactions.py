@@ -14,6 +14,94 @@ from __future__ import annotations
 import pytest
 
 import transactions
+import db
+import dataclasses
+import ledger
+import events
+
+
+def _recovery(**overrides: object) -> transactions.RecoveryEvidence:
+    return transactions.RecoveryEvidence(**{
+        "category": "ATTACK", "currency": "coins", "wallet_after": 3,
+        "effect_changed": True, "observed_at": 3., "frame_digest": "fresh",
+        **overrides,
+    })
+
+
+def test_restart_resolution_and_ledger_are_durable_and_idempotent(tmp_path) -> None:
+    path = tmp_path / "bot.db"
+    journal = transactions.TransactionJournal(path)
+    txn = journal.open(_intent())
+    journal.record_action(txn.key, at=2.)
+    reopened = transactions.TransactionJournal(path)
+    outcome = reopened.reconcile(txn.key, _recovery(), now=3.)
+    assert (outcome.verdict, outcome.spent) == (transactions.Verdict.BOUGHT, 10)
+    assert reopened.open_transactions() == ()
+    assert transactions.TransactionJournal(path).reconcile(txn.key, _recovery(), now=4.) == outcome
+    with db.reader(path) as conn:
+        rows = conn.execute("SELECT delta, balance_after FROM ledger").fetchall()
+    assert [tuple(row) for row in rows] == [(-10, 3)]
+
+
+@pytest.mark.parametrize("overrides", [
+    {"wallet_after": None}, {"wallet_after": 4}, {"wallet_after": 13},
+    {"effect_changed": None}, {"effect_changed": False},
+    {"category": "DEFENSE"}, {"currency": "gems"},
+    {"observed_at": 1.}, {"observed_at": 4.}, {"observed_at": -40.},
+    {"frame_digest": ""},
+])
+def test_restart_ambiguity_stays_blocked_on_disk(tmp_path, overrides: dict) -> None:
+    path = tmp_path / "bot.db"
+    journal = transactions.TransactionJournal(path)
+    txn = journal.open(_intent())
+    journal.record_action(txn.key, at=2.)
+    outcome = journal.reconcile(txn.key, _recovery(**overrides), now=3.)
+    assert outcome.verdict == transactions.Verdict.UNPROVEN
+    assert outcome.spent is None
+    reopened = transactions.TransactionJournal(path)
+    assert reopened.open_transactions()[0].stage == transactions.Stage.ACTED
+    with pytest.raises(transactions.TransactionInFlight):
+        reopened.open(_intent(ts=4.))
+    with db.reader(path) as conn:
+        assert conn.execute("SELECT outcome, spent FROM transactions").fetchone()[:] == ("unproven", None)
+        assert conn.execute("SELECT COUNT(*) FROM ledger").fetchone()[0] == 0
+
+
+def test_restart_ledger_failure_rolls_back_resolution(tmp_path, monkeypatch) -> None:
+    path = tmp_path / "bot.db"
+    journal = transactions.TransactionJournal(path)
+    txn = journal.open(_intent())
+    journal.record_action(txn.key, at=2.)
+    insert = db.insert_ledger
+
+    def fail_after_insert(*args: object, **kwargs: object) -> None:
+        insert(*args, **kwargs)
+        raise RuntimeError("crash while reconciling")
+
+    monkeypatch.setattr(db, "insert_ledger", fail_after_insert)
+    with pytest.raises(RuntimeError, match="crash while reconciling"):
+        journal.reconcile(txn.key, _recovery(), now=3.)
+    assert transactions.TransactionJournal(path).open_transactions()[0].stage == transactions.Stage.ACTED
+    with db.reader(path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM ledger").fetchone()[0] == 0
+
+
+def test_existing_ledger_writer_refreshes_even_if_recovery_notification_is_lost(tmp_path) -> None:
+    path = tmp_path / "bot.db"
+    journal = transactions.TransactionJournal(path)
+    conn = db.connect(path)
+    writer = ledger.LedgerWriter(conn)
+    for line in writer.lines_for(events.PurchaseSkipped(item="Damage", reason="test", coins_before=13)):
+        db.insert_ledger(conn, dataclasses.replace(line, seq=None).as_row())
+    txn = journal.open(_intent())
+    journal.record_action(txn.key, at=2.)
+    outcome = journal.reconcile(txn.key, _recovery(), now=3.)
+    # No notification was delivered; a later event must use the durable balance.
+    lines = writer.lines_for(events.PurchaseSkipped(item="Damage", reason="test", coins_before=3))
+    assert [line.kind for line in lines] == ["BUY_SKIPPED"]
+    assert lines[0].balance_after == 3
+    assert writer.lines_for(journal.recovery_event(txn, outcome)) == []
+    conn.close()
 
 
 def _intent(**overrides) -> transactions.Intent:

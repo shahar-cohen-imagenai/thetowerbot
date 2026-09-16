@@ -12,7 +12,7 @@
 - [x] [B02 — Version the game concept catalog](tasks/B02.md) — complete
 - [x] [B03 — Persist account and run state separately](tasks/B03.md) — complete
 - [x] [B04 — Discover all supported screens and rows](tasks/B04.md) — complete
-- [ ] [B05 — Journal and verify every transaction](tasks/B05.md) — partial
+- [ ] [B05 — Journal and verify every transaction](tasks/B05.md) — partial; acceptance gate proven locally (173 focused tests), committed for review, awaiting merge
 - [ ] [B06 — Recover the device and bot lifecycle](tasks/B06.md) — partial
 - [ ] [B07 — Allocate currencies and reserves](tasks/B07.md) — partial
 - [ ] [B08 — Build representative replay fixtures](tasks/B08.md) — partial
