@@ -33,9 +33,9 @@ export type BotEvent =
   | (EventBase & { type: "PageChanged"; prev_page: string; curr_page: string; confidence: number })
   | (EventBase & { type: "ShoppingStarted"; visit: number; dry_run: boolean })
   | (EventBase & { type: "ShoppingUnavailable"; reason: string })
-  | (EventBase & { type: "Purchased"; item: string; category: string; price: number | null; coins_before: number | null; gems_before: number | null; dry_run: boolean })
+  | (EventBase & { type: "Purchased"; item: string; category: string; price: number | null; coins_before: number | null; gems_before: number | null; dry_run: boolean; verdict?: string | null; spent?: number | null })
   | (EventBase & { type: "PurchaseSkipped"; item: string; reason: string; detail: string; coins_before: number | null; gems_before: number | null })
-  | (EventBase & { type: "ShoppingEnded"; visit: number; bought: number; spent: number; aborted: boolean; reason: string })
+  | (EventBase & { type: "ShoppingEnded"; visit: number; bought: number; spent: number | null; aborted: boolean; reason: string })
   /** The free gem that orbits the tower mid-battle. Published only when the
    * HUD gem counter actually rose across the tap - an unconfirmed one
    * arrives as ClaimUncertain instead. */

@@ -313,19 +313,22 @@ def judge(
     the default because it is the only verdict that stays true when the
     evidence has run out.
     """
-    if price == 0 and effect_changed:
+    drop = (
+        None
+        if wallet_before is None or wallet_after is None
+        else wallet_before - wallet_after
+    )
+
+    if price == 0 and effect_changed and drop == 0:
+        # A read 0 is itself only a reading. The unmoved wallet is what
+        # proves nothing was paid; without it a misread price would certify
+        # a paid upgrade as free.
         return Outcome(
             key=key,
             verdict=Verdict.FREE,
             spent=0,
             reason="the item changed and it cost nothing",
         )
-
-    drop = (
-        None
-        if wallet_before is None or wallet_after is None
-        else wallet_before - wallet_after
-    )
 
     if effect_changed and drop is not None and drop == price:
         return Outcome(

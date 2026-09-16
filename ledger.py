@@ -143,6 +143,12 @@ def classify(event: events.Event) -> tuple[LedgerLine, ...]:
             price = event.price
             if event.dry_run:
                 delta: int | None = 0
+            elif event.verdict is not None:
+                # The journal answered this attempt, so what it proved is
+                # the movement. The read price stays on the line as what it
+                # would have cost; it is never promoted to a debit the
+                # wallet refused to confirm.
+                delta = None if event.spent is None else -event.spent
             elif price is None:
                 delta = None
             else:
@@ -156,6 +162,7 @@ def classify(event: events.Event) -> tuple[LedgerLine, ...]:
                 price=price,
                 observed=event.gems_before if cards else event.coins_before,
                 dry_run=event.dry_run,
+                detail={"verdict": event.verdict} if event.verdict else {},
                 **base,
             ),)
 

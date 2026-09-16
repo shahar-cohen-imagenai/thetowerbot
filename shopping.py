@@ -244,7 +244,9 @@ class ShoppingSession:
         self._categories: list[str] = []
         self._taps = 0
         self._bought = 0
-        self._spent = 0
+        # Three-valued like every spend: a proven total, or None once any
+        # attempt this visit resolved without proving what it cost.
+        self._spent: int | None = 0
         self._cards_bought = 0
         # Every named rule is evaluated at most once per visit. A tap marks
         # it attempted immediately; acknowledgement decides whether it was
@@ -271,7 +273,7 @@ class ShoppingSession:
         self._pending: PendingPurchase | None = None
         self._pending_card: PendingCard | None = None
         self._search: RowSearch | None = None
-        self._coin_spent = 0
+        self._coin_spent: int | None = 0
         # Coins on the visit's first readable frame - the base a percentage
         # budget is taken from. Read once rather than per frame so a visit
         # cannot spend a share of a balance its own purchases shrank.
@@ -380,8 +382,7 @@ class ShoppingSession:
             self.account_state.reset_confirmation()
         self._step = Step.IDLE
         self._categories = []
-        self._pending = None
-        self._pending_card = None
+        self._answer_pending()
         self._resolve_open_transactions()
         self._search = None
 
@@ -786,8 +787,14 @@ class ShoppingSession:
         elif coins - seen.price < shopping.coin_reserve:
             reason, detail = "reserve", "purchase would cross the coin reserve"
         elif shopping.armed and (budget := self._visit_budget(shopping)) is not None and (
-                budget == 0 or self._coin_spent + seen.price > budget):
-            reason, detail = "budget", "purchase would exceed the Workshop visit budget"
+                budget == 0 or self._coin_spent is None
+                or self._coin_spent + seen.price > budget):
+            # An unknown total cannot be shown to fit under a ceiling, so it
+            # stops a bounded visit rather than being counted as nothing.
+            reason, detail = "budget", (
+                "this visit has already spent an unproven amount"
+                if self._coin_spent is None
+                else "purchase would exceed the Workshop visit budget")
         if reason is not None:
             self._bus.publish(events.PurchaseSkipped(item=rule.name, reason=reason,
                                                     detail=detail, coins_before=coins))
@@ -868,12 +875,22 @@ class ShoppingSession:
             detail="the rows it grants are on the tab", coins_before=coins))
 
     def _record_purchase(self, row: ObservedUpgrade, coins: int, *, dry_run: bool,
-                         verified: ObservedUpgrade | None = None) -> None:
+                         verified: ObservedUpgrade | None = None,
+                         outcome: transactions.Outcome | None = None) -> None:
+        """Publish one purchase. A real one carries the journal's outcome.
+
+        A rehearsal tallies the price it read, since that is all it is
+        rehearsing. A real purchase tallies only what the outcome proved.
+        """
         self._bought += 1
-        self._spent += row.price
-        self._coin_spent += row.price
-        self._bus.publish(events.Purchased(item=row.name, category=row.category, price=row.price,
-                                           coins_before=coins, dry_run=dry_run))
+        spent = row.price if outcome is None else outcome.spent
+        self._spend(spent, coins=True)
+        self._bus.publish(events.Purchased(
+            item=row.name, category=row.category, price=row.price,
+            coins_before=coins, dry_run=dry_run,
+            verdict=None if outcome is None else outcome.verdict.value,
+            spent=None if outcome is None else outcome.spent,
+        ))
         if not dry_run and self.observations is not None:
             self.observations.verified(verified or row)
             self.observations.decision("workshop", f"Verified Workshop purchase: {row.name}")
@@ -905,8 +922,10 @@ class ShoppingSession:
                 self.observations.observe(replace(observation, rows=(*observation.rows, confirmed)))
             if unlocked:
                 self._completed_unlocks.add(before.upgrade_id)
-            self._close(pending.key, wallet_after=coins, effect_changed=True)
-            self._record_purchase(before, pending.coins, dry_run=False, verified=confirmed)
+            outcome = self._close(pending.key, price=before.price, wallet_before=pending.coins,
+                                  wallet_after=coins, effect_changed=True)
+            self._record_purchase(before, pending.coins, dry_run=False, verified=confirmed,
+                                  outcome=outcome)
             self._pending = None
             return
         pending.frames += 1
@@ -914,7 +933,9 @@ class ShoppingSession:
             # The row did not change within the window. Whether the coins
             # moved anyway is exactly what is not known, so the journal
             # records that and claims nothing further.
-            self._close(pending.key, wallet_after=coins, effect_changed=None)
+            self._pending = None
+            self._spend(self._close(pending.key, price=before.price, wallet_before=pending.coins,
+                                    wallet_after=coins, effect_changed=None).spent, coins=True)
             self._bus.publish(events.PurchaseSkipped(item=before.name, reason="unconfirmed",
                                                     detail="purchase did not produce a readable change"))
             if self.observations is not None:
@@ -1119,15 +1140,50 @@ class ShoppingSession:
             logger.debug("intent for %s abandoned: %s", intent.item, reason)
 
     def _close(
-        self, key: str | None, *, wallet_after: int | None,
-        effect_changed: bool | None,
-    ) -> None:
-        """Answer one journalled attempt with the evidence that followed."""
+        self, key: str | None, *, price: int | None, wallet_before: int | None,
+        wallet_after: int | None, effect_changed: bool | None,
+    ) -> transactions.Outcome:
+        """Answer one attempt with the evidence that followed.
+
+        Always judged, journal or not: the verdict is what decides what
+        this attempt may be tallied and recorded as having cost, and a
+        session without a journal must not fall back to the read price.
+        """
         if self.journal is not None and key is not None:
-            self.journal.resolve(
+            return self.journal.resolve(
                 key, wallet_after=wallet_after, effect_changed=effect_changed,
                 ts=time.time(),
             )
+        return transactions.judge(
+            key or "", price=price, wallet_before=wallet_before,
+            wallet_after=wallet_after, effect_changed=effect_changed,
+        )
+
+    def _spend(self, amount: int | None, *, coins: bool) -> None:
+        """Add one attempt's cost to the visit, keeping unknown unknown."""
+        self._spent = None if self._spent is None or amount is None else self._spent + amount
+        if coins:
+            self._coin_spent = (None if self._coin_spent is None or amount is None
+                                else self._coin_spent + amount)
+
+    def _answer_pending(self) -> None:
+        """Close the attempts this visit tapped and never saw answered.
+
+        No frame is left to judge them by, so each resolves UNPROVEN and
+        the visit's spend becomes unknown - the tap went out, and nothing
+        says what it cost. Rows a dead process left open are not this
+        visit's spending; _resolve_open_transactions closes those.
+        """
+        if self._pending is not None:
+            pending, self._pending = self._pending, None
+            self._spend(self._close(
+                pending.key, price=pending.row.price, wallet_before=pending.coins,
+                wallet_after=None, effect_changed=None).spent, coins=True)
+        if self._pending_card is not None:
+            card, self._pending_card = self._pending_card, None
+            self._spend(self._close(
+                card.key, price=card.price, wallet_before=card.gems_before,
+                wallet_after=None, effect_changed=None).spent, coins=False)
 
     def _resolve_open_transactions(self, wallet_after: int | None = None) -> None:
         """Close whatever this visit left open, honestly.
@@ -1144,10 +1200,11 @@ class ShoppingSession:
                 ts=time.time(),
             )
 
-    def _record_card(self, item: str, price: int, gems: int, *, dry_run: bool) -> None:
+    def _record_card(self, item: str, price: int, gems: int, *, dry_run: bool,
+                     outcome: transactions.Outcome | None = None) -> None:
         self._cards_bought += 1
         self._bought += 1
-        self._spent += price
+        self._spend(price if outcome is None else outcome.spent, coins=False)
         self._bus.publish(events.Purchased(
             # A card purchase spends gems, not coins - gems_before is the
             # honest field for it. coins_before stays at its default None
@@ -1155,6 +1212,8 @@ class ShoppingSession:
             # events.Purchased's own docstring).
             item=item, category="CARDS", price=price, gems_before=gems,
             dry_run=dry_run,
+            verdict=None if outcome is None else outcome.verdict.value,
+            spent=None if outcome is None else outcome.spent,
         ))
 
     def _confirm_card(self, gems: int, device: Any, shopping: Shopping,
@@ -1169,9 +1228,11 @@ class ShoppingSession:
         pending = self._pending_card
         if gems == pending.gems_before - pending.price:
             self._pending_card = None
-            self._close(pending.key, wallet_after=gems, effect_changed=True)
+            outcome = self._close(pending.key, price=pending.price,
+                                  wallet_before=pending.gems_before,
+                                  wallet_after=gems, effect_changed=True)
             self._record_card(pending.item, pending.price, pending.gems_before,
-                              dry_run=False)
+                              dry_run=False, outcome=outcome)
             return
 
         pending.frames += 1
@@ -1180,7 +1241,9 @@ class ShoppingSession:
             # The gems did not move as predicted and the frames ran out.
             # Whether they moved for some other reason is exactly what is
             # not known, so the journal records that and nothing more.
-            self._close(pending.key, wallet_after=gems, effect_changed=None)
+            self._spend(self._close(
+                pending.key, price=pending.price, wallet_before=pending.gems_before,
+                wallet_after=gems, effect_changed=None).spent, coins=False)
             self._bus.publish(events.PurchaseSkipped(
                 item=pending.item, reason="unconfirmed",
                 detail="card purchase did not move the gem balance",
@@ -1264,6 +1327,9 @@ class ShoppingSession:
     ) -> None:
         if aborted:
             self._exit_to_battle(device, shopping, screen)
+        # Before the total is published, so a tap still awaiting its answer
+        # makes the total unknown rather than silently absent from it.
+        self._answer_pending()
         self._bus.publish(events.ShoppingEnded(
             visit=self._visit, bought=self._bought, spent=self._spent,
             aborted=aborted, reason=reason,

@@ -150,6 +150,12 @@ class Purchased(Event):
     reports `coins_before`; a card purchase spends gems and reports
     `gems_before`; the other field stays None for that purchase rather than
     being reused for the wrong currency.
+
+    `price` is what was READ before the tap. `verdict` and `spent` are what
+    the transaction journal proved afterwards, and only `spent` may become a
+    debit: a proven amount, 0 when nothing provably left the wallet, None
+    when the evidence could not say. `verdict` is None for a rehearsal and
+    for events written before purchases were journalled.
     """
 
     item: str
@@ -158,6 +164,8 @@ class Purchased(Event):
     coins_before: int | None = None
     gems_before: int | None = None
     dry_run: bool = True
+    verdict: str | None = None
+    spent: int | None = None
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -218,7 +226,9 @@ class RowUnmatched(Event):
 class ShoppingEnded(Event):
     visit: int
     bought: int
-    spent: int
+    # None when any attempt this visit made resolved without proving what it
+    # cost: the visit's total is then unknown, not the sum of what was read.
+    spent: int | None
     aborted: bool = False
     reason: str = ""
 

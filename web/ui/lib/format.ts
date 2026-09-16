@@ -92,7 +92,7 @@ export function splitEvent(event: BotEvent): EventLine {
     case "ShoppingEnded":
       return {
         kind: "SHOP",
-        body: `visit #${event.visit} ${event.aborted ? "aborted" : "done"} bought=${event.bought} spent=${event.spent}${event.reason ? " " + event.reason : ""}`,
+        body: `visit #${event.visit} ${event.aborted ? "aborted" : "done"} bought=${event.bought} spent=${event.spent ?? "unknown"}${event.reason ? " " + event.reason : ""}`,
       };
     case "ShoppingUnavailable":
       return { kind: "SHOP", body: event.reason };
