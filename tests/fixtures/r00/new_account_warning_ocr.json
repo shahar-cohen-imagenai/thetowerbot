@@ -1,0 +1,15 @@
+{
+  "source": "Redacted native OCR from the approved Air 2 New Account confirmation",
+  "boxes": [
+    {"text": "ACCOUNT", "confidence": 0.99, "rect": [394, 580, 288, 52]},
+    {"text": "ID: AAAAAAAAAAAAAAAA", "confidence": 0.98, "rect": [312, 691, 403, 36]},
+    {"text": "Warning", "confidence": 0.99, "rect": [420, 870, 236, 61]},
+    {"text": "You will be logged out of the current", "confidence": 0.99, "rect": [167, 971, 747, 47]},
+    {"text": "account and go back to the loading", "confidence": 0.98, "rect": [180, 1022, 714, 53]},
+    {"text": "screen.", "confidence": 0.99, "rect": [464, 1087, 153, 36]},
+    {"text": "Are you sure that you want to", "confidence": 0.99, "rect": [233, 1163, 610, 51]},
+    {"text": "continue?", "confidence": 0.99, "rect": [438, 1220, 204, 41]},
+    {"text": "No", "confidence": 0.99, "rect": [317, 1415, 73, 47]},
+    {"text": "Yes", "confidence": 0.99, "rect": [679, 1411, 98, 56]}
+  ]
+}

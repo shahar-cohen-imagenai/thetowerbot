@@ -47,7 +47,8 @@ class Attempt:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         payload = {**asdict(self), **asdict(evidence)}
-        with path.open("x", encoding="utf-8") as file:
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as file:
             json.dump(payload, file, sort_keys=True)
             file.write("\n")
             file.flush()

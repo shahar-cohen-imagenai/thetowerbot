@@ -584,6 +584,8 @@ class TowerBot:
                 session_conflict = (
                     ("another device" in text and ("logged in" in text or "in use" in text))
                     or "logged in elsewhere" in text
+                    or "new session detected" in text
+                    or "cloud session different than local session" in text
                 )
                 readable = True
             except Exception:  # noqa: BLE001 - an unreadable modal may cover an anchor
