@@ -267,6 +267,8 @@ def test_session_conflict_quarantines_without_clicking_either_response(tmp_path:
 @pytest.mark.parametrize("modal_text, reason", [
     ("Online connection required", "online_required"),
     ("Your account is logged in on another device", "session_conflict"),
+    ("New session detected", "session_conflict"),
+    ("Cloud Session Different Than Local Session", "session_conflict"),
 ])
 def test_bot_holds_a_recovery_modal_before_any_action(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, modal_text: str, reason: str,

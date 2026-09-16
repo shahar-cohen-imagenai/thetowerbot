@@ -1,0 +1,15 @@
+{
+  "recording": "native Account popup OCR, 2026-09-16; account ID replaced with a test value; no image or email retained",
+  "app_version": "29.0.2",
+  "boxes": [
+    {"text": "SETTINGS", "confidence": 0.991, "rect": [407, 488, 265, 45]},
+    {"text": "ACCOUNT", "confidence": 0.993, "rect": [396, 583, 286, 48]},
+    {"text": "ID: AAAAAAAAAAAAAAAA", "confidence": 0.986, "rect": [310, 690, 404, 35]},
+    {"text": "Change Email", "confidence": 0.985, "rect": [396, 1018, 291, 44]},
+    {"text": "Change Password", "confidence": 0.968, "rect": [348, 1164, 384, 44]},
+    {"text": "Force Cloud Save", "confidence": 0.971, "rect": [353, 1426, 373, 43]},
+    {"text": "Change Account", "confidence": 1.0, "rect": [367, 1590, 348, 47]},
+    {"text": "New Account", "confidence": 0.994, "rect": [400, 1739, 283, 40]},
+    {"text": "Delete Account", "confidence": 0.994, "rect": [377, 1904, 328, 39]}
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "source": "Redacted native OCR from the verified Air 2 account after creation",
+  "boxes": [
+    {"text": "ACCOUNT", "confidence": 0.99, "rect": [396, 583, 286, 48]},
+    {"text": "ID: BBBBBBBBBBBBBBBB", "confidence": 0.99, "rect": [324, 694, 379, 31]},
+    {"text": "Linked Accounts", "confidence": 1.0, "rect": [374, 766, 331, 39]},
+    {"text": "Email", "confidence": 0.99, "rect": [478, 872, 125, 42]},
+    {"text": "Change Email", "confidence": 0.98, "rect": [396, 1018, 291, 44]},
+    {"text": "Force Cloud Save", "confidence": 0.97, "rect": [353, 1426, 373, 43]},
+    {"text": "Change Account", "confidence": 1.0, "rect": [367, 1590, 348, 47]},
+    {"text": "New Account", "confidence": 0.97, "rect": [400, 1739, 283, 40]}
+  ]
+}

@@ -34,6 +34,7 @@ class HostInstance:
     endpoint: str
     lease_id: str
     state: str
+    source_lineage: str | None = None
 
 
 class ProvisionMode(str, Enum):

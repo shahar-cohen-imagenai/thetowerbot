@@ -213,6 +213,19 @@ class BotRunner:
             return None
         import json
 
+        staging_journal = self._binding_path.parent / ".r00-account-creation.json"
+        host_adapter = getattr(self, "_host_adapter", None)
+        host_instance = getattr(self, "_host_instance", None)
+        if host_adapter is not None and host_instance is not None:
+            try:
+                designated = host_adapter.designated(host_instance, self._attempt)
+            except IdentityError:
+                # HostBoundConnect will pass the mismatch to DeviceSupervisor,
+                # which durably quarantines this exact worker before a frame.
+                return None
+            if designated.source_lineage is not None and not staging_journal.exists():
+                raise RunnerError("identity incident: R00 staging account unverified", 503)
+
         accounts: set[str] = set()
         for path in self._binding_path.parent.glob("*.json"):
             if re.fullmatch(r"[0-9a-f]{32}", path.stem) is None:
@@ -237,7 +250,28 @@ class BotRunner:
                 accounts.add(account)
         if len(accounts) > 1:
             raise RunnerError("identity incident: conflicting account bindings", 503)
-        return next(iter(accounts), None)
+        account = next(iter(accounts), None)
+        if staging_journal.exists():
+            try:
+                row = json.loads(staging_journal.read_text(encoding="utf-8"))
+                if (row.get("state") != "verified" or row.get("account_id") != account
+                        or any(row.get(key) != getattr(self._attempt, key)
+                               for key in ("worker_id", "endpoint", "lease_id", "attempt_id"))
+                        or not row.get("source_lineage") or not row.get("source_account_id")
+                        or not row.get("app_version")
+                        or [item.get("screen") for item in row.get("evidence", [])] not in (
+                            ["home", "settings", "account", "new_account_warning",
+                             "home", "settings", "account"],
+                            ["home", "settings", "account", "new_account_warning",
+                             "game_over", "home", "settings", "account"],
+                            ["account", "new_account_warning", "home", "settings", "account"],
+                            ["account", "new_account_warning", "game_over", "home",
+                             "settings", "account"],
+                        )):
+                    raise ValueError("unverified staging journal")
+            except (OSError, ValueError, TypeError, AttributeError):
+                raise RunnerError("identity incident: R00 staging account unverified", 503) from None
+        return account
 
     def request_autopilot(self, command: dict[str, Any]) -> None:
         with self._lock:
