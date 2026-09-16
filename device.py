@@ -29,6 +29,17 @@ class IdentityError(EmulatorError):
     """The requested endpoint did not resolve to exactly one transport."""
 
 
+def endpoint_matches(endpoint: str, serial: str | None) -> bool:
+    """Accept only this endpoint or its deterministic local emulator alias."""
+    aliases = {endpoint}
+    host, separator, port_text = endpoint.rpartition(":")
+    if separator and host in {"127.0.0.1", "localhost", "::1"} and port_text.isdigit():
+        port = int(port_text)
+        if port % 2 == 1:
+            aliases.add(f"emulator-{port - 1}")
+    return serial in aliases
+
+
 def connect_device(
     host: str = config.DEVICE_HOST,
     port: int = config.DEVICE_PORT,
@@ -62,10 +73,7 @@ def connect_device(
         logger.error("%s", message)
         raise IdentityError(message)
 
-    aliases = {serial}
-    if host in {"127.0.0.1", "localhost", "::1"} and port % 2 == 1:
-        aliases.add(f"emulator-{port - 1}")
-    matches = [d for d in attached if d.serial in aliases]
+    matches = [d for d in attached if endpoint_matches(serial, d.serial)]
     if len(matches) != 1:
         reason = "missing" if not matches else "duplicate"
         message = f"identity incident: {reason} ADB endpoint {serial}"
@@ -83,11 +91,11 @@ def capture_screen(device: AdbDevice) -> Image:
     # capture fails, which would leave the bot scanning blank frames forever.
     try:
         shot = device.screenshot(error_ok=False)
-    except AdbError as exc:
+        # adbutils hands back a PIL image in RGB; OpenCV wants BGR. A
+        # malformed image is just as unusable as a failed transport read.
+        return cv2.cvtColor(np.asarray(shot.convert("RGB")), cv2.COLOR_RGB2BGR)
+    except Exception as exc:  # noqa: BLE001 - transports and image decoders vary
         raise EmulatorError(f"screencap failed: {exc}") from exc
-
-    # adbutils hands back a PIL image in RGB; OpenCV wants BGR.
-    return cv2.cvtColor(np.asarray(shot.convert("RGB")), cv2.COLOR_RGB2BGR)
 
 
 def tap(device: AdbDevice, x: int, y: int) -> None:
