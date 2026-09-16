@@ -25,6 +25,10 @@ class EmulatorError(RuntimeError):
     """Raised when the emulator cannot be reached or does not respond."""
 
 
+class IdentityError(EmulatorError):
+    """The requested endpoint did not resolve to exactly one transport."""
+
+
 def connect_device(
     host: str = config.DEVICE_HOST,
     port: int = config.DEVICE_PORT,
@@ -33,9 +37,8 @@ def connect_device(
 ) -> AdbDevice:
     """Return a connected adbutils device for the local emulator.
 
-    Tries the explicit ``host:port`` endpoint first; if the emulator is only
-    registered under its ``emulator-5554`` serial, falls back to the single
-    attached device.
+    Accepts only the requested endpoint or its deterministic local emulator
+    transport alias. A serial is never an account identity.
     """
     client = AdbClient(host=adb_host, port=adb_port)
     try:
@@ -49,20 +52,26 @@ def connect_device(
     try:
         client.connect(serial, timeout=3.0)
     except AdbError:
-        logger.debug("connect(%s) failed; falling back to device list", serial)
+        logger.debug("connect(%s) failed; checking attached transports", serial)
 
     # adbutils builds an AdbDevice for any serial without checking that it
     # exists, so confirm against the attached list before trusting it.
     attached = client.device_list()
     if not attached:
-        raise EmulatorError(
-            "No ADB devices found. Is the emulator running? Check `adb devices`."
-        )
+        message = f"identity incident: missing ADB endpoint {serial}; no devices attached"
+        logger.error("%s", message)
+        raise IdentityError(message)
 
-    device = next((d for d in attached if d.serial == serial), None)
-    if device is None:
-        device = attached[0]
-        logger.warning("%s not found; using attached device %s", serial, device.serial)
+    aliases = {serial}
+    if host in {"127.0.0.1", "localhost", "::1"} and port % 2 == 1:
+        aliases.add(f"emulator-{port - 1}")
+    matches = [d for d in attached if d.serial in aliases]
+    if len(matches) != 1:
+        reason = "missing" if not matches else "duplicate"
+        message = f"identity incident: {reason} ADB endpoint {serial}"
+        logger.error("%s; attached=%s", message, [d.serial for d in attached])
+        raise IdentityError(message)
+    device = matches[0]
 
     logger.info("Connected to %s", device.serial)
     return device

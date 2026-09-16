@@ -28,6 +28,11 @@ class Event:
 
 
 @dataclass(frozen=True, kw_only=True)
+class IdentityIncident(Event):
+    message: str
+
+
+@dataclass(frozen=True, kw_only=True)
 class ScreenChanged(Event):
     prev: str
     curr: str
