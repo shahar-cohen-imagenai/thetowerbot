@@ -171,6 +171,7 @@ class Purchased(Event):
     dry_run: bool = True
     verdict: str | None = None
     spent: int | None = None
+    transaction_key: str | None = None
 
 
 @dataclass(frozen=True, kw_only=True)

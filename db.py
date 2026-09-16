@@ -375,7 +375,7 @@ def error_log(conn: sqlite3.Connection, limit: int = 100) -> list[dict[str, Any]
     return [_decode(row) for row in rows]
 
 
-def insert_ledger(conn: sqlite3.Connection, row: dict[str, Any]) -> None:
+def insert_ledger(conn: sqlite3.Connection, row: dict[str, Any], *, commit: bool = True) -> None:
     """Append one ledger line.
 
     OR IGNORE, not OR REPLACE: a line already written for this seq is the
@@ -392,7 +392,8 @@ def insert_ledger(conn: sqlite3.Connection, row: dict[str, Any]) -> None:
                    :visit, :reason, :detail)""",
         row,
     )
-    conn.commit()
+    if commit:
+        conn.commit()
 
 
 def last_balances(conn: sqlite3.Connection) -> dict[str, int | None]:

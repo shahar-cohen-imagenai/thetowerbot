@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-09-05",
+  "updated_at": "2026-09-16",
   "source_audit_date": "2026-09-05",
   "completed_task_ids": [
     "B01",
@@ -254,7 +254,8 @@
       "work": "Introduce durable intent, preconditions, one device action, confirmation and reconciliation. Correlate wallet, level/inventory and UI acknowledgement; separate free upgrades and passive income from purchased effects.",
       "acceptance": "A crash after a successful tap does not buy twice; a free upgrade does not falsely confirm a cash purchase; card opening is not logged as bought without evidence.",
       "ready": true,
-      "task_file": "tasks/B05.md"
+      "task_file": "tasks/B05.md",
+      "current_state": "Ledger-verdict slice landed. Restart reconciliation acceptance gate proven locally: 173 focused tests passed; production UI rebuilt and source hashes verified. Durable ambiguous blocking, atomic journal/ledger recovery, and recovered visit accounting are implemented. Awaiting explicit commit approval and merge; task remains partial."
     },
     {
       "id": "B06",

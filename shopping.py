@@ -18,6 +18,8 @@ from __future__ import annotations
 from account_state import AccountState
 
 import logging
+import hashlib
+import math
 import time
 from dataclasses import dataclass, replace
 from enum import Enum, auto
@@ -280,10 +282,18 @@ class ShoppingSession:
         self._visit_coins: int | None = None
         # Permanent unlock evidence outlives an individual shopping visit.
         self._completed_unlocks: set[str] = set()
+        self._recovery_sample: tuple[str, transactions.RecoveryEvidence] | None = None
+        self._recovered_keys: set[str] = set()
 
     @property
     def active(self) -> bool:
-        return self._step is not Step.IDLE
+        return (self._step is not Step.IDLE or self._unanswered_transaction() is not None
+                or bool(self.journal and self.journal.recovered_visit()))
+
+    @property
+    def reconciliation_pending(self) -> bool:
+        """A dead process's unanswered action owns the device before every other actor."""
+        return self._unanswered_transaction() is not None
 
     def remaining_categories(self) -> list[str]:
         return list(self._categories)
@@ -353,11 +363,10 @@ class ShoppingSession:
         self._visit_coins = None
         self._pending = None
         self._pending_card = None
-        # Deliberately NOT resolving open transactions here, unlike reset()
-        # and _end_visit(). Those close what this process opened; a row
-        # still open at the START of a visit was opened by a process that
-        # died, and clearing it on the way in would throw away the one
-        # record that stops its tap from being paid for twice.
+        self._recovery_sample = None
+        self._recovered_keys.clear()
+        # Neither beginning nor ending a visit clears a dead process's row.
+        # Only fresh recovery evidence can release that durable action gate.
         self._search = None
         self._cards_bought = 0
         self._exhausted = set()
@@ -383,7 +392,8 @@ class ShoppingSession:
         self._step = Step.IDLE
         self._categories = []
         self._answer_pending()
-        self._resolve_open_transactions()
+        self._recovery_sample = None
+        self._recovered_keys.clear()
         self._search = None
 
     # -- one step ------------------------------------------------------------
@@ -409,10 +419,13 @@ class ShoppingSession:
         wedges, which is what _off_page_streak exists to catch.
         """
         self._tuning = tuning
-        if self._step is Step.IDLE:
+        if not self.active:
             return
 
         try:
+            reading = pages.classify_page(screen, self._templates)
+            if self._recover_transaction(reading, screen):
+                return
             if not shopping.enabled:
                 # Shopping was switched off mid-visit - or this is a stale
                 # visit that survived a restart (see BotRunner.start()'s
@@ -427,7 +440,6 @@ class ShoppingSession:
                 # leaving the bot silently stranded on a menu page.
                 self._abort(device, shopping, screen, "shopping disabled")
                 return
-            reading = pages.classify_page(screen, self._templates)
             if reading.page == pages.UNKNOWN:
                 self._off_page_streak += 1
                 if self._off_page_streak >= 2:
@@ -699,6 +711,8 @@ class ShoppingSession:
 
     def _buy_rows(self, reading: Any, screen: Image, device: Any, shopping: Shopping) -> None:
         """Read, decide, then wait for another frame to acknowledge a purchase."""
+        if self._recover_transaction(reading, screen):
+            return
         if not self._categories:
             self._step = self._next_after_categories(shopping)
             return
@@ -711,19 +725,6 @@ class ShoppingSession:
         coins, _gems = header_numbers(screen, reading.page, reading.top_left)
         if self._pending is not None:
             self._confirm_purchase(observation, coins, device, shopping, screen)
-            return
-        # An attempt on disk that no live pending answers for: the process
-        # that made it died between the tap and its confirmation. Those
-        # coins may already be gone, and nothing readable from here can
-        # say. The only safe move is not to tap.
-        stale = self._unanswered_transaction()
-        if stale is not None:
-            self._bus.publish(events.PurchaseSkipped(
-                item=stale.item, reason="unreconciled",
-                detail="an earlier attempt was never confirmed",
-                coins_before=coins,
-            ))
-            self._step = self._next_after_categories(shopping)
             return
         rules = [r for r in shopping.rows_for(category) if r.name not in self._exhausted]
         if not rules:
@@ -803,6 +804,11 @@ class ShoppingSession:
         intent = self._open_intent(
             item=seen.name, category=seen.category, currency="coins",
             price=seen.price, wallet_before=coins, armed=shopping.armed,
+            before={"upgrade_id": seen.upgrade_id, "value": seen.value,
+                    "price": seen.price, "status": seen.status,
+                    "confidence": seen.confidence, "observed_at": observation.observed_at,
+                    "frame_digest": observation.frame_digest,
+                    "frame_width": observation.frame_width, "frame_height": observation.frame_height},
         )
         if not self._try_tap(*seen.tap, device, shopping, screen):
             self._abandon_intent(intent, "the tap was never sent")
@@ -985,6 +991,8 @@ class ShoppingSession:
         does not add to _exhausted after a successful buy. _cards_bought and
         max_per_visit are what bound it instead.
         """
+        if self._recover_transaction(reading, screen):
+            return
         cards = shopping.cards
         if not cards.enabled:
             self._step = Step.RETURN
@@ -1006,20 +1014,6 @@ class ShoppingSession:
         # purchase is unproven is how one tap becomes two.
         if self._pending_card is not None:
             self._confirm_card(gems, device, shopping, screen)
-            return
-
-        # An attempt on disk that no live pending answers for: the process
-        # that made it died between the tap and its confirmation. Those gems
-        # may already be spent, and nothing readable from here can say. The
-        # only safe move is not to tap.
-        stale = self._unanswered_transaction()
-        if stale is not None:
-            self._bus.publish(events.PurchaseSkipped(
-                item=stale.item, reason="unreconciled",
-                detail="an earlier attempt was never confirmed",
-                gems_before=gems,
-            ))
-            self._step = Step.RETURN
             return
 
         item = cards.batch
@@ -1101,11 +1095,115 @@ class ShoppingSession:
         if self.journal is None:
             return None
         still_open = self.journal.open_transactions()
-        return still_open[0] if still_open else None
+        pending_keys = {pending.key for pending in (self._pending, self._pending_card) if pending is not None}
+        return next((txn for txn in still_open if txn.key not in pending_keys), None)
+
+    def _recover_transaction(self, reading: Any, screen: Image) -> bool:
+        """A recovery scan consumes the step and can never send a device action."""
+        if self._restore_recovered_visit():
+            return True
+        txn = self._unanswered_transaction()
+        if txn is None:
+            return False
+        now = time.time()
+        digest = hashlib.sha256(screen.tobytes()).hexdigest()
+        category, currency, wallet, changed, value = None, None, None, None, None
+        observed_at = now
+        page = reading.page.upper()
+        if txn.category == "CARDS" and page == "CARDS":
+            category, currency = "CARDS", "gems"
+            _, wallet = header_numbers(screen, reading.page, reading.top_left)
+            changed = (txn.price is not None and txn.price > 0 and wallet is not None
+                       and txn.wallet_before is not None and txn.wallet_before - wallet == txn.price)
+        elif txn.currency == "coins" and page == "WORKSHOP":
+            observation = observe_frame(screen, "workshop")
+            now = time.time()
+            before = txn.before
+            row = _row_named(txn.item, observation.rows, txn.category)
+            valid = (
+                observation.context == "workshop" and observation.category == txn.category
+                and observation.frame_digest == digest
+                and observation.frame_width == screen.shape[1] == before.get("frame_width")
+                and observation.frame_height == screen.shape[0] == before.get("frame_height")
+                and txn.acted_at is not None and txn.acted_at < observation.observed_at <= now
+                and now - observation.observed_at <= 30
+                and bool(before.get("frame_digest")) and before.get("confidence", 0) >= .9
+                and before.get("observed_at") is not None
+                and 0 <= txn.acted_at - before["observed_at"] <= 30
+                and row is not None and row.upgrade_id == before.get("upgrade_id")
+                and math.isfinite(row.confidence) and .9 <= row.confidence <= 1
+                and row.observed_at == observation.observed_at
+                and row.status in ("available", "maxed")
+            )
+            if valid:
+                category, currency = observation.category, "coins"
+                observed_at = observation.observed_at
+                wallet, _ = header_numbers(screen, reading.page, reading.top_left)
+                value = row.value
+                changed = (
+                    row.status == "maxed" and before.get("status") != "maxed"
+                    or row.value is not None and math.isfinite(row.value)
+                    and before.get("value") is not None and row.value != before["value"]
+                    and _target_reached(row.upgrade_id, row.value, before["value"])
+                )
+                if self.account_state is not None:
+                    self.account_state.observe_account(observation)
+                    if self.account_state.snapshot()["error"]:
+                        changed = None
+                if self.observations is not None:
+                    self.observations.observe(observation)
+        evidence = transactions.RecoveryEvidence(
+            category=category, currency=currency, wallet_after=wallet,
+            effect_changed=changed, observed_at=observed_at, frame_digest=digest,
+            effect_value=value,
+        )
+        previous = self._recovery_sample
+        consistent = (
+            previous is not None and previous[0] == txn.key
+            and 0 < observed_at - previous[1].observed_at <= 30
+            and replace(previous[1], observed_at=observed_at, frame_digest=digest) == evidence
+        )
+        self._recovery_sample = (txn.key, evidence)
+        outcome = self.journal.reconcile(
+            txn.key, evidence if consistent else replace(evidence, effect_changed=None), now=time.time(),
+        )
+        if outcome.verdict == transactions.Verdict.UNPROVEN:
+            self._spent = None
+            if txn.currency == "coins":
+                self._coin_spent = None
+            self._bus.publish(events.PurchaseSkipped(item=txn.item, reason="unreconciled", detail=outcome.reason))
+            if self.observations is not None:
+                self.observations.decision("blocked", outcome.reason)
+            return True
+        self._restore_recovered_visit()
+        self._recovery_sample = None
+        return True
+
+    def _restore_recovered_visit(self) -> bool:
+        """Recovery finishes the interrupted visit; receipts survive until it ends."""
+        receipts = self.journal.recovered_visit() if self.journal else ()
+        if not receipts or all(txn.key in self._recovered_keys for txn, _ in receipts):
+            return False
+        self._spent, self._coin_spent, self._bought, self._cards_bought = 0, 0, 0, 0
+        for txn, outcome in receipts:
+            self._spend(outcome.spent, coins=txn.currency == "coins")
+            self._bought += 1
+            if txn.currency == "coins":
+                if self._visit_coins is None:
+                    self._visit_coins = txn.wallet_before
+                self._exhausted.add(txn.item)
+            else:
+                self._cards_bought += 1
+            if txn.key not in self._recovered_keys:
+                self._bus.publish(self.journal.recovery_event(txn, outcome))
+                self._recovered_keys.add(txn.key)
+        self._categories = []
+        self._step = Step.RETURN
+        return True
 
     def _open_intent(
         self, *, item: str, category: str, currency: str, price: int,
-        wallet_before: int, armed: bool,
+        wallet_before: int, armed: bool, before: dict[str, Any] | None = None,
     ) -> transactions.Transaction | None:
         """Record what is about to be attempted. None when nothing will be.
 
@@ -1118,6 +1216,7 @@ class ShoppingSession:
         return self.journal.open(transactions.Intent(
             item=item, category=category, currency=currency, price=price,
             wallet_before=wallet_before, ts=time.time(),
+            before=before or {},
         ))
 
     def _mark_acted(self, intent: transactions.Transaction | None) -> None:
@@ -1171,8 +1270,8 @@ class ShoppingSession:
 
         No frame is left to judge them by, so each resolves UNPROVEN and
         the visit's spend becomes unknown - the tap went out, and nothing
-        says what it cost. Rows a dead process left open are not this
-        visit's spending; _resolve_open_transactions closes those.
+        says what it cost. Rows a dead process left open stay blocked until
+        fresh evidence reconciles them.
         """
         if self._pending is not None:
             pending, self._pending = self._pending, None
@@ -1184,21 +1283,6 @@ class ShoppingSession:
             self._spend(self._close(
                 card.key, price=card.price, wallet_before=card.gems_before,
                 wallet_after=None, effect_changed=None).spent, coins=False)
-
-    def _resolve_open_transactions(self, wallet_after: int | None = None) -> None:
-        """Close whatever this visit left open, honestly.
-
-        Called when a visit ends by any route. Without evidence the verdict
-        is UNPROVEN, which is the true answer and also keeps the next visit
-        from being refused forever by a row nobody will ever answer.
-        """
-        if self.journal is None:
-            return
-        for txn in self.journal.open_transactions():
-            self.journal.resolve(
-                txn.key, wallet_after=wallet_after, effect_changed=None,
-                ts=time.time(),
-            )
 
     def _record_card(self, item: str, price: int, gems: int, *, dry_run: bool,
                      outcome: transactions.Outcome | None = None) -> None:
@@ -1325,7 +1409,12 @@ class ShoppingSession:
     def _end_visit(
         self, device: Any, shopping: Shopping, screen: Image, *, aborted: bool, reason: str = ""
     ) -> None:
-        if aborted:
+        stale = self._unanswered_transaction()
+        if stale is not None:
+            self._spent = None
+            if stale.currency == "coins":
+                self._coin_spent = None
+        if aborted and stale is None:
             self._exit_to_battle(device, shopping, screen)
         # Before the total is published, so a tap still awaiting its answer
         # makes the total unknown rather than silently absent from it.
@@ -1334,11 +1423,13 @@ class ShoppingSession:
             visit=self._visit, bought=self._bought, spent=self._spent,
             aborted=aborted, reason=reason,
         ))
+        if self.journal is not None:
+            self.journal.finish_recovered_visit(self._recovered_keys)
         if self.account_state is not None:
             self.account_state.reset_confirmation()
         self._step = Step.IDLE
         self._categories = []
         self._pending = None
         self._pending_card = None
-        self._resolve_open_transactions()
+        self._recovery_sample = None
         self._search = None
