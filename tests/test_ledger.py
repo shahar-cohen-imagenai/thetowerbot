@@ -52,6 +52,70 @@ def test_an_unreadable_price_leaves_the_movement_unknown() -> None:
     assert line.delta is None and line.price is None
 
 
+def test_an_unproven_purchase_keeps_its_price_but_debits_nothing_known() -> None:
+    """The price was read before the tap; the journal could not prove it
+    left the wallet. The line keeps what it would have cost and leaves what
+    actually moved unknown, rather than turning a prediction into a debit."""
+    (line,) = ledger.classify(
+        events.Purchased(item="Health", category="DEFENSE", price=75,
+                         coins_before=1770, dry_run=False, verdict="unproven",
+                         spent=None, seq=12, ts=1000.0)
+    )
+
+    assert (line.delta, line.price) == (None, 75)
+    assert line.detail == {"verdict": "unproven"}
+
+
+def test_a_proven_purchase_debits_what_the_journal_proved() -> None:
+    (line,) = ledger.classify(
+        events.Purchased(item="Health", category="DEFENSE", price=75,
+                         coins_before=1770, dry_run=False, verdict="bought",
+                         spent=75, seq=13, ts=1000.0)
+    )
+
+    assert (line.delta, line.price) == (-75, 75)
+
+
+def test_a_bought_verdict_with_an_unknown_amount_is_not_the_read_price() -> None:
+    """Income landed mid-purchase: bought, but by an amount nobody knows."""
+    (line,) = ledger.classify(
+        events.Purchased(item="Health", category="DEFENSE", price=75,
+                         coins_before=1770, dry_run=False, verdict="bought",
+                         spent=None, seq=14, ts=1000.0)
+    )
+
+    assert line.delta is None
+
+
+def test_a_free_upgrade_moves_nothing_even_with_a_price_read() -> None:
+    (line,) = ledger.classify(
+        events.Purchased(item="Health", category="DEFENSE", price=0,
+                         coins_before=1770, dry_run=False, verdict="free",
+                         spent=0, seq=15, ts=1000.0)
+    )
+
+    assert line.delta == 0
+
+
+def test_backfill_keeps_the_journal_verdict_of_a_stored_purchase(tmp_path: Path) -> None:
+    """A replay must not resurrect the read price as a debit."""
+    from sinks import store
+
+    conn = db.connect(tmp_path / "bot.db")
+    event = events.Purchased(item="Health", category="DEFENSE", price=75,
+                             coins_before=1770, dry_run=False, verdict="unproven",
+                             spent=None, seq=1, ts=1.0)
+    db.insert_event(conn, store.to_row(event, None))
+    conn.commit()
+
+    ledger.backfill(conn)
+
+    (delta, price) = conn.execute(
+        "SELECT delta, price FROM ledger WHERE kind = 'WORKSHOP_BUY'"
+    ).fetchone()
+    assert (delta, price) == (None, 75)
+
+
 def test_a_skip_moves_nothing_and_names_the_currency_it_would_have_spent() -> None:
     (line,) = ledger.classify(
         events.PurchaseSkipped(item="Damage", reason="unaffordable",

@@ -1014,6 +1014,181 @@ def test_a_workshop_tap_a_dead_process_left_open_is_not_sent_again(
     )
 
 
+def _row(upgrade_id: str, name: str, price: int) -> ObservedUpgrade:
+    return ObservedUpgrade(upgrade_id, name, "ATTACK", "workshop", 1, price,
+                           "available", 1, config.Rect(0, 0, 100, 100), (50, 80))
+
+
+class _Page:
+    """A Workshop page whose rows a test can change between frames."""
+
+    def __init__(self, monkeypatch, *rows: ObservedUpgrade) -> None:
+        self.rows = rows
+        monkeypatch.setattr(shopping_mod, "observe_frame", lambda *_:
+                            Observation("ATTACK", self.rows, {}, None, 1, 270))
+
+
+def _step(session, device, policy) -> None:
+    session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
+                      frame("menu_workshop_attack"), device, policy)
+
+
+def test_a_changed_row_whose_wallet_did_not_prove_the_price_is_no_debit(
+    tmp_path, monkeypatch, fake_header
+) -> None:
+    """The price read before the tap is a prediction, not a debit.
+
+    The row changed, so something was bought - but the coins did not fall
+    by the price that was read, and the journal resolved the attempt
+    UNPROVEN. The ledger line must not turn that read price into -5.
+    """
+    import ledger
+
+    session = _journalled_workshop_session(tmp_path / "bot.db", monkeypatch)
+    page = _Page(monkeypatch, _row("damage", "Damage", 5))
+    device = FakeDevice()
+    policy = _workshop_policy()
+    session.begin(policy, run_count=1)
+    _step(session, device, policy)  # the tap, at 1770 coins
+
+    page.rows = (_row("damage", "Damage", 6),)  # the row moved on...
+    _step(session, device, policy)  # ...but the wallet still reads 1770
+
+    (bought,) = session._bus.of_type("Purchased")
+    assert bought.verdict == "unproven" and bought.spent is None
+    (line,) = ledger.classify(bought)
+    assert line.delta is None, "an unproven purchase is an unknown movement"
+    assert line.price == 5
+    assert session._coin_spent is None and session._spent is None
+
+
+def test_a_proven_workshop_purchase_debits_what_the_wallet_lost(
+    tmp_path, monkeypatch, fake_header
+) -> None:
+    import ledger
+
+    session = _journalled_workshop_session(tmp_path / "bot.db", monkeypatch)
+    page = _Page(monkeypatch, _row("damage", "Damage", 5))
+    device = FakeDevice()
+    policy = _workshop_policy()
+    session.begin(policy, run_count=1)
+    _step(session, device, policy)
+
+    page.rows = (_row("damage", "Damage", 6),)
+    fake_header["coins"] = 1765
+    _step(session, device, policy)
+
+    (bought,) = session._bus.of_type("Purchased")
+    assert (bought.verdict, bought.spent, bought.price) == ("bought", 5, 5)
+    assert ledger.classify(bought)[0].delta == -5
+    assert (session._coin_spent, session._spent) == (5, 5)
+    assert session.journal.open_transactions() == ()
+
+
+def test_an_unproven_spend_stops_a_bounded_visit_budget(
+    tmp_path, monkeypatch, fake_header
+) -> None:
+    """A budget cannot be honoured against a total nobody knows.
+
+    Treating the unknown amount as zero would let the visit keep buying past
+    its ceiling; treating it as the read price would assert a number the
+    wallet refused to confirm. The only honest move is to stop spending.
+    """
+    session = _journalled_workshop_session(tmp_path / "bot.db", monkeypatch)
+    page = _Page(monkeypatch, _row("damage", "Damage", 5),
+                 _row("attack_speed", "Attack Speed", 5))
+    device = FakeDevice()
+    policy = a_policy(armed=True, coin_budget=100, workshop=(
+        ShoppingRule(name="Damage", category="ATTACK", target=2),
+        ShoppingRule(name="Attack Speed", category="ATTACK", target=2),
+    ))
+    session.begin(policy, run_count=1)
+    _step(session, device, policy)  # tap Damage
+    page.rows = (_row("damage", "Damage", 6), _row("attack_speed", "Attack Speed", 5))
+    _step(session, device, policy)  # confirmed changed, wallet unmoved: unproven
+    _step(session, device, policy)  # Attack Speed would fit in 100 coins
+
+    assert len(device.taps) == 1, "a visit whose spend is unknown taps no more"
+    skips = [s for s in session._bus.of_type("PurchaseSkipped") if s.item == "Attack Speed"]
+    assert [s.reason for s in skips] == ["budget"]
+
+
+def test_an_unconfirmed_workshop_tap_ends_the_visit_with_an_unknown_spend(
+    tmp_path, monkeypatch, fake_header
+) -> None:
+    """The tap went out and nothing proved or refuted it. Whatever the visit
+    reports as spent, it is not the sum of the purchases it could prove."""
+    session = _journalled_workshop_session(tmp_path / "bot.db", monkeypatch)
+    _Page(monkeypatch, _row("damage", "Damage", 5))
+    device = FakeDevice()
+    policy = _workshop_policy()
+    session.begin(policy, run_count=1)
+    for _ in range(4):
+        _step(session, device, policy)
+
+    (ended,) = session._bus.of_type("ShoppingEnded")
+    assert ended.aborted and ended.spent is None
+    assert session._bus.of_type("Purchased") == []
+
+
+def test_ending_a_visit_mid_confirmation_leaves_its_spend_unknown(
+    tmp_path, monkeypatch, fake_header
+) -> None:
+    session = _journalled_workshop_session(tmp_path / "bot.db", monkeypatch)
+    _Page(monkeypatch, _row("damage", "Damage", 5))
+    device = FakeDevice()
+    policy = _workshop_policy()
+    session.begin(policy, run_count=1)
+    _step(session, device, policy)  # tapped, not yet answered
+
+    session._abort(device, policy, frame("menu_workshop_attack"), "stopped")
+
+    (ended,) = session._bus.of_type("ShoppingEnded")
+    assert ended.spent is None
+    assert session.journal.open_transactions() == ()
+
+
+def test_a_confirmed_card_carries_the_journal_verdict(tmp_path, fake_header) -> None:
+    journal = transactions.TransactionJournal(tmp_path / "bot.db")
+    session = shopping_mod.ShoppingSession(
+        templates=vision.TemplateCache(config.TEMPLATE_DIR),
+        bus=Recorder(),
+        reader=digits.NumberReader(),
+        journal=journal,
+    )
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(
+        enabled=True, gem_floor=0, max_per_visit=1
+    ))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 400
+    session.advance(frame("menu_cards"), device, policy)
+    fake_header["gems"] = 380
+    session.advance(frame("menu_cards"), device, policy)
+
+    (bought,) = [e for e in session._bus.of_type("Purchased") if e.category == "CARDS"]
+    assert (bought.verdict, bought.spent) == ("bought", 20)
+    assert session._spent == 20
+
+
+def test_an_unconfirmed_card_ends_the_visit_with_an_unknown_spend(
+    session, fake_header
+) -> None:
+    device = FakeDevice()
+    policy = a_policy(armed=True, cards=CardPolicy(
+        enabled=True, gem_floor=0, max_per_visit=1
+    ))
+    session.begin(policy, run_count=1)
+    session._step = shopping_mod.Step.BUY_CARDS
+    fake_header["gems"] = 400
+    for _ in range(4):
+        session.advance(frame("menu_cards"), device, policy)
+
+    (ended,) = session._bus.of_type("ShoppingEnded")
+    assert ended.aborted and ended.spent is None
+
+
 def test_the_bot_never_taps_unlock_new_slot(session) -> None:
     """Slots are out of scope by design - the community gem order puts lab
     slots above them and the bot cannot see labs. Guarded by the fact that no

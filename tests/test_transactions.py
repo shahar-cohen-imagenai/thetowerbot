@@ -135,3 +135,39 @@ def test_a_tap_that_changed_nothing_is_refuted_rather_than_left_open(tmp_path) -
 
     assert outcome.verdict == transactions.Verdict.REFUTED
     assert outcome.spent == 0
+
+
+def test_a_zero_price_read_is_not_free_when_the_wallet_fell(tmp_path) -> None:
+    """0 is a claim that nothing was spent, and a falling wallet refutes it.
+    A misread price must not certify a paid upgrade as free."""
+    journal = transactions.TransactionJournal(tmp_path / "bot.db")
+    txn = journal.open(_intent(price=0, wallet_before=13))
+    journal.record_action(txn.key, at=1.0)
+
+    outcome = journal.resolve(
+        txn.key, wallet_after=3, effect_changed=True, ts=2.0
+    )
+
+    assert outcome.verdict == transactions.Verdict.BOUGHT
+    assert outcome.spent is None
+
+
+def test_a_zero_price_read_is_not_free_without_a_wallet_reading() -> None:
+    """Nothing read after the action, so nothing proves the read 0."""
+    outcome = transactions.judge(
+        "k", price=0, wallet_before=13, wallet_after=None, effect_changed=True,
+    )
+
+    assert outcome.verdict == transactions.Verdict.UNPROVEN
+    assert outcome.spent is None
+
+
+def test_a_changed_item_with_an_unmoved_wallet_is_not_a_debit_of_its_price() -> None:
+    """The row moved on but the coins did not fall: a price was read, and
+    nothing proves it was paid. Unknown, not the read price."""
+    outcome = transactions.judge(
+        "k", price=10, wallet_before=13, wallet_after=13, effect_changed=True,
+    )
+
+    assert outcome.verdict == transactions.Verdict.UNPROVEN
+    assert outcome.spent is None

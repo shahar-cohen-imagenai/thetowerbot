@@ -110,6 +110,16 @@ group("splitEvent shopping events", () => {
     expect(line).toContain("2");
     expect(line).toContain("95");
   });
+
+  it("says a visit's spend is unknown rather than printing null", () => {
+    const line = describe({
+      seq: 1, ts: 0, type: "ShoppingEnded", visit: 3, bought: 1, spent: null,
+      aborted: true, reason: "purchase acknowledgement was inconclusive",
+    });
+
+    expect(line).toContain("spent=unknown");
+    expect(line).not.toContain("null");
+  });
 });
 
 group("splitEvent speed events", () => {

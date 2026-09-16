@@ -201,6 +201,7 @@ def test_confirmed_spending_reduces_remaining_visit_budget(harness: SimpleNamesp
                                                    ShoppingRule("Attack Speed", "ATTACK")))
     harness.step(policy)
     harness.state.observation = observation(row(price=33), second)
+    harness.state.coins = 970  # the wallet proves the 30, not the read price
     harness.step(policy)
     harness.step(policy)
     assert len(harness.taps) == 1
