@@ -4,6 +4,7 @@ from __future__ import annotations
 from account_state import AccountState
 
 import copy
+import hashlib
 import threading
 import time
 from dataclasses import dataclass, replace
@@ -271,6 +272,24 @@ class BattleAutopilot:
              run_id: int | None = None, cooldown: float = .75,
              identity: RunIdentity = RunIdentity(), elapsed: float | None = None) -> bool:
         observation = observation or observe_frame(screen, "battle")
+        changed_identity = self.context.rebind(identity)
+        if changed_identity:
+            # A confirmation or search started under another run/build cannot
+            # be finished using the new one's rows, even if its price matches.
+            self.pending = None
+            self.search = None
+            self._blocked.clear()
+            self._last_action = float("-inf")
+            self.state.clear_battle()
+            with self._command_lock:
+                self._manual = None
+                self._queued = None
+        if (observation.frame_digest != hashlib.sha256(screen.tobytes()).hexdigest()
+                or (observation.frame_width, observation.frame_height)
+                != (screen.shape[1], screen.shape[0])):
+            self.boxes = []
+            self.state.decision("blocked", "Observation does not match the current screen")
+            return False
         self._draw(observation)
         if self.account_state is not None:
             self.account_state.observe_run(observation, run_id)
@@ -280,6 +299,9 @@ class BattleAutopilot:
         # whether or not this step gets as far as deciding anything.
         self.context.observe(observation, identity=identity, elapsed=elapsed,
                              cash=cash if cash is not None else observation.cash, now=now)
+        if changed_identity:
+            self.state.decision("blocked", "Run or build changed; waiting for another frame")
+            return False
         with self._command_lock:
             if self._manual is None and not self.pending and self._queued:
                 self._manual, self._queued = self._queued, None
