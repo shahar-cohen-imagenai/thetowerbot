@@ -1,5 +1,4 @@
-// Copies the exported site into web/static/, which is tracked in git so a
-// fresh clone can run `uv run tower_bot.py --web` with no node installed.
+// Copies the exported site into ignored web/static/, which FastAPI serves.
 import { cp, rm, writeFile, access, rename } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

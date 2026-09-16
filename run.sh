@@ -18,9 +18,10 @@
 # is a poor place to discover that. This checks before launching, and again
 # after building, and fails here with both hashes instead.
 #
-# Node is only needed when the bundle is actually stale. A current bundle skips
-# npm entirely, so `git clone && ./run.sh` works with no node installed - which
-# is the whole reason web/static/ is committed. See README's Dashboard section.
+# Node is needed when the local dashboard bundle is missing or stale. The
+# bundle itself is generated and ignored, so a fresh clone takes this path once;
+# subsequent starts skip it until the source hash changes. See README's
+# Dashboard section.
 #
 # Extra flags pass through: ./run.sh --idle, ./run.sh --port 5556, etc.
 set -euo pipefail
@@ -70,25 +71,9 @@ else
         elif git merge --ff-only --quiet "$upstream" 2>/dev/null; then
             note "fast-forwarded $behind commit(s) to $upstream"
         else
-            # Almost always web/static/: it is generated output, committed only
-            # so `git clone && ./run.sh` works without node, and step 3 below
-            # rewrites it on every backend change - so this script's own last
-            # run is what dirtied it. Discarding a bundle that is about to be
-            # rebuilt anyway is safe; discarding anything else is not, so the
-            # rest of the tree is checked first and a single file outside
-            # web/static/ is enough to stop here instead. strategies/ in
-            # particular is live state the dashboard writes.
-            if [[ -n "$(git status --porcelain --untracked-files=no -- . ':(exclude)web/static')" ]]; then
-                fail "cannot fast-forward to $upstream - you have local changes:
-$(git status --short --untracked-files=no -- . ':(exclude)web/static' | sed 's/^/       /')
+            fail "cannot fast-forward to $upstream - you have local changes:
+$(git status --short | sed 's/^/       /')
        commit or stash them, then re-run."
-            fi
-            git checkout --quiet -- web/static
-            git merge --ff-only --quiet "$upstream" 2>/dev/null || fail \
-                "cannot fast-forward to $upstream, and the working tree is clean
-       outside web/static/. Resolve it by hand: git merge --ff-only $upstream"
-            note "fast-forwarded $behind commit(s) to $upstream"
-            note 'discarded the locally rebuilt web/static bundle to do it'
         fi
     fi
 fi
@@ -110,7 +95,11 @@ else
     printf '      %s\n' "$reason"
     command -v npm >/dev/null 2>&1 || fail \
         "the dashboard bundle is stale and npm is not installed.
-       Install node, or check out a commit whose web/static/ matches its sources."
+       Install Node.js and npm, then re-run."
+    if [[ ! -x web/ui/node_modules/.bin/next ]]; then
+        note 'installing locked UI dependencies'
+        ( cd web/ui && npm ci )
+    fi
     ( cd web/ui && npm run build )
     # Re-checked, not assumed: a build that succeeds can still leave the
     # bundle mismatched (a partial publish, or sources changing underneath
