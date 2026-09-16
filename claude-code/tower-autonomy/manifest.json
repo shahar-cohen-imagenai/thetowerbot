@@ -8,24 +8,25 @@
     "B03",
     "B04",
     "B05",
+    "B06",
     "E01",
     "O01"
   ],
   "next_ready_task_ids": [
-    "B06",
     "B07",
     "B08",
     "C01",
     "C03",
     "F01",
+    "F08",
     "L01",
     "U01"
   ],
   "counts": {
     "total": 63,
-    "completed": 7,
-    "remaining": 56,
-    "partial_remaining": 21,
+    "completed": 8,
+    "remaining": 55,
+    "partial_remaining": 20,
     "not_started": 35
   },
   "domains": {
@@ -263,16 +264,16 @@
       "id": "B06",
       "domain": "foundation",
       "title": "Recover the device and bot lifecycle",
-      "status": "partial",
+      "status": "completed",
       "depends_on": [
         "B01",
         "B05"
       ],
       "work": "Use a single device lease and durable supervisor for ADB reconnect, game resume/relaunch, transient failures, bounded retry/backoff and crash recovery; preserve the verified account identity.",
       "acceptance": "Inject disconnect, stale frame, online-required action and process restart; recover the correct device and pending action or enter an explicit bounded blocked state without uncontrolled tapping.",
-      "ready": true,
+      "ready": false,
       "task_file": "tasks/B06.md",
-      "current_state": "The B06 implementation is locally verified with a pull request open for review; the graph remains partial until merge. It adds a durable device supervisor and one endpoint lease to the fleet runner; 78 focused tests exercise bounded ADB reconnect/backoff, process restart, stale/online/unknown evidence, wrong-device/account quarantine, and pending-action no-retap. A read-only emulator check verified the configured endpoint, game screen, and account-unverified no-action gate; live disconnect/relaunch and account-bound tap recovery remain unqualified."
+      "current_state": "The B06 implementation and acceptance evidence were merged to main. A durable device supervisor and one endpoint lease cover bounded ADB reconnect/backoff, process restart, stale/online/unknown evidence, wrong-device/account quarantine, and pending-action no-retap; 78 focused tests passed and the production UI backend hash matched. A read-only emulator check verified the configured endpoint, game screen, and account-unverified no-action gate. Live disconnect/relaunch and account-bound tap recovery remain unqualified."
     },
     {
       "id": "B07",
@@ -419,7 +420,7 @@
       ],
       "work": "Classify daily login, gems, reward claims, result screens, known ad flows, disconnect notices and known dismissible popups. Track reward availability, completion and timeout.",
       "acceptance": "Known interruptions resume the prior objective with verified rewards; an unrecognized overlay triggers bounded recovery instead of blind clicks or endless scanning.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/F08.md"
     },
     {
