@@ -308,6 +308,39 @@ def test_runner_relaunches_configured_game_without_tapping(tmp_path, runner_part
         runner.stop()
 
 
+def test_runner_binds_named_host_before_connect_and_quarantines_its_failure(tmp_path, runner_parts) -> None:
+    from bluestacks import BlueStacksAdapter, HostInstance
+    from fleet.identity import Attempt
+
+    class Host:
+        def inventory(self) -> list[HostInstance]:
+            return [HostInstance("alpha", "127.0.0.1:5555", "lease-a", "running")]
+
+        def start(self, name: str) -> None:
+            pytest.fail("unexpected host start")
+
+        def stop(self, name: str) -> None:
+            pytest.fail("unexpected host stop")
+
+    runner, made, _, _, _ = runner_parts
+    runner._attempt = Attempt.new("worker-a", "127.0.0.1:5555", "lease-a", "attempt-a")
+    runner._binding_path = tmp_path / f"{runner._attempt.generation}.json"
+    runner._supervisor_path = tmp_path / "supervisor.json"
+    runner._host_adapter = BlueStacksAdapter(Host(), staging_root=tmp_path)
+    runner._host_instance = "alpha"
+    runner._device_factory = lambda: type("Device", (), {"serial": "127.0.0.1:5555"})()
+    runner.start()
+    try:
+        assert made[0].kwargs["device"].serial == "127.0.0.1:5555"
+    finally:
+        runner.stop()
+
+    runner._host_instance = "beta"
+    with pytest.raises(RunnerError):
+        runner.start()
+    assert runner.status()["recovery"]["state"] is RecoveryState.QUARANTINED
+
+
 def test_supervised_wrong_device_reports_identity_incident(tmp_path, runner_parts) -> None:
     from fleet.identity import Attempt
 

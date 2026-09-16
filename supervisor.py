@@ -11,7 +11,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Callable
 
-from device import EmulatorError, endpoint_matches
+from device import EmulatorError, IdentityError, endpoint_matches
 
 
 class RecoveryState(str, Enum):
@@ -46,6 +46,7 @@ class DeviceSupervisor:
         expected_account: str | None, clock: Callable[[], float] = time.time,
         sleep: Callable[[float], None] = time.sleep, max_attempts: int = 3,
         base_backoff: float = 1.0, game_package: str | None = None,
+        quarantine_on_exhaustion: bool = False,
     ) -> None:
         if not endpoint or max_attempts < 1 or base_backoff < 0:
             raise ValueError("valid endpoint and bounded retry policy required")
@@ -58,6 +59,7 @@ class DeviceSupervisor:
         self.max_attempts = max_attempts
         self.base_backoff = base_backoff
         self.game_package = game_package
+        self.quarantine_on_exhaustion = quarantine_on_exhaustion
         self._device: Any | None = None
         self._connected_at: float | None = None
         self._state = RecoveryState.BLOCKED
@@ -153,6 +155,9 @@ class DeviceSupervisor:
         if self._state is RecoveryState.QUARANTINED:
             return self._state
         if self._attempts >= self.max_attempts:
+            if self.quarantine_on_exhaustion:
+                self._state, self._reason = RecoveryState.QUARANTINED, "host_recovery_exhausted"
+                self._save()
             return self._state
         while self._attempts < self.max_attempts:
             if self._next_retry_at is not None:
@@ -163,6 +168,10 @@ class DeviceSupervisor:
             self._attempts += 1
             try:
                 device = self.connect()
+            except IdentityError:
+                self._state, self._reason = RecoveryState.QUARANTINED, "host_identity_mismatch"
+                self._save()
+                return self._state
             except Exception:  # noqa: BLE001 - any ADB failure is bounded here
                 self._state = RecoveryState.BLOCKED
                 self._reason = "device_unavailable"
@@ -198,17 +207,22 @@ class DeviceSupervisor:
                     return self._state
             self._save()
             return self._state
+        if self.quarantine_on_exhaustion:
+            self._state, self._reason = RecoveryState.QUARANTINED, "host_recovery_exhausted"
+            self._save()
         return self._state
 
     def observe(
         self, *, frame_digest: str, observed_at: float, screen: str,
         account_id: str | None, online_required: bool = False,
-        readable: bool = True,
+        readable: bool = True, session_conflict: bool = False,
     ) -> RecoveryState:
         """Authorize the next action only from a current, identified frame."""
         if self._state is RecoveryState.QUARANTINED:
             return self._state
-        if self._device is None:
+        if session_conflict:
+            self._state, self._reason = RecoveryState.QUARANTINED, "session_conflict"
+        elif self._device is None:
             self._state, self._reason = RecoveryState.BLOCKED, "device_unavailable"
         elif (not frame_digest or not math.isfinite(observed_at)
               or observed_at > self.clock() or self.clock() - observed_at > 5
