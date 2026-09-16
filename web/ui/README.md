@@ -1,8 +1,7 @@
 # thetowerbot dashboard
 
-Next.js app for the bot's dashboard. It is statically exported and the build
-output is committed into `../static/`, which the bot's FastAPI process serves
-directly — the bot itself needs no node at runtime, only this source does.
+Next.js app for the bot's dashboard. It is statically exported into the ignored
+`../static/` directory, which the bot's FastAPI process serves directly.
 
 ## Building
 
@@ -10,10 +9,10 @@ directly — the bot itself needs no node at runtime, only this source does.
 npm run build
 ```
 
-This republishes `../static/`. Commit the result along with your source
-change. Forgetting to rebuild leaves `../static/` stale against `web/ui/`,
-and the Python test suite (`uv run pytest -q` at the repo root) fails on
-that staleness — it's checking a build manifest, not this app's code.
+This republishes `../static/`. Do not commit the result. Prefer `./run.sh`
+from the repository root for normal use: it installs the locked UI dependencies
+when needed, rebuilds only when the local bundle is missing or stale, and
+verifies the build manifest before starting the bot.
 
 ## Developing
 

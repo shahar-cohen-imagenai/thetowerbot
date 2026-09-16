@@ -4,11 +4,9 @@ The question `run.sh` asks before it decides whether to invoke npm at all, and
 again after, so a mismatch is a terminal failure with both hashes printed
 rather than the runtime-gate banner discovered later in a browser.
 
-Every case here builds its own manifest in tmp_path. Nothing reads the real
-`web/static/.build-manifest.json` - that file's freshness is
-tests/test_web_build.py's job, and a test that depended on it would go red
-whenever someone edited the dashboard without rebuilding, which is a
-completely different fact from the one being checked here.
+Every case here builds its own manifest in tmp_path. Nothing reads a local
+`web/static/.build-manifest.json`: whether the FastAPI app handles a missing
+or generated bundle is tested independently in tests/test_web_build.py.
 """
 
 from __future__ import annotations

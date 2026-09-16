@@ -35,8 +35,9 @@ tower_bot.db-shm
 advisor.json
 .advisor*.tmp
 
-# Next.js UI build artefacts. web/static/ is deliberately NOT ignored - it is
-# the committed build the bot serves with no node installed.
+# Next.js UI build artefacts. run.sh creates web/static/ when it is missing or
+# stale; generated bundles do not belong in source control.
+web/static/
 web/ui/node_modules/
 web/ui/.next/
 web/ui/out/
