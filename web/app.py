@@ -1107,11 +1107,9 @@ def create_app(
     else:
         @app.get("/", response_class=HTMLResponse)
         def not_built() -> str:
-            # Only reachable in a working tree whose build was deleted; the
-            # committed web/static/ means a fresh clone never sees this.
             return (
                 "<h1>Dashboard not built</h1>"
-                "<p>Run <code>npm run build</code> in <code>web/ui</code>.</p>"
+                "<p>Run <code>./run.sh</code> from the repository root to build and start it.</p>"
             )
 
     return app
