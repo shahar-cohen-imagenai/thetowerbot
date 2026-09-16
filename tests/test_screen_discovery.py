@@ -506,7 +506,8 @@ def test_every_enabled_capability_declares_replay_coverage_or_an_owned_gap() -> 
     import screen_discovery
     capabilities = screen_discovery.capabilities()
     coverage = capabilities['replay_coverage']
-    enabled = set(capabilities['readers']) | set(capabilities['account_screens'])
+    enabled = (set(capabilities['readers']) | set(capabilities['account_screens'])
+               | set(capabilities.get('game_over', ())))
     gapped = {key.rsplit('.', 1)[0] for key in coverage['gaps']}
 
     assert set(coverage['covered']) | gapped == enabled
@@ -766,3 +767,108 @@ def test_the_modal_bands_widen_downward_too_on_a_status_bar_device() -> None:
     frame = cv2.imread(str(FIXTURES / 'menu_milestones_reward_modal.png'))
     found = screen_discovery.discover(frame, shifted, 'milestones')
     assert found.screen_id == 'milestones.reward_modal'
+
+
+# --- Game Over modal (reroll-relevant outcome evidence) ---------------------
+#
+# Five real captures back game_over.py, all from the same status-bar-inset
+# device (see tests/fixtures/replay/manifest.json's `frames` table): a stable
+# non-record modal in two coin layouts (game_over, game_over_stats), a fuller
+# account's stable modal (game_over_wave1), and two record-run modals whose
+# 'New Highest Wave!' line shifts every caption below Wave down (game_over_fade,
+# game_over_newhigh). Nothing here is derived - every status below is what the
+# real OCR for that capture produces.
+
+_GAME_OVER_EXPECTED: dict[str, dict[str, tuple[str, str | None]]] = {
+    # Single-line coins layout, no BONUS banner, no record line.
+    'game_over': {
+        'wave': ('observed', '1'), 'new_highest_wave': ('absent', None),
+        'tier': ('observed', '1'), 'highest_wave': ('observed', '2'),
+        'killed_by': ('observed', 'Basic'), 'bonus_status': ('absent', None),
+        'coins_earned': ('unreadable', None), 'ad_coins_earned': ('absent', None),
+        'total_coins': ('absent', None),
+    },
+    # Same single-line layout, but the run set a new record.
+    'game_over_fade': {
+        'wave': ('observed', '2'), 'new_highest_wave': ('observed', 'NewHighestWave!'),
+        'tier': ('observed', '1'), 'highest_wave': ('observed', '2'),
+        'killed_by': ('observed', 'Basic'), 'bonus_status': ('absent', None),
+        'coins_earned': ('unreadable', None), 'ad_coins_earned': ('absent', None),
+        'total_coins': ('absent', None),
+    },
+    # Three-column coins layout, BONUS banner drawn, no record line. The
+    # coins_earned digit reads at .8862 - below the .90 floor - and the
+    # total_coins column picks up the currency glyph as a second candidate;
+    # two independent real reasons to land on 'unreadable'.
+    'game_over_stats': {
+        'wave': ('observed', '1'), 'new_highest_wave': ('absent', None),
+        'tier': ('observed', '1'), 'highest_wave': ('observed', '2'),
+        'killed_by': ('observed', 'Basic'), 'bonus_status': ('observed', 'Inactive'),
+        'coins_earned': ('unreadable', None), 'ad_coins_earned': ('observed', '0'),
+        'total_coins': ('unreadable', None),
+    },
+    # Three-column layout, BONUS banner, AND a new record - the shifted
+    # layout the manifest's positive example is deliberately drawn from.
+    'game_over_newhigh': {
+        'wave': ('observed', '6'), 'new_highest_wave': ('observed', 'NewHighestWave!'),
+        'tier': ('observed', '1'), 'highest_wave': ('observed', '6'),
+        'killed_by': ('observed', 'Basic'), 'bonus_status': ('observed', 'Inactive'),
+        'coins_earned': ('unreadable', None), 'ad_coins_earned': ('observed', '0'),
+        'total_coins': ('observed', '21'),
+    },
+    # A different, fuller account (Highest Wave: 10, not a record this run).
+    # total_coins draws a label with no value beneath it at all.
+    'game_over_wave1': {
+        'wave': ('observed', '1'), 'new_highest_wave': ('absent', None),
+        'tier': ('observed', '1'), 'highest_wave': ('observed', '10'),
+        'killed_by': ('observed', 'Basic'), 'bonus_status': ('observed', 'Inactive'),
+        'coins_earned': ('observed', '2'), 'ad_coins_earned': ('observed', '0'),
+        'total_coins': ('unreadable', None),
+    },
+}
+
+
+@pytest.mark.parametrize('name', sorted(_GAME_OVER_EXPECTED))
+def test_game_over_reads_every_recorded_field_state(name: str) -> None:
+    """Every field, on every recorded capture, pinned to its real read.
+
+    This is the exhaustive form of the three canonical examples the replay
+    manifest carries for game_over.result: it is what proves "stable modal",
+    "New Highest Wave layout shift", "absent field" and "unreadable field"
+    are all real, not just the one observation each the manifest names.
+    Absent and unreadable are never the same row here - contrast
+    ad_coins_earned (absent on the single-line captures, never even drawn)
+    with total_coins on game_over_wave1 (its caption IS drawn, and is
+    'unreadable' because the game over draws no value beneath it).
+    """
+    import game_over
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    reading = game_over.parse_frame(frame, recorded(name), now=1_700_000_000.0)
+    assert reading is not None
+    assert reading.screen_id == 'game_over.result'
+    actual = {f.key: (f.status, f.raw_value) for f in reading.fields}
+    assert actual == _GAME_OVER_EXPECTED[name]
+
+
+@pytest.mark.parametrize('name', ['menu_workshop_attack', 'menu_missions', 'in_run_lit'])
+def test_game_over_refuses_a_frame_that_is_not_the_death_modal(name: str) -> None:
+    """No GAMESTATS title, no reading - never a guess built from whatever
+    labels happen to be on screen."""
+    import game_over
+    frame = cv2.imread(str(FIXTURES / f'{name}.png'))
+    assert game_over.parse_frame(frame, recorded(name), now=1_700_000_000.0) is None
+
+
+def test_game_over_refuses_a_low_confidence_title() -> None:
+    """A title present but not trusted is refused exactly like no title at
+    all - the closest this fixture set can get to a still-fading-in modal
+    with no capture of one. See the 'unproven' entry this gap is filed
+    under in screen_discovery.capabilities()."""
+    import game_over
+    boxes = recorded('game_over')
+    faint = tuple(
+        ocr.TextBox(b.text, .5, b.rect) if b.text == 'GAMESTATS' else b
+        for b in boxes)
+    assert any(b.confidence == .5 for b in faint)
+    frame = cv2.imread(str(FIXTURES / 'game_over.png'))
+    assert game_over.parse_frame(frame, faint, now=1_700_000_000.0) is None

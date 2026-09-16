@@ -310,6 +310,65 @@
           "why": "47 of the 72 cells on the recorded table read this way. The reading keeps them as None rather than folding an unread cell into a zero."
         }
       }
+    },
+    "game_over.result": {
+      "adapter": "game_over",
+      "folder": "ocr",
+      "examples": {
+        "positive": {
+          "recording": "recorded",
+          "frame": "game_over_newhigh",
+          "observation": "field:wave",
+          "expect_status": "observed",
+          "why": "The harder of the two layouts, not the easier: a record run's 'New Highest Wave!' line pushes every caption below Wave down ~97px and pulls the modal's top edge up as it re-centres. Wave reads correctly here because it is found by its own caption, never a fixed offset from the frame or the modal title."
+        },
+        "unavailable": {
+          "recording": "recorded",
+          "frame": "game_over",
+          "observation": "field:ad_coins_earned",
+          "expect_status": "absent",
+          "why": "This capture's coins section is the single-line 'coins earned' layout; it never draws an ad-coins or total-coins column at all. Absence is reported as absence, never as a target or a zero."
+        },
+        "ambiguous": {
+          "recording": "recorded",
+          "frame": "game_over_newhigh",
+          "observation": "field:coins_earned",
+          "expect_status": "unreadable",
+          "why": "The coin icon beside the value merges into the OCR text as '21 (' at .95 confidence - present, trusted, and not a plain count. A value the game drew that this reader could not parse must cost the field its value, not earn it a guessed one."
+        }
+      }
+    }
+  },
+  "frames": {
+    "game_over": {
+      "game_version": "unknown",
+      "device_geometry": "status_bar_inset",
+      "layout_origin": "own caption (GAMESTATS title + per-field regex), never a frame-relative offset",
+      "why": "Added in 38cb3ae with no build string captured anywhere on the frame or in the commit that recorded it."
+    },
+    "game_over_fade": {
+      "game_version": "unknown",
+      "device_geometry": "status_bar_inset",
+      "layout_origin": "own caption (GAMESTATS title + per-field regex), never a frame-relative offset",
+      "why": "Added in 38cb3ae alongside game_over; same gap. Despite its name, this capture reads at full confidence on every field - the 'ambiguous' example above comes from a genuinely garbled read instead, not from this one."
+    },
+    "game_over_newhigh": {
+      "game_version": "unknown",
+      "device_geometry": "status_bar_inset",
+      "layout_origin": "own caption (GAMESTATS title + per-field regex), never a frame-relative offset",
+      "why": "Added in 38e9665, which recalibrates the production digit reader against this capture but names no build string."
+    },
+    "game_over_stats": {
+      "game_version": "unknown",
+      "device_geometry": "status_bar_inset",
+      "layout_origin": "own caption (GAMESTATS title + per-field regex), never a frame-relative offset",
+      "why": "Added in 2df1ed7, which calibrates digit glyph regions but names no build string."
+    },
+    "game_over_wave1": {
+      "game_version": "v29.0.1",
+      "device_geometry": "status_bar_inset",
+      "layout_origin": "own caption (GAMESTATS title + per-field regex), never a frame-relative offset",
+      "why": "Commit 0100973 recorded this alongside account_screens/settings_redacted.png from the same 'live v29.0.1 account at Tier 1 / highest wave 10' capture pass."
     }
   },
   "sequences": [

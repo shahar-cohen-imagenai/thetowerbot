@@ -276,15 +276,39 @@ def _account(frame, boxes, capability) -> Replay:
     return Replay(reading.screen_id, positive, unavailable, ambiguous, targets, values)
 
 
+def _game_over(frame, boxes, capability) -> Replay:
+    import game_over
+    reading = game_over.parse_frame(frame, boxes, now=NOW)
+    if reading is None:
+        return Replay(None, ambiguous={"game_over.page": "refused"})
+    positive, unavailable, ambiguous, values = {}, {}, {}, {}
+    # No `targets`: this reader only classifies the death modal's own fields
+    # for a retry policy to read. RETRY/HOME are tapped by the production
+    # digit-reader path this module does not replace - see its docstring.
+    for field in reading.fields:
+        key = f"field:{field.key}"
+        if field.status in _SATISFIES["positive"]:
+            positive[key] = field.status
+            if field.raw_value is not None:
+                values[key] = field.raw_value
+        elif field.status in _SATISFIES["unavailable"]:
+            unavailable[key] = field.status
+        elif field.status in _SATISFIES["ambiguous"]:
+            ambiguous[key] = field.status
+    return Replay(reading.screen_id, positive, unavailable, ambiguous, {}, values)
+
+
 _ADAPTERS: dict[str, Callable[..., Replay]] = {
     "grid": _grid, "missions": _missions, "cards": _cards, "account": _account,
+    "game_over": _game_over,
 }
 
 
 def enabled_capabilities() -> set[str]:
     import screen_discovery
     matrix = screen_discovery.capabilities()
-    return set(matrix["readers"]) | set(matrix["account_screens"])
+    return (set(matrix["readers"]) | set(matrix["account_screens"])
+            | set(matrix.get("game_over", ())))
 
 
 def test_the_replay_manifest_names_exactly_the_capabilities_that_are_enabled() -> None:
@@ -388,6 +412,25 @@ def test_no_example_or_sequence_claims_a_capability_the_matrix_calls_unsupported
     for sequence in data["sequences"]:
         for step in sequence["steps"]:
             assert step["capability"] in data["capabilities"]
+
+
+@pytest.mark.parametrize("name", sorted(p.stem for p in FIXTURES.glob("game_over*.png")))
+def test_every_game_over_capture_declares_its_own_metadata(name: str) -> None:
+    """Reroll-relevant evidence must say what build and device it came from.
+
+    A wave count is only as trustworthy as the geometry and the account it
+    was measured against. Recording game_version, device_geometry and
+    layout_origin per frame - honestly `unknown` where nothing establishes
+    it, rather than copied from the one capture that IS confirmed - keeps a
+    future capture from a different device or build from silently being
+    replayed as if it were this one's evidence.
+    """
+    frames = manifest().get("frames", {})
+    assert name in frames, f"{name} has no recorded capture metadata"
+    meta = frames[name]
+    assert meta.get("game_version"), f"{name} missing game_version"
+    assert meta.get("device_geometry"), f"{name} missing device_geometry"
+    assert meta.get("layout_origin"), f"{name} missing layout_origin"
 
 
 @pytest.mark.parametrize("name,kind,spec,capability",
