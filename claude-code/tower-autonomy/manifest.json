@@ -7,11 +7,13 @@
     "B02",
     "B03",
     "B04",
+    "B05",
     "E01",
     "O01"
   ],
   "next_ready_task_ids": [
-    "B05",
+    "B06",
+    "B07",
     "B08",
     "C01",
     "C03",
@@ -21,9 +23,9 @@
   ],
   "counts": {
     "total": 63,
-    "completed": 6,
-    "remaining": 57,
-    "partial_remaining": 22,
+    "completed": 7,
+    "remaining": 56,
+    "partial_remaining": 21,
     "not_started": 35
   },
   "domains": {
@@ -246,16 +248,16 @@
       "id": "B05",
       "domain": "foundation",
       "title": "Journal and verify every transaction",
-      "status": "partial",
+      "status": "completed",
       "depends_on": [
         "B03",
         "B04"
       ],
       "work": "Introduce durable intent, preconditions, one device action, confirmation and reconciliation. Correlate wallet, level/inventory and UI acknowledgement; separate free upgrades and passive income from purchased effects.",
       "acceptance": "A crash after a successful tap does not buy twice; a free upgrade does not falsely confirm a cash purchase; card opening is not logged as bought without evidence.",
-      "ready": true,
+      "ready": false,
       "task_file": "tasks/B05.md",
-      "current_state": "Ledger-verdict slice landed. Restart reconciliation acceptance gate proven locally: 173 focused tests passed; production UI rebuilt and source hashes verified. Durable ambiguous blocking, atomic journal/ledger recovery, and recovered visit accounting are implemented. Committed for review; awaiting merge. Task remains partial."
+      "current_state": "Ledger-verdict and restart-reconciliation slices are merged to main. The acceptance gate is verified: 173 focused tests passed, the production UI was rebuilt with matching source hashes, ambiguous transactions stay blocked, proven recovery writes journal and ledger atomically, and recovered visit accounting survives another crash."
     },
     {
       "id": "B06",
@@ -268,7 +270,7 @@
       ],
       "work": "Use a single device lease and durable supervisor for ADB reconnect, game resume/relaunch, transient failures, bounded retry/backoff and crash recovery; preserve the verified account identity.",
       "acceptance": "Inject disconnect, stale frame, online-required action and process restart; recover the correct device and pending action or enter an explicit bounded blocked state without uncontrolled tapping.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/B06.md"
     },
     {
@@ -282,7 +284,7 @@
       ],
       "work": "Separate run cash from permanent coins, gems, stones, medals, cells, keys, shards, tickets, Bits and other versioned resources. Reserve across competing plans and timers, not just per shopping visit.",
       "acceptance": "Two queued actions cannot reserve the same funds; lab-slot savings and UW synchronization savings survive lower-priority purchases and process restarts.",
-      "ready": false,
+      "ready": true,
       "task_file": "tasks/B07.md"
     },
     {
