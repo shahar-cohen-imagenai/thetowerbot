@@ -274,7 +274,7 @@ class CombatContext:
         with self._lock:
             known = self._known.get(name)
             if known is not None:
-                age = now - (known.observed_at or now)
+                age = now - (known.observed_at if known.observed_at is not None else now)
                 window = FRESHNESS.get(name, _HUD_WINDOW)
                 if 0 <= age <= window:
                     return known

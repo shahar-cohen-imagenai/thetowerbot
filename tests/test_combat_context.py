@@ -176,6 +176,14 @@ def test_a_reading_that_ages_out_expires_rather_than_holding_its_value() -> None
     assert context.reading("cash", 200.5).state == "expired"
 
 
+def test_a_reading_at_time_zero_still_expires() -> None:
+    from combat_context import CombatContext, RunIdentity
+    context = CombatContext()
+    context.observe(observed("in_run_early", now=0.), identity=RunIdentity(run_id=1), now=0.)
+    assert context.reading("wave", 2.).state == "known"
+    assert context.reading("wave", 3.).state == "expired"
+
+
 def test_a_retried_run_rebuilds_its_context_from_the_new_run() -> None:
     from combat_context import CombatContext, RunIdentity
     context = CombatContext()
@@ -215,6 +223,40 @@ def test_the_planner_records_the_identity_each_step_observed() -> None:
     stale = bot.state.rows("battle", observation.observed_at,
                            identity=RunIdentity(run_id=2, build_revision=7))
     assert stale["damage"]["status"] == "unknown"
+
+
+@pytest.mark.parametrize("second", [
+    (2, 7),  # restarted run
+    (1, 8),  # changed build within a run
+])
+def test_a_changed_identity_cancels_pending_confirmation_and_cached_rows(
+    second: tuple[int, int],
+) -> None:
+    from combat_context import RunIdentity
+    bot, device, frame, observation, policy = parts()
+    first = RunIdentity(run_id=1, build_revision=7)
+    changed_identity = RunIdentity(run_id=second[0], build_revision=second[1])
+    assert bot.step(frame, device, policy, cash=100, observation=observation, identity=first)
+    assert bot.pending is not None
+    changed_rows = tuple(replace(row, price=row.price + 1)
+                         if row.upgrade_id == "damage" and row.price is not None else row
+                         for row in observation.rows)
+    changed = replace(observation, rows=changed_rows, observed_at=101.)
+    assert not bot.step(frame, device, policy, cash=100, observation=changed,
+                        identity=changed_identity)
+    assert bot.pending is None
+    assert bot.state.snapshot()["verified_purchases"] == 0
+    assert bot.state.snapshot()["observations"] == []
+    assert len(device.actions) == 1
+
+
+def test_a_supplied_observation_from_another_frame_cannot_buy() -> None:
+    bot, device, _, observation, policy = parts()
+    different_frame = cv2.imread(str(FIXTURES / "in_run_early.png"))
+    assert not bot.step(different_frame, device, policy, cash=100, observation=observation)
+    assert device.actions == []
+    assert bot.pending is None
+    assert bot.state.snapshot()["phase"] == "blocked"
 
 
 def test_a_missing_cash_reading_refuses_the_purchase_instead_of_reading_zero() -> None:
