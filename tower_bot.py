@@ -581,9 +581,14 @@ class TowerBot:
                     ("online" in text and ("required" in text or "connect" in text))
                     or ("internet" in text and ("required" in text or "connect" in text))
                 )
+                session_conflict = (
+                    ("another device" in text and ("logged in" in text or "in use" in text))
+                    or "logged in elsewhere" in text
+                )
                 readable = True
             except Exception:  # noqa: BLE001 - an unreadable modal may cover an anchor
                 online_required = False
+                session_conflict = False
                 readable = False
             recovery = self.supervisor.observe(
                 frame_digest=hashlib.sha256(self.screen.tobytes()).hexdigest(),
@@ -591,6 +596,7 @@ class TowerBot:
                 screen=observed_screen,
                 account_id=self.supervisor.current_account,
                 online_required=online_required, readable=readable,
+                session_conflict=session_conflict,
             )
             if recovery is not RecoveryState.READY:
                 self.autopilot.suspend("Device recovery blocked actions")
@@ -1282,6 +1288,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--lease-id", default=None, help="fleet lease identity")
     parser.add_argument("--attempt-id", default=None, help="fleet attempt identity")
     parser.add_argument("--runtime-root", type=Path, default=None, help="fleet runtime parent")
+    parser.add_argument("--bluestacks-instance", default=None,
+                        help="named BlueStacks instance for this fleet worker")
+    parser.add_argument("--bluestacks-pool", type=Path, default=None,
+                        help="read-only, manually provisioned BlueStacks pool JSON")
     parser.add_argument(
         "--db", default=str(config.DB_PATH), help="SQLite file for the event log"
     )
@@ -1741,6 +1751,14 @@ def main(argv: list[str] | None = None) -> int:
     configure_logging(args.tui)
     try:
         runtime = resolve_worker_runtime(args)
+        if (args.bluestacks_instance is None) != (args.bluestacks_pool is None):
+            raise ValueError("BlueStacks instance and manual pool must be specified together")
+        if args.bluestacks_instance is not None and (
+            runtime is None or not args.web or args.once or args.debug_scores
+        ):
+            raise ValueError("named BlueStacks requires a supervised fleet dashboard worker")
+        if args.bluestacks_instance is not None and not args.game_package:
+            raise ValueError("named BlueStacks requires --game-package for verified relaunch")
     except ValueError as exc:
         logger.error("identity incident: %s", exc)
         return 1
@@ -1757,9 +1775,15 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _main(args: argparse.Namespace, runtime: WorkerRuntime | None) -> int:
+    from bluestacks import BlueStacksAdapter, ManualPool
+
     attempt = (
         Attempt.new(args.worker_id, f"{args.host}:{args.port}", args.lease_id, args.attempt_id)
         if runtime is not None else None
+    )
+    host_adapter = (
+        BlueStacksAdapter(ManualPool(args.bluestacks_pool), staging_root=runtime.checkpoint_root)
+        if args.bluestacks_pool is not None and runtime is not None else None
     )
 
     # A dashboard (--web without --once, since --once always wins) connects
@@ -1927,6 +1951,8 @@ def _main(args: argparse.Namespace, runtime: WorkerRuntime | None) -> int:
                 supervisor_path=(runtime.checkpoint_root / "supervisor.json")
                 if runtime is not None else None,
                 game_package=args.game_package,
+                host_adapter=host_adapter,
+                host_instance=args.bluestacks_instance,
             )
 
             app = create_app(

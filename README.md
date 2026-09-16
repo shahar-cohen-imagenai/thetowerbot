@@ -56,10 +56,9 @@ no edit either way:
 
 - **Android Studio AVD** — listens on its console port + 1, so the first
   emulator (`emulator-5554`) is reachable at `127.0.0.1:5555`.
-- **BlueStacks** — listens on `127.0.0.1:5555` directly. It also registers a
-  second `emulator-5554` alias for the *same* instance; both serials resolve
-  to one device (`adb shell getprop ro.serialno` matches), so it does not
-  matter which one `connect_device` picks.
+- **BlueStacks** — can listen on `127.0.0.1:5555` directly. Some installations
+  also register an `emulator-5554` alias. If both appear as separate attached
+  transports, the bot refuses the ambiguous endpoint.
 
 **The emulator must be 1080x2400 at 440 DPI.** The resolution
 (`EXPECTED_RESOLUTION`) is the hard requirement: every template and every
@@ -102,6 +101,28 @@ print(screens.classify(img, vision.TemplateCache(config.TEMPLATE_DIR)))
 
 A confirmed screen at ~1.000 confidence means the templates are valid on this
 emulator; anything under `ANCHOR_THRESHOLD` means they are not.
+
+#### Named BlueStacks fleet workers
+
+BlueStacks Air has no proven scriptable create, clone, reset, or stop interface
+on this host. Use a bounded, manually provisioned pool. Create the instance in
+the BlueStacks UI, verify its ADB port, and write a JSON inventory such as:
+
+```json
+{"instances": [{"name": "Tiramisu64", "endpoint": "127.0.0.1:5555", "lease_id": "lease-a", "state": "running"}]}
+```
+
+Run one supervised dashboard worker with matching `--host`, `--port`, and
+`--lease-id`, plus `--bluestacks-instance Tiramisu64 --bluestacks-pool
+/path/to/pool.json`. Also supply `--worker-id`, `--attempt-id`,
+`--runtime-root`, an explicit `--web-port`, and `--web`. The pool file is
+read-only to the bot. Supply `--game-package` with the verified Tower package
+for relaunch. A stopped manual instance requires an operator start;
+recovery then retries the exact leased endpoint and quarantines that worker
+on exhaustion. A session-conflict modal also quarantines without choosing
+either response. Automatic replenishment is unavailable until a host control
+API is independently qualified. Clone staging is reserved for later
+qualification and has no dashboard command.
 
 ## Run
 

@@ -232,8 +232,44 @@ def test_screencap_disconnect_blocks_clicks_until_reconnected(tmp_path: Path) ->
     assert second.taps == []
 
 
-def test_bot_holds_an_online_required_frame_before_any_action(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+def test_named_host_exhaustion_quarantines_only_its_worker(tmp_path: Path) -> None:
+    clock = Clock()
+    healthy = supervisor(tmp_path / "healthy.json", clock, [Device("127.0.0.1:5555")])
+    healthy.recover()
+    failed = DeviceSupervisor(
+        path=tmp_path / "failed.json", endpoint="127.0.0.1:5557",
+        connect=lambda: (_ for _ in ()).throw(ConnectionError("instance down")),
+        expected_account="account-b", clock=clock.time, sleep=clock.sleep,
+        max_attempts=2, base_backoff=0, quarantine_on_exhaustion=True,
+    )
+    assert failed.recover() is RecoveryState.QUARANTINED
+    assert failed.status().reason == "host_recovery_exhausted"
+    assert observed(healthy, clock, "healthy") is RecoveryState.READY
+    with pytest.raises(RuntimeError):
+        failed.tap(1, 2)
+
+
+def test_session_conflict_quarantines_without_clicking_either_response(tmp_path: Path) -> None:
+    clock = Clock()
+    raw = Device()
+    sut = supervisor(tmp_path / "supervisor.json", clock, [raw])
+    sut.recover()
+    assert sut.observe(frame_digest="conflict", observed_at=clock.time(),
+                       screen="MAIN_MENU", account_id="account-a",
+                       session_conflict=True) is RecoveryState.QUARANTINED
+    assert sut.status().reason == "session_conflict"
+    with pytest.raises(RuntimeError):
+        sut.tap(10, 10)
+    assert raw.taps == []
+    assert supervisor(tmp_path / "supervisor.json", clock, []).status().state is RecoveryState.QUARANTINED
+
+
+@pytest.mark.parametrize("modal_text, reason", [
+    ("Online connection required", "online_required"),
+    ("Your account is logged in on another device", "session_conflict"),
+])
+def test_bot_holds_a_recovery_modal_before_any_action(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, modal_text: str, reason: str,
 ) -> None:
     import events
     import ocr
@@ -259,9 +295,9 @@ def test_bot_holds_an_online_required_frame_before_any_action(
         screens.ScreenState.MAIN_MENU, 1.0, {},
     ))
     monkeypatch.setattr(ocr, "read", lambda *_, **__: (
-        ocr.TextBox("Online connection required", 0.99, Rect(0, 0, 8, 8)),
+        ocr.TextBox(modal_text, 0.99, Rect(0, 0, 8, 8)),
     ))
 
     assert bot.run_once() is False
-    assert sut.status().reason == "online_required"
+    assert sut.status().reason == reason
     assert raw.taps == []
