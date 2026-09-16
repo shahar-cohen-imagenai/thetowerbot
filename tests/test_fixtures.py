@@ -67,6 +67,7 @@ def test_upgrade_templates_are_lit_not_dimmed() -> None:
 # is that each one declares the exact box it edits and what that box said, so a
 # derived example cannot quietly drift into fiction.
 
+import hashlib
 import json
 from dataclasses import dataclass, field
 from typing import Any, Callable
@@ -219,9 +220,10 @@ def _missions(frame, boxes, capability) -> Replay:
         # A card whose text was not trusted has NO identity - see MissionEntry
         # - so it is addressed by where it sits. Giving it a made-up id here
         # would be the guess the reader refused to make.
-        if mission.status in _SATISFIES["positive"]:
+        if mission.status in (*_SATISFIES["positive"], "claimable"):
             positive[f"mission:{mission.mission_id}"] = mission.status
-            values[f"mission:{mission.mission_id}"] = (mission.progress, mission.target)
+            if mission.progress is not None and mission.target is not None:
+                values[f"mission:{mission.mission_id}"] = (mission.progress, mission.target)
         else:
             ambiguous[f"card:{index}"] = mission.status
     unavailable = {f"milestone:{m.threshold}": m.status for m in reading.milestones
@@ -433,6 +435,36 @@ def test_every_game_over_capture_declares_its_own_metadata(name: str) -> None:
     assert meta.get("layout_origin"), f"{name} missing layout_origin"
 
 
+def test_every_replayed_capture_has_pinned_version_geometry_and_bytes() -> None:
+    """A replay cannot silently switch capture bytes or native geometry."""
+    data = manifest()
+    referenced = {spec["frame"]
+                  for capability in data["capabilities"].values()
+                  for spec in capability["examples"].values() if "frame" in spec}
+    referenced.update(step["frame"] for sequence in data["sequences"]
+                      for step in sequence["steps"])
+    for name in sorted(referenced):
+        metadata = data["frames"][name]
+        assert metadata["game_version"]
+        assert metadata["device_geometry"]
+        assert metadata["layout_origin"]
+        paths = [path for path in (FIXTURES / f"{name}.png",
+                                    FIXTURES / "account_screens" / f"{name}.png")
+                 if path.exists()]
+        assert len(paths) == 1, f"{name} must name exactly one recorded capture"
+        path = paths[0]
+        assert hashlib.sha256(path.read_bytes()).hexdigest() == metadata["png_sha256"]
+        image = cv2.imread(str(path), cv2.IMREAD_COLOR)
+        assert image is not None and image.shape[:2] == (2400, 1080)
+
+
+def test_recorded_settings_version_agrees_with_capture_metadata() -> None:
+    metadata = manifest()["frames"]["settings_redacted"]
+    replay = read_example({"frame": "settings_redacted"},
+                          manifest()["capabilities"]["account.settings"])
+    assert replay.values["field:game_version"] == metadata["game_version"]
+
+
 @pytest.mark.parametrize("name,kind,spec,capability",
                          [row for row in _examples() if row[2].get("edits")],
                          ids=lambda v: v if isinstance(v, str) else "")
@@ -521,21 +553,24 @@ def test_a_recorded_action_sequence_replays_the_change_it_declares(
 
 @pytest.mark.parametrize("sequence", manifest()["sequences"],
                          ids=lambda s: s["name"])
-def test_a_sequence_takes_one_action_and_takes_it_from_the_before_frame_alone(
+def test_a_sequence_only_claims_a_tap_from_its_before_frame(
     sequence: dict[str, Any],
 ) -> None:
-    """Fresh, screen-specific evidence, stated as a property of the pair.
+    """Fresh, screen-specific evidence for each pair that claims a tap.
 
     The action's point has to exist in the BEFORE frame's own reading and to
     sit inside the observation that produced it. A point carried in from the
     after frame - or from the manifest - would be exactly the stale-evidence
-    tap the runtime rules forbid.
+    tap the runtime rules forbid. A multi-purchase interval claims no one tap.
     """
     data = manifest()
     before_step, _ = sequence["steps"]
     before = _sequence_side(before_step, data)
     action = sequence["action"]
     assert isinstance(action, dict) and "kind" in action
+    if action["kind"] == "recorded_interval":
+        assert action["note"] and "point" not in action
+        return
     if action["kind"] == "recorded_by_hand":
         # The interval between these two captures was not driven by a reader,
         # and saying so is the point: a scroll has no published target, and
@@ -545,6 +580,21 @@ def test_a_sequence_takes_one_action_and_takes_it_from_the_before_frame_alone(
     key = action["observation"]
     assert key in before.targets, f"{sequence['name']}: nothing on the before frame offers {key}"
     assert tuple(action["point"]) == before.targets[key]
+
+
+def test_multirow_purchase_interval_does_not_claim_one_verified_tap() -> None:
+    sequence = next(s for s in manifest()["sequences"]
+                    if s["name"] == "workshop.attack.purchase_interval")
+    assert len(sequence["expect"]["observations"]) > 1
+    assert sequence["action"]["kind"] == "recorded_interval"
+    assert "point" not in sequence["action"]
+
+
+def test_claimable_mission_is_a_readable_state_without_a_replay_action() -> None:
+    capability = manifest()["capabilities"]["missions.daily"]
+    replay = read_example({"frame": "menu_missions_claimable"}, capability)
+    assert replay.positive["mission:kill_zo_0_basic_enemies"] == "claimable"
+    assert "mission:kill_zo_0_basic_enemies" not in replay.targets
 
 
 # --- Account snapshots -------------------------------------------------------
