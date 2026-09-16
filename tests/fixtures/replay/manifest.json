@@ -296,21 +296,21 @@
       "examples": {
         "positive": {
           "recording": "recorded",
-          "frame": "stats_tiers",
+          "frame": "stats_tiers_progressed",
           "observation": "tier:1.wave",
           "expect_status": "observed"
         },
         "unavailable": {
           "kind": "gap",
           "owner": "B08",
-          "why": "The Tiers table has no state that means present-and-not-usable. The game writes a literal 0 in a tier nobody has reached, and OCR drops the cell entirely when it will not read; account_screens calls both 'unreadable'. Separating 'never reached' from 'could not read' needs a capture of an account with a tier history, which no recorded account has."
+          "why": "The progressed v29.0.2 table still draws literal 0 for tiers with no recorded wave, while OCR can also leave a cell unreadable. No explicit unavailable marker appears in either recorded account. The pre-scroll summary is a different screen, not an unavailable tier cell. Inferring a lock or absence from 0 would invent state."
         },
         "ambiguous": {
           "recording": "recorded",
-          "frame": "stats_tiers",
-          "observation": "tier:3.wave",
+          "frame": "stats_tiers_progressed",
+          "observation": "tier:19.wave",
           "expect_status": "unreadable",
-          "why": "47 of the 72 cells on the recorded table read this way. The reading keeps them as None rather than folding an unread cell into a zero."
+          "why": "OCR reads the drawn 0 below the confidence floor. The reader keeps it unreadable rather than trusting or inferring the value."
         }
       }
     },
@@ -356,9 +356,15 @@
     "menu_workshop_info_panel": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop info overlay with blocked grid", "png_sha256": "c29070a82af5de0baa60ec88cb0f3ea49084c1330f4aba8a7e7981e18880a477"},
     "menu_workshop_utility": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop Utility heading and row OCR", "png_sha256": "7e86a877853693471d7ec687068bdf1c07bbe3a91f86c537a03f7dba5e47e0c5"},
     "menu_workshop_utility_restocked": {"game_version": "unknown", "device_geometry": "native_1080x2400", "layout_origin": "Workshop Utility heading and newly unlocked row OCR", "png_sha256": "abfa4587aa1129d84b59e54da716d6f7d751fec24af719d911cb388e82ef2077"},
+    "menu_cards_stocked": {"game_version": "v29.0.2", "device_geometry": "native_1080x2400", "layout_origin": "Cards page with presets, active slots and stocked inventory", "png_sha256": "20b7a2106bb632336e1018b83b40e98f043036b4463c6b08e508cb7b8bae008f"},
+    "menu_modules_stocked": {"game_version": "v29.0.2", "device_geometry": "native_1080x2400", "layout_origin": "Modules inventory and equipped slots", "png_sha256": "75d387bf01a19a65f73bb684d021f18a6d0932622fe5e7583bc867f70b4eac36"},
+    "menu_labs_active": {"game_version": "v29.0.2", "device_geometry": "native_1080x2400", "layout_origin": "Lab slots with active research and offline slots", "png_sha256": "bac1aef5cf225d64c1ac817926d60dcba08b185b56b46f221e07a34754a9ee61"},
+    "menu_workshop_attack_late": {"game_version": "v29.0.2", "device_geometry": "native_1080x2400", "layout_origin": "Workshop Attack with Upgrade/Enhance tabs and late rows", "png_sha256": "60583c880cc768b30d1d13ee3540374954d66c36f82cb587ebdf5efcd397ca9b"},
     "settings_redacted": {"game_version": "v29.0.1", "device_geometry": "native_1080x2400", "layout_origin": "Settings heading and Stats control OCR", "png_sha256": "f4c5ff73e75840da3e9c5968bf8c354f33cd2a261e2430546b10df79a360d891"},
     "stats_summary": {"game_version": "v29.0.1", "device_geometry": "native_1080x2400", "layout_origin": "Stats heading and field-label OCR", "png_sha256": "cdcc34514b3e6a9d42d22049e294883f5667e2f079f5741f6119f7567cb29385"},
+    "stats_summary_progressed": {"game_version": "v29.0.2", "device_geometry": "native_1080x2400", "layout_origin": "Stats heading and summary labels before the tier-table scroll", "png_sha256": "018d4a2c260a533de61e82e6b368a2a500f364dc1b6a8a8e6812d0022237a3dd", "why": "Same live account and Stats visit as stats_tiers_progressed; the Settings panel showed v29.0.2 but its unredacted image is excluded because it contains an account ID."},
     "stats_tiers": {"game_version": "v29.0.1", "device_geometry": "native_1080x2400", "layout_origin": "Stats headings and Tier-row OCR", "png_sha256": "25ddf0b0f27c5ee2f9e57d8170d3a04a3f5a9d1efad5f272f4fd4523e26ce44e"},
+    "stats_tiers_progressed": {"game_version": "v29.0.2", "device_geometry": "native_1080x2400", "layout_origin": "Stats headings and Tier-row OCR after scrolling the same panel", "png_sha256": "5139495b9faafcda6e8e7d6e3bd62b4f90af6d547cc18f379b105726e948f372", "why": "Same live account and Stats visit as stats_summary_progressed; no account ID appears on this capture."},
     "game_over": {
       "game_version": "unknown",
       "device_geometry": "status_bar_inset",
@@ -392,6 +398,12 @@
       "why": "Commit 0100973 recorded this alongside account_screens/settings_redacted.png from the same 'live v29.0.1 account at Tier 1 / highest wave 10' capture pass."
     }
   },
+  "unsupported_frames": [
+    {"frame": "menu_cards_stocked", "context": "cards", "gaps": ["card_identity_rows", "card_presets"], "anchors": ["CARDS", "ACTIVE", "INVENTORY"], "why": "A stocked v29.0.2 collection with named presets is recorded, but the current Cards reader refuses its changed heading geometry and publishes no action."},
+    {"frame": "menu_modules_stocked", "context": "modules", "gaps": ["modules_screen_layout"], "anchors": ["MODULES", "Buy Module"], "why": "Equipped modules and a stocked inventory are visible; no Modules discovery context or purchase action is enabled."},
+    {"frame": "menu_labs_active", "context": "labs", "gaps": ["labs_screen_layout"], "anchors": ["LAB", "Lab 1", "Lab 2"], "why": "Active research, offline slots and gem-priced Rush controls are visible; no Labs discovery context or spend action is enabled."},
+    {"frame": "menu_workshop_attack_late", "context": "workshop", "gaps": [], "anchors": ["WORKSHOP", "Upgrade", "Enhance", "ATTACKUPGRADES"], "why": "A third, later Workshop Attack layout is recorded. Although the low-level row parser sees prices, screen discovery refuses the layout and the runtime publishes no purchase rows."}
+  ],
   "sequences": [
     {
       "name": "workshop.attack.purchase_interval",
@@ -446,6 +458,17 @@
       "action": {"kind": "tap_control", "observation": "control:stats", "point": [721, 847]},
       "expect": {"kind": "navigated"},
       "why": "The nested account menu, before and after, with the tap point taken from the Settings frame's own OCR of the row it names. This is the one sequence whose action IS a target a reader publishes."
+    },
+    {
+      "name": "account.stats.summary_scrolled_to_tiers",
+      "recording": "recorded",
+      "steps": [
+        {"frame": "stats_summary_progressed", "capability": "account.stats.summary"},
+        {"frame": "stats_tiers_progressed", "capability": "account.stats.tiers"}
+      ],
+      "action": {"kind": "recorded_by_hand", "note": "The live Stats panel was scrolled. The account reader publishes no swipe target or tier purchase action."},
+      "expect": {"kind": "tier_history_revealed", "observed": {"tier:1.wave": "10088", "tier:15.wave": "46", "tier:16.wave": "0"}, "unreadable": ["tier:19.wave"]},
+      "why": "One v29.0.2 account visit before and after a scroll: the summary has no tier table, then the reader identifies 24 tier rows with history through Tier 15 and literal zeros thereafter."
     },
     {
       "name": "workshop.attack.blinded_by_an_info_panel",

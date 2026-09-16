@@ -1,4 +1,4 @@
-"""Passive, provisional readings of recorded English v29.0.1 account panels.
+"""Passive, provisional readings of recorded English v29.0.1/v29.0.2 account panels.
 
 These raw strings are neither permanent account facts nor executable upgrade
 identities. Bounds are supported only by the native 1080x2400 captures.
@@ -175,7 +175,8 @@ def parse_frame(screen: Image, boxes: tuple[ocr.TextBox, ...], *,
             for row, number in sorted(zip(rows, numbers), key=lambda pair: pair[1]):
                 cells = []
                 for key, x in (('wave', 360), ('coins', 565), ('cells', 770)):
-                    candidates = tuple(b for b in boxes if _inside(b, Rect(x, 640, 145, 1320))
+                    width = 170 if key == 'coins' else 145
+                    candidates = tuple(b for b in boxes if _inside(b, Rect(x, 640, width, 1320))
                                        and _same_row(row, b))
                     field = _field(key, key.title(), candidates, row)
                     if field.raw_value is not None and not re.fullmatch(r'\d+(?:\.\d+)?[KMBT]?', field.raw_value):

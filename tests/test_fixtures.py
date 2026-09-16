@@ -372,25 +372,18 @@ def test_a_state_the_reader_cannot_act_on_never_becomes_a_target(
 
 
 def test_a_capability_with_no_example_of_a_state_declares_it_as_an_owned_gap() -> None:
-    """A missing example must be a stated finding, not a blank cell.
-
-    account.stats.tiers is the one: the game draws '0' in a tier nobody has
-    reached and drops the cell entirely when it will not read, and the reader
-    calls both 'unreadable'. So there is no state on that screen that means
-    "present and not usable", and inventing one - a tier cell edited to say
-    something the game has never been seen to say - would put fiction in the
-    fixture set. The honest entry is a gap with an owner.
-    """
+    """A missing state remains explicit, even after a progressed capture."""
     import screen_discovery
     gaps = {f"{name}.{kind}": spec
             for name, capability in manifest()["capabilities"].items()
             for kind, spec in capability["examples"].items()
             if spec.get("kind") == "gap"}
-    assert gaps, "the gap table is what keeps a blank cell from passing"
-    for key, spec in gaps.items():
-        assert spec["why"] and spec["owner"]
+    assert gaps == {"account.stats.tiers.unavailable":
+                    manifest()["capabilities"]["account.stats.tiers"]["examples"]["unavailable"]}
+    assert gaps["account.stats.tiers.unavailable"]["owner"] == "B08"
+    assert gaps["account.stats.tiers.unavailable"]["why"]
     assert screen_discovery.capabilities()["replay_coverage"]["gaps"] == {
-        key: spec["owner"] for key, spec in gaps.items()}
+        "account.stats.tiers.unavailable": "B08"}
 
 
 def test_the_support_matrix_and_the_manifest_cannot_drift_apart() -> None:
@@ -414,6 +407,44 @@ def test_no_example_or_sequence_claims_a_capability_the_matrix_calls_unsupported
     for sequence in data["sequences"]:
         for step in sequence["steps"]:
             assert step["capability"] in data["capabilities"]
+
+
+def test_progressed_system_captures_remain_recorded_but_disabled(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A new layout is evidence to study, never automatic action support."""
+    import cards as cards_module
+    import screen_discovery
+    data = manifest()
+    expected = {
+        "menu_cards_stocked": ("cards", "ambiguous_or_unreadable_heading"),
+        "menu_modules_stocked": ("modules", "unsupported_context"),
+        "menu_labs_active": ("labs", "unsupported_context"),
+        "menu_workshop_attack_late": ("workshop", "unsupported_layout"),
+    }
+    assert {entry["frame"] for entry in data["unsupported_frames"]} == set(expected)
+    unsupported = set(screen_discovery.capabilities()["unsupported"])
+    for entry in data["unsupported_frames"]:
+        name = entry["frame"]
+        context, reason = expected[name]
+        assert entry["context"] == context
+        assert set(entry["gaps"]) <= unsupported
+        metadata = data["frames"][name]
+        assert metadata["game_version"] == "v29.0.2"
+        assert metadata["device_geometry"] == "native_1080x2400"
+        assert hashlib.sha256((FIXTURES / f"{name}.png").read_bytes()).hexdigest() == metadata["png_sha256"]
+        boxes = _boxes(name, "ocr")
+        assert set(entry["anchors"]) <= {box.text for box in boxes}
+        frame = _frame(name, "ocr")
+        result = screen_discovery.discover(frame, boxes, context)
+        assert (result.screen_id, result.readable, result.reason) == (None, False, reason)
+        if context == "cards":
+            reading = cards_module.parse_frame(frame, boxes, now=NOW)
+            assert reading is None and not cards_module.actions(reading)
+        if context == "workshop":
+            import perception
+            monkeypatch.setattr(ocr, "read", lambda *_args, **_kwargs: boxes)
+            assert perception.observe_frame(frame, context).rows == ()
 
 
 @pytest.mark.parametrize("name", sorted(p.stem for p in FIXTURES.glob("game_over*.png")))
@@ -463,6 +494,15 @@ def test_recorded_settings_version_agrees_with_capture_metadata() -> None:
     replay = read_example({"frame": "settings_redacted"},
                           manifest()["capabilities"]["account.settings"])
     assert replay.values["field:game_version"] == metadata["game_version"]
+
+
+def test_summary_view_never_invents_tier_rows_before_the_scroll() -> None:
+    capability = manifest()["capabilities"]["account.stats.summary"]
+    replay = read_example({"frame": "stats_summary_progressed"}, capability)
+    assert replay.screen_id == "account.stats.summary"
+    assert not any(key.startswith("tier:") for bucket in (
+        replay.positive, replay.unavailable, replay.ambiguous, replay.values)
+        for key in bucket)
 
 
 @pytest.mark.parametrize("name,kind,spec,capability",
@@ -547,6 +587,16 @@ def test_a_recorded_action_sequence_replays_the_change_it_declares(
         assert len(after.positive) + len(after.ambiguous) > len(before.positive) + len(before.ambiguous)
     elif expect["kind"] == "navigated":
         assert after.screen_id != before.screen_id
+    elif expect["kind"] == "tier_history_revealed":
+        assert before.screen_id == "account.stats.summary"
+        assert after.screen_id == "account.stats.tiers"
+        assert not any(key.startswith("tier:") for key in before.values)
+        for key, value in expect["observed"].items():
+            assert after.positive[key] == "observed"
+            assert after.values[key] == value
+        for key in expect["unreadable"]:
+            assert after.ambiguous[key] == "unreadable"
+            assert key not in after.values
     else:
         raise AssertionError(f"unknown expectation {expect['kind']!r}")
 
