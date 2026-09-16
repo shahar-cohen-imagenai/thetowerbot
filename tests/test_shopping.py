@@ -13,6 +13,7 @@ from types import SimpleNamespace
 
 import cv2
 import dataclasses
+import hashlib
 import pytest
 
 import config
@@ -1031,6 +1032,221 @@ class _Page:
 def _step(session, device, policy) -> None:
     session._buy_rows(SimpleNamespace(page="workshop", top_left=None),
                       frame("menu_workshop_attack"), device, policy)
+
+
+def _restart_workshop(tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+                      fake_header: dict) -> tuple:
+    from account_state import AccountRepository, AccountState
+    path = tmp_path / "bot.db"
+    clock = [10.]
+    monkeypatch.setattr(shopping_mod.time, "time", lambda: clock[0])
+    page = _Page(monkeypatch, dataclasses.replace(_row("damage", "Damage", 5), confidence=.99))
+    screen = frame("menu_workshop_attack")
+
+    def observe(*_: object) -> Observation:
+        clock[0] += .01  # OCR completes after the recovery scan starts.
+        return Observation("ATTACK", tuple(dataclasses.replace(r, observed_at=clock[0]) for r in page.rows),
+                           {}, None, clock[0], 270, context="workshop",
+                           frame_digest=hashlib.sha256(screen.tobytes()).hexdigest(),
+                           frame_width=screen.shape[1], frame_height=screen.shape[0])
+
+    monkeypatch.setattr(shopping_mod, "observe_frame", observe)
+    def session() -> shopping_mod.ShoppingSession:
+        value = shopping_mod.ShoppingSession(vision.TemplateCache(config.TEMPLATE_DIR), Recorder(),
+                                            digits.NumberReader(), journal=transactions.TransactionJournal(path))
+        value.account_state = AccountState(AccountRepository(path))
+        return value
+
+    dead = session()
+    policy = _workshop_policy()
+    dead.begin(policy, 1)
+    device = FakeDevice()
+    _step(dead, device, policy)
+    assert len(device.taps) == 1
+    restarted = session()
+    restarted.begin(policy, 1)
+    clock[0] = 20.
+    return restarted, page, clock, path
+
+
+def test_restart_workshop_proof_updates_account_ledger_and_visit_without_a_tap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fake_header: dict,
+) -> None:
+    session, page, clock, path = _restart_workshop(tmp_path, monkeypatch, fake_header)
+    page.rows = (dataclasses.replace(page.rows[0], value=2, price=6),)
+    fake_header["coins"] = 1765
+    device = FakeDevice()
+    policy = _workshop_policy()
+    _step(session, device, policy)
+    clock[0] += 1
+    _step(session, device, policy)
+    assert device.taps == []
+    assert session.journal.open_transactions() == ()
+    assert (session._bought, session._spent, session._coin_spent, session._visit_coins) == (1, 5, 5, 1770)
+    purchase, = session._bus.of_type("Purchased")
+    assert (purchase.verdict, purchase.spent) == ("bought", 5)
+    revision = session.account_state.snapshot()["revision"]
+    assert revision["workshop_stats"][0]["value"] == 2
+    with db.reader(path) as conn:
+        assert conn.execute("SELECT delta, balance_after FROM ledger").fetchone()[:] == (-5, 1765)
+    _step(session, device, policy)
+    assert device.taps == []
+
+
+@pytest.mark.parametrize("fault", ["missing_wallet", "unchanged", "wrong_identity", "low_confidence", "wrong_context", "stale", "geometry", "income"])
+def test_restart_ambiguous_workshop_stays_blocked_across_resets_and_visits(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fake_header: dict, fault: str,
+) -> None:
+    session, page, clock, path = _restart_workshop(tmp_path, monkeypatch, fake_header)
+    page.rows = (dataclasses.replace(page.rows[0], value=2, price=6),)
+    fake_header["coins"] = 1765
+    if fault == "missing_wallet":
+        fake_header["coins"] = None
+    elif fault == "unchanged":
+        page.rows = (dataclasses.replace(page.rows[0], value=1, price=5),)
+    elif fault == "wrong_identity":
+        page.rows = (dataclasses.replace(page.rows[0], upgrade_id="health"),)
+    elif fault == "low_confidence":
+        page.rows = (dataclasses.replace(page.rows[0], confidence=.2),)
+    elif fault == "income":
+        fake_header["coins"] = 1768
+    else:
+        observe = shopping_mod.observe_frame
+        changes = {"wrong_context": {"context": "battle"}, "stale": {"observed_at": 10.},
+                   "geometry": {"frame_width": 1}}[fault]
+        monkeypatch.setattr(shopping_mod, "observe_frame", lambda *args: dataclasses.replace(observe(*args), **changes))
+    device = FakeDevice()
+    policy = _workshop_policy()
+    _step(session, device, policy)
+    clock[0] += 1
+    _step(session, device, policy)
+    session.reset()
+    assert session.begin(policy, 2)
+    # A menu navigation or modal acknowledgement must also be refused.
+    session.advance(frame("menu_cards"), device, policy)
+    assert device.taps == []
+    assert transactions.TransactionJournal(path).open_transactions()[0].stage == transactions.Stage.ACTED
+    assert session._spent is None
+    assert session._bus.of_type("Purchased") == []
+
+
+def test_restart_card_wallet_proof_counts_against_card_cap(tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+                                                         fake_header: dict) -> None:
+    path = tmp_path / "bot.db"
+    dead = transactions.TransactionJournal(path)
+    txn = dead.open(transactions.Intent(item="x1", category="CARDS", currency="gems", price=20,
+                                        wallet_before=400, ts=1.))
+    dead.record_action(txn.key, at=1.)
+    clock = [20.]
+    monkeypatch.setattr(shopping_mod.time, "time", lambda: clock[0])
+    session = shopping_mod.ShoppingSession(vision.TemplateCache(config.TEMPLATE_DIR), Recorder(),
+        digits.NumberReader(), journal=transactions.TransactionJournal(path))
+    policy = a_policy(armed=True, workshop=(), cards=CardPolicy(enabled=True, gem_floor=0, max_per_visit=1))
+    session.begin(policy, 1)
+    fake_header["gems"] = 380
+    device = FakeDevice()
+    session.advance(frame("menu_cards"), device, policy)
+    clock[0] += 1
+    session.advance(frame("menu_cards"), device, policy)
+    assert device.taps == []
+
+    assert session.journal.open_transactions() == ()
+    assert (session._cards_bought, session._spent) == (1, 20)
+    session._buy_cards(SimpleNamespace(page="CARDS", top_left=None), frame("menu_cards"), device, policy)
+    assert device.taps == []
+
+
+def test_restart_reader_failure_cannot_trigger_an_abort_tap(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fake_header: dict,
+) -> None:
+    session, page, clock, path = _restart_workshop(tmp_path, monkeypatch, fake_header)
+
+    def fail(*_: object) -> Observation:
+        raise RuntimeError("reader failed during restart")
+
+    monkeypatch.setattr(shopping_mod, "observe_frame", fail)
+    device = FakeDevice()
+    session.advance(frame("menu_workshop_attack"), device, _workshop_policy())
+    assert device.taps == []
+    assert transactions.TransactionJournal(path).open_transactions()[0].stage == transactions.Stage.ACTED
+
+
+def test_restart_owns_the_frame_after_runner_reset_without_begin(tmp_path: Path, fake_header: dict) -> None:
+    journal = transactions.TransactionJournal(tmp_path / "bot.db")
+    txn = journal.open(transactions.Intent(item="x1", category="CARDS", currency="gems",
+                                          price=20, wallet_before=400, ts=1.))
+    journal.record_action(txn.key, at=1.)
+    session = shopping_mod.ShoppingSession(vision.TemplateCache(config.TEMPLATE_DIR), Recorder(),
+                                          digits.NumberReader(), journal=journal)
+    assert session.active
+    session.reset()
+    assert session.active
+    device = FakeDevice()
+    session.advance(frame("menu_cards"), device, a_policy(armed=True, enabled=False))
+    assert device.taps == []
+    assert session._spent is None
+
+
+def test_scan_loop_restart_cannot_navigate_around_an_unreconciled_tap(
+    tmp_path: Path, bot_on_main_menu, fake_header: dict,
+) -> None:
+    bot = bot_on_main_menu(a_policy(armed=True))
+    journal = transactions.TransactionJournal(tmp_path / "bot.db")
+    txn = journal.open(transactions.Intent(item="x1", category="CARDS", currency="gems",
+                                          price=20, wallet_before=400, ts=1.))
+    journal.record_action(txn.key, at=1.)
+    bot.shopping.journal = journal
+    bot.shopping.reset()
+    bot._screen = frame("menu_cards")
+    bot.run_once()
+    assert bot.device.taps == []
+    assert bot.shopping.active
+    assert journal.open_transactions()[0].stage == transactions.Stage.ACTED
+
+
+def test_restart_blocks_other_scan_loop_actions_before_reconciliation(
+    tmp_path: Path, bot_in_run, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bot = bot_in_run(a_policy(armed=True))
+    journal = transactions.TransactionJournal(tmp_path / "bot.db")
+    txn = journal.open(transactions.Intent(item="x1", category="CARDS", currency="gems",
+                                          price=20, wallet_before=400, ts=1.))
+    journal.record_action(txn.key, at=1.)
+    bot.shopping.journal = journal
+
+    def speed_action(*_: object) -> bool:
+        bot.device.click(10, 10)
+        return True
+
+    monkeypatch.setattr(bot, "_manage_speed", speed_action)
+    bot.run_once()
+    assert bot.device.taps == []
+    assert journal.open_transactions()[0].stage == transactions.Stage.ACTED
+
+
+def test_second_restart_restores_reconciled_visit_before_later_actions(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fake_header: dict,
+) -> None:
+    session, page, clock, path = _restart_workshop(tmp_path, monkeypatch, fake_header)
+    page.rows = (dataclasses.replace(page.rows[0], value=2, price=6),)
+    fake_header["coins"] = 1765
+    _step(session, FakeDevice(), _workshop_policy())
+    clock[0] += 1
+    _step(session, FakeDevice(), _workshop_policy())
+    restarted = shopping_mod.ShoppingSession(vision.TemplateCache(config.TEMPLATE_DIR), Recorder(),
+        digits.NumberReader(), journal=transactions.TransactionJournal(path))
+    restarted.reset()
+    assert restarted.active
+    device = FakeDevice()
+    restarted.advance(frame("menu_workshop_attack"), device, _workshop_policy())
+    assert device.taps == []
+    assert (restarted._bought, restarted._spent, restarted._coin_spent) == (1, 5, 5)
+    # Ending the recovered visit makes a new process idle, with one durable debit.
+    restarted._end_visit(device, _workshop_policy(), frame("menu_workshop_attack"), aborted=False)
+    assert not shopping_mod.ShoppingSession(vision.TemplateCache(config.TEMPLATE_DIR), Recorder(),
+        digits.NumberReader(), journal=transactions.TransactionJournal(path)).active
+    with db.reader(path) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM ledger WHERE kind = 'WORKSHOP_BUY'").fetchone()[0] == 1
 
 
 def test_a_changed_row_whose_wallet_did_not_prove_the_price_is_no_debit(

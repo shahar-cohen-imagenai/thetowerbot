@@ -598,6 +598,23 @@ class TowerBot:
 
         state = self.tracker.state
 
+        # A crashed spend owns the device, even if startup finds a different
+        # screen. No speed, claim, navigation or battle action may precede proof.
+        if self.shopping.reconciliation_pending:
+            self.controls.drain()
+            self.wallet = None
+            self.autopilot.suspend("Transaction restart reconciliation; actions held")
+            if not settings.paused:
+                self.shopping.advance(self.screen, self.device, settings.strategy.shopping,
+                                      tuning=settings.strategy)
+            if self.frames is not None:
+                self.frames.set_boxes([])
+            self.bus.publish(events.ScanCompleted(
+                screen=state.value, duration_ms=(time.monotonic() - started) * 1000,
+                wallet=None,
+            ))
+            return False
+
         # Account overlays can retain a MAIN_MENU anchor underneath them. This
         # passive reader owns the frame before every possible action path,
         # including paused scans and an already-active shopping visit.
