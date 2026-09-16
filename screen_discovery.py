@@ -83,7 +83,15 @@ _REPLAY_COVERED = (
     'battle.attack', 'battle.defense', 'battle.utility',
     'missions.daily', 'cards.inventory',
     'account.settings', 'account.stats.summary',
+    'game_over.result',
 )
+# game_over.py reads the death modal directly rather than through discover():
+# the modal is a centred overlay with no upgrade-grid heading to validate,
+# and every field on it is found by its own caption rather than a row a
+# purchase loop could act on. Kept in its own matrix key rather than
+# 'readers' because it is not the grid adapter those entries name, not
+# because it is any less enabled or any less proven.
+_GAME_OVER = ('game_over.result',)
 # The Tiers table has no reader state meaning present-and-not-usable: a tier
 # nobody has reached is written as a literal 0 and an unread cell is dropped,
 # and both land on 'unreadable'. Telling them apart needs a capture of an
@@ -468,6 +476,7 @@ def capabilities() -> dict[str, Any]:
         'uncatalogued_labels': dict(_UNCATALOGUED_LABELS),
         'account_screens': ['account.settings', 'account.stats.summary',
                             'account.stats.tiers'],
+        'game_over': list(_GAME_OVER),
         'replay_coverage': {
             'manifest': _REPLAY_MANIFEST,
             'account_snapshots': _ACCOUNT_SNAPSHOTS,
@@ -549,6 +558,17 @@ def capabilities() -> dict[str, Any]:
                 'drawn under them. A capture of a stocked collection would '
                 'settle it, and would also be the first evidence a card row '
                 'reader could be built on.',
+            'game_over.result.low_confidence_title_refusal':
+                'parse_frame() refuses the whole modal - screen_id None, no '
+                'fields - when the GAMESTATS title is not found at trusted '
+                'confidence, which is the path a still-fading-in modal would '
+                'take. None of the five recorded game-over captures shows '
+                'this: despite its name, game_over_fade.png reads every field '
+                'at full confidence, no different from a stable capture (see '
+                "its 'why' in the replay manifest's frames table). The "
+                'ambiguous example for game_over.result is real evidence of a '
+                'different failure - a garbled field value - not this one. A '
+                'capture of the modal mid-fade would settle it.',
             'missions.identity_across_ocr_jitter':
                 'The one real mission text on the capture reads as '
                 '"Kill zo0basic enemies" at confidence .9208, above the .90 '
