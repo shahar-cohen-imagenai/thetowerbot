@@ -93,7 +93,7 @@ class StrategyService:
         status['acknowledged'] = ack
         status['lane_sources'] = {lane: {'source': assigned.kind,
             'strategy_id': assigned.strategy_id, 'strategy_version': assigned.strategy_version}
-            for lane in ('battle', 'workshop', 'gems', 'labs', 'cards')}
+            for lane in ('battle', 'workshop', 'gems', 'labs', 'cards', 'tournament')}
         if target.account_id in route.card_assignments:
             overlay = route.card_assignments[target.account_id]
             status['lane_sources']['cards'] = {'source': 'account_overlay',

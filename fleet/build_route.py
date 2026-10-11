@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from tournament_policy import TournamentConfig
+
 from dataclasses import asdict, dataclass, field, replace
 import re
 from typing import Any, Mapping
@@ -476,12 +478,14 @@ class RouteBaseline:
     rules: RouteRules = field(default_factory=RouteRules)
     cards: CardProgram | None = None
     _cards_persisted: bool = field(default=True, repr=False, compare=False)
+    tournament: TournamentConfig = TournamentConfig()
     tier_promotion: TierPromotion = field(default_factory=TierPromotion)
 
     @classmethod
     def from_dict(cls, value: object) -> RouteBaseline:
+        from tournament_policy import TournamentConfig
         raw = _mapping(value, "baseline")
-        _keys(raw, {"workshop", "battle", "gems", "labs", "rules", "cards", "tier_promotion"})
+        _keys(raw, {"workshop", "battle", "gems", "labs", "rules", "cards", "tournament", "tier_promotion"})
         workshop_raw = _mapping(raw.get("workshop", {}), "workshop")
         gems_raw = _mapping(raw.get("gems", {}), "gems")
         workshop = WorkshopRoute.from_dict(workshop_raw)
@@ -505,14 +509,18 @@ class RouteBaseline:
         check_pool_limits(labs.blocks, max_seconds=rules.labs.pool.max_seconds,
                           max_price_pct=rules.labs.pool.max_price_pct_of_wallet)
         # Dual-write for one release: older workers still read the old fields.
-        return cls(replace(workshop, coin_spend_limit_pct=rules.coins.workshop_spend_limit_pct),
-                   battle, replace(gems, spend_limit_pct=rules.gems.spend_limit_pct), labs,
-                   rules, cards, persisted, TierPromotion.from_dict(raw.get("tier_promotion", {})))
+        return cls(workshop=replace(workshop, coin_spend_limit_pct=rules.coins.workshop_spend_limit_pct),
+                   battle=battle, gems=replace(gems, spend_limit_pct=rules.gems.spend_limit_pct), labs=labs,
+                   rules=rules, cards=cards, _cards_persisted=persisted,
+                   tournament=TournamentConfig.from_dict(raw.get("tournament", {})),
+                   tier_promotion=TierPromotion.from_dict(raw.get("tier_promotion", {})))
 
     def to_dict(self) -> dict[str, Any]:
         result = {"workshop": _workshop_dict(self.workshop), "battle": asdict(self.battle),
                 "gems": asdict(self.gems), "labs": asdict(self.labs),
                 "rules": self.rules.to_dict()}
+        from tournament_policy import TournamentConfig
+        result["tournament"] = (self.tournament or TournamentConfig()).to_dict()
         if self.cards is not None and self._cards_persisted:
             result["cards"] = self.cards.model_dump(mode="json")
         if self.tier_promotion.waves:
@@ -761,6 +769,7 @@ class EffectiveRoute:
     override_state: str
     rules: RouteRules = field(default_factory=RouteRules)
     cards: CardProgram | None = None
+    tournament: TournamentConfig = TournamentConfig()
 
 
 def resolve_route(route: RouteDocument, worker: str, account_id: str) -> EffectiveRoute:
@@ -791,18 +800,18 @@ def _resolve_base_route(route: RouteDocument, worker: str, account_id: str) -> E
         return EffectiveRoute(route.revision, baseline.workshop, baseline.battle,
                               baseline.gems, baseline.labs,
                               "assigned" if matches else "inactive_account_changed",
-                              baseline.rules, baseline.cards)
+                              baseline.rules, baseline.cards, baseline.tournament)
     override = route.overrides.get(worker)
     if override is None:
         return EffectiveRoute(route.revision, baseline.workshop, baseline.battle,
-                              baseline.gems, baseline.labs, "none", baseline.rules, baseline.cards)
+                              baseline.gems, baseline.labs, "none", baseline.rules, baseline.cards, baseline.tournament)
     if override.account_id != account_id:
         return EffectiveRoute(route.revision, baseline.workshop, baseline.battle,
                               baseline.gems, baseline.labs, "inactive_account_changed",
-                              baseline.rules, baseline.cards)
+                              baseline.rules, baseline.cards, baseline.tournament)
     return apply_rule_patches(base=EffectiveRoute(
         route.revision, baseline.workshop, baseline.battle,
-        baseline.gems, baseline.labs, "active", baseline.rules, baseline.cards), patches=override.patches)
+        baseline.gems, baseline.labs, "active", baseline.rules, baseline.cards, baseline.tournament), patches=override.patches)
 
 
 def apply_rule_patches(base: EffectiveRoute,

@@ -121,6 +121,7 @@ export type BuildRouteDocument = {
   revision: number;
   authored_at: number | null;
   baseline: {
+    tournament?: import("./types").TournamentConfig;
     tier_promotion?: Record<string, number>;
     workshop: {
       id: string;

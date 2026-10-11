@@ -195,7 +195,9 @@ class BotRunner:
         self.milestones_claim = MilestonesClaim()
         self.milestones = MilestonesReadings()
 
-        self._lock = threading.Lock()
+        # Studio guards hold this lock while calling identity/status methods
+        # that also acquire it. Keep the lifecycle guard reentrant.
+        self._lock = threading.RLock()
         self._bot: Any | None = None
         self._thread: threading.Thread | None = None
         self._since: float | None = None
@@ -219,6 +221,10 @@ class BotRunner:
     # -- reporting ---------------------------------------------------------
     def _running_locked(self) -> bool:
         return self._thread is not None and self._thread.is_alive()
+
+    def tournament_status(self) -> dict[str, Any]:
+        with self._lock:
+            return dict(getattr(self._bot, "_tournament_status", {"stage": "idle", "reason": None}))
 
     def status(self) -> dict[str, Any]:
         with self._lock:
@@ -527,6 +533,8 @@ class BotRunner:
                 raise RunnerError("Start the bot before sending commands", 409)
             if self._controls.snapshot().paused or self._bot.screen_state.value != "IN_RUN":
                 raise RunnerError("Manual upgrades require an unpaused battle", 409)
+            if command.get("action") == "buy" and getattr(self._bot, "_tournament_status", {}).get("stage") == "playing":
+                raise RunnerError("Tournament purchases follow the tournament strategy", 409)
             try:
                 self._bot.autopilot.submit(command)
             except ValueError as exc:

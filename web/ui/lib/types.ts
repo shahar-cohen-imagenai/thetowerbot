@@ -87,6 +87,17 @@ export interface MatchBox {
   tapped: boolean;
 }
 
+export interface PushRunStatus {
+  account: string;
+  mode: "farm" | "push";
+  phase: "farming" | "selecting" | "ready" | "pushing" | "returning";
+  every: number;
+  farms_remaining: number;
+  farm_tier: number | null;
+  target_tier: number | null;
+  blocker: string | null;
+}
+
 export interface BotStatus {
   running: boolean;
   /** Unix seconds when the current bot started, or null when stopped. */
@@ -94,15 +105,7 @@ export interface BotStatus {
   /** The last start failure - a dead emulator, usually. Cleared by a
    * successful start. */
   error: string | null;
-  push_runs?: {
-    mode: "farm" | "push";
-    phase: "farming" | "selecting" | "ready" | "pushing" | "returning";
-    every: number;
-    farms_remaining: number;
-    farm_tier: number | null;
-    target_tier: number | null;
-    blocker: string | null;
-  };
+  push_runs?: PushRunStatus;
 }
 
 export interface StrategyList {
@@ -158,6 +161,9 @@ export interface RuntimeMetadata {
 
 /** A row from the `runs` table. */
 export interface RunRow {
+  tournament?: number | boolean;
+  league?: string | null;
+  rank?: number | null;
   purpose?: RunPurpose;
   id: number;
   started_at: number;
@@ -320,6 +326,7 @@ export interface UpgradeObservation {
   value: number | null; price: number | null; status: string; observed_at: number;
 }
 export interface AutopilotSnapshot {
+  tournament?: { stage: string; reason?: string | null; league?: string | null };
   can_control?: boolean;
   phase: string; reason: string; next_upgrade_id: string | null; category: string | null;
   observations: UpgradeObservation[];
@@ -340,7 +347,17 @@ export interface Claims {
 }
 
 /** Mirrors strategy.py's Strategy.to_dict(). */
+export interface TournamentConfig {
+  enabled: boolean;
+  public_name: string | null;
+  opening_cash: { cash_bonus_target: number | null; cash_per_wave_target: number | null; cash_budget: number | null; until_wave: number | null };
+  rules: { upgrade_id: string; enabled?: boolean; target?: number | null }[];
+  cash_reserve: number;
+  cash_spend_limit_pct: number;
+}
+
 export interface Strategy {
+  tournament?: TournamentConfig;
   cards?: import("./cards").CardProgram | null;
   name: string;
   autopilot?: AutopilotPolicy;
@@ -351,6 +368,7 @@ export interface Strategy {
   click_cooldown: number;
   auto_navigate: boolean;
   max_runs: number | null;
+  push_every_farm_runs?: number;
   navigation_cooldown: number;
   screen_confirmations: number;
   tap_jitter_px: number;

@@ -46,13 +46,26 @@ class StrategyExecution:
     def owns_plan(self) -> bool:
         return self.source != 'legacy_local'
 
+    def authority_current(self) -> bool:
+        """Recheck the pinned assignment before a purchase uses cached policy."""
+        if not self.owns_plan:
+            return True
+        if self.source == 'blocked' or self.runtime is None:
+            return False
+        try:
+            self.runtime.current()
+            return True
+        except (OSError, ValueError, TypeError, KeyError, RouteUnavailable):
+            return False
+
     def blocked(self, local: Strategy, reason: str) -> PlanResolution:
         self.progress = None
         self._pin = None
         self.source, self.reason = 'blocked', reason
         # Observe-only autopilot suppresses the legacy template-click branch too.
         disabled = replace(local, autopilot=replace(local.autopilot, enabled=True, observe_only=True, rules=()),
-                           shopping=replace(local.shopping, enabled=False))
+                           shopping=replace(local.shopping, enabled=False),
+                           tournament=replace(local.tournament, enabled=False))
         self._resolved = disabled
         return PlanResolution('blocked', disabled, self.revision, reason)
 
@@ -103,14 +116,12 @@ class StrategyExecution:
                 self.source = 'studio_native'
                 self.build_recipe = None
                 effective = resolve_route(route, context.target_id, context.account_id)
-                # The assigned route supplies the spending limit. Shopping's
-                # default zero budget would suppress every native Workshop buy.
                 shopping = Shopping(enabled=True, armed=True, coin_budget=None)
                 resolved = replace(local,
                     autopilot=AutopilotPolicy(enabled=True, preset='manual'),
                     shopping=replace(shopping, cards=replace(shopping.cards,
                                      enabled=effective.cards is not None)),
-                    cards=effective.cards, tier_promotion=assigned.baseline.tier_promotion, build=None, _build_recipe=None)
+                    cards=effective.cards, tournament=effective.tournament, tier_promotion=assigned.baseline.tier_promotion, build=None, _build_recipe=None)
             if not pending_verification:
                 context.verify_current()
                 self.runtime.acknowledge(route.revision, context.account_id)

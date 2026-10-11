@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { TournamentEditor } from "@/components/TournamentEditor";
 import { Dialog } from "@base-ui/react/dialog";
 import { BookOpen, Copy, FlaskConical, Gem, GitBranch, Hammer, LockKeyhole, Maximize2, Minimize2, Monitor, Plus, Save, Shield, Sparkles, Swords, X } from "lucide-react";
 import { assignFleetStrategy, fetchStrategyLedger, previewBuildRoute, saveFleetStrategy } from "@/lib/api";
@@ -391,6 +392,7 @@ export function StrategyStudio({ library: initialLibrary, saved, catalog, member
         labList={isLabList(strategy.baseline.labs)} onChange={rules => edit(withRules(strategy.baseline, rules))} />
     </details>
     </>}
+    {!compatibility && <TournamentEditor value={strategy.baseline.tournament} onChange={tournament => edit({ ...strategy.baseline, tournament })} disabled={locked} />}
     {preview && previewScope === memberScope && <div className={styles.preview}><p className={styles.hint}>{mode === "single" ? "Preview for this emulator · no purchases will be made." : "Hypothetical fleet-wide assignment · compare before choosing which emulators to assign."}</p><RouteInspector preview={preview} members={members} /></div>}
     <div className={styles.assignmentsSummary}><h3>{mode === "single" ? "Emulator assignment" : "Fleet assignments"}</h3>{activeMembers.map(member => { const assignment = saved.assignments?.[member.name]; return <div key={member.name}><Monitor size={15} /><strong>{member.name}</strong><span>{assignment && assignment.account_id === member.account_id ? `${assignment.strategy_name} · v${assignment.strategy_version}` : assignment ? "Account changed · assignment inactive" : mode === "single" ? "Local profile" : "Current fleet route"}</span></div>; })}</div>
     <StrategyHistory entries={ledger} error={ledgerError} />

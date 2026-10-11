@@ -52,3 +52,23 @@ def test_captured_build_survives_registry_removal(monkeypatch) -> None:
     snapshot = capture_legacy(source, 'etag')
     monkeypatch.setattr(builds, 'by_id', lambda _: None)
     assert restore_legacy(source, snapshot).build == 'opening'
+
+
+def test_imported_tournament_settings_are_preserved_and_plan_owned() -> None:
+    import pytest
+    from tournament_policy import TournamentConfig
+    from strategy_compat import capture_legacy, restore_legacy, assert_settings_only
+    source = replace(Strategy.from_config('original'), tournament=TournamentConfig(enabled=True))
+    local = replace(Strategy.from_config('local'), tournament=TournamentConfig(enabled=False))
+    restored = restore_legacy(local, capture_legacy(source, 'etag'))
+    assert restored.tournament.enabled
+    with pytest.raises(ValueError, match='strategy_plan_owns_purchase_settings'):
+        assert_settings_only(local, restored)
+
+
+def test_applying_plan_preserves_local_push_cadence() -> None:
+    from strategy_compat import capture_legacy, restore_legacy, assert_settings_only
+    local = replace(Strategy.from_config('local'), push_every_farm_runs=4)
+    source = replace(Strategy.from_config('source'), push_every_farm_runs=30)
+    assert restore_legacy(local, capture_legacy(source, 'revision')).push_every_farm_runs == 4
+    assert_settings_only(local, replace(local, push_every_farm_runs=0))

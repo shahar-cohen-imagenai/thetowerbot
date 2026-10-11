@@ -61,6 +61,7 @@ PATCHABLE_FIELDS = (
     "click_cooldown",
     "auto_navigate",
     "max_runs",
+    "push_every_farm_runs",
     "navigation_cooldown",
     "screen_confirmations",
     "tap_jitter_px",
@@ -146,6 +147,7 @@ _STRATEGY_TYPES: dict[str, tuple[type, ...]] = {
     "screen_confirmations": (int,),
     "auto_navigate": (bool,),
     "max_runs": (int,),
+    "push_every_farm_runs": (int,),
     "target_speed": (int, float),
     "auto_fastest": (bool,),
     "build": (str,),
@@ -618,6 +620,9 @@ def _parse_shopping_rows(raw: Any) -> tuple[ShoppingRule, ...]:
 # Added here rather than alongside _STRATEGY_TYPES's other entries: Shopping
 # is defined after that dict, so a literal entry there would reference a name
 # that does not exist yet.
+from tournament_policy import TournamentConfig
+
+_STRATEGY_TYPES["tournament"] = (TournamentConfig,)
 _STRATEGY_TYPES["shopping"] = (Shopping,)
 _STRATEGY_TYPES["autopilot"] = (AutopilotPolicy,)
 _STRATEGY_TYPES["claims"] = (Claims,)
@@ -645,6 +650,7 @@ class Strategy:
     click_cooldown: float = config.CLICK_COOLDOWN_SECONDS
     auto_navigate: bool = False
     max_runs: int | None = None
+    push_every_farm_runs: int = config.PUSH_EVERY_FARM_RUNS
     # Read by BotRunner when it builds the bot, not by the scan loop: both of
     # these configure a stateful collaborator (ScreenTracker's debounce depth,
     # Navigator's rate limit) that is constructed once and carries state
@@ -680,6 +686,7 @@ class Strategy:
     tier_promotion: TierPromotion = TierPromotion()
     # Optional, versioned plan; shopping.cards remains the purchase control.
     cards: CardProgram | None = None
+    tournament: TournamentConfig = TournamentConfig()
 
     # Which committed recipe in knowledge/builds.v1.json ranks the next
     # purchase, or None to name no build at all. None rather than a default
@@ -725,6 +732,8 @@ class Strategy:
             MIN_CONFIRMATIONS,
             MAX_CONFIRMATIONS,
         )
+        if self.push_every_farm_runs < 0:
+            raise ControlError("push_every_farm_runs", "push cadence must be a nonnegative integer")
         if self.max_runs is not None and self.max_runs < 1:
             raise ControlError("max_runs", "max_runs must be null or at least 1")
         if self.target_speed is not None and self.target_speed not in config.TARGET_SPEEDS:
@@ -804,6 +813,7 @@ class Strategy:
             "click_cooldown": self.click_cooldown,
             "auto_navigate": self.auto_navigate,
             "max_runs": self.max_runs,
+            "push_every_farm_runs": self.push_every_farm_runs,
             "navigation_cooldown": self.navigation_cooldown,
             "screen_confirmations": self.screen_confirmations,
             "tap_jitter_px": self.tap_jitter_px,
@@ -814,6 +824,7 @@ class Strategy:
             "build": self.build,
             "shopping": self.shopping.to_dict(),
             "autopilot": self.autopilot.to_dict(),
+            "tournament": self.tournament.to_dict(),
             "claims": self.claims.to_dict(),
             "tier_promotion": self.tier_promotion.to_dict(),
         }
@@ -849,6 +860,10 @@ class Strategy:
             )
         except PolicyError as exc:
             raise ControlError(exc.field, str(exc)) from None
+        try:
+            tournament = TournamentConfig.from_dict(raw.get("tournament", {}))
+        except PolicyError as exc:
+            raise ControlError("tournament." + exc.field, str(exc)) from None
         claims = Claims.from_dict(raw["claims"]) if "claims" in raw else Claims()
         tier_promotion = (
             TierPromotion.from_dict(raw["tier_promotion"])
@@ -859,7 +874,7 @@ class Strategy:
         values = {
             k: raw[k]
             for k in raw
-            if k not in ("actions", "shopping", "autopilot", "claims", "tier_promotion", "cards")
+            if k not in ("actions", "shopping", "autopilot", "claims", "tier_promotion", "cards", "tournament")
         }
         cards = None
         if raw.get("cards") is not None:
@@ -875,6 +890,7 @@ class Strategy:
                 claims=claims,
                 tier_promotion=tier_promotion,
                 cards=cards,
+                tournament=tournament,
                 **values,
             )
         except ControlError:
@@ -916,6 +932,11 @@ class Strategy:
                 updates["autopilot"] = AutopilotPolicy.from_dict(patch["autopilot"])
             except PolicyError as exc:
                 raise ControlError(exc.field, str(exc)) from None
+        if "tournament" in patch:
+            try:
+                updates["tournament"] = TournamentConfig.from_dict({**self.tournament.to_dict(), **patch["tournament"]})
+            except PolicyError as exc:
+                raise ControlError("tournament." + exc.field, str(exc)) from None
         if "cards" in patch:
             if patch["cards"] is None:
                 updates["cards"] = None

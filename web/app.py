@@ -35,7 +35,7 @@ from fastapi import BackgroundTasks, Body, FastAPI, HTTPException, Request, Resp
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from starlette.requests import HTTPConnection
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError, StrictInt, field_validator
 
 import config
 import db
@@ -235,6 +235,7 @@ class ControlPatch(BaseModel):
     click_cooldown: float | None = None
     auto_navigate: bool | None = None
     max_runs: int | None = None
+    push_every_farm_runs: StrictInt | None = None
     navigation_cooldown: float | None = None
     screen_confirmations: int | None = None
     tap_jitter_px: float | None = None
@@ -243,6 +244,14 @@ class ControlPatch(BaseModel):
     target_speed: float | None = None
     actions: list[dict[str, Any]] | None = None
     autopilot: dict[str, Any] | None = None
+    tournament: dict[str, Any] | None = None
+
+    @field_validator("push_every_farm_runs")
+    @classmethod
+    def validate_push_cadence(cls, value: int | None) -> int:
+        if value is None:
+            raise ValueError("push cadence cannot be null; use zero to disable")
+        return value
 
 
 class AutopilotCommand(BaseModel):
@@ -685,7 +694,7 @@ def create_app(
                 best_waves = {int(row["tier"]): int(row["wave"]) for row in conn.execute(
                     "SELECT tier, MAX(wave) AS wave FROM runs "
                     "WHERE ended_at IS NOT NULL AND tier IS NOT NULL AND wave IS NOT NULL "
-                    "GROUP BY tier"
+                    + ("AND tournament=0 " if db._schema_probe(conn)["tournament"] else "") + "GROUP BY tier"
                 )}
                 claimed_rewards = {str(row["item"]) for row in conn.execute(
                     "SELECT item FROM ledger WHERE kind = 'MILESTONE_CLAIM' "
@@ -824,6 +833,7 @@ def create_app(
     @app.get("/api/autopilot")
     async def autopilot_status() -> dict[str, Any]:
         return {**autopilot_state.snapshot(), "can_control": _can_control(),
+                "tournament": runner.tournament_status() if runner is not None else {"stage": "idle"},
                 "tier_comparison": await asyncio.to_thread(_comparison)}
 
     @app.post("/api/autopilot/command")

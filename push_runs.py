@@ -132,6 +132,7 @@ class PushRuns:
 
     def snapshot(self) -> dict[str, Any]:
         return {
+            "account": self.state.account,
             "mode": "push" if self.active else "farm",
             "phase": self.state.phase,
             "every": self.every,
@@ -140,6 +141,23 @@ class PushRuns:
             "target_tier": self.state.target_tier,
             "blocker": self.blocker,
         }
+
+
+def validated_snapshot(raw: Any, account: str) -> dict[str, Any] | None:
+    """Only expose a well-formed snapshot belonging to the verified account."""
+    if not isinstance(raw, dict) or raw.get("account") != account:
+        return None
+    if (raw.get("mode") not in {"farm", "push"}
+            or raw.get("phase") not in {"farming", "selecting", "ready", "pushing", "returning"}
+            or type(raw.get("every")) is not int or raw["every"] < 0
+            or type(raw.get("farms_remaining")) is not int
+            or not 0 <= raw["farms_remaining"] <= raw["every"]
+            or "blocker" not in raw or raw["blocker"] is not None and not isinstance(raw["blocker"], str)
+            or any(key not in raw or raw[key] is not None and (type(raw[key]) is not int or raw[key] < 1)
+                   for key in ("farm_tier", "target_tier"))):
+        return None
+    return {key: raw[key] for key in ("account", "mode", "phase", "every", "farms_remaining",
+                                     "farm_tier", "target_tier", "blocker")}
 
 
 def push_policy(base: AutopilotPolicy, *, tier: int | None,
