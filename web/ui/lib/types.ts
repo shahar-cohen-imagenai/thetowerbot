@@ -94,6 +94,15 @@ export interface BotStatus {
   /** The last start failure - a dead emulator, usually. Cleared by a
    * successful start. */
   error: string | null;
+  push_runs?: {
+    mode: "farm" | "push";
+    phase: "farming" | "selecting" | "ready" | "pushing" | "returning";
+    every: number;
+    farms_remaining: number;
+    farm_tier: number | null;
+    target_tier: number | null;
+    blocker: string | null;
+  };
 }
 
 export interface StrategyList {

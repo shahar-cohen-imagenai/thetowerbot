@@ -26,9 +26,11 @@ def test_configure_battle_uses_unlimited_pools_split_at_wave_twenty() -> None:
     def_abs, _ = condition["else"]
     assert (def_abs["upgrade_ids"], def_abs["hold_until_capped"]) == (["defense_absolute"], True)
     assert def_abs["level_caps"] == {"defense_absolute": {"base": DEF_ABS_LEVELS}}
-    # The eHP guide's run upgrades, uncapped; no Damage, Crit, Multishot or Bounce Shot.
+    # Combat upgrades remain uncapped, including Multishot and Bounce Shot.
     assert {"thorns", "lifesteal", "health", "defense_percent", "knockback_chance", "knockback_force",
-            "orb_speed", "attack_speed", "coins_per_kill_bonus", "cash_bonus"} == set(COMBAT_IDS)
+            "orb_speed", "attack_speed", "coins_per_kill_bonus", "cash_bonus",
+            "multishot_chance", "multishot_targets", "bounce_shot_chance",
+            "bounce_shot_targets", "bounce_shot_range"} == set(COMBAT_IDS)
     for branch, ids in (("then", ECONOMY_IDS), ("else", COMBAT_IDS)):
         pool = condition[branch][-1]
         assert pool["selection"] == "cheapest"
@@ -114,3 +116,20 @@ def test_orbs_come_first_and_hold_cash_until_capped(
                        upgrade_rows=rows, battle_price_quotes=quotes)
     result = evaluate_program(route, facts, None, "battle")
     assert (result.decision.upgrade_id if result.decision else None) == expected
+
+
+@pytest.mark.parametrize("uid", ["multishot_chance", "multishot_targets", "bounce_shot_chance",
+                                 "bounce_shot_targets", "bounce_shot_range"])
+@pytest.mark.parametrize("status", ["available", "locked", "maxed"])
+def test_multishot_and_bounce_compete_when_available(uid: str, status: str) -> None:
+    baseline = RouteBaseline.from_dict(configure_battle(RouteDocument.compatibility().baseline.to_dict()))
+    route = SimpleNamespace(revision=1, battle=baseline.battle, workshop=baseline.workshop)
+    quote = dict(account_id="account", run_id=7, source="model", verified=True, value=1)
+    quotes = {item: dict(quote, status="available", price=100) for item in COMBAT_IDS}
+    quotes[uid] = dict(quote, status=status, price=1 if status == "available" else None)
+    facts = RouteFacts("account", "worker", "battle", 100, 101, run_id=7, wave=25,
+                       battle_cash=1000, battle_price_quotes=quotes,
+                       run_purchases={"orbs": ORB_LEVELS, "defense_absolute": DEF_ABS_LEVELS})
+    result = evaluate_program(route, facts, None, "battle")
+    assert result.decision is not None
+    assert result.decision.upgrade_id == (uid if status == "available" else "defense_percent")

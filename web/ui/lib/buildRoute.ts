@@ -121,6 +121,7 @@ export type BuildRouteDocument = {
   revision: number;
   authored_at: number | null;
   baseline: {
+    tier_promotion?: Record<string, number>;
     workshop: {
       id: string;
       mode: "legacy_planner" | "priorities" | "blocks";
