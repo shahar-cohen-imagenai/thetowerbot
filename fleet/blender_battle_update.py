@@ -14,12 +14,12 @@ from fleet.build_route import RouteBaseline
 
 
 ECONOMY_IDS = ("cash_bonus", "cash_per_wave", "coins_per_kill_bonus", "coins_per_wave")
-# The game-vault Blender (eHP) guide's run upgrades, uncapped. No Damage or
-# Crit; Multishot and Bounce Shot are only for spare cash, which never comes
-# while Health has levels left.
+# Blender combat upgrades compete by price, including Multishot and Bounce Shot.
 COMBAT_IDS = (
     "defense_percent", "health", "knockback_chance", "knockback_force", "orb_speed",
     "attack_speed", "lifesteal", "thorns", "coins_per_kill_bonus", "cash_bonus",
+    "multishot_chance", "multishot_targets", "bounce_shot_chance",
+    "bounce_shot_targets", "bounce_shot_range",
 )
 DEF_ABS_LEVELS = 25
 # Every in-run Orbs level (300 to 9,000 cash).
